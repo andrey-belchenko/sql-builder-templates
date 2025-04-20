@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_dp_isp_arb_upr" class="1" timestamp="22.04.2025 22:47:00">
+      <select>
+        <column column="kod_dp_isp_arb_upr" table="a" type="number" />
+        <column table="a" column="kod_isp_arb_upr" type="number" />
+        <column column="kod_dogplat" table="a" type="number" />
+        <column table="a" column="u_m" type="string" data-size="30" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <const type="number" as="cnt" fact="ur_dp_isp_arb_upr_count" agg="sum">1</const>
+      </select>
+      <from>
+        <table name="ur_dp_isp_arb_upr" as="a" table-code="2105" />
+        <query join="left outer" name="ur_isp_arb_upr" as="kod_isp_arb_upr" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_isp_arb_upr" />
+            <column table="kod_isp_arb_upr" column="kod_isp_arb_upr" />
+          </call>
+        </query>
+        <query join="left outer" name="ur_dogplat" as="kod_dogplat" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_dogplat" />
+            <column table="kod_dogplat" column="kod_dogplat" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ur_dp_isp_arb_upr_insert_all" class="1" update-target="ur_dp_isp_arb_upr">
+      <params>
+        <param name="kod_folders" type="number" />
+        <param name="kod_isp_arb_upr" type="number" />
+      </params>
+      <select>
+        <call function="()" as="kod_isp_arb_upr" type="number">
+          <useparam name="kod_isp_arb_upr" />
+        </call>
+        <column table="ur_dogplat" column="kod_dogplat" type="number" />
+      </select>
+      <from>
+        <query name="ur_folders">
+          <link name="kod_isp" as="kod_isp" table="ur_isp" child="ur_folders" field="kod_isp" parent="ur_isp" back="ur_folders" title="Исполнительный лист">
+            <link name="kod_hist_mat" as="kod_hist_mat" table="ur_hist_mat" child="ur_isp" field="kod_hist_mat" parent="ur_hist_mat" back="ur_isp" title="История рассмотрения">
+              <link name="kod_mat" as="kod_mat" table="ur_mat" child="ur_hist_mat" field="kod_mat" parent="ur_mat" back="ur_hist_mat" title="Материалы переданные в суд">
+                <elink name="ur_dogplat" as="ur_dogplat" table="ur_dogplat" child="ur_dogplat" field="kod_mat" parent="ur_mat" back="ur_dogplat" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="ur_folders" column="kod_folders" />
+          <useparam name="kod_folders" />
+        </call>
+      </where>
+    </query>
+    <query name="ur_dp_isp_arb_upr_insert_single" class="1" update-target="ur_dp_isp_arb_upr">
+      <params>
+        <param name="kod_dogplat" type="number" />
+        <param name="kod_isp_arb_upr" type="number" />
+      </params>
+      <select>
+        <call function="()" as="kod_isp_arb_upr" type="number">
+          <useparam name="kod_isp_arb_upr" />
+        </call>
+        <column column="kod_dogplat" table="ur_dogplat" type="number" />
+      </select>
+      <from>
+        <query name="ur_dogplat" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="ur_dogplat" column="kod_dogplat" />
+          <useparam name="kod_dogplat" />
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

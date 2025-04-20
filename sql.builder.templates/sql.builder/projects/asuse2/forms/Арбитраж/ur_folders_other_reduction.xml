@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_other_reduction" form-size="932;732" security-id="asuse_ur_hist_mat" with-behavior="0" title="Исполнительные действия (оплаты)" timestamp="24.04.2025 16:27:37">
+      <params>
+        <param name="p_kod_isp_other" type="number">
+          <const>2000000071</const>
+        </param>
+      </params>
+      <content>
+        <grid table="deb_red" show-toolbar="1">
+          <toolbar column-visible="true">
+            <uicommand button-type="grid-save" column-visible="1" />
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+          </toolbar>
+          <columns>
+            <column table="deb_red" column="prim" title="Исполнительные действия" controlType="UITextEx" column-width="177" />
+            <column table="deb_red" column="num_opl" width-perc="50" title="Платежный документ" column-width="106" />
+            <column table="deb_red" column="dat_opl" title="Дата уменьшения долга по ИП" column-width="150" />
+            <column table="deb_red" column="opl" title="Сумма уменьшения долга по ИП" controlType="UINumber" column-width="125" />
+            <column table="deb_red" column="reason" title="Основание уменьшения долга по ИП" controlType="UICombo" column-width="153" type="number" invisible-in-column-chooser="1">
+              <listquery>
+                <query name="uv_isp_other_reason_list" />
+              </listquery>
+            </column>
+            <column table="deb_red" column="prim2" title="Комментарий" controlType="UITextEx" column-width="334" />
+          </columns>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_deb_reduction" as="deb_red">
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="deb_red" column="kod_pir_entity" />
+                <useparam name="p_kod_isp_other" />
+              </call>
+              <call function="=">
+                <column table="deb_red" column="reduction_type" />
+                <const name="kod_hist_mat" type="string">'ISP'</const>
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+      <events>
+        <useaction event-name="form-loaded" action-type="custom">
+          <useaction name="ug_isp.fill_isp_deb_reduction">
+            <useparam name="p_kod_isp_other" />
+          </useaction>
+          <useaction action-type="refresh-table" object="deb_red" />
+        </useaction>
+      </events>
+    </form>
+  </forms>
+</root>
