@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vr_pret_dolg_sf" class="1" timestamp="28.04.2025 18:45:13">
+      <select>
+        <column table="a" column="kod_pret_dolg_sf" type="number" key="1" />
+        <column table="a" column="kod_pret_dolg_dog" type="number" />
+        <column table="a" column="kod_dog" type="number" />
+        <column table="a" column="kod_sf" type="number" />
+        <call function="+nvl" as="total_dolg" title="Сальдо">
+          <column table="a" column="dolg_osn_real" type="number" title="Сальдо_по_основной_реализации" />
+          <column table="a" column="dolg_gp" type="number" title="Сальдо_по_госпошлине  " />
+          <column table="a" column="dolg_peni" type="number" title="Начисленные_пени" />
+          <column table="a" column="dolg_sud_peni" type="number" title="Сальдо_по_взысканным_процентам" />
+          <column table="a" column="dolg_astr" type="number" title="Сальдо_по_астренту" />
+          <column table="a" column="dolg_othr" type="number" title="Иные виды задолженности" />
+        </call>
+        <column table="a" column="dolg_osn_real" type="number" title="Сальдо_по_основной_реализации" />
+        <column table="a" column="dolg_gp" type="number" title="Сальдо_по_госпошлине  " />
+        <column table="a" column="dolg_peni" type="number" title="Начисленные_пени" />
+        <column table="a" column="dolg_sud_peni" type="number" title="Сальдо_по_взысканным_процентам" />
+        <column table="a" column="dolg_astr" type="number" title="Сальдо_по_астренту" />
+        <column table="a" column="num_delo" type="string" title="Номер_судебного_дела" data-size="300" />
+        <column table="a" column="dolg_othr" type="number" title="Иные виды задолженности" />
+        <column table="a" column="dat_calc_peni" type="date" title="Дата расчета пени" />
+        <column table="a" column="dat_sud" type="date" title="Дата передачи в суд" />
+        <call function="nvl" as="vid_real">
+          <column table="kod_sf" column="vid_real" />
+          <call function="if">
+            <call function="!=0">
+              <column table="this" column="dolg_peni" />
+            </call>
+            <const>7</const>
+          </call>
+        </call>
+        <column table="a" column="u_m" type="string" data-size="30" />
+        <column table="a" type="date" column="d_m" />
+        <column table="a" column="pr_sud" type="number" />
+        <call function="if" as="pk_ur_pass" title="ПК &quot;Юрист&quot;" type="string">
+          <call function="=1">
+            <column table="this" column="pr_sud" />
+          </call>
+          <const>'Нет'</const>
+          <const>'Да'</const>
+        </call>
+      </select>
+      <from>
+        <table name="vr_pret_dolg_sf" as="a" />
+        <query join="left outer" name="vr_pret_dolg_dog" as="kod_pret_dolg_dog" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="a" column="kod_pret_dolg_dog" />
+            <column table="kod_pret_dolg_dog" column="kod_pret_dolg_dog" />
+          </call>
+        </query>
+        <query join="left outer" name="sr_facvip" as="kod_sf" ConstrDelOption="cascade" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sk_vid_real" as="vid_real" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <column table="vid_real" column="vid_real" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_pret_dolg_dog" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="kr_pret" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_ur_pret" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+      </links>
+    </query>
+  </queries>
+</root>

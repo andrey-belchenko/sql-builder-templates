@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="75061" title="1102. Информация о задолженности коммунальных организаций" timestamp="11.04.2025 14:10:37">
+      <usefield field="asuse_dep_single" type="number" name="p_dep" mandatory="1" />
+      <usefield field="cmn_date_cur" type="date" name="p_date" mandatory="1" title="На дату (включительно!)" />
+      <field name="p_gr" title="Группа потребителей" controlType="UIList" type="number" mandatory="1">
+        <listquery>
+          <query name="75061_gr_cust" />
+        </listquery>
+        <defaultquery>
+          <query name="75061_gr_cust" />
+        </defaultquery>
+      </field>
+      <field name="p_sum" type="number" title="Долг больше или равно" show-nulls="1" controlType="UINumber" edit-mask="d" />
+      <usefield type="number" field="cmn_check" name="p_is_flag" show-nulls="0" title="С учетом авансов" />
+    </form>
+  </forms>
+  <reports>
+    <report name="75061" form="75061" title="1102. Информация о задолженности коммунальных организаций (v.1.1)" nogrid="1" timestamp="04.05.2025 11:18:27">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param type="number" name="p_dep" />
+        <param type="date" name="p_date" />
+        <param name="p_gr" type="array" />
+        <param name="p_sum" type="number" />
+        <param type="number" name="p_is_flag">
+          <const type="number">0</const>
+        </param>
+      </params>
+      <print-templates>
+        <excel>
+          <template name="75061.xlsx" print-proc="2" print-xlsx="1" title="Информация о задолженности коммунальных организаций" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[ DECLARE
+    s_data_id rr_temp.skod%type;
+    p_date DATE;	
+   -- p_gr_sel NUMBER;  -- признак выбора групп потребителя
+BEGIN
+  s_data_id    :='3d8b60b1-75061-ac16-8c99c9d294fb';  
+  p_date := :p_date + 1;    -- Отчет собирается на дату (включительно!).
+   
+  delete vr_number_array;
+  INSERT INTO vr_number_array (array_id,val) SELECT 'p_dep', kodp  FROM kr_org  WHERE kodp=:p_dep;   
+  INSERT INTO vr_number_array (array_id,val) SELECT 'p_gr_kod_level_1', kod_group_cust  FROM ks_group_cust  WHERE  1=0 { OR kod_group_cust in :p_gr};  
+ 
+/*  Select count (1)             -- проверяем были ли выбраны группы потребителей
+        Into p_gr_sel
+        From vr_number_array
+       Where array_id = 'p_gr_kod_level_1' And val != 0;
+ 
+ if p_gr_sel = 0 then  -- если не выбраны, то собираем по группе 2 и 4
+ begin
+   INSERT INTO vr_number_array (array_id,val) VALUES('p_gr_kod_level_1', 100002);
+   INSERT INTO vr_number_array (array_id,val) VALUES('p_gr_kod_level_1', 100004);
+ end;
+ */
+  kg_rep_dog.dog_gr_customer;   -- достаем только нужные договоры с учетом отделения и группы потребителя
+  
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  INSERT INTO rr_temp (skod, 
+                      n1,   -- kod_dog
+                      s1,   -- номер договора
+                      s2,   -- наименование потребителя
+                      s3,   -- полный юр. адрес абонента потребителя
+                      d1,   -- минимальная дата задолженности по основной реализации                     
+                      n3,   -- сумма задолженности по основной реализации
+                      n4    -- сумма задолженности по авансам                       
+                    )
+ SELECT s_data_id
+       , d.kod_dog
+       , d.ndog
+       , d.payer_name
+       , substr(nk_adress.kf_address(1,p.kod_d_ur),0,250) -- полный юр. адрес абонента
+       , f.dat_bzad
+       , f.dolg_osn        
+       , f.dolg_av     
+   FROM rr_rep_dog d
+    inner join kr_payer p ON d.payer_id = p.kodp 
+    INNER JOIN TABLE(SG_REP_DZ_KZ.get_dolg_on_date_per_dog_vreal(p_date)) f ON d.kod_dog = f.kod_dog
+  -- WHERE 1=1  { AND d.gr_cust_kod_level_1 IN :p_gr}  -- по группе потреби отфильтровано уже в rr_rep_dog (kg_rep_dog.dog_gr_customer)
+;
+END;]]></procedure>
+      <queries>
+        <query name="75061_data" as="d">
+          <withparams>
+            <useparam name="p_sum" />
+            <useparam name="p_is_flag" />
+          </withparams>
+        </query>
+        <query name="75061-title" as="t">
+          <withparams>
+            <useparam name="p_date" />
+            <useparam name="p_is_flag" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="75061_data" timestamp="04.05.2025 11:12:03">
+      <params>
+        <param name="p_sum" type="number" />
+        <param name="p_is_flag" type="number">
+          <const type="number">0</const>
+        </param>
+      </params>
+      <select>
+        <call function="row_number" as="rwn" title="Номер строки" type="number" key="1">
+          <call function="order by simple">
+            <call function="lpad">
+              <column table="this" column="ndog" />
+              <const>10</const>
+              <const>0</const>
+            </call>
+            <column table="this" column="kod_dog" exclude="1" />
+          </call>
+        </call>
+        <column table="r" column="n1" as="kod_dog" type="number" />
+        <column group="max" table="r" column="s1" as="ndog" type="string" title="Номер договора" />
+        <column table="r" column="s2" type="string" group="max" title="Наименование потребителя" as="payer_name" />
+        <column table="r" column="s3" type="string" group="max" title="Юр.адрес потребителя" as="adr" />
+        <call function="||" type="string" group="min" title="Период образования задолженности" as="dolg_ym">
+          <call function="mes-name">
+            <call function="month">
+              <column table="r" column="d1" />
+            </call>
+          </call>
+          <const type="string">'  '</const>
+          <call function="year">
+            <column table="r" column="d1" />
+          </call>
+        </call>
+        <call group="sum" table="r" column="n3" type="number" title="Сумма задолженности" as="dolg" function="+nvl" nvl="0">
+          <column table="this" column="dolg_osn" nvl="0" />
+          <call function="if">
+            <call function="=">
+              <call function="nvlu">
+                <useparam name="p_is_flag" />
+                <const type="number">0</const>
+              </call>
+              <const type="number">1</const>
+            </call>
+            <column table="this" column="dolg_av" type="number" nvl="0" />
+            <const type="number">0</const>
+          </call>
+        </call>
+        <column group="sum" table="r" column="n3" type="number" title="Сумма задолженности по основной реализации" as="dolg_osn" nvl="0" />
+        <column group="sum" table="r" column="n4" type="number" title="Сумма задолженности по авансам" as="dolg_av" nvl="0" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=">
+            <column table="r" column="skod" />
+            <const>'3d8b60b1-75061-ac16-8c99c9d294fb'</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog" />
+        <grset order="lpad(ndog,10,'0')" as="dog">
+          <group>
+            <column table="this" column="kod_dog" type="number" />
+          </group>
+        </grset>
+      </grouping>
+      <having>
+        <call function="and">
+          <call function="true" />
+          <call function="!=0">
+            <column table="this" column="dolg" nvl="0" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="this" column="dolg" />
+            <useparam name="p_sum" />
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="75061-title" timestamp="06.04.2025 22:32:40">
+      <params>
+        <param name="p_date" />
+        <param type="number" name="p_is_flag">
+          <const type="number">0</const>
+        </param>
+        <param name="p_gr" type="number">
+          <const type="number">0</const>
+        </param>
+      </params>
+      <select>
+        <call function="if" type="string" as="param_flag">
+          <call function="=">
+            <call function="nvlu">
+              <useparam name="p_is_flag" />
+              <const type="number">0</const>
+            </call>
+            <const type="number">1</const>
+          </call>
+          <const table="this" column="dolg_av" type="string" nvl="0">'С учетом авансов'</const>
+          <const type="number">'Без учетов авансов'</const>
+        </call>
+        <call function="to_char" type="string" as="param_date">
+          <useparam name="p_date" />
+          <const type="string">'DD.MM.YYYY'</const>
+        </call>
+        <call function="sysdate" as="dat" />
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="75061_gr_cust" title="Группа потребителей для отчета № 1102." timestamp="23.06.2025 20:34:36">
+      <select>
+        <column table="gr" column="kod_group_cust" />
+        <column table="gr" column="num_gr" title="№" as="num_cust" />
+        <column table="gr" column="name" title="Группа потребителей" />
+        <column table="gr" column="num_cust" as="n_num_cust" />
+      </select>
+      <from>
+        <query name="ks_group_cust" as="gr" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="gr" column="kod_gr_parent" />
+          </call>
+          <call function="in">
+            <column table="gr" column="num_gr" />
+            <array type="string">'2','4'</array>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

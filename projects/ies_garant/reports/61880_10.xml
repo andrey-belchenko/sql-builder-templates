@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="61880_10-params" timestamp="11.05.2022 14:37:37">
+      <param type="array" name="p_dep">
+        <const exclude="1">1172</const>
+      </param>
+      <param type="number" name="p_ym_beg">
+        <const exclude="1">2021.08</const>
+      </param>
+      <param type="number" name="p_ym_end">
+        <const exclude="1">2021.09</const>
+      </param>
+      <param type="array" name="p_kod_adr_m">
+        <const exclude="1">1172</const>
+      </param>
+      <param name="no_dog" type="number" />
+    </part>
+  </parts>
+  <forms>
+    <form name="61880_10" timestamp="06.08.2024 09:31:27">
+      <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym_beg" mandatory="1" title="Период с" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym_end" mandatory="1" title="Период по" />
+      <usefield field="asuse_adr_m_obj_dep" name="p_kod_adr_m" comment="Пока исключен, т.к. сначала нужно исправить пакет для фильтрации по адресам объектов" exclude="1" />
+      <usefield field="asuse_adr_m_subject_dep" name="p_kod_adr_m" comment="Временно, пока не исправлен пакет отчета для фильтрации по адресам объектов" />
+      <usefield type="number" field="cmn_check" name="no_dog" title="Выводить детализацию по договорам" />
+    </form>
+  </forms>
+  <reports>
+    <report name="61880_10" timestamp="11.05.2022 14:37:25" title="4.6.2.3.2.8. Информация о реализации на потребительском рынке электрической энергии и мощности" nogrid="1">
+      <params>
+        <usepart part="61880_10-params" />
+      </params>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_10.fill_table(:p_ym_beg,:p_ym_end);
+end;
+      </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="61880_10.xlsx" title="Информация о реализации на потребительском рынке электрической энергии и мощности" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="61880_10-main" as="a">
+          <withparams>
+            <usepart part="61880_2-params" exclude="1" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_beg" />
+            <useparam name="p_ym_end" />
+            <useparam name="p_kod_adr_m" />
+            <useparam name="no_dog" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="kr_numobj_23_max" class="1" timestamp="31.03.2022 20:46:35">
+      <select>
+        <column table="a" column="kod_dog" type="number" comment="код объекта в договоре" key-dimension="kod_numobj" key="1" group="1" />
+        <column table="a" column="kod_f23" type="string" comment="наименование объекта в текущем договоре" group="max" title="Группа потребителей на объекте" />
+      </select>
+      <from>
+        <query name="kr_numobj" as="a">
+          <link name="kod_f23" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=0">
+            <column table="a" column="pr_active" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880_10-main" nogrid="1" order="kod_gr" timestamp="26.12.2024 15:31:24">
+      <params>
+        <usepart part="61880_10-params" />
+      </params>
+      <select>
+        <column table="gr_potr" column="kod_gr" />
+        <column table="gr_potr" column="name" group="max" exclude="1" />
+        <call function="nvl" group="max" as="name">
+          <column table="gr_potr" column="name" nvl="'нет'" />
+          <const type="string">'Нет'</const>
+        </call>
+        <column table="gr_potr" column="kod_gr_parent" />
+        <column table="b" column="kod_dog" />
+        <call function="||" as="name_dog" group="max">
+          <column table="b" column="payer_name" />
+          <const>' '</const>
+          <column table="b" column="ndog" />
+        </call>
+        <column table="r101" column="kod_dog" group="1" exclude="1" />
+        <column table="b" column="cust_kvth_per" group="sum" mp="-3" />
+        <column table="b" column="saldo_beg" group="sum" mp="-3" />
+        <column group="sum" table="b" column="nach_per" mp="-3" />
+        <column table="b" column="opl_per" group="sum" mp="-3" />
+        <column group="sum" table="b" column="realiz_per" mp="-3" />
+        <column table="b" column="spis_bezn_per" group="sum" mp="-3" />
+        <call table="a" column="av_beg" function="-nvl" as="saldo_end" group="sum" mp="-3">
+          <column table="b" column="saldo_deb_end" />
+          <column table="b" column="saldo_kred_end" />
+        </call>
+        <column group="sum" table="b" column="saldo_deb_end" mp="-3" />
+        <column table="b" column="saldo_kred_end" group="sum" mp="-3" />
+        <column group="sum" table="b" column="dz_end_tek" mp="-3" />
+        <column group="sum" table="b" column="dz_end_rest" mp="-3" />
+        <column group="sum" table="b" column="dz_end_pros" mp="-3" />
+        <column table="b" column="dz_end_isk" group="sum" mp="-3" />
+        <column group="sum" table="b" column="dz_end_mor" mp="-3" />
+        <column group="sum" table="b" column="dz_end_bezn" mp="-3" />
+        <column group="sum" table="b" column="dz_rezerv" mp="-3" />
+        <column table="d" column="kod_f23_max" group="1" exclude="1" />
+      </select>
+      <from>
+        <query name="61880_10-spr_gr_potr" as="gr_potr" />
+        <query name="rs_refcode" as=" rf" join="full outer">
+          <call function="=">
+            <column table=" rf" column="num" />
+            <column table="gr_potr" column="kod_refcode" />
+          </call>
+        </query>
+        <query name="rr_refprop_dog_81" as="r81" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table=" rf" column="kod_refbook" />
+              <const>81</const>
+            </call>
+            <call function="=">
+              <column table="r81" column="kod_refcode" exclude="1" />
+              <call function="nvl">
+                <column table="r81" column="kod_refcode" />
+                <const>999</const>
+              </call>
+              <column table=" rf" column="kod_refcode" />
+            </call>
+          </call>
+        </query>
+        <query name="sqlb_rep_61880_10_tbl" as="b" join="full outer">
+          <call function="and">
+            <call function="=">
+              <column table="r81" column="kod_dog" />
+              <column table="b" column="kod_dog" />
+            </call>
+            <call function="in" exclude="1">
+              <column table="b" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+        </query>
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="b" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_numobj_23_max" join="left outer" as="k23" exclude="1">
+          <call function="=">
+            <column table="b" column="kod_dog" />
+            <column table="k23" column="kod_dog" />
+          </call>
+        </query>
+        <query name="hs_23" as="h" join="left outer" exclude="1">
+          <call function="=">
+            <column table="h" column="kod_f23" />
+            <call function="nvl">
+              <column table="k23" column="kod_f23" />
+              <const>-1</const>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="d" column="adress_sf" />
+            <useparam name="p_kod_adr_m" />
+          </call>
+          <call function="=" exclude="1">
+            <column table=" rf" column="kod_refbook" />
+            <const>101</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="gr_potr">
+            <group>
+              <column table="this" column="kod_gr" />
+            </group>
+            <where exclude="1">
+              <call function="and">
+                <call function="is null">
+                  <column table="this" column="kod_gr_parent" />
+                </call>
+              </call>
+            </where>
+            <grset as="gr_potr_p" exclude="1">
+              <group>
+                <column table="this" column="kod_gr_parent" />
+              </group>
+              <where>
+                <call function="and">
+                  <call function="is not null">
+                    <column table="this" column="kod_gr_parent" />
+                  </call>
+                </call>
+              </where>
+              <grset as="dog_p" order="name_dog">
+                <group>
+                  <column table="this" column="kod_dog" />
+                </group>
+                <where>
+                  <call function="and">
+                    <call function="=1">
+                      <call function="nvlu">
+                        <useparam name="no_dog" />
+                        <const>0</const>
+                      </call>
+                    </call>
+                    <call function="is not null">
+                      <column table="this" column="kod_dog" />
+                    </call>
+                  </call>
+                </where>
+              </grset>
+            </grset>
+            <grset as="dog" order="name_dog">
+              <group>
+                <column table="this" column="kod_dog" />
+              </group>
+              <where>
+                <call function="and">
+                  <call function="=1">
+                    <call function="nvlu">
+                      <useparam name="no_dog" />
+                      <const>0</const>
+                    </call>
+                  </call>
+                  <call function="is not null">
+                    <column table="this" column="kod_dog" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880_10-spr_gr_potr" class="1" timestamp="19.08.2022 10:04:05">
+      <select>
+        <column table="a" column="kod_gr" type="number" />
+        <column table="a" column="name" type="string" />
+        <column table="a" column="kod_refcode" type="number" />
+        <column table="a" column="kod_gr_parent" type="number" />
+      </select>
+      <from>
+        <table name="61880_10-spr_gr_potr" as="a" view="1" />
+      </from>
+    </query>
+    <query name="61880_10-spr_gr_potr_p" class="1" timestamp="19.08.2022 11:06:38">
+      <select>
+        <column table="a" column="kod_gr" type="number" />
+        <column table="a" column="name" type="string" />
+        <column table="a" column="kod_refcode" type="number" />
+        <column table="a" column="kod_gr_parent" type="number" />
+      </select>
+      <from>
+        <table name="61880_10-spr_gr_potr" as="a" view="1" />
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="a" column="kod_gr_parent" />
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="61880_10-spr_gr_potr" timestamp="19.08.2022 09:34:13">
+      select 1 as kod_gr,'1. Промышленные и приравненные к ним потребители' as name, 1 as kod_refcode, null kod_gr_parent from  dual  union
+      select 2 ,'2. Непромышленные потребители',7,null  from  dual union
+      select 3 ,'из них: Потребители ЖКХ, ВСЕГО',4,2  from  dual union
+      select 4 ,'3. ОАО "Оборонэнергосбыт"',14,null  from  dual union
+      select 5 ,'4. Предприятия Минобороны РФ',13,null  from  dual union
+      select 6 ,'5. Бюджетные потребители (без учета предприятий Минобороны)',null,null from dual union
+      select 7 ,'из них: Федеральный бюджет (без учета предприятий Минобороны)',9,6  from  dual union
+      select 8 ,'Прочие бюджеты (Областной + Местный бюджеты)',10,6  from  dual union
+      select 8 ,'Прочие бюджеты (Областной + Местный бюджеты)',11,6  from  dual union
+      select 9 ,'6. Сельскохозяйственные товаропроизводители',12,null  from  dual union
+      select 10 ,'7. Население',3,null  from  dual union
+      select 11 ,'8. Потребители - Управляющие компании, ТСЖ, ЖСК и т.д., ВСЕГО',8,null  from  dual union
+      select 12 ,'9. Энергоснабжающие, энергосбытовые организации (без учета предприятий Минобороны)',5,null  from  dual union
+      select 13 ,'10. Потери',6,null  from  dual 
+    </view>
+  </views>
+</root>

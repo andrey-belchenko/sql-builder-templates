@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="sr_penni_ext" class="1" extend="sr_penni" timestamp="18.08.2017 01:12:04">
+      <from>
+        <query name="ur_mat" as="kod_delo" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_delo" />
+            <column table="kod_delo" column="kod_mat" />
+          </call>
+        </query>
+        <query name="sr_facvip_astr" as="kod_sf_astr" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_astr" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="sr_penni_mat" class="1" timestamp="17.06.2016 03:02:50">
+      <select>
+        <column table="a" column="kod_delo" group="max" comment="в старом варианте на 2 дела может быть один счет - суммы выводим по одному делу - так себе решение" />
+        <column table="a" column="kod_sf" group="1" />
+      </select>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="kod_delo" />
+          </call>
+          <call function="is not null">
+            <column table="a" column="kod_sf" />
+          </call>
+        </call>
+      </where>
+      <from>
+        <table name="sr_penni" as="a" />
+        <query name="ur_mat" as="kod_mat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_delo" />
+            <column table="kod_mat" column="kod_mat" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="sr_penni_astr" class="1" timestamp="22.04.2025 23:43:13">
+      <select>
+        <call function="||-" as="id" key="1">
+          <column table="this" column="kod_pen_astr" />
+          <column table="this" column="kod_sf_astr" />
+        </call>
+        <column table="a" column="kod_pen" as="kod_pen_astr" key-dimension="kod_pen_astr" />
+        <call function="nvl" as="kod_sf_astr">
+          <column table="kod_sf" column="kod_sf_first" />
+          <column table="kod_sf" column="kod_sf" />
+        </call>
+        <column table="sr_facvip_fm" column="kod_sf" as="kod_sf_astr" exclude="1" />
+        <column table="a" column="kod_delo" />
+      </select>
+      <from>
+        <query name="sr_penni" as="a">
+          <link name="kod_sf">
+            <elink name="sr_facvip_fm" exclude="1" />
+          </link>
+        </query>
+        <query name="sr_facvip_astr" as="kod_sf_astr" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_sf_astr" />
+            <column table="kod_sf_astr" column="kod_sf" />
+          </call>
+        </query>
+        <query name="ur_mat_pp" as="kod_delo_pp" join="left outer" dimension="kod_mat">
+          <call function="=">
+            <column table="this" column="kod_delo" />
+            <column table="kod_delo_pp" column="kod_mat" />
+          </call>
+        </query>
+        <query name="ur_mat" as="kod_delo1" join="left outer" dname="sr_penni_astr1">
+          <call function="=">
+            <column table="this" column="kod_delo" />
+            <column table="kod_delo1" column="kod_mat" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="a" column="kod_delo" />
+        </call>
+      </where>
+      <links>
+        <link name="kod_delo_pp" as="kod_delo_pp">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1">
+            <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" />
+          </dimlink>
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_other" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_arb_upr" dimension="1" is-final-dimension="1" />
+        </link>
+      </links>
+    </query>
+  </queries>
+</root>

@@ -1,0 +1,1937 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="53605" title="6. Итоги (тест)" mode="excel" timestamp="05.11.2019 18:28:39" form="52733" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <procedure>
+        <text>
+        BEGIN
+            delete from rr_temp where skod in ('52733_fl_lst', '52733_hv_eopwrc_lst', '45862_fdr_lst');
+            
+            insert into rr_temp (skod, n1)
+            select distinct '52733_fl_lst' as skod, a.kod_fl
+            from jv_rep_cons_d_fl a
+            where a.kod_fl in :kod_fl;
+            
+            insert into rr_temp (skod, s1)
+            select distinct '52733_hv_eopwrc_lst' as skod, a.pwrc_id || '-' || a.bal_id
+            from hv_eopwrc a
+            where a.pwrc_id || '-' || a.bal_id in :hv_eopwrc_id;
+                
+            insert into rr_temp (skod, n1)
+            select distinct '45862_fdr_lst' as skod, a.pwrc_fdrid
+            from vr_rb_fider a
+            where a.pwrc_fdrid in :pwrc_fdrid
+                union
+            select '45862_fdr_lst' as skod, a.pwrc_fdrid
+            from hv_eopwrc_fdrs a
+            where a.pwrc_fdrid in :pwrc_fdrid;
+                    
+            asuse.jg_reports_ise.jr_rep_blns_pwrc_sx_init(0, 1);                
+            sqlb_d45862_fdr_kg.vr_rb_fact_presum_proc(:stage01, :stage12);
+            sqlb_d45862_fdr_kg.FILL_TEMP(:stage01, :stage12);
+            sqlb_d45862_fdr_kg.fill_table_by_dat(0);
+            
+            sqlb_d45862_fdr_kg.vr_rb_fact_progr_total_proc(trunc(:stage01));
+        END;
+    </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="53605.xlsx" print-proc="2" print-xlsx="1" title="Отчет Итоги" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="title_53605" as="t">
+          <withparams>
+            <usepart part="52733-useparams" />
+          </withparams>
+        </query>
+        <query name="main_53605_2" as="a">
+          <events>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail" column="fact_ps">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_0_10" column="neb_0_10">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_10_20" column="neb_10_20">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_10_30" column="neb_10_30">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_30_50" column="neb_30_50">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_20_50" column="neb_20_50">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_50_100" column="neb_50_100">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_100" column="neb_100">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_null" column="neb_null">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_min_0_10" column="neb_min_0_10">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_min_10_20" column="neb_min_10_20">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_min_20_50" column="neb_min_20_50">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_min_50_100" column="neb_min_50_100">
+              <usepart part="45676-withparams" />
+            </useaction>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail_min_100" column="neb_min_100">
+              <usepart part="45676-withparams" />
+            </useaction>
+          </events>
+        </query>
+        <query name="main_53605" as="a" exclude="1">
+          <events>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="53605_detail" column="plan_ps">
+              <usepart part="45676-withparams" />
+            </useaction>
+          </events>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="main_53605_temp" timestamp="30.10.2019 00:58:52" comment="Для генерации основны процедуры sqlb_d45862_fdr_kg.vr_rb_fact_progr_total_proc">
+      <select>
+        <call as="id" function="rownum" />
+        <column table="d49277_kod_fl" column="kod_fl" />
+        <column table="d49277_pwrc" column="pwrc_id" />
+        <call as="mnth" function="mes" group="max">
+          <call function="ym add month" comment="Последний закрытый отчетный период">
+            <column table="d49277_kod_fl" column="ym" />
+            <const>-1</const>
+          </call>
+        </call>
+        <column table="kg_name" column="kg_name_w_real_fdr" title="ДИСП №ФИД" as="pwrc_fdrname" />
+        <column table="def_pwrc" column="kod_id" group="max" />
+        <column table="d49277_fdrid" column="pwrc_fdr_explname" group="stragg_dist" />
+        <column table="d49277_fdrid" column="pwrc_fdr_balsnamex" group="stragg_dist" />
+        <column table="d49277_kod_fl" column="name" as="fskname" group="max" />
+        <column table="d49277_pwrc" column="pwrcn" group="max" title="ДИСП №ПС" as="pwrcname" />
+        <call as="wp_in_01" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_02" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_03" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_04" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_05" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_06" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_07" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_08" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_09" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_10" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_11" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_12" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_01" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_02" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_03" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_04" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_05" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_06" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_07" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_08" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_09" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_10" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_11" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_12" function="if" group="sum" nullif="0">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <const>ym_</const>
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <const>ym_</const>
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="neb01" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_01" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_01" />
+              <column table="this" column="wp_out_01" />
+            </call>
+            <column table="this" column="wp_in_01" />
+          </call>
+        </call>
+        <call as="neb02" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_02" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_02" />
+              <column table="this" column="wp_out_02" />
+            </call>
+            <column table="this" column="wp_in_02" />
+          </call>
+        </call>
+        <call as="neb03" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_03" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_03" />
+              <column table="this" column="wp_out_03" />
+            </call>
+            <column table="this" column="wp_in_03" />
+          </call>
+        </call>
+        <call as="neb04" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_04" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_04" />
+              <column table="this" column="wp_out_04" />
+            </call>
+            <column table="this" column="wp_in_04" />
+          </call>
+        </call>
+        <call as="neb05" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_05" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_05" />
+              <column table="this" column="wp_out_05" />
+            </call>
+            <column table="this" column="wp_in_05" />
+          </call>
+        </call>
+        <call as="neb06" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_06" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_06" />
+              <column table="this" column="wp_out_06" />
+            </call>
+            <column table="this" column="wp_in_06" />
+          </call>
+        </call>
+        <call as="neb07" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_07" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_07" />
+              <column table="this" column="wp_out_07" />
+            </call>
+            <column table="this" column="wp_in_07" />
+          </call>
+        </call>
+        <call as="neb08" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_08" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_08" />
+              <column table="this" column="wp_out_08" />
+            </call>
+            <column table="this" column="wp_in_08" />
+          </call>
+        </call>
+        <call as="neb09" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_09" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_09" />
+              <column table="this" column="wp_out_09" />
+            </call>
+            <column table="this" column="wp_in_09" />
+          </call>
+        </call>
+        <call as="neb10" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_10" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_10" />
+              <column table="this" column="wp_out_10" />
+            </call>
+            <column table="this" column="wp_in_10" />
+          </call>
+        </call>
+        <call as="neb11" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_11" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_11" />
+              <column table="this" column="wp_out_11" />
+            </call>
+            <column table="this" column="wp_in_11" />
+          </call>
+        </call>
+        <call as="neb12" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_12" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <call function="-">
+              <column table="this" column="wp_in_12" />
+              <column table="this" column="wp_out_12" />
+            </call>
+            <column table="this" column="wp_in_12" />
+          </call>
+        </call>
+        <call as="wp_in_total" function="+nvl">
+          <column table="this" column="wp_in_01" />
+          <column table="this" column="wp_in_02" />
+          <column table="this" column="wp_in_03" />
+          <column table="this" column="wp_in_04" />
+          <column table="this" column="wp_in_05" />
+          <column table="this" column="wp_in_06" />
+          <column table="this" column="wp_in_07" />
+          <column table="this" column="wp_in_08" />
+          <column table="this" column="wp_in_09" />
+          <column table="this" column="wp_in_10" />
+          <column table="this" column="wp_in_11" />
+          <column table="this" column="wp_in_12" />
+        </call>
+        <call as="wp_out_total" function="+nvl">
+          <column table="this" column="wp_out_01" />
+          <column table="this" column="wp_out_02" />
+          <column table="this" column="wp_out_03" />
+          <column table="this" column="wp_out_04" />
+          <column table="this" column="wp_out_05" />
+          <column table="this" column="wp_out_06" />
+          <column table="this" column="wp_out_07" />
+          <column table="this" column="wp_out_08" />
+          <column table="this" column="wp_out_09" />
+          <column table="this" column="wp_out_10" />
+          <column table="this" column="wp_out_11" />
+          <column table="this" column="wp_out_12" />
+        </call>
+        <call as="neb_total_kw" function="-">
+          <column table="this" column="wp_in_total" />
+          <column table="this" column="wp_out_total" />
+        </call>
+        <call as="neb_total" function="if">
+          <call function="=">
+            <call function="nvl0">
+              <column table="this" column="wp_in_total" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <call function="/">
+            <column table="this" column="neb_total_kw" />
+            <column table="this" column="wp_in_total" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="d49277_kod_fl" />
+          <link name="d49277_pwrc" />
+          <link name="d49277_bal_id" only-for-cond="1" />
+          <link name="d49277_fdrid" />
+          <link name="kg_name" />
+          <link name="def_pwrc" />
+          <link name="ym" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="d49277_kod_fl" column="kod_fl" />
+                <const>(select n1 from rr_temp where skod = '52733_fl_lst')</const>
+                <useparam name="kod_fl" exclude="1" />
+              </call>
+              <call function="in">
+                <column table="d49277_bal_id" column="hv_eopwrc_id" />
+                <const>(select s1 from rr_temp where skod = '52733_hv_eopwrc_lst')</const>
+                <useparam name="hv_eopwrc_id" exclude="1" />
+              </call>
+              <call function="in">
+                <column table="d49277_fdrid" column="pwrc_fdrid" />
+                <const>(select n1 from rr_temp where skod = '45862_fdr_lst')</const>
+                <useparam name="pwrc_fdrid" exclude="1" />
+              </call>
+              <call function="le">
+                <column table="ym" column="val" />
+                <call function="+">
+                  <const>ym_</const>
+                  <const>0.12</const>
+                </call>
+                <useparam name="stage12" exclude="1" />
+              </call>
+              <call function="le">
+                <column table="ym" column="val" />
+                <call function="ym add month">
+                  <column table="d49277_kod_fl" column="ym" />
+                  <const>-1</const>
+                </call>
+              </call>
+              <call function="ge">
+                <column table="ym" column="val" />
+                <column table="def_pwrc" column="ym_start_analyz" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="all" title="Всего" />
+        <grset as="fl" title="По филиалам" order="nullif(upper(fskname), 'КС') nulls last">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <grset as="ps" title="По сетям" order="kod_id">
+            <group>
+              <sourcelink table="d49277_pwrc" />
+            </group>
+            <grset as="fdr" title="По фидерам" order="pwrc_fdrname nulls first">
+              <group>
+                <sourcelink table="kg_name" />
+              </group>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="f53605_rr_temp" class="1" timestamp="31.10.2019 01:40:43">
+      <select>
+        <column table="a" column="n1" type="number" column-mandatory="1" title="" as="id" />
+        <column table="a" column="skod" type="string" column-mandatory="1" title="" as="skod" />
+        <column table="a" column="s1" type="string" column-mandatory="1" title="" as="grsetname" />
+        <column table="a" column="n2" type="number" column-mandatory="1" title="" as="kod_fl" />
+        <column table="a" column="n3" type="number" column-mandatory="1" title="" as="pwrc_id" />
+        <column table="a" column="n4" type="number" column-mandatory="1" title="" as="mnth" />
+        <column table="a" column="s2" type="string" column-mandatory="1" title="" as="pwrc_fdrname" />
+        <column table="a" column="n5" type="number" column-mandatory="1" title="" as="kod_id" />
+        <column table="a" column="s3" type="string" column-mandatory="1" title="" as="pwrc_fdr_explname" />
+        <column table="a" column="s4" type="string" column-mandatory="1" title="" as="fskname" />
+        <column table="a" column="s5" type="string" column-mandatory="1" title="" as="pwrcname" />
+        <column table="a" column="n6" type="number" column-mandatory="1" title="" as="neb01" />
+        <column table="a" column="n7" type="number" column-mandatory="1" title="" as="neb02" />
+        <column table="a" column="n8" type="number" column-mandatory="1" title="" as="neb03" />
+        <column table="a" column="n9" type="number" column-mandatory="1" title="" as="neb04" />
+        <column table="a" column="n10" type="number" column-mandatory="1" title="" as="neb05" />
+        <column table="a" column="n11" type="number" column-mandatory="1" title="" as="neb06" />
+        <column table="a" column="n12" type="number" column-mandatory="1" title="" as="neb07" />
+        <column table="a" column="n13" type="number" column-mandatory="1" title="" as="neb08" />
+        <column table="a" column="n14" type="number" column-mandatory="1" title="" as="neb09" />
+        <column table="a" column="n15" type="number" column-mandatory="1" title="" as="neb10" />
+        <column table="a" column="n16" type="number" column-mandatory="1" title="" as="neb11" />
+        <column table="a" column="n17" type="number" column-mandatory="1" title="" as="neb12" />
+        <column table="a" column="n18" type="number" column-mandatory="1" title="" as="neb_total_kw" />
+        <column table="a" column="n19" type="number" column-mandatory="1" title="" as="neb_total" />
+        <column table="a" column="n20" type="number" column-mandatory="1" title="" as="gr_rn" />
+        <column table="a" column="s6" type="string" column-mandatory="1" title="" as="growid" />
+        <column table="a" column="s7" type="string" column-mandatory="1" title="" as="parent_growid" />
+        <column table="a" column="n21" type="number" column-mandatory="1" title="" as="groupingid" />
+        <column table="a" column="s8" type="string" column-mandatory="1" title="" as="grsetid" />
+        <column table="a" column="s9" type="string" column-mandatory="1" title="" as="origgrsetid" />
+        <column table="a" column="s10" type="string" column-mandatory="1" title="" as="parent_grsetid" />
+        <column table="a" column="n22" type="number" column-mandatory="1" title="" as="par_groupingid" />
+        <column table="a" column="n23" type="number" column-mandatory="1" title="" as="neb_0_10" is-fact="1" agg="max" />
+        <column table="a" column="n24" type="number" column-mandatory="1" title="" as="neb_10_20" is-fact="1" agg="max" />
+        <column table="a" column="n25" type="number" column-mandatory="1" title="" as="neb_10_30" is-fact="1" agg="max" />
+        <column table="a" column="n26" type="number" column-mandatory="1" title="" as="neb_30_50" is-fact="1" agg="max" />
+        <column table="a" column="n27" type="number" column-mandatory="1" title="" as="neb_20_50" is-fact="1" agg="max" />
+        <column table="a" column="n28" type="number" column-mandatory="1" title="" as="neb_50_100" is-fact="1" agg="max" />
+        <column table="a" column="n29" type="number" column-mandatory="1" title="" as="neb_100" is-fact="1" agg="max" />
+        <column table="a" column="n30" type="number" column-mandatory="1" title="" as="neb_null" is-fact="1" agg="max" />
+        <column table="a" column="n31" type="number" column-mandatory="1" title="" as="neb_min_0_10" is-fact="1" agg="max" />
+        <column table="a" column="n32" type="number" column-mandatory="1" title="" as="neb_min_10_20" is-fact="1" agg="max" />
+        <column table="a" column="n33" type="number" column-mandatory="1" title="" as="neb_min_20_50" is-fact="1" agg="max" />
+        <column table="a" column="n34" type="number" column-mandatory="1" title="" as="neb_min_50_100" is-fact="1" agg="max" />
+        <column table="a" column="n35" type="number" column-mandatory="1" title="" as="neb_min_100" is-fact="1" agg="max" />
+        <column table="a" column="n36" type="number" column-mandatory="1" title="" as="plan_ps" is-fact="1" agg="max" />
+        <column table="a" column="n37" type="number" column-mandatory="1" title="" as="fact_ps" is-fact="1" agg="max" />
+        <column table="a" column="n38" type="number" column-mandatory="1" title="" as="wp_in_total" is-fact="1" agg="max" />
+        <column table="a" column="n39" type="number" column-mandatory="1" title="" as="wp_out_total" is-fact="1" agg="max" />
+        <column table="a" column="s11" type="string" column-mandatory="1" title="" as="pwrc_fdr_balsnamex" />
+        <column table="a" column="n40" type="number" column-mandatory="1" title="" as="last_neb" is-fact="1" agg="max" />
+      </select>
+      <from>
+        <table name="rr_temp" as="a" />
+        <query name="vr_rb_filial" as="kod_fl" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_fl" />
+            <column table="kod_fl" column="kod_fl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="this" column="skod" />
+          <const>'53605_progr_total_rep'</const>
+        </call>
+      </where>
+    </query>
+    <query name="title_53605" class="1" timestamp="30.10.2019 01:26:04">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <select>
+        <column table="a" column="closed_ym" />
+        <column table="a" column="stage01" />
+        <column table="a" column="stage_last" />
+      </select>
+      <from>
+        <query name="stage_last_53605" as="a">
+          <withparams>
+            <usepart part="52733-useparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="main_53605" class="1" timestamp="06.10.2019 19:32:07">
+      <select>
+        <column table="fl" column="kod_fl" column-mandatory="1" title="" />
+        <column table="a" column="kod_fl" column-mandatory="1" title="" exclude="1" />
+        <column table="a" column="neb_0_10" group="max" nullif="0" />
+        <column table="a" column="neb_10_20" group="max" nullif="0" />
+        <column table="a" column="neb_10_30" group="max" nullif="0" />
+        <column table="a" column="neb_30_50" group="max" nullif="0" />
+        <column table="a" column="neb_20_50" group="max" nullif="0" />
+        <column table="a" column="neb_50_100" group="max" nullif="0" />
+        <column table="a" column="neb_100" group="max" nullif="0" />
+        <column table="a" column="neb_null" group="max" nullif="0" />
+        <column table="a" column="neb_min_0_10" group="max" nullif="0" />
+        <column table="a" column="neb_min_10_20" group="max" nullif="0" />
+        <column table="a" column="neb_min_20_50" group="max" nullif="0" />
+        <column table="a" column="neb_min_50_100" group="max" nullif="0" />
+        <column table="a" column="neb_min_100" group="max" nullif="0" />
+        <column table="a" column="plan_ps" group="max" nullif="0" />
+        <column table="a" column="fact_ps" group="max" nullif="0" />
+      </select>
+      <from>
+        <query name="53605_rr_temp" as="a" />
+        <query name="jv_rep_cons_d_fl" join="right outer" as="fl">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_fl" />
+              <column table="fl" column="kod_fl" />
+            </call>
+            <call function="in">
+              <column table="fl" column="kod_fl" />
+              <const comment="ВЭС, ГтЭС, КнЭС, НлЭС, ПрЭС, ТхЭС, КС">(1105, 12966, 1107, 1110, 12968, 1111, 13082)</const>
+            </call>
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="ves">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1105</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="gtes">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>12966</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="knes">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1107</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="nles">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1110</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="pres">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>12968</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="thes">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1111</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="ks">
+          <group>
+            <column table="this" column="kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>13082</const>
+            </call>
+          </where>
+        </grset>
+      </grouping>
+    </query>
+    <query name="53605_detail" timestamp="30.10.2019 01:54:09" is-report="1" title="Отчет ЛЭ с линейными работами" visible="0" order="replace(growid, '# ', '#')" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail.xlsx" print-proc="2" print-xlsx="1" title="Отчет ЛЭ с линейными работами" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="a" column="id" title="id" />
+        <column table="a" column="growid" />
+        <column table="a" column="grsetname" />
+        <column table="a" column="mnth" />
+        <column table="a" column="kod_fl" />
+        <call title="Филиал" function="if" as="fskname">
+          <call function="=">
+            <column table="this" column="grsetname" />
+            <const>'По филиалам'</const>
+          </call>
+          <call function="||">
+            <column table="a" column="fskname" />
+            <const>', итого:'</const>
+          </call>
+          <column table="a" column="fskname" />
+        </call>
+        <call title="РЭС" as="pwrc_fdr_explname" function="if">
+          <call function="=">
+            <column table="this" column="grsetname" />
+            <const>'По фидерам'</const>
+          </call>
+          <column table="a" column="pwrc_fdr_explname" />
+        </call>
+        <call title="Фидер" as="pwrc_fdrname" function="if">
+          <call function="=">
+            <column table="this" column="grsetname" />
+            <const>'По сетям'</const>
+          </call>
+          <column table="a" column="pwrcname" />
+          <column table="a" column="pwrc_fdrname" />
+        </call>
+        <call title="Январь" function="*" as="neb01">
+          <column table="a" column="neb01" />
+          <const>100</const>
+        </call>
+        <call title="Февраль" function="*" as="neb02">
+          <column table="a" column="neb02" />
+          <const>100</const>
+        </call>
+        <call title="Март" function="*" as="neb03">
+          <column table="a" column="neb03" />
+          <const>100</const>
+        </call>
+        <call title="Апрель" function="*" as="neb04">
+          <column table="a" column="neb04" />
+          <const>100</const>
+        </call>
+        <call title="Май" function="*" as="neb05">
+          <column table="a" column="neb05" />
+          <const>100</const>
+        </call>
+        <call title="Июнь" function="*" as="neb06">
+          <column table="a" column="neb06" />
+          <const>100</const>
+        </call>
+        <call title="Июль" function="*" as="neb07">
+          <column table="a" column="neb07" />
+          <const>100</const>
+        </call>
+        <call title="Август" function="*" as="neb08">
+          <column table="a" column="neb08" />
+          <const>100</const>
+        </call>
+        <call title="Сентябрь" function="*" as="neb09">
+          <column table="a" column="neb09" />
+          <const>100</const>
+        </call>
+        <call title="Октябрь" function="*" as="neb10">
+          <column table="a" column="neb10" />
+          <const>100</const>
+        </call>
+        <call title="Ноябрь" function="*" as="neb11">
+          <column table="a" column="neb11" />
+          <const>100</const>
+        </call>
+        <call title="Декабрь" function="*" as="neb12">
+          <column table="a" column="neb12" />
+          <const>100</const>
+        </call>
+        <call title="Небаланс Нарастающ. итог, %" function="*" as="neb_total">
+          <column table="a" column="neb_total" />
+          <const>100</const>
+        </call>
+        <column table="a" column="neb_total_kw" title="Небаланс Нарастающ. итог, кВтч" />
+      </select>
+      <from>
+        <qube>
+          <link name="rep_53605_rr_temp" as="a" />
+          <link name="d49277_kod_fl" all-rows="1" />
+        </qube>
+      </from>
+    </query>
+    <query name="main_53605_2" class="1" timestamp="30.10.2019 01:55:22">
+      <select>
+        <column table="d49277_kod_fl" column="kod_fl" column-mandatory="1" title="" />
+        <fact group="max" column="f53605_rr_temp_neb_0_10" as="neb_0_10" />
+        <fact group="max" column="f53605_rr_temp_neb_10_20" as="neb_10_20" />
+        <fact group="max" column="f53605_rr_temp_neb_10_30" as="neb_10_30" />
+        <fact group="max" column="f53605_rr_temp_neb_30_50" as="neb_30_50" />
+        <fact group="max" column="f53605_rr_temp_neb_20_50" as="neb_20_50" />
+        <fact group="max" column="f53605_rr_temp_neb_50_100" as="neb_50_100" />
+        <fact group="max" column="f53605_rr_temp_neb_100" as="neb_100" />
+        <fact group="max" column="f53605_rr_temp_neb_null" as="neb_null" />
+        <fact group="max" column="f53605_rr_temp_neb_min_0_10" as="neb_min_0_10" />
+        <fact group="max" column="f53605_rr_temp_neb_min_10_20" as="neb_min_10_20" />
+        <fact group="max" column="f53605_rr_temp_neb_min_20_50" as="neb_min_20_50" />
+        <fact group="max" column="f53605_rr_temp_neb_min_50_100" as="neb_min_50_100" />
+        <fact group="max" column="f53605_rr_temp_neb_min_100" as="neb_min_100" />
+        <fact group="max" column="f53605_rr_temp_plan_ps" as="plan_ps" />
+        <fact group="max" column="f53605_rr_temp_fact_ps" as="fact_ps" />
+      </select>
+      <from>
+        <qube>
+          <link name="d49277_kod_fl" all-rows="1" />
+        </qube>
+      </from>
+      <grouping>
+        <grset as="ves">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1105</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="gtes">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>12966</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="knes">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1107</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="nles">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1110</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="pres">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>12968</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="thes">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>1111</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="ks">
+          <group>
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_fl" />
+              <const>13082</const>
+            </call>
+          </where>
+        </grset>
+      </grouping>
+    </query>
+    <query name="53605_detail_0_10" timestamp="31.10.2019 01:52:28" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="a" column="id" part-id="53605_detail_fdr_select" />
+        <column table="a" column="growid" part-id="53605_detail_fdr_select" />
+        <column table="a" column="grsetname" part-id="53605_detail_fdr_select" />
+        <column table="a" column="mnth" part-id="53605_detail_fdr_select" />
+        <column table="a" column="kod_fl" part-id="53605_detail_fdr_select" />
+        <column table="a" column="fskname" title="Филиал" part-id="53605_detail_fdr_select" />
+        <column table="a" column="pwrcname" title="Подстанция" part-id="53605_detail_fdr_select" />
+        <column table="a" column="pwrc_fdr_explname" title="РЭС" part-id="53605_detail_fdr_select" />
+        <column table="a" column="pwrc_fdr_balsnamex" title="Балансовая принадлежность" part-id="53605_detail_fdr_select" />
+        <column table="a" column="pwrc_fdrname" title="Фидер" part-id="53605_detail_fdr_select" />
+        <column table="a" column="wp_in_total" title="Отпуск Нарастающ. итог" part-id="53605_detail_fdr_select" />
+        <column table="a" column="wp_out_total" title="Потребление Нарастающ. итог" part-id="53605_detail_fdr_select" />
+        <call title="Январь" function="*" as="neb01" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb01" />
+          <const>100</const>
+        </call>
+        <call title="Февраль" function="*" as="neb02" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb02" />
+          <const>100</const>
+        </call>
+        <call title="Март" function="*" as="neb03" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb03" />
+          <const>100</const>
+        </call>
+        <call title="Апрель" function="*" as="neb04" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb04" />
+          <const>100</const>
+        </call>
+        <call title="Май" function="*" as="neb05" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb05" />
+          <const>100</const>
+        </call>
+        <call title="Июнь" function="*" as="neb06" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb06" />
+          <const>100</const>
+        </call>
+        <call title="Июль" function="*" as="neb07" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb07" />
+          <const>100</const>
+        </call>
+        <call title="Август" function="*" as="neb08" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb08" />
+          <const>100</const>
+        </call>
+        <call title="Сентябрь" function="*" as="neb09" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb09" />
+          <const>100</const>
+        </call>
+        <call title="Октябрь" function="*" as="neb10" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb10" />
+          <const>100</const>
+        </call>
+        <call title="Ноябрь" function="*" as="neb11" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb11" />
+          <const>100</const>
+        </call>
+        <call title="Декабрь" function="*" as="neb12" format="F1" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb12" />
+          <const>100</const>
+        </call>
+        <call title="Небаланс Нарастающ. итог, %" function="*" as="neb_total" part-id="53605_detail_fdr_select">
+          <column table="a" column="neb_total" />
+          <const>100</const>
+        </call>
+        <column table="a" column="neb_total_kw" title="Небаланс Нарастающ. итог, кВтч" part-id="53605_detail_fdr_select" />
+        <call function="*" as="last_neb" part-id="53605_detail_fdr_select">
+          <column table="a" column="last_neb" />
+          <const>100</const>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="rep_53605_rr_temp" as="a" part-id="53605_detail_fdr_qube" />
+          <link name="d49277_kod_fl" part-id="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>0</const>
+              </call>
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>10</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_10_20" timestamp="31.10.2019 00:40:27" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>10</const>
+              </call>
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>20</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="stage_last_53605" class="1" timestamp="30.10.2019 01:30:35">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <select>
+        <call as="closed_ym" type="number" function="ym add month" group="max">
+          <column table="a" column="ym" />
+          <const>-1</const>
+        </call>
+        <call as="stage01" function="()" type="number">
+          <useparam name="stage01" />
+        </call>
+        <call type="number" function="if" as="stage_last">
+          <call function="lt">
+            <useparam name="year" />
+            <call function="trunc">
+              <column table="this" column="closed_ym" />
+            </call>
+          </call>
+          <call function="+">
+            <useparam name="year" />
+            <const>0.12</const>
+          </call>
+          <column table="this" column="closed_ym" />
+        </call>
+        <call as="month_last" function="mes">
+          <column table="this" column="stage_last" />
+        </call>
+      </select>
+      <from>
+        <query name="vr_rb_filial" as="a" />
+        <query name="rr_temp" as="fl" join="inner">
+          <call function="and">
+            <call function="=">
+              <column table="fl" column="skod" />
+              <const>'52733_fl_lst'</const>
+            </call>
+            <call function="=">
+              <column table="fl" column="n1" />
+              <column table="a" column="kod_fl" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="53605_detail_10_30" timestamp="31.10.2019 00:40:28" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>10</const>
+              </call>
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>30</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_30_50" timestamp="31.10.2019 00:40:27" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>30</const>
+              </call>
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>50</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_20_50" timestamp="31.10.2019 00:40:28" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>20</const>
+              </call>
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>50</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_50_100" timestamp="31.10.2019 00:40:28" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>50</const>
+              </call>
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>100</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_100" timestamp="31.10.2019 00:40:28" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="ge">
+                <column table="this" column="last_neb" />
+                <const>100</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_null" timestamp="31.10.2019 00:40:28" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="is null">
+                <column table="this" column="last_neb" />
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_min_0_10" timestamp="31.10.2019 00:40:29" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="lt">
+                <column table="this" column="last_neb" />
+                <const>0</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="last_neb" />
+                <const>-10</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_min_10_20" timestamp="31.10.2019 00:40:29" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="this" column="last_neb" />
+                <const>-10</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="last_neb" />
+                <const>-20</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_min_20_50" timestamp="31.10.2019 00:40:29" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="this" column="last_neb" />
+                <const>-20</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="last_neb" />
+                <const>-50</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_min_50_100" timestamp="31.10.2019 00:40:30" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="this" column="last_neb" />
+                <const>-50</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="last_neb" />
+                <const>-100</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="53605_detail_min_100" timestamp="31.10.2019 00:40:30" is-report="1" visible="0" order="replace(growid, '# ', '#')" title="6. Итоги. Детализация по фидерам" nogrid="1">
+      <params>
+        <usepart part="52733-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="53605_detail_fdr.xlsx" print-proc="2" print-xlsx="1" title="6. Итоги. Детализация по фидерам" />
+        </excel>
+      </print-templates>
+      <select>
+        <usepart part="53605_detail_fdr_select" />
+      </select>
+      <from>
+        <qube>
+          <usepart part="53605_detail_fdr_qube" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="this" column="last_neb" />
+                <const>-100</const>
+              </call>
+              <call function="=">
+                <column table="this" column="grsetname" />
+                <const>'По фидерам'</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

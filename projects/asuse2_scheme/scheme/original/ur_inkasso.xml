@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_inkasso" class="1" timestamp="26.07.2021 04:09:26">
+      <select>
+        <column table="a" column="kod_inkasso" type="number" key-dimension="kod_inkasso" is-fact="1" agg="max" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_state" type="number" column-mandatory="1" />
+        <column table="a" column="prim" type="string" title="Примечание на инкассо" controlType="UITextEx" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="num_reg" type="string" title="Номер документа на инкассо" column-editable="0" />
+        <column table="a" column="dat_otz" type="date" title="Дата отзыва из банка" is-fact="1" agg="min" />
+        <column table="a" column="dat_podachi" type="date" title="Дата передачи в банк" column-mandatory="1" column-default="today" is-private-dimension="isp_dat_podachi" is-final-dimension="isp_dat_podachi" dimension="isp_dat_podachi" is-fact="1" fact="ur_inkasso_dat_podachi_min" agg="min" />
+        <column table="a" column="dat_doc" type="date" title="Дата документа на инкассо" dimension="dat_ur" column-mandatory="1" column-default="today" />
+        <column table="a" column="dat_otv" type="date" title="Дата исполнения" />
+        <column table="a" column="kodb" type="number" title="" column-mandatory="1" />
+        <column table="a" column="kodp" type="number" title="" />
+        <column table="a" column="ogr_v" type="number" title="Удовлетворено расх. за введ. огр. реж. энергопотр." comment="расходы за введение ограничения, удовлетворенные на сумму (татэнерго 31013)" fact="ur_inkasso_ogr_v" agg="sum" />
+        <column table="a" column="sud_izd_v" type="number" title="Удовлетворено судебные издержки" comment="судебные издержки, удовлетворенные на сумму (татэнерго 31013)" fact="ur_inkasso_sud_izd_v" agg="sum" />
+        <column table="a" column="astrent_v" type="number" comment="астрент, удовлетворенный на сумму (32564)" title="Удовлетворено астрент" fact="ur_inkasso_astrent_v" agg="sum" />
+        <column table="a" column="kod_scan" type="number" title="" />
+        <column table="kodb" column="name" as="bank_name" agg="stragg" is-fact="1" />
+      </select>
+      <from>
+        <table name="ur_inkasso" as="a" />
+        <query name="us_state" as="kod_state" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_state" />
+            <column table="kod_state" column="kod_state" />
+          </call>
+        </query>
+        <query name="ks_bank" as="kodb" join="left outer">
+          <call function="=">
+            <column table="a" column="kodb" />
+            <column table="kodb" column="kodb" />
+          </call>
+        </query>
+        <query name="ur_folders" as="kod_folders" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="ur_scan_docs" as="kod_scan" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_scan" />
+            <column table="kod_scan" column="kod_scan" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

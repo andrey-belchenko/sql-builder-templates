@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_stage_bk_ext" class="1" extend="ur_stage_bk" timestamp="02.03.2023 11:04:33">
+      <select>
+        <!--Пока лучше не придумал-->
+        <column table="ur_dogplat" column="kod_dog" dgroup="max" />
+        <column table="kod_stage" column="name" as="stage_name" fact="ur_stage_bk_st_name" agg="max" />
+        <call as="dat_z_b_reestr" function="if" type="date" is-fact="1" agg="max" exclude="1">
+          <call function="=">
+            <column table="kod_hist_mat" column="is_in_reestr" />
+            <const>1</const>
+          </call>
+          <column table="this" column="dat_zayav_bankrot" />
+        </call>
+      </select>
+      <links>
+        <dlink name="ur_dogplat" />
+        <link name="kod_folders" as="kod_folders1">
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1">
+            <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          </dimlink>
+          <dlink name="ur_mat">
+            <dlink name="ur_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1">
+              <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1">
+                <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" as="kod_dog1" />
+              </dimlink>
+            </dlink>
+          </dlink>
+        </link>
+      </links>
+      <from>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ur_stage_bk_rn" class="1" timestamp="02.03.2023 11:50:23">
+      <select>
+        <column table="a" column="kod_stage_bk" key="1" />
+        <column table="a" column="kod_folders" />
+        <call function="row_number" type="number" as="rn">
+          <call function="partition by">
+            <column table="a" column="kod_folders" />
+          </call>
+          <call function="order by 2">
+            <call function="desc">
+              <column table="a" column="dat_create" />
+            </call>
+          </call>
+        </call>
+        <column table="a" column="num_dela" />
+        <call function="if" type="date" as="dat_z_b_reestr">
+          <call function="=">
+            <column table="kod_hist_mat" column="is_in_reestr" />
+            <const>1</const>
+          </call>
+          <column table="a" column="dat_zayav_bankrot" />
+        </call>
+        <column table="kod_stage" column="name" as="stage_name" />
+        <column table="a" column="dat_create" />
+        <column table="a" column="dat_srok_proc" />
+        <column table="a" column="dat_finish" />
+      </select>
+      <from>
+        <query name="ur_stage_bk" as="a">
+          <link name="kod_stage" />
+          <link name="kod_hist_mat" />
+        </query>
+      </from>
+    </query>
+    <query name="ur_stage_bk_rn_1" class="1" title="Банкротство по максимальной дате введения процедуры" timestamp="02.03.2023 11:59:24">
+      <select>
+        <column table="a" column="kod_folders" />
+        <column table="a" column="num_dela" is-fact="1" agg="max" />
+        <column table="a" column="dat_z_b_reestr" is-fact="1" agg="max" fact="ur_stage_bk_rn_1_dat_z_b" />
+        <column table="a" column="stage_name" is-fact="1" agg="max" />
+        <column table="a" column="dat_create" agg="max" is-fact="1" />
+        <column table="a" column="dat_srok_proc" agg="max" is-fact="1" />
+        <column table="a" column="dat_finish" is-fact="1" agg="max" />
+        <!--Пока лучше не придумал-->
+      </select>
+      <from>
+        <query name="ur_stage_bk_rn" as="a" />
+        <query name="ur_folders" as="kod_folders" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="rn" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

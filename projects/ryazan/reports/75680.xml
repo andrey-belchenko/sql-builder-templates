@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="75680" title="1058. Сведения о начислении и оплате" timestamp="03.07.2025 10:38:17">
+      <usefield field="asuse_dep_single" type="number" name="p_dep" />
+      <field name="p_ym_beg" title="Период с" type="number" controlType="UICombo" mandatory="1">
+        <listquery>
+          <query name="kr_calc_list_tek_dep_1" />
+        </listquery>
+        <defaultquery>
+          <query name="kr_calc_first_month_year_tek_dep" />
+        </defaultquery>
+      </field>
+      <usefield field="asuse_ym_tek_dep" name="p_ym_end" type="number" mandatory="1" title="Период по" />
+      <field field="field_ndog_dep" type="number" name="p_kod_dog" controlType="UICombo" title="Договор" mandatory="1">
+        <listquery>
+          <query name="ndog_list_dep" />
+        </listquery>
+      </field>
+    </form>
+  </forms>
+  <reports>
+    <report name="75680" form="75680" title="1058. Сведения о начислении и оплате" nogrid="1" timestamp="03.07.2025 16:54:45">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param type="number" name="p_dep" />
+        <param type="number" name="p_ym_beg" />
+        <param name="p_ym_end" type="number" />
+        <param name="p_kod_dog" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="75680.xlsx" print-proc="2" print-xlsx="1" title="Сведения о начислении и оплате" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[-- Рязань.ГП. SD: 75680. Отчет № 1058. Сведения о начислении и оплате. 
+begin 
+  DELETE rr_rep_dog;
+  INSERT INTO rr_rep_dog ( kod_dog
+                            , ndog
+                            , payer_id        -- ID потребителя
+                            , payer_name      -- наименование потребителя
+                        )
+  SELECT d.kod_dog
+          , d.ndog
+          , p.kodp as payer_id
+          , p.name as payer_name
+    FROM   kr_dogovor d
+       LEFT JOIN kr_payer p ON d.kodp = p.kodp   
+    WHERE d.kod_dog = :p_kod_dog;
+
+ DELETE rr_rep_dz_kz_dog;
+ INSERT INTO rr_rep_dz_kz_dog (kod_dog
+                                , ym                               
+                                , saldo_beg
+                                , cust_kvth_in_period
+                                , nachisl_osn_in_period
+                                , opl_all_in_period  
+                                , nachisl_pe_in_period 
+                                , opl_pe_in_period 
+                                , saldo_end
+                               ) 
+WITH
+ nachislenie as (
+             SELECT dp.kod_dog
+                 , fv.ym as ym -- ym
+                 , SUM(CASE WHEN vr.pr_osn = 1                    THEN COALESCE(fr.nachisl,0) ELSE 0 END) as nachisl_osn_in_period  -- начислено по осн.реализации в периоде
+                 , SUM(CASE WHEN vr.pr_osn = 1   AND fr.edizm = 4 THEN COALESCE(fr.cust,0) ELSE 0 END) as cust_kvth_in_period  -- начислено объем э/э по осн.реализации в периоде
+                 , SUM(CASE WHEN fv.vid_real = 7                  THEN COALESCE(fr.nachisl,0) ELSE 0 END) as nachisl_pe_in_period  -- начислено пеней в периоде
+             FROM  sr_facvip fv 
+               LEFT JOIN sr_facras fr ON fv.kod_sf = fr.kod_sf             
+               LEFT JOIN kr_dogovor d ON fv.kod_dog = d.kod_dog
+               LEFT JOIN kr_dogovor dp ON d.kod_dog_fin = dp.kod_dog
+               LEFT JOIN sk_vid_real vr ON fv.vid_real = vr.vid_real    -- pr_osn нужно брать из вида реализации для определения основной реализации 
+            WHERE fv.ym <= :p_ym_end  
+                AND  fv.pr_osn = 1
+                AND dp.kod_dog = :p_kod_dog               
+          GROUP BY  dp.kod_dog , fv.ym       
+            )
+ , opl as (
+            SELECT dp.kod_dog
+                    , o.ym as ym 
+                    , SUM(CASE WHEN vr.pr_osn = 1 AND o.kod_type_opl IN (0,3,4) THEN COALESCE(o.opl,0) ELSE 0 END) as opl_in_ym  -- оплата ДЗ в периоде
+                    , SUM(CASE WHEN o.vid_real = 7 AND o.kod_type_opl IN (0,3,4) THEN COALESCE(o.opl,0) ELSE 0 END) as opl_pe_in_period  -- оплата пеней в периоде
+                    , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 THEN (COALESCE(o.opl,0) + COALESCE(o.opls,0)) ELSE 0 END) As opl_all_in_period  -- оплачено всего за месяц (за исключением пени)
+                    , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (1,2,5,6) THEN COALESCE(o.opl,0) + COALESCE(o.opls,0) ELSE 0 END) As kz_ym  -- оплата по КЗ 
+               FROM  sr_opl o 
+                LEFT JOIN kr_dogovor d ON o.kod_dog = d.kod_dog
+                LEFT JOIN kr_dogovor dp ON d.kod_dog_fin = dp.kod_dog
+                LEFT JOIN sk_vid_real vr ON o.vid_real = vr.vid_real    -- pr_osn нужно брать из вида реализации  для проверки основной реализации
+             WHERE  o.ym <= :p_ym_end
+               AND  dp.kod_dog = :p_kod_dog   
+             GROUP BY  dp.kod_dog, o.ym          
+          )
+  , pre as  
+  (  SELECT  n.kod_dog
+       , n.ym   as ym      
+       , n.nachisl_osn_in_period
+       , n.cust_kvth_in_period
+       , n.nachisl_pe_in_period 
+       , COALESCE(opl_all_in_period,0) as opl_all_in_period  
+       , COALESCE(opl_pe_in_period,0) as opl_pe_in_period  
+       , SUM(COALESCE(n.nachisl_osn_in_period,0) - COALESCE(opl_all_in_period,0)) over (order by COALESCE(n.ym,o.ym))  as saldo_end
+	 FROM  nachislenie n 
+	   FULL JOIN opl o ON n.ym = o.ym
+	  )  
+    SELECT kod_dog
+       , ym   as ym
+       , lag(COALESCE(saldo_end,0) ,1,0) over(order by ym) as saldo_beg   
+  	   , cust_kvth_in_period      
+	   , nachisl_osn_in_period
+       , opl_all_in_period  
+	   , nachisl_pe_in_period       
+	   , opl_pe_in_period  
+       , saldo_end 
+   FROM pre 
+  WHERE ym > kg.ym_add(:p_ym_beg,-2) -- берем предыдущий месяц и в билдере добавляем условие >= :p_ym_beg, чтобы сальдо на начало было не 0
+;
+END;]]></procedure>
+      <queries>
+        <query name="75680_data" as="d">
+          <withparams>
+            <useparam name="p_ym_beg" />
+          </withparams>
+        </query>
+        <query name="75680_dog" as="dog" />
+        <query name="title_info" as="t">
+          <withparams>
+            <useparam name="p_ym_beg" />
+            <useparam name="p_ym_end" />
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="75680_data" title="Запрос к отчету № 1058." timestamp="03.07.2025 16:59:21">
+      <params>
+        <param name="p_ym_beg" />
+      </params>
+      <select>
+        <column table="r" column="kod_dog" as="kod_dog" />
+        <call type="string" function="||" as="month" key="1">
+          <call function="mes-name">
+            <call function="mes">
+              <column table="r" column="ym" />
+            </call>
+          </call>
+          <const type="string">' '</const>
+          <call function="int to char">
+            <call function="trunc">
+              <column table="r" column="ym" />
+            </call>
+          </call>
+        </call>
+        <column table="r" column="saldo_beg" as="saldo_beg" />
+        <column table="r" column="cust_kvth_in_period" as="cust_kvth_in_period" />
+        <column table="r" column="nachisl_osn_in_period" as="nachisl_osn_in_period" />
+        <column table="r" column="opl_all_in_period" as="opl_all_in_period" />
+        <column table="r" column="saldo_end" as="saldo_end" />
+        <column table="r" column="nachisl_pe_in_period" as="nachisl_pe_in_period" />
+        <column table="r" column="opl_pe_in_period" as="opl_pe_in_period" />
+      </select>
+      <from>
+        <query name="rr_rep_dz_kz_dog" as="r" />
+      </from>
+      <where>
+        <call function="ge">
+          <column table="r" column="ym" />
+          <useparam name="p_ym_beg" />
+        </call>
+      </where>
+    </query>
+    <query name="75680_dog" timestamp="08.06.2025 19:40:45">
+      <select>
+        <column table="dog" column="kod_dog" as="kod_dog" key="1" />
+        <column table="dog" column="ndog" as="ndog" />
+        <column table="dog" column="payer_name" as="payer_name" />
+      </select>
+      <from>
+        <query name="rr_rep_dog" as="dog" />
+      </from>
+    </query>
+  </queries>
+</root>

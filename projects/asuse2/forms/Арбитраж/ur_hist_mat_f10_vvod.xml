@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_hist_mat_f10_vvod" title="[:ur_hist_mat.nump] дело [:ur_mat.num_delo]" show-toolbar="1" form-size="932;732" security-id="asuse_ur_hist_mat" with-behavior="0" timestamp="03.07.2025 22:01:40">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <params>
+        <param name="kod_hist_mat" type="number">
+          <const>816</const>
+        </param>
+        <param name="p_kod" type="number">
+          <const>21</const>
+        </param>
+        <param name="p_kod_sdp" type="number">
+          <const>6</const>
+        </param>
+      </params>
+      <toolbar>
+        <uicommand button-type="form-save-and-close" />
+        <uicommand button-type="form-save" />
+        <uicommand button-type="custom-commit" editable="ur_hist_mat_has_changes" action-type="save" visible="route_visible" visible-invert="1" />
+        <uicommand button-type="custom-commit" action-type="custom" visible="route_visible" title="Сохранить (с маршрутом)" editable="ur_hist_mat_has_changes" exclude="1">
+          <useaction action-type="save" />
+          <useaction name="arbitrage_route_on_save">
+            <useparam name="kod_mat" />
+            <const>'umat'</const>
+            <useparam name="ret_status" />
+            <useparam name="ret_errmsg" />
+          </useaction>
+          <useaction name="arbitrage_show_errmsg">
+            <useparam name="ret_status" />
+            <useparam name="ret_errmsg" />
+          </useaction>
+        </uicommand>
+        <uicommand button-type="custom-save-and-close" action-type="save-and-close" visible="route_visible" visible-invert="1" />
+      </toolbar>
+      <content>
+        <column table="f10" column="val" parname="f10" column-visible="0" />
+        <call function="if" as="route_visible" parname="route_visible" type="number" column-visible="0" table="kod_mat">
+          <call function="=">
+            <call function="user_rights_kod_menu">
+              <const>189006</const>
+            </call>
+            <const>2</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <usefield field="cmn_string" name="ret_errmsg" title="ret_errmsg" checked="1" show-checkbox="0" width-perc="50" visible="0" />
+        <usefield field="cmn_integer" name="ret_status" title="ret_status" checked="1" show-checkbox="0" width-perc="50" visible="0" />
+        <column table="ur_hist_mat" column="kod_mat" default="p_kod" column-visible="0" parname="kod_mat" />
+        <column table="ur_hist_mat" column="decision" column-visible="0" parname="decision" as="decision" />
+        <column table="kod_folders" column="not_vvod" column-visible="0" parname="is_not_vvod" />
+        <column table="kod_folders" column="kodp" column-visible="0" parname="kodp" />
+        <column table="kodp" column="nump" column-visible="0" />
+        <fieldgroup title="Иск">
+          <column table="ur_mat" column="num_delo" column-mandatory="1" width-perc="50" />
+          <column table="ur_mat" column="dat_prin" column-mandatory="1" width-perc="50" />
+        </fieldgroup>
+        <fieldgroup title="Суд/судебный участок" visible="f10">
+          <column table="ur_mat" column="kod_sud" parname="kod_sud" title="Суд" />
+          <column table="ur_hist_mat" column="kod_zased" width-perc="50" parname="kod_zased" mandatory="f10">
+            <listquery>
+              <query name="us_zased_org">
+                <withparams>
+                  <useparam name="p_kod_sdp" />
+                  <useparam name="kod_sud" />
+                </withparams>
+              </query>
+            </listquery>
+          </column>
+          <column table="kod_zased" column="phone" width-perc="50" />
+          <column table="kod_zased" column="kod_sud" title="Участок" />
+        </fieldgroup>
+        <fieldgroup title="Этап рассмотрения">
+          <fact table="ur_hist_mat" column="kod_result_vld" as="kod_result_vld" exclude="1" />
+          <column table="kod_folders" column="kod_sdp" parname="folder_kod_sdp" column-visible="0" />
+          <column table="ur_hist_mat" column="dat_rassm" width-perc="50" title="Дата суд. разб." mandatory="f10" />
+          <column table="ur_hist_mat" column="dat_post" width-perc="50" title="Дата прин. суд. акта" parname="dat_post" />
+          <column table="ur_hist_mat" column="result_kod_post" as="result_kod_post" column-mandatory="1" width-perc="50">
+            <listquery>
+              <query name="us_post_list">
+                <withparams>
+                  <useparam name="folder_kod_sdp" />
+                </withparams>
+              </query>
+            </listquery>
+          </column>
+          <column table="ur_hist_mat" column="kod_result" width-perc="50" />
+          <column table="ur_hist_mat" column="dat_srok" width-perc="50" title="Срок обжалования решения" />
+          <column table="ur_hist_mat" column="dat_entry" width-perc="50" title="Дата вст. реш. в зак. силу" />
+          <column table="ur_hist_mat" column="dat_receipt_post" title="Дата получения судебного акта" />
+          <column table="ur_hist_mat" column="dat_send_petition_il" width-perc="50" title="Дата напр. ход-ва о выдаче ИЛ" />
+          <column table="ur_hist_mat" column="dat_send_il" width-perc="50" title="Дата направления ИЛ в филиал" />
+          <column table="ur_hist_mat" column="prim" title="Примечание" />
+          <column table="ur_hist_mat" column="kod_scan" column-editable="1" />
+        </fieldgroup>
+        <fieldgroup visible="decision" is-layout-block="1" title="Задолженность по решению суда">
+          <column table="ur_hist_mat" column="gp_otv" title="ГП с ответчика" width-perc="50" parname="gp_otv" />
+          <column table="ur_hist_mat" column="gp_es" title="ГП с истца" width-perc="50" />
+          <column table="ur_hist_mat" column="gp_ret" title="ГП возврат из бюджета" width-perc="50" />
+          <column table="ur_hist_mat" column="gp_all" title="ГП всего" width-perc="50" />
+          <column table="ur_hist_mat" column="period_zadol_s_vvod" title="Период задолженности с" format="F2" editable="1" width-perc="50" comment="поле на форме не отображает значение (разобраться если понадобится)" exclude="1" />
+          <column table="ur_hist_mat" column="period_zadol_po_vvod" title="Период задолженности по" format="F2" editable="1" width-perc="50" comment="поле на форме не отображает значение (разобраться если понадобится)" exclude="1" />
+          <column table="ur_hist_mat" column="osnreal" title="Основная реализация" editable="1" width-perc="50" />
+          <column table="ur_hist_mat" column="peni" title="Проценты (пени)" editable="1" width-perc="50" />
+          <column table="ur_hist_mat" column="ogr" title="Расх. за введ. огр. реж. энергопотр." editable="1" width-perc="50" />
+          <column table="ur_hist_mat" column="astrent" width-perc="50" title="Астрент" editable="1" />
+          <column table="ur_hist_mat" column="sud_izd" editable="1" width-perc="50" />
+          <column table="ur_hist_mat" column="pris_all_vvod" title="Всего" width-perc="50" />
+        </fieldgroup>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_hist_mat" new-rows-vis-for-other-tbls="1" auto-refresh="1">
+          <link name="kod_mat">
+            <link name="kod_folders">
+              <link name="kodp" />
+            </link>
+          </link>
+          <link name="kod_zased" />
+          <link name="kod_result" />
+          <where>
+            <call function="=">
+              <column table="ur_hist_mat" column="kod_hist_mat" />
+              <useparam name="kod_hist_mat" />
+            </call>
+          </where>
+        </query>
+        <query name="ur_mat" new-rows-vis-for-other-tbls="1">
+          <where>
+            <call function="=">
+              <column table="ur_mat" column="kod_mat" />
+              <useparam name="p_kod" />
+            </call>
+          </where>
+        </query>
+        <query name="ur_dogplat" as="dp_gp">
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="dp_gp" column="kod_mat" />
+                <useparam name="p_kod" />
+              </call>
+              <call function="=">
+                <column table="dp_gp" column="vid_real" />
+                <const>9</const>
+              </call>
+              <call function="=1">
+                <column table="dp_gp" column="prizn_konv" />
+              </call>
+            </call>
+          </where>
+        </query>
+        <query name="ur_dogplat" as="dp_peni">
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="dp_peni" column="kod_mat" />
+                <useparam name="p_kod" />
+              </call>
+              <call function="=">
+                <column table="dp_peni" column="vid_real" />
+                <const>7</const>
+              </call>
+              <call function="=1">
+                <column table="dp_peni" column="prizn_konv" />
+              </call>
+            </call>
+          </where>
+        </query>
+        <query name="ur_dogplat" as="dp_shtraf">
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="dp_shtraf" column="kod_mat" />
+                <useparam name="p_kod" />
+              </call>
+              <call function="=">
+                <column table="dp_shtraf" column="vid_real" />
+                <const>4</const>
+              </call>
+              <call function="=1">
+                <column table="dp_shtraf" column="prizn_konv" />
+              </call>
+            </call>
+          </where>
+        </query>
+        <query name="is_customer10_flag" as="f10" />
+      </from>
+      <events exclude="1" comment="ошибка при сохранении новой строки">
+        <useaction action-type="refresh-table" event-name="save" object="ur_hist_mat" />
+      </events>
+    </form>
+  </forms>
+</root>

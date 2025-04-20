@@ -1,0 +1,193 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:32.4938136+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="47106" timestamp="13.06.2018 10:05:00" is-report="1" order="filial, name" title="Список повторных заявок, принятых за период" nogrid="1" file="sql.builder.templates\sql.builder\projects\47106\reports\47106-rep.xml">
+      <params>
+        <param controlType="UIDate" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" name="dt1" title="C" column-mandatory="1" />
+        <param controlType="UIDate" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" name="dt2" title="По" column-mandatory="1" />
+      </params>
+      <content>
+        <fieldgroup title="Дата регистрации заявки">
+          <usefield field="cmn_date" name="dt1" title="C" column-mandatory="1">
+            <defaultquery>
+              <query name="47106-dt1" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date_cur" name="dt2" title="По" column-mandatory="1" />
+        </fieldgroup>
+      </content>
+      <print-templates>
+        <excel>
+          <template name="47106.xlsx" print-proc="2" print-xlsx="1" title="Список повторных заявок" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="a" column="num_req" as="num_req" key="0" />
+        <column table="a" column="region" as="region" key="0" />
+        <column table="a" column="filial" as="filial" key="0" />
+        <column table="a" column="name" as="name" key="0" />
+        <column table="a" column="adr" as="adr" key="0" />
+        <column table="a" column="load123" as="load123" key="0" />
+        <column table="a" column="load_all" as="load_all" key="0" />
+        <column table="a" column="obj_name" as="obj_name" key="0" />
+        <column table="a" column="contr_sumf" as="contr_sumf" key="0" />
+        <column table="a" column="st_name" as="st_name" key="0" />
+        <column table="a" column="dt_request" as="dt_request" key="0" />
+        <column table="a" column="load_type" as="load_type" key="0" />
+        <column table="a" column="kad_num" as="kad_num" key="0" />
+        <column table="a" column="cnt" as="cnt" key="0" />
+      </select>
+      <from>
+        <query name="47106-pre" as="a">
+          <withparams>
+            <useparam name="dt1" />
+            <useparam name="dt2" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="ge">
+          <column table="a" column="cnt" />
+          <const>2</const>
+        </call>
+      </where>
+      <order>
+        <column column="filial" />
+        <column column="name" />
+      </order>
+    </query>
+    <query name="47106-pre" timestamp="04.05.2018 17:34:17" visible="0" file="sql.builder.templates\sql.builder\projects\47106\reports\47106-rep.xml">
+      <params>
+        <param name="dt1" type="date">
+          <const>trunc(sysdate,'MM')</const>
+        </param>
+        <param type="date" name="dt2">
+          <const>trunc(sysdate)</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="num_req" as="num_req" key="0" />
+        <call function="decode" as="region" title="Регион" type="string" key="0">
+          <call function="nvl">
+            <column table="a" column="kn_zone" />
+            <const>0</const>
+          </call>
+          <const>0</const>
+          <const>'ЛО'</const>
+          <const>'СПб'</const>
+        </call>
+        <column table="kod_filial" column="name_kr" as="filial" title="Филиал" key="0" />
+        <column table="kn_customer" column="name_all" as="name" title="Полное наименование абонента" key="0" />
+        <column table="a" column="lp_addr" as="adr" key="0" />
+        <column table="a" column="load123" as="load123" key="0" />
+        <column table="a" column="load_all" as="load_all" key="0" />
+        <call function="replace" as="obj_name" title="Подключаемый объект" key="0">
+          <column table="kod_obj" column="name" />
+          <const>'(Удален)'</const>
+          <const>''</const>
+        </call>
+        <column table="a" column="contr_sumf" title="Стоимость АД" as="contr_sumf" key="0" />
+        <column table="status" column="name" as="st_name" title="Состояние АД" key="0" />
+        <call function="trunc" type="date" title="дата заявки" as="dt_request" key="0">
+          <column table="a" column="dt_request" />
+        </call>
+        <column table="kn_load_type" column="name" as="load_type" title="тип заявки" key="0" />
+        <column table="qr_zpr_energo" column="kad_num" title="кадастровый номер" as="kad_num" key="0" />
+        <call function="over" as="cnt" title="cnt" dont-push="1" key="0">
+          <call function="count">
+            <column table="a" column="num_req" />
+          </call>
+          <call function="partition by">
+            <column table="kn_customer" column="name_all" />
+            <call function="nvl">
+              <column table="qr_zpr_energo" column="kad_num" />
+              <column table="a" column="lp_addr" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="is_dop_contract" as="a" title="Абонентские договоры">
+          <link name="kod_filial" as="kod_filial" table="is_spr_direct" child="is_dop_contract" field="kod_filial" parent="is_spr_direct" back="is_dop_contract" title="Подразделения" />
+          <link name="kn_customer" as="kn_customer" table="is_creditors" child="is_dop_contract" field="kn_customer" parent="is_creditors" back="is_dop_contract" title="Контрагенты" />
+          <link name="kod_obj" as="kod_obj" table="as_load_kind" child="is_dop_contract" field="kod_obj" parent="as_load_kind" back="is_dop_contract" />
+          <link name="status" as="status" table="is_status" child="is_dop_contract" field="status" parent="is_status" back="is_dop_contract" title="Статус" />
+          <link name="kn_load_type" as="kn_load_type" table="as_load_type" child="is_dop_contract" field="kn_load_type" parent="as_load_type" back="is_dop_contract" />
+          <link name="qr_links" as="qr_links" table="qr_links" child="is_dop_contract" field="qr_links" parent="qr_links" back="is_dop_contract">
+            <link name="kod_zayav" as="kod_zayav" table="c_zayav" child="qr_links" field="kod_zayav" parent="c_zayav" back="qr_links">
+              <link name="qr_zpr_energo" as="qr_zpr_energo" table="qr_zpr_energo" child="c_zayav" field="qr_zpr_energo" parent="qr_zpr_energo" back="c_zayav" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="between">
+            <call function="trunc" type="date" title="дата заявки">
+              <column table="a" column="dt_request" />
+            </call>
+            <useparam name="dt1" />
+            <useparam name="dt2" />
+          </call>
+          <call function="in">
+            <column table="a" column="kn_load_type" />
+            <call function="array">
+              <const>32</const>
+              <const>36</const>
+              <const>2</const>
+              <const>33</const>
+              <const>9</const>
+              <const>17</const>
+              <const>1</const>
+            </call>
+          </call>
+          <call function="is null" comment="не доп.согл.">
+            <column table="a" column="kn_contract_p" />
+          </call>
+          <call function="is not null">
+            <call function="nvl">
+              <column table="qr_zpr_energo" column="kad_num" />
+              <column table="a" column="lp_addr" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name" />
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

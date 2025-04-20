@@ -1,0 +1,707 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="26630-xl-vv-cols0-2" timestamp="25.01.2017 02:24:33" order="ordr">
+      <params>
+        <usepart part="26630-params" />
+        <param type="string" name="pfx">
+          <const>'beg'</const>
+        </param>
+      </params>
+      <select>
+        <call function="||" as="name" key="1">
+          <const>'vv_'</const>
+          <call function="if" type="string">
+            <call function="in">
+              <column table="hz1" column="name" />
+              <const>'pow'</const>
+            </call>
+            <call function="||" key="1">
+              <column table="hz2" column="name" />
+              <const>'_'</const>
+            </call>
+          </call>
+          <column table="pwf" column="name" />
+          <const>'_'</const>
+          <call function="if" type="string">
+            <call function="not in">
+              <column table="hz1" column="name" />
+              <const>'pow'</const>
+            </call>
+            <call function="||" key="1">
+              <column table="nds" column="name" />
+              <const>'_'</const>
+            </call>
+          </call>
+          <const>'cm'</const>
+          <const>'_'</const>
+          <call function="if" type="string">
+            <call function="=">
+              <useparam name="pfx" />
+              <const>'beg'</const>
+            </call>
+            <call function="time ym2 id">
+              <call function="ym2 add month">
+                <call function="num to ym2">
+                  <useparam name="year" />
+                  <useparam name="mon1" />
+                </call>
+                <const>-1</const>
+              </call>
+            </call>
+            <call function="time y m id">
+              <useparam name="year" />
+              <useparam name="mon2" />
+            </call>
+          </call>
+        </call>
+        <call function="||" as="name_for_comp" key="1">
+          <call function="if" type="string">
+            <call function="in">
+              <column table="hz1" column="name" />
+              <const>'pow'</const>
+            </call>
+            <call function="||" key="1">
+              <const>'vv_'</const>
+              <column table="pwf" column="name" />
+              <const>'_bn_'</const>
+            </call>
+            <call function="||" key="1">
+              <const>'vv_any_'</const>
+              <column table="pwf" column="name" />
+              <const>'_'</const>
+            </call>
+          </call>
+          <const>'cm_'</const>
+          <call function="if" type="string">
+            <call function="=">
+              <useparam name="pfx" />
+              <const>'beg'</const>
+            </call>
+            <call function="time ym2 id">
+              <call function="ym2 add month">
+                <call function="num to ym2">
+                  <useparam name="year" />
+                  <useparam name="mon1" />
+                </call>
+                <const>-1</const>
+              </call>
+            </call>
+            <call function="time y m id">
+              <useparam name="year" />
+              <useparam name="mon2" />
+            </call>
+          </call>
+        </call>
+        <call function="||" as="ordr">
+          <column table="pwf" column="ordr" />
+          <column table="hz1" column="ordr" />
+          <call function="coalesce">
+            <column table="nds" column="ordr" />
+            <column table="hz2" column="ordr" />
+          </call>
+        </call>
+        <column table="pwf" column="title" as="title2" />
+        <column table="hz1" column="title" as="title3" />
+        <column table="this" column="title3" as="title4" />
+        <call function="coalesce" as="title5">
+          <column table="nds" column="title" />
+          <column table="hz2" column="title" />
+        </call>
+        <call as="column_width" function="if" type="number">
+          <call function="in">
+            <column table="hz2" column="name" />
+            <array>'any'</array>
+          </call>
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="26630-xl-cols-pwf" as="pwf" />
+        <query name="26630-xl-vv-cols-hz1" as="hz1" join="cross" />
+        <query name="26630-xl-cols-nds" as="nds" join="left outer">
+          <call function="and">
+            <call function="in">
+              <column table="hz1" column="name" />
+              <const>'vvod'</const>
+            </call>
+            <call function="in">
+              <column table="nds" column="name" />
+              <array>'bn'</array>
+            </call>
+          </call>
+        </query>
+        <query name="26630-xl-cols-fiz" as="hz2" join="left outer">
+          <call function="in">
+            <column table="hz1" column="name" />
+            <const>'pow'</const>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="pwf" column="name" />
+            <array>'pl','ft'</array>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="26630-xl-vv-cols1-2" timestamp="29.01.2017 20:48:44" order="ordr">
+      <params>
+        <usepart part="26630-params" />
+      </params>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <call function="||" as="name">
+          <const>'vv_'</const>
+          <call function="case">
+            <call function="when">
+              <call function="=">
+                <column table="per" column="tip" />
+                <const>'p0'</const>
+              </call>
+              <const>'pl_bn_gd'</const>
+            </call>
+            <call function="else">
+              <call function="||">
+                <column table="pwf" column="name" />
+                <const>'_'</const>
+                <const>'bn_'</const>
+                <call function="case">
+                  <call function="when">
+                    <call function="in">
+                      <column table="per" column="tip" />
+                      <array>'p','p3'</array>
+                    </call>
+                    <const>'0'</const>
+                  </call>
+                  <call function="else">
+                    <call function="||">
+                      <const>''</const>
+                      <column table="this" column="time_id" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="name_for_comp" key="1">
+          <const>'vv_any_'</const>
+          <column table="pwf" column="name" />
+          <const>'_'</const>
+          <call function="case">
+            <call function="when">
+              <call function="=">
+                <column table="per" column="tip" />
+                <const>'p0'</const>
+              </call>
+              <const>'gd'</const>
+            </call>
+            <call function="else">
+              <call function="||">
+                <const>''</const>
+                <call function="case">
+                  <call function="when">
+                    <call function="in">
+                      <column table="per" column="tip" />
+                      <array>'p','p3'</array>
+                    </call>
+                    <const>'0'</const>
+                  </call>
+                  <call function="else">
+                    <call function="||">
+                      <const>''</const>
+                      <column table="this" column="time_id" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="ofv" column="title" as="title1" />
+        <column table="per" column="title" as="title2" />
+        <call function="case" as="title3">
+          <call function="when">
+            <call function="=">
+              <column table="per" column="tip" />
+              <const>'p0'</const>
+            </call>
+            <column table="per" column="title" />
+          </call>
+          <call function="else">
+            <column table="pwf" column="title" />
+          </call>
+        </call>
+        <call function="case" as="title4">
+          <call function="when">
+            <call function="=">
+              <column table="per" column="tip" />
+              <const>'p0'</const>
+            </call>
+            <column table="per" column="title" />
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per" column="tip" />
+              <array>'p','p1','p2','p3'</array>
+            </call>
+            <column table="pwf" column="title" />
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per2" column="tip" />
+              <array>'k'</array>
+            </call>
+            <const>'Итого квартал'</const>
+          </call>
+          <call function="else">
+            <column table="per2" column="title" />
+          </call>
+        </call>
+        <column table="nds" column="title" as="title5" />
+        <const type="number" as="column_width">12</const>
+        <call function="case" type="string" as="time_id">
+          <call function="when">
+            <call function="in">
+              <column table="per" column="tip" />
+              <array>'p3'</array>
+            </call>
+            <const>0</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per2" column="tip" />
+              <array>'m'</array>
+            </call>
+            <call function="time y m id">
+              <useparam name="year" />
+              <call function="to_number">
+                <column table="per2" column="name" />
+              </call>
+            </call>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per" column="tip" />
+              <array>'p1','k','p2'</array>
+            </call>
+            <call function="time y k id">
+              <useparam name="year" />
+              <call function="to_number">
+                <column table="per" column="name" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="ordr">
+          <column table="per" column="ordr" />
+          <column table="pwf" column="ordr" />
+          <column table="per2" column="ordr" />
+          <column table="nds" column="ordr" />
+        </call>
+      </select>
+      <from>
+        <query name="26630-xl-cols-ofv" as="ofv" />
+        <query name="26630-xl-cols-per" as="per" join="cross" />
+        <query name="26630-xl-cols-pwf" as="pwf" join="left outer">
+          <call function="or">
+            <call function="!=">
+              <column table="per" column="tip" />
+              <const>'p0'</const>
+            </call>
+            <call function="=">
+              <column table="pwf" column="name" />
+              <const>'pl'</const>
+            </call>
+          </call>
+        </query>
+        <query name="26630-xl-cols-per" as="per2" join="left outer">
+          <call function="=">
+            <column table="per" column="kv" />
+            <column table="per2" column="kv" />
+          </call>
+        </query>
+        <query name="26630-xl-cols-nds" as="nds" join="cross" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="ofv" column="name" />
+            <array>'vv'</array>
+          </call>
+          <call function="in">
+            <column table="per" column="tip" />
+            <array>'k','p','p0','p1','p2','p3'</array>
+          </call>
+          <call function="in">
+            <column table="pwf" column="name" />
+            <array>'pl','ft'</array>
+          </call>
+          <call function="in">
+            <column table="nds" column="name" />
+            <array>'bn'</array>
+          </call>
+          <call function="or" optional="1">
+            <call function="is null">
+              <column table="this" column="time_id" />
+            </call>
+            <call function="in">
+              <column table="this" column="time_id" />
+              <useparam name="period" />
+            </call>
+          </call>
+          <!--<call function="or" optional="1">
+            <call function="is null">
+              <column table="this" column="time_id" />
+            </call>
+            <call function="in">
+              <column table="this" column="time_id" />
+              <useparam name="period" />
+            </call>
+          </call>-->
+        </call>
+      </where>
+    </query>
+    <query name="26630-xl-vv-colsx-2" timestamp="29.01.2017 20:53:22" order="ordr">
+      <params>
+        <usepart part="26630-params" />
+      </params>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <call function="||" as="name">
+          <column table="vpr" column="name" />
+          <const>'_'</const>
+          <column table="hz3" column="name" />
+          <const>'_'</const>
+          <call function="case">
+            <call function="when">
+              <call function="in">
+                <column table="per" column="tip" />
+                <const>'p0'</const>
+              </call>
+              <const>'gd'</const>
+            </call>
+            <call function="else">
+              <call function="||">
+                <column table="pwf" column="name" />
+                <const>'_'</const>
+                <call function="case">
+                  <call function="when">
+                    <call function="in">
+                      <column table="per" column="tip" />
+                      <array>'p','p3'</array>
+                    </call>
+                    <const>'0'</const>
+                  </call>
+                  <call function="else">
+                    <call function="||">
+                      <const>''</const>
+                      <column table="this" column="time_id" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="name_for_comp" key="1">
+          <const>'vv_'</const>
+          <column table="pwf" column="name" />
+          <const>'_bn_'</const>
+          <call function="case">
+            <call function="when">
+              <call function="in">
+                <column table="per" column="tip" />
+                <const>'p0'</const>
+              </call>
+              <const>'gd'</const>
+            </call>
+            <call function="else">
+              <call function="||">
+                <const>''</const>
+                <call function="case">
+                  <call function="when">
+                    <call function="in">
+                      <column table="per" column="tip" />
+                      <array>'p','p3'</array>
+                    </call>
+                    <const>'0'</const>
+                  </call>
+                  <call function="else">
+                    <call function="||">
+                      <const>''</const>
+                      <column table="this" column="time_id" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="hz3" column="color" />
+        <call function="if" as="column_width" type="number">
+          <call function="in">
+            <column table="hz3" column="name" />
+            <const>'any'</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="case" type="string" as="time_id">
+          <call function="when">
+            <call function="in">
+              <column table="per" column="tip" />
+              <array>'p3'</array>
+            </call>
+            <const>0</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per2" column="tip" />
+              <array>'m'</array>
+            </call>
+            <call function="time y m id">
+              <useparam name="year" />
+              <call function="to_number">
+                <column table="per2" column="name" />
+              </call>
+            </call>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per" column="tip" />
+              <array>'p1','k','p2'</array>
+            </call>
+            <call function="time y k id">
+              <useparam name="year" />
+              <call function="to_number">
+                <column table="per" column="name" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="ordr">
+          <column table="vpr" column="ordr" />
+          <column table="hz3" column="ordr" />
+          <column table="per" column="ordr" />
+          <column table="pwf" column="ordr" />
+          <column table="per2" column="ordr" />
+        </call>
+        <column table="vpr" column="title" as="title1" />
+        <column table="hz3" column="title" as="title2" />
+        <column table="per" column="title" as="title3" />
+        <call function="case" as="title4">
+          <call function="when">
+            <call function="=">
+              <column table="per" column="tip" />
+              <const>'p0'</const>
+            </call>
+            <column table="per" column="title" />
+          </call>
+          <call function="else">
+            <column table="pwf" column="title" />
+          </call>
+        </call>
+        <call function="case" as="title5">
+          <call function="when">
+            <call function="=">
+              <column table="per" column="tip" />
+              <const>'p0'</const>
+            </call>
+            <column table="per" column="title" />
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per" column="tip" />
+              <array>'p','p1','p2','p3'</array>
+            </call>
+            <column table="pwf" column="title" />
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="per2" column="tip" />
+              <array>'k'</array>
+            </call>
+            <const>'Итого квартал'</const>
+          </call>
+          <call function="else">
+            <column table="per2" column="title" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="26630-xl-cols-fiz" as="hz3" />
+        <query name="26630-xl-cols-vpr" as="vpr" join="cross" />
+        <query name="26630-xl-cols-per" as="per" join="cross" />
+        <query name="26630-xl-cols-pwf" as="pwf" join="left outer">
+          <call function="or">
+            <call function="!=">
+              <column table="per" column="tip" />
+              <const>'p0'</const>
+            </call>
+            <call function="=">
+              <column table="pwf" column="name" />
+              <const>'pl'</const>
+            </call>
+          </call>
+        </query>
+        <query name="26630-xl-cols-per" as="per2" join="left outer">
+          <call function="=">
+            <column table="per" column="kv" />
+            <column table="per2" column="kv" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="per" column="tip" />
+            <array>'k','p','p0','p1','p2','p3'</array>
+          </call>
+          <call function="in">
+            <column table="pwf" column="name" />
+            <array>'pl','ft'</array>
+          </call>
+          <call function="or">
+            <call function="in">
+              <column table="vpr" column="name" />
+              <array>'vv'</array>
+            </call>
+            <call function="not in">
+              <column table="hz3" column="name" />
+              <array>'any'</array>
+            </call>
+          </call>
+          <call function="or" optional="1">
+            <call function="is null">
+              <column table="this" column="time_id" />
+            </call>
+            <call function="in">
+              <column table="this" column="time_id" />
+              <useparam name="period" />
+            </call>
+          </call>
+          <!--<call function="or" optional="1">
+            <call function="is null">
+              <column table="this" column="time_id" />
+            </call>
+            <call function="in">
+              <column table="this" column="time_id" />
+              <useparam name="period" />
+            </call>
+          </call>-->
+        </call>
+      </where>
+    </query>
+    <query name="26630-xl-vv-cols-hz1">
+      <const as="name" type="string">'vvod'</const>
+      <const as="title" type="string">'Ввод в основные фонды'</const>
+      <const as="ordr" type="number">100</const>
+      <const>'pow'</const>
+      <const>'Ввод в физическом выражении'</const>
+      <const>200</const>
+    </query>
+    <query name="26630-xl-vv-cols-hz2">
+      <const as="name" type="string">'any'</const>
+      <const as="title" type="string">''</const>
+      <const as="ordr" type="number">100</const>
+      <const>'mba'</const>
+      <const>'МВА'</const>
+      <const>200</const>
+      <const>'km'</const>
+      <const>'км'</const>
+      <const>300</const>
+      <const>'pr1'</const>
+      <const>'прочие (ТП, РП), шт.'</const>
+      <const>400</const>
+      <const>'pr2'</const>
+      <const>'прочие (прочие), шт.'</const>
+      <const>500</const>
+    </query>
+    <query name="26630-xl-vv-cols-hz3">
+      <const as="name" type="string">'pow_mba'</const>
+      <const as="title" type="string">'ввод в МВА'</const>
+      <const as="ordr" type="number">100</const>
+      <const as="color" type="number">1</const>
+      <const>'pow_km_all'</const>
+      <const>'ввод в ОФ, км'</const>
+      <const>150</const>
+      <const>2</const>
+      <const>'pow_km'</const>
+      <const>'в т.ч. ввод в ОФ, ВЛ, км'</const>
+      <const>200</const>
+      <const>1</const>
+      <const>'pow_km_kl'</const>
+      <const>'в т.ч. ввод в ОФ, КЛ, км'</const>
+      <const>250</const>
+      <const>2</const>
+      <const>'pow_cnt'</const>
+      <const>'ввод в ОФ, прочие (ТП, РП), шт.'</const>
+      <const>300</const>
+      <const>1</const>
+      <const>'pow_cnt_proch'</const>
+      <const>'ввод в ОФ, прочие (прочие), шт.'</const>
+      <const>350</const>
+      <const>2</const>
+      <const>'pow_mba_pr'</const>
+      <const>'прирост ввода в МВА'</const>
+      <const>400</const>
+      <const>1</const>
+      <const>'pow_km_all_pr'</const>
+      <const>'прирост ввода в ОФ, км'</const>
+      <const>450</const>
+      <const>2</const>
+      <const>'pow_km_pr'</const>
+      <const>'в т.ч. прирост ввода в ОФ, ВЛ, км'</const>
+      <const>500</const>
+      <const>1</const>
+      <const>'pow_km_kl_pr'</const>
+      <const>'в т.ч. прирост ввода в ОФ, КЛ, км'</const>
+      <const>550</const>
+      <const>2</const>
+      <const>'pow_cnt_pr'</const>
+      <const>'прирост ввода в ОФ, прочие (ТП, РП), шт.'</const>
+      <const>600</const>
+      <const>1</const>
+      <const>'pow_cnt_proch_pr'</const>
+      <const>'прирост ввода в ОФ, прочие (прочие), шт.'</const>
+      <const>650</const>
+      <const>2</const>
+    </query>
+    <query name="26630-xl-vv-cols0-2b" timestamp="24.01.2017 21:41:43" order="ordr">
+      <params>
+        <usepart part="26630-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="26630-xl-vv-cols0-2" as="a">
+          <withparams>
+            <usepart part="26630-withparams" />
+            <const>'beg'</const>
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="26630-xl-vv-cols0-2e" timestamp="24.01.2017 21:42:13" order="ordr">
+      <params>
+        <usepart part="26630-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="26630-xl-vv-cols0-2" as="a">
+          <withparams>
+            <usepart part="26630-withparams" />
+            <const>'end'</const>
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <reports />
+</root>

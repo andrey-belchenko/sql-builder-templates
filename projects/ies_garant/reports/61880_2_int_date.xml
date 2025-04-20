@@ -1,0 +1,602 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="61880_2_int_date" title="4.6.2.3.2.9.1.2 Отчет по уровню дебиторской задолженности, объему продаж и оплаты энергоресурсов" nogrid="1" timestamp="07.08.2023 15:37:57">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <params>
+        <param type="array" name="p_dep" mode="store">
+          <const exclude="1">1172</const>
+        </param>
+        <param type="date" name="p_date_beg">
+          <const exclude="1">2021.08</const>
+        </param>
+        <param type="date" name="p_date_end">
+          <const exclude="1">2021.08</const>
+        </param>
+        <param type="array" name="pkod_dog" mode="store">
+          <const exclude="1">1172</const>
+        </param>
+        <param name="no_dog" type="number" />
+        <param type="date" name="p_date_beg_2">
+          <const exclude="1">2021.08</const>
+        </param>
+        <param type="date" name="p_date_end_2">
+          <const exclude="1">2021.08</const>
+        </param>
+      </params>
+      <print-templates>
+        <excel>
+          <template name="61880_2_int_date.xlsx" title="Отчет по уровню дебиторской задолженности, объему продаж и оплаты энергоресурсов (интервал дат)" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <procedure>
+        <text>
+          begin
+       /*  delete vr_number_array;
+         for rec in (select * from kr_org where kodp in p_dep)
+          loop
+          insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+          end loop;
+
+          for rec in( select kod_Dog from kr_dogovor where kod_dog in pkod_dog )
+          loop
+          insert into vr_number_array (array_id,val) values ('pkod_dog',rec.kod_dog);
+          end loop;
+          INSERT INTO vr_number_array (array_id, val)
+            SELECT array_id, nval FROM vr_array_storage WHERE array_id IN ('p_dep', 'pkod_dog');
+          
+*/
+
+
+
+
+DELETE sqlb_rep_61880_2_int_date_tbl; 
+
+
+
+
+
+sqlb_rep_61880_2_int_date.fill_table(:p_date_beg,:p_date_end,1);
+ 
+
+ 
+
+if :p_date_beg_2 is not null and :p_date_end_2 is not null 
+ then 
+ 
+
+sqlb_rep_61880_2_int_date.fill_table(:p_date_beg_2,:p_date_end_2,2);
+  
+ 
+     
+
+end if;
+
+   end;
+        </text>
+      </procedure>
+      <queries>
+        <query name="61880_2_int_date-main" as="a">
+          <withparams>
+            <useparam name="no_dog" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <parts>
+    <part id="61880_2_int_date-params" timestamp="08.06.2023 10:20:29">
+      <param type="array" name="p_dep">
+        <const exclude="1">21626</const>
+      </param>
+      <param type="date" name="p_date_beg">
+        <const type="date" exclude="1">01.12.2023</const>
+      </param>
+      <param type="date" name="p_date_end">
+        <const type="date" exclude="1">31.12.2023</const>
+      </param>
+      <param type="array" name="pkod_dog" />
+      <param name="no_dog" type="number" />
+      <param type="date" name="p_date_beg_2">
+        <const exclude="1">2021.08</const>
+      </param>
+      <param type="date" name="p_date_end_2">
+        <const exclude="1">2021.08</const>
+      </param>
+      <param type="number" name="p_ym_end" exclude="1">
+        <const exclude="1">2021.09</const>
+      </param>
+    </part>
+  </parts>
+  <queries>
+    <query name="61880_2_int_date-main" nogrid="1" order="kod_group_cust_level1" timestamp="04.02.2024 17:14:17">
+      <params>
+        <param name="no_dog" type="number" />
+      </params>
+      <select>
+        <call function="rownum" key="1" as="id" exclude="1" />
+        <column table="b" column="kod_group_cust_level1" comment="Код отрасли ээ (Уровень 1 из спр-ка Отрасли ЭЭ)" title="Код отрасли ээ" />
+        <column table=" rf" column="kod_refcode" nvl="-1" as="kod_refcode" exclude="1" />
+        <column table=" rf" column="num" group="max" nvl="-1" as="num" exclude="1" />
+        <call function="nvl" group="max" as="name" exclude="1">
+          <column table=" rf" column="name" nvl="'нет'" />
+          <const type="string">'Нет'</const>
+        </call>
+        <column table="b" column="gr_potr_name_level1" group="max" title="Наименование отрасли ээ" as="name" />
+        <column table="b" column="gr_potr_name_level2" as="gr_potr_name_level2" group="max" title="Наименование отрасли ээ 2 уровень" />
+        <column table="b" column="gr_potr_name_level3" as="gr_potr_name_level3" group="max" title="Наименование отрасли ээ 3 уровень" />
+        <column table="b" column="gr_potr_name_level4" as="gr_potr_name_level4" group="max" title="Наименование отрасли ээ 4 уровень" />
+        <column table="b" column="gr_potr_name_level5" as="gr_potr_name_level5" group="max" title="Наименование отрасли ээ 5 уровень" />
+        <column table="b" column="kod_dog" as="kod_dog" />
+        <column table="d" column="ndog" as="ndog" group="max" />
+        <column table="d" column="dat_dog" group="max" as="dat_dog" />
+        <column table="d" column="dat_fin" group="max" as="dat_fin" />
+        <column table="kodp" column="name" as="namep" group="max" />
+        <call table="b" column="saldo_beg" group="sum" as="saldo_beg" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="saldo_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="dz_beg" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="dz_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="sv_beg" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="sv_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="av_per_beg" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="per_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="cust_per" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="cust_per" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_otp_old" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="per_otp_old" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_otp_tek" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="per_otp_tek" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="nach_per" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="nach_per" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_nach_old" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="per_nach_old" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_nach_tek" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="per_nach_tek" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call group="sum" table="b" column="nach_per" as="real" function="null" mp="-3" />
+        <call table="b" column="saldo_beg" group="sum" as="opl_per" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="opl_per" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_per_tek" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="opl_per_tek" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_per_other" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="opl_per_other" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_av" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="opl_av" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_non_monet" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="opl_non_monet" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="ob_spis" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="ob_spis" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="vozvrat_kz" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="vozvrat_kz" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="dz_end" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="dz_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="sv_end" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="sv_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="av_per_end" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="per_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="saldo_end" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">1</const>
+          </call>
+          <column table="b" column="saldo_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="saldo_beg_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="saldo_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="dz_beg_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="dz_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="sv_beg_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="sv_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="av_per_beg_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="per_beg" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="cust_per_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="cust_per" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_otp_old_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="per_otp_old" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_otp_tek_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="per_otp_tek" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="nach_per_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="nach_per" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_nach_old_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="per_nach_old" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="per_nach_tek_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="per_nach_tek" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call group="sum" table="b" column="nach_per" as="real_2" function="null" mp="-3" />
+        <call table="b" column="saldo_beg" group="sum" as="opl_per_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="opl_per" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_per_tek_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="opl_per_tek" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_per_other_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="opl_per_other" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_av_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="opl_av" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="opl_non_monet_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="opl_non_monet" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="ob_spis_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="ob_spis" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="vozvrat_kz_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="vozvrat_kz" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="dz_end_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="dz_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="sv_end_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="sv_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="av_per_end_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="per_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <call table="b" column="saldo_beg" group="sum" as="saldo_end_2" function="if">
+          <call function="=">
+            <column table="b" column="period_num" type="number" />
+            <const type="number">2</const>
+          </call>
+          <column table="b" column="saldo_end" mp="-3" />
+          <const type="number">0</const>
+        </call>
+        <column table="b" column="pr_vgo" group="max" as="pr_vgo" />
+        <column group="max" table="kodp" column="inn" as="inn" />
+        <column group="max" table="kod_otrasl" column="name" as="name_msp" />
+        <column group="max" table="rc" column="name" as="otrasl" />
+        <column group="max" table="kod_ist" column="name" as="ist" />
+        <column group="max" table="d" column="adress_district" as="district" />
+        <column group="max" table="d" column="adress_region_name" as="region2" />
+        <call as="okved" group="max" function="||-" nullif="'-'">
+          <column table="kod_okved" column="okved" />
+          <column table="kod_okved" column="name" />
+        </call>
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_2_int_date_tbl" as="b">
+          <call function="and" exclude="1">
+            <call function="in">
+              <column table="r101" column="kod_dog" />
+              <column table="b" column="kod_dog" />
+            </call>
+            <call function="in" exclude="1">
+              <column table="b" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+        </query>
+        <query name="rr_refprop_dog_81" as="r101" join="left outer" exclude="1">
+          <call function="and" exclude="1">
+            <call function="in">
+              <column table=" rf" column="kod_refcode" />
+              <column table="r101" column="kod_refcode" />
+            </call>
+          </call>
+          <call function="=">
+            <column table="b" column="kod_dog" />
+            <column table="r101" column="kod_dog" />
+          </call>
+        </query>
+        <query name="rs_refcode" as=" rf" join="left outer" exclude="1">
+          <call function="and">
+            <call function="=">
+              <column table=" rf" column="kod_refbook" />
+              <const>81</const>
+            </call>
+            <call function="=">
+              <column table="r101" column="kod_refcode" />
+              <column table=" rf" column="kod_refcode" />
+            </call>
+          </call>
+        </query>
+        <query name="kr_dogovor" join="left outer" as="d">
+          <call function="=">
+            <column table="b" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+          <link name="kod_ist" />
+          <link name="kodp">
+            <link name="kod_okved" />
+            <link name="kod_otrasl" />
+          </link>
+        </query>
+        <query name="rr_refprop_dog_123" join="left outer" as="r123">
+          <call function="=">
+            <column table="b" column="kod_dog" />
+            <column table="r123" column="kod_dog" />
+          </call>
+        </query>
+        <query name="rs_refcode" join="left outer" as="rc">
+          <call function="=">
+            <column table="r123" column="kod_refcode" />
+            <column table="rc" column="kod_refcode" />
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="ref">
+            <group>
+              <column table="this" column="kod_group_cust_level1" />
+            </group>
+            <grset as="dog">
+              <group>
+                <column table="this" column="kod_dog" />
+              </group>
+              <where>
+                <call function="and">
+                  <call function="=1">
+                    <call function="nvlu">
+                      <useparam name="no_dog" />
+                      <const>0</const>
+                    </call>
+                  </call>
+                  <call function="is not null">
+                    <column table="this" column="kod_dog" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+  <forms>
+    <form name="61880_2_int_date" timestamp="07.08.2023 15:35:52">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <content>
+        <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+        <usefield field="cmn_date_cur" name="p_date_beg" mandatory="1" title="Начало интервала" />
+        <usefield field="cmn_date_cur" name="p_date_end" mandatory="1" title="Конец интервала" />
+        <field field="field_ndog_dep" name="pkod_dog" controlType="UIList" title="Договоры" type="number">
+          <listquery>
+            <query name="ndog_fin_list_dep" />
+          </listquery>
+          <defaultquery>
+            <query name="ndog_fin_list_dep" />
+          </defaultquery>
+        </field>
+        <usefield type="number" field="cmn_check" name="no_dog" title="Выводить детализацию по договорам" />
+        <fieldgroup title="Период для сравнения">
+          <usefield field="cmn_date_cur" name="p_date_beg_2" title="Начало интервала" />
+          <usefield field="cmn_date_cur" name="p_date_end_2" title="Конец интервала" />
+        </fieldgroup>
+      </content>
+    </form>
+  </forms>
+</root>

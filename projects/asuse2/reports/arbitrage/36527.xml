@@ -1,0 +1,892 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="36257" timestamp="21.01.2018 02:27:47" is-report="1" folder="ur_reports" title="Отчет по ГПЗ, ДПД, мировым соглашениям,  соглашениям о порядке погашения задолженности" nogrid="1" with-behavior="0">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="36257.xml" title="Отчет по ГПЗ ДПД" print-proc="2" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_ym" />
+      </content>
+      <params exclude="1">
+        <param name="ym" type="number">
+          <const>2016.05</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="and" as="cond_in_graf" dont-push="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <call function="=1">
+            <column table="kod_graf" column="is_active" />
+          </call>
+        </call>
+        <call function="if" as="nach_in_graf" group="sum" comment="1" exclude="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="sr_facras_nachisl" />
+        </call>
+        <call function="()" as="nach_in_graf" group="sum" comment="1">
+          <fact column="sr_facras_nachisl" condition="cond_in_graf" />
+        </call>
+        <call function="()" as="nach_in_graf_osn" group="sum">
+          <fact column="fin_ul_nachisl_osn" condition="cond_in_graf" />
+        </call>
+        <call function="if" as="ob_in_graf_osn" group="sum" comment="1" exclude="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="()" as="ob_in_graf_osn" group="sum" comment="1">
+          <fact column="fin_ul_ob_osn" condition="cond_in_graf" />
+        </call>
+        <call function="-nvl" as="nach_not_in_graf" group="sum">
+          <fact column="fin_ul_nachisl_osn" />
+          <fact column="nach_in_graf_osn" />
+        </call>
+        <call function="if" as="nach_not_in_graf" group="sum" title="Начислено за пред. месяц" type="number" exclude="1">
+          <call function="is null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="fin_ul_nachisl_osn" />
+        </call>
+        <call function="-nvl" as="ob_not_in_graf" group="sum">
+          <fact column="fin_ul_ob_osn" />
+          <fact column="ob_in_graf_osn" />
+        </call>
+        <call function="if" as="ob_not_in_graf" group="sum" type="number" exclude="1">
+          <call function="is null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" as="nach_pred" group="sum" title="Начислено за пред. месяц" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_osn" />
+        </call>
+        <call function="if" as="nach_tek" group="sum" title="Начислено за тек. месяц" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="fin_ul_nachisl_osn" />
+        </call>
+        <call function="if" as="nach_pred_ng" group="sum" title="Начислено за пред. месяц не вкл. в график" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="nach_not_in_graf" />
+        </call>
+        <call function="if" as="nach_tek_ng" group="sum" title="Начислено за тек. месяц  не вкл. в график" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="nach_not_in_graf" />
+        </call>
+        <call function="if" as="dolg_ng_beg" group="sum" title="Долг на начало месяца  не вкл. в график" type="number">
+          <call function="lt">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ob_not_in_graf" />
+        </call>
+        <call function="if" as="dolg_ng_end" group="sum" title="Долг на конец месяца  не вкл. в график" type="number">
+          <call function="le">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ob_not_in_graf" />
+        </call>
+        <call function="if" as="dolg_graf_beg" group="sum" title="Долг на начало месяца  по графику" type="number">
+          <call function="lt">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="fin_ul_ob_graf" />
+        </call>
+        <call function="if" as="dolg_gr_beg" group="sum" title="Долг на начало месяца  по графику" type="number" exclude="1">
+          <call function="lt">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ob_in_graf_osn" />
+        </call>
+        <call function="if" as="dolg_graf_end" group="sum" title="Долг на конец месяца  по графику" type="number">
+          <call function="le">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="fin_ul_ob_graf" />
+        </call>
+        <call function="-nvl" as="otkl_ng_beg" group="sum" title="Отклонение на начало месяца  не вкл. в график">
+          <fact column="dolg_ng_beg" />
+          <fact column="nach_pred_ng" />
+        </call>
+        <call function="-nvl" as="otkl_ng_end" group="sum" title="Отклонение на конец месяца  не вкл. в график">
+          <fact column="dolg_ng_end" />
+          <fact column="nach_tek_ng" />
+        </call>
+        <call function="if" as="nach_pred_graf" group="sum" title="Начислено за пред. месяц  по графику" type="number">
+          <call function="=">
+            <column table="ym_graf" column="val" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="ur_graf_opl_sum" />
+        </call>
+        <call function="if" as="nach_tek_graf" group="sum" title="Начислено за тек месяц  по графику" type="number">
+          <call function="=">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ur_graf_opl_sum" />
+        </call>
+        <call function="-nvl" as="otkl_graf_beg" group="sum" title="Отклонение на начало месяца  по графику">
+          <fact column="dolg_graf_beg" />
+          <fact column="nach_pred_graf" />
+        </call>
+        <call function="-nvl" as="otkl_graf_end" group="sum" title="Отклонение на конец месяца  по графику">
+          <fact column="dolg_graf_end" />
+          <fact column="nach_tek_graf" />
+        </call>
+        <call function="+nvl" as="to_opl" group="sum" title="К оплате всего">
+          <fact column="dolg_ng_beg" />
+          <fact column="nach_tek_graf" />
+        </call>
+        <call function="if" as="opl_osn" group="sum" type="number">
+          <call function="=">
+            <column table="vid_real" column="vid_real" />
+            <const>2</const>
+          </call>
+          <fact column="sr_opl_opl_sf" />
+        </call>
+        <call function="if" as="opl_in_graf_osn" group="sum" comment="1" exclude="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="opl_osn" />
+        </call>
+        <call function="()" as="opl_in_graf_osn" group="sum" comment="1">
+          <fact column="opl_osn" condition="cond_in_graf" />
+        </call>
+        <call function="-nvl" as="opl_not_in_graf" group="sum">
+          <fact column="opl_osn" />
+          <fact column="opl_in_graf_osn" />
+        </call>
+        <call function="if" as="opl_not_in_graf" group="sum" type="number" exclude="1">
+          <call function="is null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="opl_osn" />
+        </call>
+        <call function="if" as="opl_ng_tek" group="sum" type="number" title="Оплата   не вкл. в график">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="opl_not_in_graf" />
+        </call>
+        <call function="if" as="opl_graf_tek" group="sum" title="Оплата по графику" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_graf" />
+        </call>
+        <call function="+nvl" as="opl_tek" group="sum" title="Оплата всего">
+          <fact column="opl_ng_tek" />
+          <fact column="opl_graf_tek" />
+        </call>
+        <call function="+nvl" as="dolg_beg" group="sum" title="Долг на начало">
+          <fact column="dolg_ng_beg" />
+          <fact column="dolg_graf_beg" />
+        </call>
+        <call function="+nvl" as="dolg_end" group="sum" title="Долг на конец">
+          <fact column="dolg_ng_end" />
+          <fact column="dolg_graf_end" />
+        </call>
+        <call function="/nvl" as="avg_graf_opl" group="sum" title="Ежемесячный платеж по графику">
+          <fact column="ur_graf_opl_sum" />
+          <fact column="ur_graf_opl_count" />
+        </call>
+      </expressions>
+      <select>
+        <column table="dep" column="kodp" as="dep" />
+        <column table="dep" column="sname" title="Отделение" as="name_dep" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kodp" column="kodp" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="name" as="name_abon" />
+        <column table="kod_graf" column="kod_graf" />
+        <column table="kod_graf" column="doc_type_name" as="doc_name" />
+        <column table="kod_sf" column="kod_sf" exclude="1" />
+        <column table="kod_sf" column="ym" exclude="1" />
+        <column table="kod_sf" column="num_sf" exclude="1" />
+        <column table="kod_sf" column="dat_sf" exclude="1" />
+        <call function="year" as="god" group="max">
+          <call function="ym begin time">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="year" as="prev_god" group="max">
+          <call function="ym begin time">
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="mes-name" as="mes_name" group="max">
+          <call function="mes">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="mes-name" as="prev_mes_name" group="max">
+          <call function="mes">
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="graf_period" title="Срок действия ГПЗ">
+          <call function="date to char">
+            <column table="this" column="ur_graf_opl_dat_min" />
+          </call>
+          <const>'-'</const>
+          <call function="date to char">
+            <column table="this" column="ur_graf_opl_dat_max" />
+          </call>
+        </call>
+        <fact column="ur_graf_opl_dat_min" table="graf" group="min" />
+        <fact column="ur_graf_opl_dat_max" table="graf" group="max" />
+        <fact column="ur_graf_opl_sum" table="graf" group="sum" />
+        <fact column="ur_dogplat_ym_str" table="graf" group="max" as="ur_dogplat_ym_str1" />
+        <call function="vg_period.ym_enum_str_to_date_ranges_str" as="ur_dogplat_ym_str">
+          <column table="this" column="ur_dogplat_ym_str1" />
+        </call>
+        <fact column="ur_dogplat_ym_min" table="graf" group="min" />
+        <fact column="ur_dogplat_ym_max" table="graf" group="max" />
+        <fact column="avg_graf_opl" table="graf" group="sum" />
+        <fact column="nach_pred" table="other" group="sum" />
+        <fact column="dolg_beg" table="other" group="sum" />
+        <fact column="dolg_ng_beg" table="other" group="sum" />
+        <fact column="nach_pred_ng" table="other" group="sum" />
+        <fact column="otkl_ng_beg" table="other" group="sum" />
+        <fact column="dolg_graf_beg" table="graf" group="sum" />
+        <fact column="nach_pred_graf" table="graf" group="sum" />
+        <fact column="otkl_graf_beg" table="graf" group="sum" />
+        <fact column="nach_tek" table="other" group="sum" />
+        <fact column="to_opl" table="other" group="sum" />
+        <fact column="nach_tek_graf" table="graf" group="sum" />
+        <fact column="opl_tek" table="other" group="sum" />
+        <fact column="opl_ng_tek" table="other" group="sum" />
+        <fact column="opl_graf_tek" table="other" group="sum" />
+        <fact column="dolg_end" table="other" group="sum" />
+        <fact column="dolg_ng_end" table="other" group="sum" />
+        <fact column="nach_tek_ng" table="other" group="sum" />
+        <fact column="otkl_ng_end" table="other" group="sum" />
+        <fact column="dolg_graf_end" table="graf" group="sum" />
+        <fact column="otkl_graf_end" table="graf" group="sum" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <storages>
+            <storage query="ur_graf_dp" exclude="1" />
+            <storage query="ur_graf_dog" />
+          </storages>
+          <link name="kod_dog">
+            <link name="kodp" />
+            <link name="dep" />
+          </link>
+          <link name="kod_dep" as="dep" exclude="1" />
+          <dimset as="graf">
+            <link name="kod_graf" />
+            <where>
+              <call function="and">
+                <call function="=1" dont-push="1">
+                  <column table="kod_graf" column="is_active" />
+                </call>
+                <call function="is not null" dont-push="1">
+                  <column table="kod_graf" column="kod_graf" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="other">
+            <link name="kod_graf_for_dog" only-for-cond="1" />
+            <where>
+              <call function="and">
+                <call function="=1" dont-push="1">
+                  <column table="kod_graf_for_dog" column="is_active" />
+                </call>
+                <call function="is not null" dont-push="1">
+                  <column table="kod_graf_for_dog" column="kod_graf" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="sf" exclude="1">
+            <link name="kod_graf_for_dog" only-for-cond="1" />
+            <link name="kod_sf" />
+            <where>
+              <call function="and">
+                <call function="is not null">
+                  <column table="kod_graf_for_dog" column="kod_graf" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <where>
+            <call function="and">
+              <call function="is not null" dont-push="1">
+                <column table="kod_dog" column="kod_dog" />
+              </call>
+              <call function="in" optional="1" dont-push="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kodp" column="kodp" />
+                <const>52276341</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset title="Итог" as="itog">
+          <grset as="dep" title="Отделение">
+            <group>
+              <sourcelink table="dep" />
+            </group>
+            <grset as="dog" title="Договор">
+              <group>
+                <sourcelink table="kod_dog" />
+              </group>
+              <grset title="Договор вывод" as="dog_data">
+                <grset title="СФ" as="sf" exclude="1">
+                  <group>
+                    <sourcelink table="kod_sf" />
+                  </group>
+                </grset>
+                <where>
+                  <call function="true" />
+                </where>
+              </grset>
+              <grset as="graf" title="График">
+                <group>
+                  <sourcelink table="kod_graf" />
+                </group>
+                <where>
+                  <call function="is not null">
+                    <column table="this" column="kod_graf" />
+                  </call>
+                </where>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="ur_graf_dp" timestamp="14.10.2016 00:14:34" materialize="1">
+      <select>
+        <column table="kod_graf" column="kod_graf" group="1" />
+        <column table="kod_dogplat" column="kod_dogplat" group="1" />
+        <column table="kod_sf" column="kod_sf" group="1" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_graf" all-rows="1" />
+          <link name="kod_dogplat" />
+          <link name="kod_sf" />
+        </qube>
+        <query join="left outer" name="ur_graf" as="kod_graf" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_graf" />
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+        </query>
+        <query join="left outer" name="ur_dogplat" as="kod_dogplat" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_dogplat" />
+            <column table="kod_dogplat" column="kod_dogplat" />
+          </call>
+        </query>
+        <query join="left outer" name="sr_facvip" as="kod_sf" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="kod_dogplat" column="kod_dogplat" group="1" />
+        </call>
+        <call function="is not null">
+          <column table="kod_sf" column="kod_sf" group="1" />
+        </call>
+      </where>
+    </query>
+    <query name="ur_graf_dog" timestamp="01.08.2016 19:34:28" materialize="1">
+      <select>
+        <column table="kod_graf_for_dog" column="kod_graf" group="1" as="kod_graf_for_dog" />
+        <column table="kod_graf_for_dog" column="kod_graf" group="1" />
+        <column table="kod_dog" column="kod_dog" group="1" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_graf_for_dog" />
+          <link name="kod_dog" all-rows="1" />
+        </qube>
+        <query join="left outer" name="ur_graf" as="kod_graf" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_graf" />
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+        </query>
+        <query join="left outer" name="ur_graf_for_dog" as="kod_graf_for_dog" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_graf_for_dog" />
+            <column table="kod_graf_for_dog" column="kod_graf" />
+          </call>
+        </query>
+        <query join="left outer" name="kr_dogovor" as="kod_dog" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="this" column="kod_graf_for_dog" />
+        </call>
+      </where>
+    </query>
+    <query name="36257-test3" timestamp="21.11.2016 14:20:54" is-report="1" folder="ur_reports" title="Отчет по ГПЗ, ДПД, мировым соглашениям,  соглашениям о порядке погашения задолженности" visible="0" with-behavior="0">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="36257.xml" title="Отчет по ГПЗ ДПД" print-proc="2" />
+        </excel>
+      </print-templates>
+      <content exclude="1">
+        <usefield field="asuse_ym" />
+      </content>
+      <params>
+        <param name="ym" type="number">
+          <const>2016.05</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="=1" as="cond_in_graf">
+          <column table="kod_graf" column="is_active" />
+        </call>
+        <call function="if" as="nach_in_graf" group="sum" comment="1" exclude="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="sr_facras_nachisl" />
+        </call>
+        <call function="()" as="nach_in_graf" group="sum" comment="1">
+          <fact column="sr_facras_nachisl" condition="cond_in_graf" />
+        </call>
+        <call function="()" as="nach_in_graf_osn" group="sum">
+          <fact column="fin_ul_nachisl_osn" condition="cond_in_graf" />
+        </call>
+        <call function="if" as="ob_in_graf_osn" group="sum" comment="1" exclude="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="()" as="ob_in_graf_osn" group="sum" comment="1">
+          <fact column="fin_ul_ob_osn" condition="cond_in_graf" />
+        </call>
+        <call function="-nvl" as="nach_not_in_graf" group="sum">
+          <fact column="fin_ul_nachisl_osn" />
+          <fact column="nach_in_graf_osn" />
+        </call>
+        <call function="if" as="nach_not_in_graf" group="sum" title="Начислено за пред. месяц" type="number" exclude="1">
+          <call function="is null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="fin_ul_nachisl_osn" />
+        </call>
+        <call function="-nvl" as="ob_not_in_graf" group="sum">
+          <fact column="fin_ul_ob_osn" />
+          <fact column="ob_in_graf_osn" />
+        </call>
+        <call function="if" as="ob_not_in_graf" group="sum" type="number" exclude="1">
+          <call function="is null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" as="nach_pred" group="sum" title="Начислено за пред. месяц" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_osn" />
+        </call>
+        <call function="if" as="nach_tek" group="sum" title="Начислено за тек. месяц" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="fin_ul_nachisl_osn" />
+        </call>
+        <call function="if" as="nach_pred_ng" group="sum" title="Начислено за пред. месяц не вкл. в график" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="nach_not_in_graf" />
+        </call>
+        <call function="if" as="nach_tek_ng" group="sum" title="Начислено за тек. месяц  не вкл. в график" type="number">
+          <call function="=">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="nach_not_in_graf" />
+        </call>
+        <call function="if" as="dolg_ng_beg" group="sum" title="Долг на начало месяца  не вкл. в график" type="number">
+          <call function="lt">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ob_not_in_graf" />
+        </call>
+        <call function="if" as="dolg_ng_end" group="sum" title="Долг на конец месяца  не вкл. в график" type="number">
+          <call function="le">
+            <column table="ym" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ob_not_in_graf" />
+        </call>
+        <call function="if" as="dolg_graf_beg" group="sum" title="Долг на начало месяца  по графику" type="number">
+          <call function="lt">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="fin_ul_ob_graf" />
+        </call>
+        <call function="if" as="dolg_gr_beg" group="sum" title="Долг на начало месяца  по графику" type="number">
+          <call function="lt">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ob_in_graf_osn" />
+        </call>
+        <call function="if" as="dolg_graf_end" group="sum" title="Долг на конец месяца  по графику" type="number">
+          <call function="le">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="fin_ul_ob_graf" />
+        </call>
+        <call function="-nvl" as="otkl_ng_beg" group="sum" title="Отклонение на начало месяца  не вкл. в график">
+          <fact column="dolg_ng_beg" />
+          <fact column="nach_pred_ng" />
+        </call>
+        <call function="-nvl" as="otkl_ng_end" group="sum" title="Отклонение на конец месяца  не вкл. в график">
+          <fact column="dolg_ng_end" />
+          <fact column="nach_tek_ng" />
+        </call>
+        <call function="if" as="nach_pred_graf" group="sum" title="Начислено за пред. месяц  по графику" type="number">
+          <call function="=">
+            <column table="ym_graf" column="val" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="ur_graf_opl_sum" />
+        </call>
+        <call function="if" as="nach_tek_graf" group="sum" title="Начислено за тек месяц  по графику" type="number">
+          <call function="=">
+            <column table="ym_graf" column="val" />
+            <useparam name="ym" />
+          </call>
+          <fact column="ur_graf_opl_sum" />
+        </call>
+        <call function="-nvl" as="otkl_graf_beg" group="sum" title="Отклонение на начало месяца  по графику">
+          <fact column="dolg_graf_beg" />
+          <fact column="nach_pred_graf" />
+        </call>
+        <call function="-nvl" as="otkl_graf_end" group="sum" title="Отклонение на конец месяца  по графику">
+          <fact column="dolg_graf_end" />
+          <fact column="nach_tek_graf" />
+        </call>
+        <call function="+nvl" as="to_opl" group="sum" title="К оплате всего">
+          <fact column="dolg_ng_beg" />
+          <fact column="nach_tek_graf" />
+        </call>
+        <call function="if" as="opl_osn" group="sum" type="number">
+          <call function="=">
+            <column table="vid_real" column="vid_real" />
+            <const>2</const>
+          </call>
+          <fact column="sr_opl_opl_sf" />
+        </call>
+        <call function="if" as="opl_in_graf_osn" group="sum" comment="1" exclude="1">
+          <call function="is not null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="opl_osn" />
+        </call>
+        <call function="()" as="opl_in_graf_osn" group="sum" comment="1">
+          <fact column="opl_osn" condition="cond_in_graf" />
+        </call>
+        <call function="-nvl" as="opl_not_in_graf" group="sum">
+          <fact column="opl_osn" />
+          <fact column="opl_in_graf_osn" />
+        </call>
+        <call function="if" as="opl_not_in_graf" group="sum" type="number" exclude="1">
+          <call function="is null">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <fact column="opl_osn" />
+        </call>
+        <call function="if" as="opl_ng_tek" group="sum" type="number" title="Оплата   не вкл. в график">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="opl_not_in_graf" />
+        </call>
+        <call function="if" as="opl_graf_tek" group="sum" title="Оплата по графику" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_graf" />
+        </call>
+        <call function="+nvl" as="opl_tek" group="sum" title="Оплата всего">
+          <fact column="opl_ng_tek" />
+          <fact column="opl_graf_tek" />
+        </call>
+        <call function="+nvl" as="dolg_beg" group="sum" title="Долг на начало">
+          <fact column="dolg_ng_beg" />
+          <fact column="dolg_graf_beg" />
+        </call>
+        <call function="+nvl" as="dolg_end" group="sum" title="Долг на конец">
+          <fact column="dolg_ng_end" />
+          <fact column="dolg_graf_end" />
+        </call>
+        <call function="/nvl" as="avg_graf_opl" group="sum" title="Ежемесячный платеж по графику">
+          <fact column="ur_graf_opl_sum" />
+          <fact column="ur_graf_opl_count" />
+        </call>
+      </expressions>
+      <select>
+        <column table="dep" column="kodp" as="dep" />
+        <column table="dep" column="sname" title="Отделение" as="name_dep" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" exclude="1" />
+        <column table="kodp" column="kodp" exclude="1" />
+        <column table="kodp" column="nump" exclude="1" />
+        <column table="kodp" column="name" as="name_abon" exclude="1" />
+        <column table="kod_graf" column="kod_graf" exclude="1" />
+        <column table="kod_graf" column="doc_type_name" as="doc_name" exclude="1" />
+        <call function="year" as="god" group="max" exclude="1">
+          <call function="ym begin time">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="year" as="prev_god" group="max" exclude="1">
+          <call function="ym begin time">
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="mes-name" as="mes_name" group="max" exclude="1">
+          <call function="mes">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="mes-name" as="prev_mes_name" group="max" exclude="1">
+          <call function="mes">
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="graf_period" title="Срок действия ГПЗ" exclude="1">
+          <call function="date to char">
+            <column table="this" column="ur_graf_opl_dat_min" />
+          </call>
+          <const>'-'</const>
+          <call function="date to char">
+            <column table="this" column="ur_graf_opl_dat_max" />
+          </call>
+        </call>
+        <fact column="ur_graf_opl_dat_min" table="graf" group="min" exclude="1" />
+        <fact column="ur_graf_opl_dat_max" table="graf" group="max" exclude="1" />
+        <fact column="ur_graf_opl_sum" table="graf" group="sum" exclude="1" />
+        <fact column="ur_dogplat_ym_str" table="graf" group="max" as="ur_dogplat_ym_str1" exclude="1" />
+        <call function="vg_period.ym_enum_str_to_date_ranges_str" as="ur_dogplat_ym_str" exclude="1">
+          <column table="this" column="ur_dogplat_ym_str1" />
+        </call>
+        <fact column="ur_dogplat_ym_min" table="graf" group="min" exclude="1" />
+        <fact column="ur_dogplat_ym_max" table="graf" group="max" exclude="1" />
+        <fact column="nach_in_graf" />
+        <fact column="avg_graf_opl" table="graf" group="sum" exclude="1" />
+        <fact column="nach_pred" table="other" group="sum" exclude="1" />
+        <fact column="dolg_beg" table="other" group="sum" exclude="1" />
+        <fact column="dolg_ng_beg" table="other" group="sum" exclude="1" />
+        <fact column="dolg_gr_beg" table="other" group="sum" exclude="1" />
+        <fact column="nach_pred_ng" table="other" group="sum" exclude="1" />
+        <fact column="otkl_ng_beg" table="other" group="sum" exclude="1" />
+        <fact column="dolg_graf_beg" table="graf" group="sum" exclude="1" />
+        <fact column="nach_pred_graf" table="graf" group="sum" exclude="1" />
+        <fact column="otkl_graf_beg" table="graf" group="sum" exclude="1" />
+        <fact column="nach_tek" table="other" group="sum" exclude="1" />
+        <fact column="to_opl" table="other" group="sum" exclude="1" />
+        <fact column="nach_tek_graf" table="graf" group="sum" exclude="1" />
+        <fact column="opl_tek" table="other" group="sum" exclude="1" />
+        <fact column="opl_ng_tek" table="other" group="sum" exclude="1" />
+        <fact column="opl_graf_tek" table="other" group="sum" exclude="1" />
+        <fact column="dolg_end" table="other" group="sum" exclude="1" />
+        <fact column="dolg_ng_end" table="other" group="sum" exclude="1" />
+        <fact column="nach_tek_ng" table="other" group="sum" exclude="1" />
+        <fact column="otkl_ng_end" table="other" group="sum" exclude="1" />
+        <fact column="dolg_graf_end" table="graf" group="sum" exclude="1" />
+        <fact column="otkl_graf_end" table="graf" group="sum" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <storages>
+            <storage query="ur_graf_dp" />
+            <storage query="ur_graf_dog" />
+          </storages>
+          <link name="kod_dog">
+            <link name="kodp" />
+            <link name="dep" />
+          </link>
+          <dimset as="graf" exclude="1">
+            <link name="kod_graf" />
+            <where>
+              <call function="and">
+                <call function="=1">
+                  <column table="kod_graf" column="is_active" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="other" exclude="1">
+            <link name="kod_graf_for_dog" only-for-cond="1" />
+            <where>
+              <call function="and">
+                <call function="=1">
+                  <column table="kod_graf_for_dog" column="is_active" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="sf" exclude="1">
+            <link name="kod_graf_for_dog" only-for-cond="1" />
+            <link name="kod_sf" />
+            <where>
+              <call function="and">
+                <call function="is not null">
+                  <column table="kod_graf_for_dog" column="kod_graf" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <where>
+            <call function="and">
+              <call function="is not null">
+                <column table="kod_dog" column="kod_dog" />
+              </call>
+              <call function="=">
+                <column table="kodp" column="kodp" />
+                <const>52276341</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset title="Итог" as="itog" exclude="1">
+          <grset as="dep" title="Отделение">
+            <group>
+              <sourcelink table="dep" />
+            </group>
+            <grset as="dog" title="Договор">
+              <group>
+                <sourcelink table="kod_dog" />
+              </group>
+              <grset title="Договор вывод" as="dog_data">
+                <grset title="СФ" as="sf" exclude="1">
+                  <group>
+                    <sourcelink table="kod_sf" />
+                  </group>
+                </grset>
+                <where>
+                  <call function="true" />
+                </where>
+              </grset>
+              <grset as="graf" title="График">
+                <group>
+                  <sourcelink table="kod_graf" />
+                </group>
+                <where>
+                  <call function="is not null">
+                    <column table="this" column="kod_graf" />
+                  </call>
+                </where>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

@@ -1,0 +1,440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="37768-params" timestamp="26.01.2017 19:29:08">
+      <param type="array" name="kodp" />
+      <param type="array" name="kod_dog">
+        <const>162</const>
+      </param>
+      <param type="number" name="ym_s">
+        <const>2016.10</const>
+      </param>
+      <param type="number" name="ym_po">
+        <const>2008.03</const>
+      </param>
+      <param type="array" name="vid_real">
+        <const exclude="1">(2,7,9)</const>
+      </param>
+      <param type="number" name="by_vidopl" />
+    </part>
+    <part id="37768-withparams">
+      <useparam name="kodp" />
+      <useparam name="kod_dog" />
+      <useparam name="ym_s" />
+      <useparam name="ym_po" />
+      <useparam name="vid_real" />
+      <useparam name="by_vidopl" />
+    </part>
+  </parts>
+  <reports>
+    <report name="37768" form="37768" with-behavior="1" edit-columns="2" title="Оборотно-сальдовая ведомость по абоненту" nogrid="1" folder="oborot" timestamp="31.07.2024 15:42:38">
+      <customers>
+        <customer id="101" />
+        <customer id="300" />
+      </customers>
+      <params>
+        <usepart part="37768-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="37768.xlsx" title="Оборотно-сальдовая ведомость по абоненту" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="37768-title" as="t" title="Шапка">
+          <withparams>
+            <usepart part="37768-withparams" />
+          </withparams>
+        </query>
+        <query name="37768-gr" title="Данные" as="a" main="1">
+          <dimquery table="trs" dimension="rs" />
+          <withparams>
+            <usepart part="37768-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="t" column="kod" />
+            <column table="a" column="kod" />
+          </call>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="37768-gr" as="a" timestamp="27.06.2017 19:54:25">
+      <params>
+        <usepart part="37768-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="37768-data" as="a">
+          <withparams>
+            <usepart part="37768-withparams" />
+          </withparams>
+          <grsets>
+            <on-rows>
+              <grset level="1" title="абоненты" as="abon" order="name">
+                <grset level="2" title="договоры" as="dog" order="ndog">
+                  <where>
+                    <call function="and">
+                      <call function="ge" optional="1">
+                        <column table="a" column="ym" />
+                        <useparam name="ym_s" />
+                      </call>
+                      <call function="le" optional="1">
+                        <column table="a" column="ym" />
+                        <useparam name="ym_po" />
+                      </call>
+                      <call function="or">
+                        <call function="!=">
+                          <column table="this" column="pr_active" />
+                          <const>1</const>
+                        </call>
+                        <call function="!=0">
+                          <column table="this" column="sld_dog_beg" />
+                          <column table="this" column="sld_dog_end" />
+                          <column table="this" column="opl_sf" />
+                          <column table="this" column="nachisl_sf" />
+                        </call>
+                      </call>
+                    </call>
+                  </where>
+                  <grset level="3" title="периоды" as="yms" order="ym" />
+                </grset>
+              </grset>
+            </on-rows>
+            <on-columns>
+              <grset level="4" title="" as="rs" order="bankpol_full">
+                <where>
+                  <call function="and">
+                    <call function="=">
+                      <call function="nvlu">
+                        <useparam name="by_vidopl" />
+                        <const>null</const>
+                      </call>
+                      <const>1</const>
+                    </call>
+                    <call function="is not null">
+                      <column table="a" column="bankpol_full" />
+                    </call>
+                    <call function="and">
+                      <call function="ge" optional="1">
+                        <column table="a" column="ym" />
+                        <useparam name="ym_s" />
+                      </call>
+                      <call function="le" optional="1">
+                        <column table="a" column="ym" />
+                        <useparam name="ym_po" />
+                      </call>
+                    </call>
+                  </call>
+                </where>
+                <facts>
+                  <column column="opl_sf" />
+                </facts>
+              </grset>
+            </on-columns>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="37768-data" timestamp="27.06.2017 19:53:55" grouplevel="no">
+      <params>
+        <usepart part="37768-params" />
+      </params>
+      <expressions>
+        <call function="()" as="opl_sf" type="number" group="sum">
+          <fact column="opl" />
+        </call>
+        <call function="()" as="nachisl_sf" type="number" group="sum">
+          <fact column="sr_facras_nachisl" />
+        </call>
+        <call function="()" as="nachisl_sf_nonal" type="number" group="sum">
+          <call function="-nvl">
+            <fact column="sr_facras_nachisl" />
+            <fact column="sr_facras_nal_nal" />
+          </call>
+        </call>
+        <call function="()" as="nachisl_nal" type="number" group="sum">
+          <fact column="sr_facras_nal_nal" />
+        </call>
+        <call function="()" as="nachisl_cust" type="number" group="sum">
+          <fact column="sr_facras_cust_teplo" />
+        </call>
+        <call function="-nvl" group="sum" as="oborot" title="Оборот">
+          <fact column="nachisl_sf" />
+          <fact column="opl_sf" />
+        </call>
+      </expressions>
+      <select>
+        <const as="kod" group="max" type="number">1</const>
+        <column table="kodp" column="kodp" group="1" />
+        <column table="kod_dog" column="kod_dog" group="2" />
+        <column table="ym" column="val" as="ym" group="3" />
+        <column table="kodp" column="inn" group="kodp" />
+        <column table="kodp" column="kpp" group="kodp" />
+        <column table="kodp" column="name" group="kodp" />
+        <column table="kod_dog_fin" column="ndog" group="kod_dog" />
+        <column table="kod_dog_fin" column="pr_active" group="kod_dog" />
+        <column table="kodbpol" column="kodbpol" group="4" />
+        <column table="kodbpol" column="bankpol_full" group="kodbpol" />
+        <call function="mes-name" as="mon" group="ym" title="Месяц">
+          <call function="month">
+            <call function="ym begin time">
+              <column table="ym" column="val" as="ym" />
+            </call>
+          </call>
+        </call>
+        <call function="trunc" as="year" group="ym" title="Год">
+          <column table="ym" column="val" as="ym" />
+        </call>
+        <fact column="opl_sf" title="Оплачено" group="sumnvl" table="opl" />
+        <fact column="nachisl_sf" title="Начислено" group="sumnvl" table="nach" />
+        <fact column="nachisl_sf_nonal" title="Начислено без НДС" group="sumnvl" table="nach" />
+        <fact column="nachisl_nal" title="НДС" group="sumnvl" table="nach" />
+        <fact column="nachisl_cust" group="sumnvl" title="ГКал" table="nach" />
+        <fact column="oborot" group="sumnvl" table="nach" />
+        <call function="over" as="sld_dog_pre_beg" type="number" group="sum" title=" ">
+          <call function="sum">
+            <column table="this" column="oborot" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+          <call function="order by range * -1">
+            <call function="*" comment="не работает с дробями">
+              <column table="this" column="ym" />
+              <const>100</const>
+            </call>
+          </call>
+        </call>
+        <call function="over" as="sld_dog_pre_end" type="number" group="sum" title=" ">
+          <call function="sum">
+            <column table="this" column="oborot" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="row_number" as="rn_dog" type="number">
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+            <column table="this" column="ym" />
+          </call>
+          <call function="order by 2">
+            <const>null</const>
+          </call>
+        </call>
+        <call function="if" as="sld_dog_beg" title="Сальдо на начало" group="sum">
+          <call function="=1">
+            <column table="this" column="rn_dog" />
+          </call>
+          <column table="this" column="sld_dog_pre_beg" group="no" />
+        </call>
+        <call function="if" as="sld_dog_end" title="Сальдо на конец" group="sum">
+          <call function="=1">
+            <column table="this" column="rn_dog" />
+          </call>
+          <column table="this" column="sld_dog_pre_end" group="no" />
+        </call>
+        <fact column="qube_dog_ym_cnt" group="sum" table="pp" />
+        <call function="over" as="ym_nxt_dog" type="number" group="4" exclude="1">
+          <call function="first_value">
+            <column table="this" column="ym" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+          <call function="order by range 1 *">
+            <call function="*" comment="не работает с дробями">
+              <column table="this" column="ym" />
+              <const>100</const>
+            </call>
+          </call>
+        </call>
+        <!--<fact column="nachisl_sf" if="ni" as="nachisl_sf_ni" group="sumnvl" title="Сальдо на начало месяца">
+          <section>
+            <call function="ym add month">
+              <useparam name="ym_s" />
+              <const>-1</const>
+            </call>
+          </section>
+        </fact>-->
+      </select>
+      <from>
+        <qube>
+          <dimset as="opl">
+            <link name="kodbpol" />
+            <link name="vid_real_no_av" />
+            <link name="ym" />
+            <where>
+              <call function="is not null">
+                <column table="vid_real_no_av" column="vid_real" />
+              </call>
+              <call function="in" optional="1">
+                <column table="vid_real_no_av" column="vid_real" />
+                <useparam name="vid_real" />
+              </call>
+              <call function="le" optional="1">
+                <column table="ym" column="val" />
+                <useparam name="ym_po" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="nach">
+            <link name="vid_real_no_av" />
+            <link name="ym" />
+            <where>
+              <call function="is not null">
+                <column table="vid_real_no_av" column="vid_real" />
+              </call>
+              <call function="in" optional="1">
+                <column table="vid_real_no_av" column="vid_real" />
+                <useparam name="vid_real" />
+              </call>
+              <call function="le" optional="1">
+                <column table="ym" column="val" />
+                <useparam name="ym_po" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="pp">
+            <link name="ym" />
+            <where>
+              <call function="le" optional="1">
+                <column table="ym" column="val" />
+                <useparam name="ym_po" />
+              </call>
+            </where>
+          </dimset>
+          <link name="kod_dog" all-rows="1">
+            <link name="kod_dog_fin">
+              <link name="kodp" />
+            </link>
+          </link>
+          <where>
+            <call function="true" />
+            <call function="!=" exclude="1">
+              <column table="kod_dog" column="pr_active" />
+              <const>1</const>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="kod_dog" />
+              <useparam name="kod_dog" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp" column="kodp" />
+              <useparam name="kodp" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="37768-title" timestamp="08.02.2017 18:46:55">
+      <params>
+        <usepart part="37768-params" />
+      </params>
+      <select>
+        <const type="number" as="kod" group="1">1</const>
+        <call function="date to char" as="dat_s" group="max" title="Начальная дата">
+          <call function="ym begin time">
+            <useparam name="ym_s" />
+          </call>
+        </call>
+        <call function="date to char" as="dat_po" group="max" title="Конечная дата">
+          <call function="ym end time">
+            <useparam name="ym_po" />
+          </call>
+        </call>
+        <column table="a" column="sname" group="stragg" as="real_names" title="Виды реализации" />
+        <column table="e" column="name" group="max" as="org_name" title="Наименование организации" />
+      </select>
+      <from>
+        <query name="sk_vid_real_list_no_avans" as="a" />
+        <query name="rs_esys" join="cross" as="e" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="vid_real" />
+            <useparam name="vid_real" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--<query name="37768-colsets-default">
+      <params>
+        <param name="by_vidopl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="37768-colsets" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <call function="nvlu">
+            <useparam name="by_vidopl" />
+            <const>0</const>
+          </call>
+          <column table="a" column="pr" />
+        </call>
+      </where>
+    </query>
+    <query name="37768-colsets">
+      <const as="id" type="string">'opl_detail'</const>
+      <const as="name" type="string">'С детализацией'</const>
+      <const as="pr" type="number">1</const>
+    </query>-->
+    <query name="qube_dog_ym" timestamp="08.02.2017 13:05:37">
+      <select>
+        <call function="()" type="number" as="cnt" fact="qube_dog_ym_cnt" agg="sum">
+          <const>1</const>
+        </call>
+        <column table="d" column="kod_dog" dimension="kod_dog" />
+        <column table="p" column="ym" dimension="ym" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="d" />
+        <query name="kr_calc_list" join="cross" as="p" />
+      </from>
+    </query>
+  </queries>
+  <forms>
+    <form name="37768" timestamp="04.07.2017 14:33:11">
+      <content>
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_kodp" valid="vld" search-field-name="inn" />
+        <usefield field="asuse_kod_dog" valid="vld">
+          <defaultquery>
+            <query name="36703-dog-def" />
+          </defaultquery>
+          <listquery>
+            <query name="kr_dogovor_list2" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_string" title="Вылидация" name="vld" column-visible="0">
+          <defaultquery>
+            <query name="36703-validation-def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="asuse_ym" title="С" name="ym_s" />
+        <usefield field="asuse_ym" title="По" name="ym_po" />
+        <usefield field="asuse_vid_real_no_av" />
+        <!--<usefield field="cmn_check" title="Детализация по видам оплаты" />-->
+        <usefield field="cmn_check" title="Детализация по видам оплат" name="by_vidopl" />
+        <!--<usefield field="cmn_list" name="cols" type="string" special-type="colsets" title="Детализация по видам оплат" visible="1">
+          <defaultquery>
+            <query name="37768-colsets-default" />
+          </defaultquery>
+        </usefield>-->
+      </content>
+    </form>
+  </forms>
+</root>

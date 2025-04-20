@@ -1,0 +1,1729 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="56178" with-behavior="0" timestamp="19.04.2020 16:45:40" title="Оперативная информация по реализации">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <content>
+        <usefield field="asuse_dep_single" />
+        <usefield field="asuse_ym" />
+        <usefield field="date" />
+        <field name="date" controlType="UIDate" title="Дата" valuequery="cur-date" mandatory="1" exclude="1" />
+      </content>
+    </form>
+    <form name="56178_v1" with-behavior="0" timestamp="23.04.2020 17:00:22" title="Оперативная информация по реализации">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <content>
+        <usefield field="asuse_dep_single" />
+        <usefield field="asuse_ym" mandatory="1" exclude="1" />
+        <usefield field="cmn_combo_num" name="ym" title="Период" mandatory="1">
+          <listquery>
+            <query name="56178_v1-kr_calc_plus_cur_ym" />
+          </listquery>
+          <defaultquery>
+            <query name="56178_v1-kr_calc_plus_cur_ym_default" />
+          </defaultquery>
+        </usefield>
+        <usefield name="dat_num" mandatory="1" title="Число месяца" field="cmn_combo_num">
+          <listquery>
+            <query name="56178_v1-dat_list" />
+          </listquery>
+          <defaultquery>
+            <query name="56178_v1-dat_list_default" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_date" name="dat" title="Дата" mandatory="1" visible="0">
+          <defaultquery>
+            <query name="56178_v1-dat_val" />
+          </defaultquery>
+        </usefield>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="56178" title="Оперативная информация по реализации" form="56178" timestamp="20.04.2020 12:55:14" visible="0">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <params use-defaults="1">
+        <param class-type="kr_dep_is_single" name="dep" />
+        <param name="ym" class-type="spr_time_ym" as="Период" />
+        <param name="date" class-type="cur-date" />
+      </params>
+      <queries>
+        <query name="56178-data" as="a" title="Текущий год. ОВ1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="date" />
+          </withparams>
+        </query>
+        <query name="56178-data_25-73" as="a1" title="Текущий год. ОВ-25/ ОВ-73">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="date" />
+          </withparams>
+        </query>
+        <query name="56178-data_last_year" as="b" title="Прошлый год" exclude="1">
+          <withparams>
+            <useparam name="dep" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-12</const>
+            </call>
+            <useparam name="date" />
+          </withparams>
+        </query>
+        <query name="56178-data_OV1_1_year_bef" title="Год назад. ОВ1." as="b1" exclude="1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="date" />
+          </withparams>
+        </query>
+        <query name="56178-data_debet" title="Дебиторская задолженность." as="deb" exclude="1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="date" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="56178_v1" title="Оперативная информация по реализации" form="56178_v1" timestamp="23.04.2020 17:00:36" nogrid="1">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="56178.xlsx" print-proc="2" title="Оперативная информация по реализации" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <params use-defaults="1">
+        <param class-type="kr_dep_is_single" name="dep" />
+        <param name="ym" class-type="spr_time_ym" as="Период" />
+        <param name="dat" class-type="cur-date" />
+      </params>
+      <queries>
+        <query name="56178_v1_data" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="dat" />
+          </withparams>
+        </query>
+        <query name="56178_v1-params" as="params">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="dat" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="56178-data_25-73" timestamp="19.04.2020 19:04:51">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" />
+        <param name="date" />
+        <param name="vid_t" type="array">
+          <const>(25,73)</const>
+        </param>
+        <param name="vid_real" type="array">
+          <const>2</const>
+        </param>
+      </params>
+      <select>
+        <call table="*" column="ym" group="1" function="()" as="ym1" type="number" title="Период" format="N2">
+          <useparam name="ym" />
+        </call>
+        <column table="kod_group_cust_parent" column="kod_group_cust" group="1" exclude="1" />
+        <column table="kod_group_cust_parent" column="name" group="1" exclude="1" />
+        <column group="1" table="a" column="kod_istfin" exclude="1" />
+        <column table="a" column="istfin_name" group="1" exclude="1" />
+        <column group="1" table="a" column="ym" exclude="1" />
+        <column group="1" table="a" column="vid_t" type="number" title="Вид начисления" format="N0" />
+        <column table="a" column="kod_opl_main" group="1" type="number" exclude="1" />
+        <column group="1" table="a" column="dat_sf_opl" exclude="1" />
+        <column group="1" table="a" column="dat_sf" exclude="1" />
+        <column group="1" table="a" column="dat_opl" exclude="1" />
+        <column table="a" column="nachisl_0_in_ym" group="sum" type="number" dimname="dimist" as="avans_by_ist">
+          <pivot title=" по ист.фин.">
+            <column table="a" column="kod_istfin" />
+            <query order="b.kod_ist">
+              <select>
+                <column table="b" column="kod_ist" as="kod_istfin" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="ks_istfin_list" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="nachisl_0_30" group="sum" type="number" exclude="1" />
+        <column table="a" column="nachisl_0_40" group="sum" type="number" exclude="1" />
+        <column group="sum" table="a" column="nachisl_2_bef" type="number" dimname="dimist" title="Начислено основная реализация">
+          <if>
+            <call function="=">
+              <column table="a" column="ym" />
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2" type="number" dimname="dimist" exclude="1">
+          <if exclude="1">
+            <call function="between">
+              <column table="a" column="dat_opl" />
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+              <useparam name="date" />
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_nach_bef" dimname="dimist" title="Сумма оплаты">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+              <call table="a" column="vid_real" function="in">
+                <column table="a" column="vid_t" />
+                <const>(25,73)</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2_bef" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_nach" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_nach_by_ym" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_nach_by_ym_bank" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf_by_ym" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf_sum_on_kod_opl_main" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_nach_pl_stor_av" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=" exclude="1">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2_bef" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_fact_for_rks" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="ostatok_beg" type="number" dimname="dimist" exclude="1" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <call function="ym end time" parname="date1" exclude="1">
+              <useparam name="ym" />
+            </call>
+            <useparam name="date" />
+            <call function="ym end time" parname="date1">
+              <useparam name="ym" />
+            </call>
+            <call function="ym begin time" parname="date2" exclude="1">
+              <useparam name="date" />
+            </call>
+            <useparam name="vid_real">2</useparam>
+            <useparam name="vid_t">25,73</useparam>
+            <!--<useparam name="kod_dog" parname="kod_dog_fin" />-->
+            <!--<call function="to_date">
+              <const>'01.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+            <call function="to_date">
+              <const>'28.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>-->
+            <!--<const>217</const>-->
+          </withparams>
+          <link name="kod_dog" exclude="1">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="=" optional="1" exclude="1">
+          <column table="a" column="dep" />
+          <useparam function="date to ym" name="dep">1219</useparam>
+        </call>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="vid_t" />
+            <array>25,73</array>
+          </call>
+          <call function="=" optional="1">
+            <column table="a" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178-data" timestamp="19.04.2020 19:48:30">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" />
+        <param name="date" />
+      </params>
+      <select>
+        <call table="*" column="ym" group="1" function="()" as="ym1" type="number" title="Период" format="N2">
+          <useparam name="ym" />
+        </call>
+        <column table="kod_group_cust_parent" column="kod_group_cust" group="1" exclude="1" />
+        <column table="kod_group_cust_parent" column="name" group="1" exclude="1" />
+        <column group="1" table="a" column="kod_istfin" exclude="1" />
+        <column table="a" column="istfin_name" group="1" exclude="1" />
+        <column group="1" table="a" column="ym" exclude="1" />
+        <column group="1" table="a" column="vid_real" type="number" title="vid_t" exclude="1" />
+        <column table="a" column="kod_opl_main" group="1" type="number" exclude="1" />
+        <column group="1" table="a" column="dat_sf_opl" exclude="1" />
+        <column group="1" table="a" column="dat_sf" exclude="1" />
+        <column group="1" table="a" column="dat_opl" exclude="1" />
+        <column table="a" column="nachisl_0_in_ym" group="sum" type="number" dimname="dimist" as="avans_by_ist">
+          <pivot title=" по ист.фин.">
+            <column table="a" column="kod_istfin" />
+            <query order="b.kod_ist">
+              <select>
+                <column table="b" column="kod_ist" as="kod_istfin" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="ks_istfin_list" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="nachisl_0_30" group="sum" type="number" exclude="1" />
+        <column table="a" column="nachisl_0_40" group="sum" type="number" exclude="1" />
+        <column group="sum" table="a" column="nachisl_2_bef" type="number" dimname="dimist" title="Начислено основная реализация">
+          <if>
+            <call function="and">
+              <call function="not in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>25,73</array>
+              </call>
+              <call function="=">
+                <column table="a" column="ym" />
+                <call function="ym add month">
+                  <useparam name="ym" />
+                  <const>-1</const>
+                </call>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2" type="number" dimname="dimist" exclude="1">
+          <if exclude="1">
+            <call function="between">
+              <column table="a" column="dat_opl" />
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+              <useparam name="date" />
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf" dimname="dimist">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="ostatok_2_beg" type="number" dimname="dimist" exclude="1" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <call function="ym begin time" parname="date1">
+              <useparam name="ym" />
+            </call>
+            <call function="ym begin time" parname="date2">
+              <useparam name="ym" />
+            </call>
+            <!--<useparam name="kod_dog" parname="kod_dog_fin" />-->
+            <!--<call function="to_date">
+              <const>'01.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+            <call function="to_date">
+              <const>'28.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>-->
+            <!--<const>217</const>-->
+          </withparams>
+          <link name="kod_dog" exclude="1">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=" optional="1">
+            <column table="a" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178-data_last_year" timestamp="19.04.2020 12:01:27">
+      <params>
+        <param name="dep" />
+        <param part="54556-params" name="ym">
+          <const>2020.03</const>
+        </param>
+        <param name="date" />
+      </params>
+      <select>
+        <call table="*" column="ym" group="1" function="()" as="ym1" type="number" title="период">
+          <useparam name="ym" />
+        </call>
+        <column table="kod_group_cust_parent" column="kod_group_cust" group="1" exclude="1" />
+        <column table="kod_group_cust_parent" column="name" group="1" exclude="1" />
+        <column group="1" table="a" column="kod_istfin" exclude="1" />
+        <column table="a" column="istfin_name" group="1" exclude="1" />
+        <column group="1" table="a" column="ym" exclude="1" />
+        <column group="1" table="a" column="vid_real" type="number" title="vid_t" exclude="1" />
+        <column table="a" column="kod_opl_main" group="1" type="number" exclude="1" />
+        <column group="1" table="a" column="dat_sf_opl" exclude="1" />
+        <column group="1" table="a" column="dat_sf" exclude="1" />
+        <column group="1" table="a" column="dat_opl" exclude="1" />
+        <column table="a" column="nachisl_0_in_ym" group="sum" type="number" dimname="dimist" as="avans_by_ist">
+          <pivot title=" по ист.фин.">
+            <column table="a" column="kod_istfin" />
+            <query order="b.kod_ist">
+              <select>
+                <column table="b" column="kod_ist" as="kod_istfin" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="ks_istfin_list" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="nachisl_0_30" group="sum" type="number" exclude="1" />
+        <column table="a" column="nachisl_0_40" group="sum" type="number" exclude="1" />
+        <column group="sum" table="a" column="nachisl_2_bef" type="number" dimname="dimist" title="Начислено основная реализация">
+          <if>
+            <call function="and">
+              <call function="not in">
+                <column table="a" column="vid_t" />
+                <array>25,73</array>
+              </call>
+              <call function="=">
+                <column table="a" column="ym" />
+                <call function="ym add month">
+                  <useparam name="ym" />
+                  <const>-1</const>
+                </call>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2" type="number" dimname="dimist" exclude="1">
+          <if exclude="1">
+            <call function="between">
+              <column table="a" column="dat_opl" />
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+              <useparam name="date" />
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf" dimname="dimist">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="ostatok_beg" type="number" dimname="dimist" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <call function="ym begin time" parname="date1">
+              <useparam name="ym" />
+            </call>
+            <call function="ym begin time" parname="date2">
+              <useparam name="ym" />
+            </call>
+            <!--<useparam name="kod_dog" parname="kod_dog_fin" />-->
+            <!--<call function="to_date">
+              <const>'01.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+            <call function="to_date">
+              <const>'28.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>-->
+            <!--<const>217</const>-->
+          </withparams>
+          <link name="kod_dog">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178-data_OV1_1_year_bef" timestamp="19.04.2020 19:20:11">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" />
+        <param name="date" />
+      </params>
+      <select>
+        <call table="*" column="ym" group="1" function="()" as="ym1" type="number" title="Период" format="N2">
+          <call function="-" exclude="1">
+            <useparam name="ym" />
+            <const type="number">1</const>
+          </call>
+          <call function="ym add month">
+            <useparam name="ym" />
+            <const>-12</const>
+          </call>
+        </call>
+        <column table="kod_group_cust_parent" column="kod_group_cust" group="1" exclude="1" />
+        <column table="kod_group_cust_parent" column="name" group="1" exclude="1" />
+        <column group="1" table="a" column="kod_istfin" exclude="1" />
+        <column table="a" column="istfin_name" group="1" exclude="1" />
+        <column group="1" table="a" column="ym" exclude="1" />
+        <column group="1" table="a" column="vid_real" type="number" title="vid_t" exclude="1" />
+        <column table="a" column="kod_opl_main" group="1" type="number" exclude="1" />
+        <column group="1" table="a" column="dat_sf_opl" exclude="1" />
+        <column group="1" table="a" column="dat_sf" exclude="1" />
+        <column group="1" table="a" column="dat_opl" exclude="1" />
+        <column table="a" column="nachisl_0_in_ym" group="sum" type="number" dimname="dimist" as="avans_by_ist">
+          <pivot title=" по ист.фин.">
+            <column table="a" column="kod_istfin" />
+            <query order="b.kod_ist">
+              <select>
+                <column table="b" column="kod_ist" as="kod_istfin" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="ks_istfin_list" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="nachisl_0_30" group="sum" type="number" exclude="1" />
+        <column table="a" column="nachisl_0_40" group="sum" type="number" exclude="1" />
+        <column group="sum" table="a" column="nachisl_2_bef" type="number" dimname="dimist" title="Начислено основная реализация">
+          <if>
+            <call function="and">
+              <call function="not in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>25,73</array>
+              </call>
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>-13</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2" type="number" dimname="dimist" exclude="1">
+          <if exclude="1">
+            <call function="between">
+              <column table="a" column="dat_opl" />
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+              <useparam name="date" />
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf" dimname="dimist">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <call function="ym add month">
+                    <useparam name="ym" />
+                    <const>-12</const>
+                  </call>
+                </call>
+                <call function="add_months">
+                  <useparam name="date" />
+                  <const type="number">-12</const>
+                </call>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="ostatok_beg" type="number" dimname="dimist" exclude="1" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <call function="ym begin time" parname="date1">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>-12</const>
+              </call>
+            </call>
+            <call function="ym begin time" parname="date2">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>-12</const>
+              </call>
+            </call>
+            <!--<useparam name="kod_dog" parname="kod_dog_fin" />-->
+            <!--<call function="to_date">
+              <const>'01.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+            <call function="to_date">
+              <const>'28.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>-->
+            <!--<const>217</const>-->
+          </withparams>
+          <link name="kod_dog" exclude="1">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=" optional="1">
+            <column table="a" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178-data_debet" timestamp="19.04.2020 19:38:58">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" />
+        <param name="date" />
+      </params>
+      <select>
+        <call table="*" column="ym" group="1" function="()" as="ym1" type="number" title="Период" format="N2">
+          <useparam name="ym" />
+        </call>
+        <column table="kod_group_cust_parent" column="kod_group_cust" group="1" exclude="1" />
+        <column table="kod_group_cust_parent" column="name" group="1" exclude="1" />
+        <column group="1" table="a" column="kod_istfin" exclude="1" />
+        <column table="a" column="istfin_name" group="1" exclude="1" />
+        <column group="1" table="a" column="ym" exclude="1" />
+        <column group="1" table="a" column="vid_real" type="number" title="vid_t" exclude="1" />
+        <column table="a" column="kod_opl_main" group="1" type="number" exclude="1" />
+        <column group="1" table="a" column="dat_sf_opl" exclude="1" />
+        <column group="1" table="a" column="dat_sf" exclude="1" />
+        <column group="1" table="a" column="dat_opl" exclude="1" />
+        <column table="a" column="nachisl_0_in_ym" group="sum" type="number" dimname="dimist" as="avans_by_ist" exclude="1">
+          <pivot title=" по ист.фин.">
+            <column table="a" column="kod_istfin" />
+            <query order="b.kod_ist">
+              <select>
+                <column table="b" column="kod_ist" as="kod_istfin" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="ks_istfin_list" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="nachisl_0_30" group="sum" type="number" exclude="1" />
+        <column table="a" column="nachisl_0_40" group="sum" type="number" exclude="1" />
+        <column group="sum" table="a" column="nachisl_2_bef" type="number" dimname="dimist" title="Начислено основная реализация" exclude="1">
+          <if>
+            <call function="and">
+              <call function="not in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>25,73</array>
+              </call>
+              <call function="=">
+                <column table="a" column="ym" />
+                <call function="ym add month">
+                  <useparam name="ym" />
+                  <const>-1</const>
+                </call>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="opl_2" type="number" dimname="dimist" exclude="1">
+          <if exclude="1">
+            <call function="between">
+              <column table="a" column="dat_opl" />
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+              <useparam name="date" />
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="oplf" dimname="dimist" exclude="1">
+          <if>
+            <call function="and">
+              <call table="a" column="vid_real" function="=">
+                <column table="a" column="vid_real" />
+                <const>2</const>
+              </call>
+              <call function="between">
+                <column table="a" column="dat_opl" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <useparam name="date" />
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="ostatok_beg" type="number" dimname="dimist">
+          <pivot title=" по ист.фин.">
+            <column table="a" column="kod_istfin" />
+            <query order="b.kod_ist">
+              <select>
+                <column table="b" column="kod_ist" as="kod_istfin" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="ks_istfin_list" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <useparam name="date" exclude="1" />
+            <call function="ym begin time" parname="date1">
+              <useparam name="ym" />
+            </call>
+            <call function="ym begin time" parname="date2" exclude="1">
+              <useparam name="ym" />
+            </call>
+            <!--<useparam name="kod_dog" parname="kod_dog_fin" />-->
+            <!--<call function="to_date">
+              <const>'01.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+            <call function="to_date">
+              <const>'28.12.2014'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>-->
+            <!--<const>217</const>-->
+          </withparams>
+          <link name="kod_dog" exclude="1">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=" optional="1">
+            <column table="a" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+          <call function="=" optional="1">
+            <column table="a" column="vid_real" />
+            <const function="date to ym" name="dep">2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178_v1-nach" timestamp="23.04.2020 17:02:18">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" type="number" />
+        <param name="dat" type="date" />
+      </params>
+      <select>
+        <column table="kod_dog" column="kod_ist" group="1" />
+        <column table="sr_facras" column="vid_t" group="1" />
+        <column table="kod_sf" column="vid_real" group="1" />
+        <call function="if" as="nachisl_ym" group="sum">
+          <call function="=">
+            <column table="kod_sf" column="ym" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <column table="sr_facras" column="nachisl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="nachisl_year_befote_ym" group="sum">
+          <call function="=">
+            <column table="kod_sf" column="ym" />
+            <call function="-">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>-1</const>
+              </call>
+              <const>1</const>
+            </call>
+          </call>
+          <column table="sr_facras" column="nachisl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="avans_year_befote_ym" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="vid_real" />
+              <const>0</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="ym" />
+              <call function="-">
+                <useparam name="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <column table="sr_facras" column="nachisl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="nachisl_total" group="sum">
+          <call function="le">
+            <column table="kod_sf" column="ym" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <column table="sr_facras" column="nachisl" />
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="sr_facras">
+          <link name="kod_sf">
+            <link name="kod_dog" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="kod_sf" column="vid_real" />
+            <array>0,2</array>
+          </call>
+          <call function="not in">
+            <column table="sr_facras" column="vid_t" />
+            <array>73</array>
+          </call>
+          <call function="le">
+            <column table="kod_sf" column="ym" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <call function="=">
+            <column table="kod_dog" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178_v1-opl" timestamp="23.04.2020 17:03:17">
+      <params>
+        <param name="dep" type="number">
+          <const>1219</const>
+        </param>
+        <param part="54556-params" name="ym" type="number">
+          <const>2020.04</const>
+        </param>
+        <param name="dat" type="date">
+          <const>to_date('2020.03.31', 'YYYY.MM.DD')</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_dog" column="kod_ist" group="1" />
+        <column table="kod_ras" column="vid_t" group="1" />
+        <column table="kod_sf" column="vid_real" group="1" />
+        <call function="if" as="opl_ym" group="sum">
+          <call function="and">
+            <call function="le">
+              <column table="kod_opl" column="dat_opl" />
+              <useparam name="dat" />
+            </call>
+            <call function="ge">
+              <column table="kod_opl" column="dat_opl" />
+              <call function="ym begin time">
+                <call function="date to ym">
+                  <useparam name="dat" />
+                </call>
+              </call>
+            </call>
+          </call>
+          <column table="sr_facopl" column="opl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_year_befote_ym" group="sum">
+          <call function="and">
+            <call function="le">
+              <column table="kod_opl" column="dat_opl" />
+              <call function="add_months">
+                <useparam name="dat" />
+                <const>-12</const>
+              </call>
+            </call>
+            <call function="ge">
+              <column table="kod_opl" column="dat_opl" />
+              <call function="add_months">
+                <call function="ym begin time">
+                  <call function="date to ym">
+                    <useparam name="dat" />
+                  </call>
+                </call>
+                <const>-12</const>
+              </call>
+            </call>
+          </call>
+          <column table="sr_facopl" column="opl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_total" group="sum">
+          <call function="le">
+            <column table="kod_opl" column="ym" />
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+          <column table="sr_facopl" column="opl" />
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="sr_facopl">
+          <link name="kod_ras">
+            <link name="kod_sf">
+              <link name="kod_dog" />
+            </link>
+          </link>
+          <link name="kod_opl" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="kod_sf" column="vid_real" />
+            <array>0,2</array>
+          </call>
+          <call function="not in">
+            <column table="kod_ras" column="vid_t" />
+            <array>73</array>
+          </call>
+          <call function="le">
+            <column table="kod_opl" column="dat_opl" />
+            <useparam name="dat" />
+          </call>
+          <call function="=">
+            <column table="kod_dog" column="dep" />
+            <useparam function="date to ym" name="dep">1219</useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="56178_v1_data" timestamp="23.04.2020 19:10:06" title="Оперативная информация по реализации V1" add-names="1">
+      <params>
+        <param name="p_dep" type="number" />
+        <param part="54556-params" name="p_ym" type="number" />
+        <param name="p_dat" type="date" />
+      </params>
+      <select>
+        <call function="case" as="group_name" title="Потребители" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t" />
+              <const>25</const>
+            </call>
+            <const>'1. Население, ВСЕГО'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t" />
+              <const>-2</const>
+            </call>
+            <const>'2. Управляющие компании, ТСЖ, ЖСК и т.д'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="!=">
+                <column table="a" column="vid_t" />
+                <const>25</const>
+              </call>
+              <call function="in">
+                <column table="a" column="kod_ist" />
+                <array>2,3,39</array>
+              </call>
+            </call>
+            <const>'3. Бюджетные потребители, ВСЕГО'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="!=">
+                <column table="a" column="vid_t" />
+                <const>25</const>
+              </call>
+              <call function="not in">
+                <column table="a" column="kod_ist" />
+                <array>2,3,39</array>
+              </call>
+            </call>
+            <const>'4. Прочие потребитлели, не указанные в пункте 1, 2 и 3, ВСЕГО'</const>
+          </call>
+        </call>
+        <call function="case" as="group_order" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t" />
+              <const>25</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t" />
+              <const>-2</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="!=">
+                <column table="a" column="vid_t" />
+                <const>25</const>
+              </call>
+              <call function="in">
+                <column table="a" column="kod_ist" />
+                <array>2,3,39</array>
+              </call>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="!=">
+                <column table="a" column="vid_t" />
+                <const>25</const>
+              </call>
+              <call function="not in">
+                <column table="a" column="kod_ist" />
+                <array>2,3,39</array>
+              </call>
+            </call>
+            <const>4</const>
+          </call>
+        </call>
+        <call function="case" as="row_name" title="Источники" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_ist" />
+              <const>2</const>
+            </call>
+            <const>'''-  из них Федеральный бюджет'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_ist" />
+              <const>3</const>
+            </call>
+            <const>'''-  из них местные бюджеты'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_ist" />
+              <const>39</const>
+            </call>
+            <const>'''-  из них областной бюджет'</const>
+          </call>
+          <call function="else">
+            <const>'''-  из них другое'</const>
+          </call>
+        </call>
+        <call function="case" as="row_order" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_ist" />
+              <const>2</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_ist" />
+              <const>3</const>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_ist" />
+              <const>39</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="else">
+            <const>4</const>
+          </call>
+        </call>
+        <call function="if" as="avans_year_before_ym" group="sum" title="Аванс год назад" type="number">
+          <call function="and">
+            <call function="!=">
+              <column table="a" column="vid_t" />
+              <const>25</const>
+            </call>
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>0</const>
+            </call>
+          </call>
+          <call function="/">
+            <column table="a" column="avans_year_befote_ym" />
+            <const>1000</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_ym" group="sum" title="Начисления" type="number">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="/">
+            <column table="a" column="nachisl_ym" />
+            <const>1000</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_year_before_ym" group="sum" title="Начисления год назад" type="number">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="/">
+            <column table="a" column="nachisl_year_befote_ym" />
+            <const>1000</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_ym" group="sum" title="Оплата" type="number">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="/">
+            <column table="a" column="opl_ym" />
+            <const>1000</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_year_before_ym" group="sum" title="Оплата год назад" type="number">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="/">
+            <column table="a" column="opl_year_befote_ym" />
+            <const>1000</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="deb" group="sum" title="Дебеторская задолженность" type="number">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="/">
+            <call function="-nvl">
+              <column table="a" column="nachisl_total" />
+              <column table="a" column="opl_total" />
+            </call>
+            <const>1000</const>
+          </call>
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="56178_v1-nach_opl_combined" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_ym" />
+            <useparam name="p_dat" />
+          </withparams>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog" />
+        <grset as="potreb" title="Потребители" order="group_order">
+          <group>
+            <column table="this" column="group_name" />
+            <column table="this" column="group_order" />
+          </group>
+          <grset as="ist" title="Источники" order="row_order">
+            <group>
+              <column table="this" column="row_order" />
+              <column table="this" column="row_name" />
+            </group>
+            <where>
+              <call function="and">
+                <call function="=">
+                  <column table="this" column="group_order" />
+                  <const>3</const>
+                </call>
+                <call function="!=">
+                  <column table="this" column="row_order" />
+                  <const>4</const>
+                </call>
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="56178_v1-dat_list" timestamp="20.04.2020 11:29:46">
+      <params>
+        <param name="ym" type="number" />
+      </params>
+      <select>
+        <call function="level" as="dat_num" key="1" />
+        <call function="if" as="name" title="Число месяца" type="string">
+          <call function="=">
+            <call function="level" />
+            <const>4</const>
+          </call>
+          <const>'последнее'</const>
+          <call function="to_char">
+            <call function="*">
+              <call function="level" />
+              <const>7</const>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+      <connect>
+        <call function="lt">
+          <call function="level" />
+          <const>5</const>
+        </call>
+      </connect>
+    </query>
+    <query name="56178_v1-dat_val" timestamp="20.04.2020 11:26:59">
+      <params>
+        <param name="ym" type="number" />
+        <param name="dat_num" type="number" />
+      </params>
+      <select>
+        <call function="if" type="date" as="dat">
+          <call function="=">
+            <useparam name="dat_num" />
+            <const>4</const>
+          </call>
+          <call function="ym end day">
+            <useparam name="ym" />
+          </call>
+          <call function="+no_nvl">
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+            <call function="-">
+              <call function="*">
+                <useparam name="dat_num" />
+                <const>7</const>
+              </call>
+              <const>1</const>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="56178_v1-dat_list_default" timestamp="20.04.2020 10:40:25">
+      <select>
+        <const as="date_num">1</const>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="56178_v1-fill_rows_table" timestamp="20.04.2020 14:56:53">
+      <select>
+        <column table="a" column="kod_ist" />
+        <column table="a" column="vid_t" />
+        <const as="vid_real">-1</const>
+      </select>
+      <from>
+        <query as="a">
+          <union>
+            <query>
+              <select>
+                <const as="kod_ist">-1</const>
+                <const as="vid_t">-2</const>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const as="kod_ist">-1</const>
+                <const as="vid_t">25</const>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const as="kod_ist">2</const>
+                <const as="vid_t">-1</const>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const as="kod_ist">3</const>
+                <const as="vid_t">-1</const>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const as="kod_ist">39</const>
+                <const as="vid_t">-1</const>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const as="kod_ist">-1</const>
+                <const as="vid_t">-1</const>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+          </union>
+        </query>
+      </from>
+    </query>
+    <query name="56178_v1-nach_opl_combined" timestamp="23.04.2020 17:02:01">
+      <params>
+        <param name="dep" type="number" />
+        <param name="ym" part="54556-params" type="number" />
+        <param name="dat" type="date" />
+      </params>
+      <select>
+        <call function="coalesce" as="kod_ist">
+          <column table="nach" column="kod_ist" />
+          <column table="opl" column="kod_ist" />
+          <column table="filler" column="kod_ist" />
+        </call>
+        <call function="coalesce" as="vid_t">
+          <column table="nach" column="vid_t" />
+          <column table="opl" column="vid_t" />
+          <column table="filler" column="vid_t" />
+        </call>
+        <call function="coalesce" as="vid_real">
+          <column table="nach" column="vid_real" />
+          <column table="opl" column="vid_real" />
+          <column table="filler" column="vid_real" />
+        </call>
+        <column table="nach" column="nachisl_ym" />
+        <column table="nach" column="nachisl_year_befote_ym" />
+        <column table="nach" column="avans_year_befote_ym" />
+        <column table="nach" column="nachisl_total" />
+        <column table="opl" column="opl_ym" />
+        <column table="opl" column="opl_year_befote_ym" />
+        <column table="opl" column="opl_total" />
+      </select>
+      <from>
+        <query name="56178_v1-nach" as="nach">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="dat" />
+          </withparams>
+        </query>
+        <query name="56178_v1-opl" join="full outer" as="opl">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym" />
+            <useparam name="dat" />
+          </withparams>
+          <call function="and">
+            <call function="=">
+              <column table="nach" column="kod_ist" />
+              <column table="opl" column="kod_ist" />
+            </call>
+            <call function="=">
+              <column table="nach" column="vid_t" />
+              <column table="opl" column="vid_t" />
+            </call>
+            <call function="=">
+              <column table="nach" column="vid_real" />
+              <column table="opl" column="vid_real" />
+            </call>
+          </call>
+        </query>
+        <query name="56178_v1-fill_rows_table" join="full outer" as="filler">
+          <call function="and">
+            <call function="=">
+              <column table="nach" column="kod_ist" />
+              <column table="filler" column="kod_ist" />
+            </call>
+            <call function="=">
+              <column table="nach" column="vid_t" />
+              <column table="filler" column="vid_t" />
+            </call>
+            <call function="=">
+              <column table="nach" column="vid_real" />
+              <column table="filler" column="vid_real" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="56178_v1-params" timestamp="23.04.2020 17:00:22">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" type="number" />
+        <param name="dat" type="date" />
+      </params>
+      <select>
+        <call function="trunc" as="current_year">
+          <useparam name="ym" />
+        </call>
+        <call function="-" as="previous_year">
+          <call function="trunc">
+            <useparam name="ym" />
+          </call>
+          <const>1</const>
+        </call>
+        <call function="date to char" as="current_date">
+          <useparam name="dat" />
+        </call>
+        <call function="date to char" as="month_begin_date">
+          <call function="trunc">
+            <useparam name="dat" />
+            <const>'MM'</const>
+          </call>
+        </call>
+        <call function="ym to char" as="current_ym">
+          <useparam name="ym" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="56178_v1-kr_calc_plus_cur_ym" timestamp="21.04.2020 20:28:28" order="ym desc">
+      <select>
+        <column table="a" column="ym" group="1" />
+        <call function="trim" as="name" group="max" title="Период">
+          <call function="to_char">
+            <column table="a" column="ym" />
+            <const>'9999.99'</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query as="a">
+          <union>
+            <query>
+              <select>
+                <call function="date to ym" as="ym">
+                  <call function="sysdate" />
+                </call>
+              </select>
+              <from>
+                <query name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <column table="kr_calc" column="ym" />
+              </select>
+              <from>
+                <query name="kr_calc" />
+              </from>
+            </query>
+          </union>
+        </query>
+      </from>
+    </query>
+    <query name="56178_v1-kr_calc_plus_cur_ym_default" timestamp="20.04.2020 17:27:50">
+      <select>
+        <call function="greatest" as="ym">
+          <call function="max">
+            <column table="a" column="ym" />
+          </call>
+          <call function="date to ym">
+            <call function="sysdate" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="kr_calc" as="a" />
+      </from>
+    </query>
+  </queries>
+</root>

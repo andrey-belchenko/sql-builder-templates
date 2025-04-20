@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="s_facras_ext" class="1" extend="s_facras" timestamp="23.02.2016 02:51:32">
+      <select>
+        <call function="+nvl" as="nachislf" title="Начислено с НДС (руб)">
+          <column table="a" column="nachisl"></column>
+          <column table="a" column="nds"></column>
+        </call>
+        <call function="if" as="edizm2" type="number">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <const>2</const>
+          </call>
+          <const>-2</const>
+          <column table="a" column="edizm" />
+        </call>
+        <call function="if" as="cust2" type="number" title="Начислено нат. пок.">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <const>2</const>
+          </call>
+          <call function="/">
+            <column table="a" column="cust" />
+            <const>0.98318</const>
+          </call>
+          <column table="a" column="cust" />
+        </call>
+      </select>
+      <from>
+        <query name="s_edizm" as="edizm2" join="left outer">
+          <call function="=">
+            <column table="a" column="edizm2"></column>
+            <column table="edizm2" column="kod"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="s_facras(date)" inherit="s_facras">
+      <params>
+        <param name="date" />
+      </params>
+      <select>
+        <column table="s_facopl" column="oplf" dgroup="sum"></column>
+        <call function="-nvl" as="ostatok" title="Дебиторская задолженность (руб.)">
+          <column table="this" column="nachislf"></column>
+          <column table="this" column="oplf"></column>
+        </call>
+        <call function="if" as="spis" type="number" title="Списанная задолженность (руб.)">
+          <call function="lt">
+            <call function="nvl">
+              <column table="kod_deb" column="date_spis" />
+              <call function="doomsday" />
+            </call>
+            <useparam name="date" />
+          </call>
+          <column table="this" column="ostatok" />
+        </call>
+        <call function="-nvl" as="ostatok_s" title="Дебиторская задолженность (руб.)">
+          <column table="this" column="ostatok"></column>
+          <column table="this" column="spis"></column>
+        </call>
+        <call function="if" as="dolg" type="number" title="Просроченная задолженность (руб.)">
+          <call function="le">
+            <column table="kod_sf" column="dat_bzad" />
+            <useparam name="date" />
+          </call>
+          <column table="this" column="ostatok_s" />
+        </call>
+      </select>
+      <where>
+        <call function="and">
+          <call function="le">
+            <call function="ym end time">
+              <column table="kod_sf" column="ym" />
+            </call>
+            <!--<column table="kod_sf" column="dat_sf"/>-->
+            <useparam name="date" />
+          </call>
+        </call>
+      </where>
+      <links>
+        <link name="kod_sf" usenl="2">
+          <link name="kod_deb" usenl="2" />
+        </link>
+        <dlink name="s_facopl">
+          <where>
+            <call function="lt">
+              <column table="s_facopl" column="datao" />
+              <useparam name="date" />
+            </call>
+          </where>
+        </dlink>
+      </links>
+    </query>
+    <query name="s_facras_spis" timestamp="22.09.2016 21:03:30" inherit="s_facras" class="1">
+      <select>
+        <column table="this" column="nachislf" as="nachislf_spis" fact="s_facras_spis_nachislf" agg="sum" />
+        <call function="date to ym" as="ym" dimension="ym">
+          <column table="spis_kod_deb" column="dat_spis" dgroup="min" as="date_spis" />
+        </call>
+      </select>
+      <from>
+        <query name="s_facras" as="kod_ras" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="spis_kod_deb" column="dat_spis" dgroup="min" as="date_spis" />
+        </call>
+      </where>
+      <links>
+        <link name="kod_sf" as="kod_sf1">
+          <link name="kod_deb">
+            <link name="spis_kod_deb" />
+          </link>
+        </link>
+        <dlink name="s_facras_spis_isp" dimension="1" />
+      </links>
+    </query>
+    <query name="s_facras_spis_isp" timestamp="22.09.2016 21:11:38" class="1">
+      <select>
+        <call function="||" as="kod_fr_sp_isp" key="1">
+          <column table="this" column="kod_ras" />
+          <const>'-'</const>
+          <column table="this" column="kod_ur_sf_isp" />
+        </call>
+        <column table="a" column="kod_ras" />
+        <column table="v_ur_sf_isp" column="kod_ur_sf_isp" />
+        <call function="latest" as="dat_ur" dimension="dat_ur">
+          <column table="spis_kod_deb" column="dat_spis" />
+          <column table="v_ur_sf_isp" column="dat_cr_isp" />
+        </call>
+      </select>
+      <from>
+        <query name="s_facras" as="a">
+          <link name="kod_sf">
+            <elink name="v_ur_sf_isp" />
+            <link name="kod_deb">
+              <link name="spis_kod_deb" />
+            </link>
+          </link>
+        </query>
+        <query name="s_facras_spis" as="kod_ras" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+        <query name="v_ur_sf_isp" as="kod_ur_sf_isp" join="left outer" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_ur_sf_isp" />
+            <column table="kod_ur_sf_isp" column="kod_ur_sf_isp" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

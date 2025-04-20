@@ -1,0 +1,635 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <expression-packages>
+    <expression-package name="sverhnorm_dolg" timestamp="09.03.2021 15:35:42">
+      <call function="if" as="fin_ul_dolg_deb_per_rm" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat" column="val" />
+          <useparam name="dat" />
+        </call>
+        <fact column="fin_ul_ob_osn_rm" />
+      </call>
+      <call function="if" as="fin_ul_dolg_deb_per" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat" column="val" />
+          <useparam name="dat" />
+        </call>
+        <fact column="fin_ul_ob_osn" />
+      </call>
+      <call function="if" as="fin_ul_sverh_dolg_pre" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat_dolg_norm" column="val" />
+          <useparam name="dat" />
+        </call>
+        <fact column="fin_ul_ob_os_av_uav_kr" />
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_pre_dog" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_pre">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_dolg_deb_per_dog_rm" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_dolg_deb_per_rm">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_dolg_deb_per_dog" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_dolg_deb_per">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="if" as="fin_ul_sverh_dolg" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="le">
+          <call function="smallest nvl">
+            <fact column="fin_ul_dolg_deb_per_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <fact column="fin_ul_sverh_dolg_pre_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+          </call>
+          <const>0</const>
+        </call>
+        <const>0</const>
+        <call function="if">
+          <call function="gt">
+            <fact column="fin_ul_dolg_deb_per_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <fact column="fin_ul_sverh_dolg_pre_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+          </call>
+          <fact column="fin_ul_sverh_dolg_pre">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+          <fact column="fin_ul_dolg_deb_per">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+      </call>
+      <call function="if" as="fin_ul_sverh_dolg_deb_pre_rm" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat_dolg_norm" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call function="-nvl">
+          <fact column="fin_ul_ob_os_av_norm_rm" />
+        </call>
+      </call>
+      <call function="if" as="fin_ul_sverh_dolg_deb_pre" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat_dolg_norm" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call function="-nvl">
+          <fact column="fin_ul_ob_os_av_norm" />
+        </call>
+      </call>
+      <call function="if" as="fin_ul_sverh_dolg_deb_pre_dat" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat_dolg" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call function="-nvl">
+          <fact column="fin_ul_ob_os_av_norm" />
+        </call>
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_pre_ng_rm" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb_pre_rm">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+        <fact column="fin_ul_gaf_dolg_in_out_dt_rm">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_pre_ng" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb_pre">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+        <fact column="fin_ul_gaf_dolg_in_out_dt">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_pre_ng_dat" type="number" group="sum" title="Сверхнормативная задолженность" is-fact="1">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb_pre_dat">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+        <fact column="fin_ul_gaf_dolg_in_out_dt">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_dog" group="sum" exclude="1">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_ym" group="sum" exclude="1">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+      </call>
+      <call function="case" as="fin_ul_sverh_dolg_deb" type="number" group="sum" title="Сверхнормативная задолженность" exclude="1">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="dummy">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_sverh_dolg_deb_pre_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="=0">
+            <fact column="fin_ul_sverh_dolg_deb_pre_ym">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="else">
+          <fact column="fin_ul_sverh_dolg_deb_pre">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_dog_rm" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng_rm">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_dog" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_ym_rm" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng_rm">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_ym" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+      </call>
+      <call function="case" as="fin_ul_sverh_dolg_deb_rm" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="dummy">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_dolg_deb_per_dog_rm">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_sverh_dolg_deb_pre_dog_rm">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="=0">
+            <fact column="fin_ul_sverh_dolg_deb_pre_ym_rm">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="else">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng_rm">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+      </call>
+      <call function="case" as="fin_ul_sverh_dolg_deb" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="dummy">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_dolg_deb_per_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_sverh_dolg_deb_pre_dog">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="=0">
+            <fact column="fin_ul_sverh_dolg_deb_pre_ym">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="else">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+      </call>
+      <call function="-nvl" as="fin_ul_gaf_dolg_in_out_rm" group="sum" type="number">
+        <fact column="qube_graf_in_rm_ob" />
+        <fact column="qube_graf_out_rm_ob" />
+      </call>
+      <call function="-nvl" as="fin_ul_gaf_dolg_in_out" group="sum" type="number">
+        <fact column="qube_graf_in_ob" />
+        <fact column="qube_graf_out_ob" />
+      </call>
+      <call function="if" as="fin_ul_gaf_dolg_in_out_dt_rm" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat" column="val" />
+          <useparam name="dat" />
+        </call>
+        <fact column="fin_ul_gaf_dolg_in_out_rm" />
+      </call>
+      <call function="if" as="fin_ul_gaf_dolg_in_out_dt" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat" column="val" />
+          <useparam name="dat" />
+        </call>
+        <fact column="fin_ul_gaf_dolg_in_out" />
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_ng_rm" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb_rm">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+        <fact column="fin_ul_gaf_dolg_in_out_dt" exclude="1">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_ng" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+        <fact column="fin_ul_gaf_dolg_in_out_dt" exclude="1">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+    </expression-package>
+    <expression-package name="sverhnorm_dolg_v2" timestamp="20.08.2023 15:24:19">
+      <call function="-nvl" as="fin_ul_ob_os_av_norm_v2" title="Оборот деб. осн. и ав. (долг)" group="sum">
+        <call function="+nvl">
+          <fact column="sr_facvip_norm_av_av_nach_v2" comment="2" />
+          <fact column="sr_facvip_norm_av_osn_nach_v2" comment="2" />
+        </call>
+        <call function="+nvl">
+          <fact column="sr_opl_norm_av_av_opl_v2" comment="2" />
+          <fact column="sr_opl_norm_av_osn_opl_v2" comment="2" />
+        </call>
+        <fact column="fin_ul_opl_sf_osn" exclude="1" />
+      </call>
+      <call function="if" as="fin_ul_sverh_dolg_deb_pre_v2" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column table="dat_dolg_norm" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call function="-nvl">
+          <fact column="fin_ul_ob_os_av_norm_v2" comment="2" />
+        </call>
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_pre_ng_v2" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb_pre_v2" comment="2">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+        <fact column="fin_ul_gaf_dolg_in_out_dt_v2" comment="2">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_dog_v2" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng_v2">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </call>
+      <call function="over" as="fin_ul_sverh_dolg_deb_pre_ym_v2" group="sum">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="sum">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng_v2" comment="2">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+        <call function="partition by">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+      </call>
+      <call function="case" as="fin_ul_sverh_dolg_deb_v2" type="number" group="sum" title="Сверхнормативная задолженность">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="dummy">
+          <column table="kod_dog" column="kod_dog" />
+          <column table="ym_vozn" column="val" />
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_dolg_deb_per_dog" comment="0">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="le">
+            <fact column="fin_ul_sverh_dolg_deb_pre_dog_v2" comment="2">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+            <const>0</const>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="when">
+          <call function="=0">
+            <fact column="fin_ul_sverh_dolg_deb_pre_ym_v2" comment="2">
+              <withparams>
+                <useparam name="dat" />
+              </withparams>
+            </fact>
+          </call>
+          <const>0</const>
+        </call>
+        <call function="else">
+          <fact column="fin_ul_sverh_dolg_deb_pre_ng_v2" comment="2">
+            <withparams>
+              <useparam name="dat" />
+            </withparams>
+          </fact>
+        </call>
+      </call>
+      <call function="-nvl" as="fin_ul_gaf_dolg_in_out_v2" group="sum" type="number">
+        <fact column="qube_graf_in_ob_v2" comment="2" />
+        <fact column="qube_graf_out_ob_v2" comment="2" />
+      </call>
+      <call as="fin_ul_gaf_dolg_in_out_dt_v2" function="if" group="sum" type="number">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <call function="lt">
+          <column column="val" table="dat" />
+          <useparam name="dat" />
+        </call>
+        <fact column="fin_ul_gaf_dolg_in_out_v2" comment="2" />
+      </call>
+      <call function="-nvl" as="fin_ul_sverh_dolg_deb_ng_v2" type="number" group="sum" title="Сверхнормативная задолженность" comment="Набор выражений с суффиксом v2 заведен для проверки новой версии алгоритма по заявке 67698. Сейчас не используются, алгоритм применен для основных выражений. Оставил этот набор на случай если понадобится организовать аналогичную проверку в будущем">
+        <params>
+          <param name="dat" type="number" />
+        </params>
+        <fact column="fin_ul_sverh_dolg_deb_v2" comment="2">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </fact>
+      </call>
+    </expression-package>
+  </expression-packages>
+</root>

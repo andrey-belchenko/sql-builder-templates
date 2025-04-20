@@ -1,0 +1,459 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="is_dop_contract_ext" class="1" timestamp="20.10.2017 00:46:17" extend="is_dop_contract">
+      <select>
+        <call function="case" as="kod_region" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kn_zone" />
+              <const>0</const>
+            </call>
+            <const>0</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="kn_zone" />
+              <const>0</const>
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <call function="case" as="name_region" title="Регион" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kn_zone" />
+              <const>0</const>
+            </call>
+            <const>'Ленинградская область'</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="kn_zone" />
+              <const>0</const>
+            </call>
+            <const>'Санкт-Петербург'</const>
+          </call>
+        </call>
+        <call function="case" as="name_region_kr" title="Регион" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kn_zone" />
+              <const>0</const>
+            </call>
+            <const>'ЛО'</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="kn_zone" />
+              <const>0</const>
+            </call>
+            <const>'СПб'</const>
+          </call>
+        </call>
+        <!--<call function="if" as="kod_region" title="Регион" type="number">
+          <call function="and">
+            <call function="=">
+              <call function="nvl0">
+                <column table="a" column="kn_zone" />
+              </call>
+              <const>0</const>
+            </call>
+            <call function="is not null">
+              <column table="a" column="kn_zone" />
+            </call>
+          </call>
+          <const>0</const>
+          <const>1</const>
+        </call>-->
+        <column table="id_oktmo" column="name_mo" as="name_r" title="Район" qlikview="1" fact="is_dop_contract_name_r" agg="stragg_dist" />
+        <column table="kod_direct" column="name_kr" as="name_r_kr" title="Район кр" qlikview="1" />
+        <column table="id_oktmo" column="name_sp" as="sel_pos_name" qlikview="1" fact="is_dop_cont_sel_pos_name" agg="stragg_dist" title="Сельское поселение" />
+        <column table="id_oktmo" column="name" as="nasp_name" qlikview="1" fact="is_dop_cont_nasp_name" agg="stragg_dist" title="Населенный пункт" />
+        <column table="kod_podr_create" column="name" as="name_f" title="Филиал" qlikview="1" />
+        <column table="kod_podr_create" column="name_kr" as="name_f_kr" title="Филиал кр" qlikview="1" />
+        <column table="kn_supply" column="supply" as="name_supply" qlikview="1" />
+        <column table="kod_dop_contract_dop" column="power" title="заявленная мощность" />
+        <column table="kod_dop_contract_dop" column="category" title="категория надежности" />
+        <call function="+nvl" as="load123" title="Заявленная мощность">
+          <column table="a" column="load1" />
+          <column table="a" column="load2" />
+          <column table="a" column="load3" />
+        </call>
+        <call function="+nvl" as="loadex123" title="Cуществующая мощность">
+          <column table="a" column="load_ex1" />
+          <column table="a" column="load_ex2" />
+          <column table="a" column="load_ex3" />
+        </call>
+        <call function="+nvl" as="load_all" title="Суммарная мощность">
+          <column table="this" column="load123" />
+          <column table="this" column="loadex123" />
+        </call>
+        <call function="if" as="load123_kvt" title="Заявленная мощность, кВт" agg="sum" fact="is_dop_cont_load123_kvt">
+          <call function="=">
+            <column table="a" column="load_units" />
+            <const>'кВА'</const>
+          </call>
+          <call function="*">
+            <column table="this" column="load123" />
+            <call function="is_du.f_koef_load_units">
+              <column table="this" column="kod_dop_contract" />
+            </call>
+          </call>
+          <column table="this" column="load123" />
+        </call>
+        <call function="if" as="load_all_kvt" title="Суммарная мощность, кВт" fact="is_dop_cont_load_all_kvt" agg="sum">
+          <call function="=">
+            <column table="a" column="load_units" />
+            <const>'кВА'</const>
+          </call>
+          <call function="*">
+            <column table="this" column="load_all" />
+            <call function="is_du.f_koef_load_units">
+              <column table="this" column="kod_dop_contract" />
+            </call>
+          </call>
+          <column table="this" column="load_all" />
+        </call>
+        <call function="+nvl" as="req_year_fl">
+          <column table="a" column="req_year" />
+          <const>2000</const>
+        </call>
+        <const as="cnt_kod_dop_contract" type="number" fact="is_dop_cont_count" agg="sum">1</const>
+        <call function="if" as="fl_build_dop" type="number">
+          <call function="and">
+            <call function="!=0">
+              <column table="a" column="contr_sum_e" />
+            </call>
+            <call function="=0">
+              <column table="a" column="contr_sum_m" />
+            </call>
+          </call>
+          <const>2</const>
+          <column table="a" column="fl_build" />
+        </call>
+        <call function="case" as="kod_spr_load" type="number">
+          <call function="when">
+            <call function="lt">
+              <call function="+nvl">
+                <column table="this" column="load123_kvt" />
+                <column table="this" column="load_all_kvt" />
+              </call>
+              <const>15</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="between">
+              <call function="+nvl">
+                <column table="this" column="load123_kvt" />
+                <column table="this" column="load_all_kvt" />
+              </call>
+              <const>15</const>
+              <const>150</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <call function="+nvl">
+                <column table="this" column="load123_kvt" />
+                <column table="this" column="load_all_kvt" />
+              </call>
+              <const>150</const>
+            </call>
+            <const>3</const>
+          </call>
+        </call>
+        <call function="case" as="isp_info" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pr_ofz_vip" />
+              <const>1</const>
+            </call>
+            <const>'исполнено'</const>
+          </call>
+          <call function="when" exclude="1">
+            <call function="=">
+              <column table="this" column="pr_ofz_fin" />
+              <const>1</const>
+            </call>
+            <const>'не исполнено'</const>
+          </call>
+          <call function="when" exclude="1">
+            <call function="=">
+              <column table="this" column="pr_ofz_vkl" />
+              <const>1</const>
+            </call>
+            <const>'не исполнено'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pr_ofz" />
+              <const>1</const>
+            </call>
+            <const>'не исполнено'</const>
+          </call>
+        </call>
+        <call function="case" as="kod_ofz_state" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pr_ofz_vip" />
+              <const>1</const>
+            </call>
+            <const>4</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pr_ofz_fin" />
+              <const>1</const>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pr_ofz_vkl" />
+              <const>1</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pr_ofz" />
+              <const>1</const>
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <call function="substr" as="num_ad_pref_no_dat" title="Номер договора (полный без даты)">
+          <column table="a" column="num_ad_pref" />
+          <const>0</const>
+          <call function="-nvl">
+            <call function="instr">
+              <column table="a" column="num_ad_pref" />
+              <const>'от'</const>
+            </call>
+            <const>2</const>
+          </call>
+        </call>
+        <call function="nvl" as="num_ad_pref_nvl" type="string">
+          <column table="this" column="num_ad_pref" />
+          <call function="||">
+            <column table="this" column="num_ouco" />
+            <const>'/'</const>
+            <column table="this" column="num_req" />
+            <const>' от '</const>
+            <call function="date to char">
+              <column table="this" column="dt_contract" />
+            </call>
+          </call>
+        </call>
+        <call function="if" as="vid_opl" type="string" title="Вид оплаты договора">
+          <call function="or">
+            <call function="!=0">
+              <column table="a" column="contr_sum_e" />
+            </call>
+            <call function="=1">
+              <column table="a" column="pr_ad_iskl" />
+            </call>
+          </call>
+          <const>'ОДИ'</const>
+          <const>'ОД'</const>
+        </call>
+        <call function="+nvl" as="contr_sum" is-fact="1" fact="is_dop_cont_contr_sum" agg="sum" title="Стоимость">
+          <column table="this" column="contr_sum_m" />
+          <column table="this" column="contr_sum_e" />
+        </call>
+        <call function="asuse.get_srcdnum" title="Источник питания" as="ist_pit">
+          <column table="a" column="kn_supply" />
+        </call>
+        <call function="date to char" as="srok_uslug_str" is-fact="1" agg="stragg" fact="is_dop_contract_srok_uslug_str">
+          <column table="a" column="srok_uslug" />
+        </call>
+        <call function="||" as="srok_uslug_str_ext" is-fact="1" agg="stragg" fact="is_dop_contract_srok_uslug_str_ext" comment="плановая дата с датой акта" exclude="1">
+          <call function="date to char">
+            <column table="a" column="srok_uslug" />
+          </call>
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="c_akt" column="dat_akt" dgroup="max" />
+              </call>
+            </call>
+            <call function="||">
+              <const>'('</const>
+              <call function="date to char">
+                <column table="c_akt" column="dat_akt" dgroup="max" />
+              </call>
+              <const>')'</const>
+            </call>
+          </call>
+        </call>
+        <call function="||" as="dat_smr_str_ext" agg="stragg" comment="плановая дата с датой КС-3" is-fact="1" fact="is_dop_contract_dat_smr_str_ext" exclude="1">
+          <call function="date to char">
+            <column table="a" column="srok_uslug" />
+          </call>
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="c_dop_doc" column="dat_doc" dgroup="max" />
+              </call>
+            </call>
+            <call function="||">
+              <const>'('</const>
+              <call function="date to char">
+                <column table="c_dop_doc" column="dat_doc" dgroup="max" />
+              </call>
+              <const>')'</const>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="is_dop_contract_dop" as="kod_dop_contract_dop" join="left outer">
+          <call function="=">
+            <column table="kod_dop_contract_dop" column="kod_dop_contract" />
+            <column table="a" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="is_spr_build" as="fl_build" join="left outer">
+          <call function="=">
+            <column table="fl_build" column="id" />
+            <column table="this" column="fl_build_dop" />
+          </call>
+        </query>
+        <query name="is_spr_load" as="kod_spr_load" join="left outer">
+          <call function="=">
+            <column table="kod_spr_load" column="id" />
+            <column table="this" column="kod_spr_load" />
+          </call>
+        </query>
+        <query name="vr_dop_contr_anl" as="kod_dop_contr_anl" join="left outer">
+          <call function="=">
+            <column table="kod_dop_contr_anl" column="kod_dop_contract" />
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="is_spr_ofz" as="kod_spr_ofz" join="left outer" exclude="1">
+          <call function="=">
+            <column table="this" column="kod_spr_ofz" />
+            <column table="kod_spr_ofz" column="kod" />
+          </call>
+        </query>
+        <query name="is_spr_podkl_obj" as="kod_obj" join="left outer">
+          <call function="=">
+            <column table="kod_obj" column="kod_obj" />
+            <column table="a" column="kod_obj" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="kod_podr_pref" join="left outer">
+          <call function="=">
+            <column table="kod_podr_pref" column="kod_podr_pref" />
+            <column table="a" column="kod_podr_pref" />
+          </call>
+        </query>
+        <query name="is_org_active" as="kod_org_active" join="left outer">
+          <call function="=">
+            <column table="kod_org_active" column="kod" />
+            <column table="a" column="kod_org_active" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="kod_filial" join="left outer">
+          <call function="=">
+            <column table="kod_filial" column="kod_direct" />
+            <column table="a" column="kod_filial" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="ipr_titul_dop_contract" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="ipr_kod_titul_ip" dimension="1" />
+          <dimlink name="kod_ipr" dimension="1" />
+          <dimlink name="ipr_kod_doc" dimension="1" />
+        </dlink>
+        <link name="kod_dop_contr_anl">
+          <link name="kod_dop_contr_anl_gr" dimension="1" />
+        </link>
+        <dlink name="c_akt" exclude="1" />
+        <dlink name="c_dop_doc" dimension="1">
+          <where>
+            <call function="=">
+              <column table="c_dop_doc" column="kod_vid_doc" />
+              <const>113</const>
+            </call>
+          </where>
+        </dlink>
+        <dlink name="as_sert_power_dop_contract" dimension="1" />
+        <dlink name="is_reestr_44164" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        <dlink name="is_atp_dop_info" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+      </links>
+    </query>
+    <query name="is_dop_contract_dop">
+      <select>
+        <column table="a" column="kod_dop_contract" type="number" />
+        <column table="a" column="load123_kvt" as="power" type="number" />
+        <column table="a" column="kateg" as="category" type="string" />
+      </select>
+      <from>
+        <table name="isv_ad_all" as="a" />
+        <query name="is_dop_contract" as="kod_dop_contract" join="left outer">
+          <call function="=">
+            <column table="kod_dop_contract" column="kod_dop_contract" />
+            <column table="a" column="kod_dop_contract" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="is_spr_build">
+      <const as="id" type="number">0</const>
+      <const as="name" type="string" title="1">'без работ'</const>
+      <const>1</const>
+      <const>'с работами'</const>
+      <const>2</const>
+      <const>'имущественные'</const>
+    </query>
+    <query name="is_spr_load">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string" title="1">'до 15 кВт'</const>
+      <const>2</const>
+      <const>'15-150 кВт'</const>
+      <const>3</const>
+      <const>'свыше 150 кВт'</const>
+    </query>
+    <query name="is_dop_contract_num_list" class="1" timestamp="11.11.2021 23:32:15">
+      <select>
+        <column table="a" column="kod_dop_contract" key="1" />
+        <column table="a" column="num_ouco" title="Договор" />
+        <!--<call function="if" as="kod_region" title="Регион" type="number">
+          <call function="and">
+            <call function="=">
+              <call function="nvl0">
+                <column table="a" column="kn_zone" />
+              </call>
+              <const>0</const>
+            </call>
+            <call function="is not null">
+              <column table="a" column="kn_zone" />
+            </call>
+          </call>
+          <const>0</const>
+          <const>1</const>
+        </call>-->
+      </select>
+      <from>
+        <query name="is_dop_contract" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="a" column="kn_contract_p" />
+          </call>
+          <call function="!=">
+            <column table="a" column="status" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

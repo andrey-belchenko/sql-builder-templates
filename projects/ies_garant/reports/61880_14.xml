@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="61880_14-data" timestamp="04.05.2022 14:55:29" nogrid="1">
+      <select>
+        <column table="dog" column="dep" />
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" title="№ договора" />
+        <column table="a" column="payer_name" title="Наименование клиента" />
+        <column table="a" column="ym" />
+        <column table="a" column="kod_ck" />
+        <column table="ck" column="name" as="name_ck" />
+        <column table="a" column="kod_mvt" />
+        <column table="mvt" column="name" as="name_mvt" />
+        <column table="a" column="kod_vidacc" />
+        <column table="vidacc" column="name" as="name_vidacc" />
+        <column table="a" column="fsk_kvt" title="ФСК кВт*ч" />
+        <column table="a" column="fsk_nachisl" title="ФСК руб." />
+        <column table="a" column="gn_kvt" title="ГН кВт*ч" />
+        <column table="a" column="gn_nachisl" title="ГН руб." />
+        <column table="a" column="vn_kvt" title="ВН (110-220) кВт*ч" />
+        <column table="a" column="vn_nachisl" title="ВН (110-220) руб." />
+        <column table="a" column="sn1_kvt" title="СН1(35) кВт*ч" />
+        <column table="a" column="sn1_nachisl" title="СН1(35) руб." />
+        <column table="a" column="sn2_kvt" title="СН2 (6-10) кВт*ч" />
+        <column table="a" column="sn2_nachisl" title="СН2 (6-10) руб." />
+        <column table="a" column="nn_kvt" title="НН (0,4) кВт*ч" />
+        <column table="a" column="nn_nachisl" title="НН (0,4) руб." />
+        <column table="a" column="itog_kvt" title="Итого кВт*ч" />
+        <column table="a" column="itog_nachisl" title="Итого руб." />
+        <column table="a" column="itog_nachisl_nds" title="Итого руб. с НДС" />
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_14_tbl" as="a" />
+        <query name="kr_dogovor" join="left outer" as="dog">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ies_garant_spr_ck" as="ck" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ck" />
+            <column table="ck" column="id" />
+          </call>
+        </query>
+        <query name="ies_garant_spr_mvt" as="mvt" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_mvt" />
+            <column table="mvt" column="id" />
+          </call>
+        </query>
+        <query name="ies_garant_spr_vidacc" as="vidacc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vidacc" />
+            <column table="vidacc" column="id" />
+          </call>
+        </query>
+      </from>
+      <grouping exclude="1">
+        <grset as="itog">
+          <grset as="dog">
+            <group>
+              <column table="this" column="kod_dog" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="ies_garant_spr_vidacc" order="id" timestamp="20.02.2022 13:35:24">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string">'электроэнергия, кВтч'</const>
+      <const>2</const>
+      <const>'генерирующая мощность, кВт'</const>
+      <const>3</const>
+      <const>'сетевая мощность, кВт'</const>
+    </query>
+    <query name="ies_garant_spr_ck" order="id" timestamp="20.02.2022 13:38:45" title="Ценовая категория">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string">'1 ценовая категория'</const>
+      <const>2</const>
+      <const>'2 ценовая категория'</const>
+      <const>3</const>
+      <const>'3 ценовая категория'</const>
+      <const>4</const>
+      <const>'4 ценовая категория'</const>
+      <const>5</const>
+      <const>'5 ценовая категория'</const>
+      <const>6</const>
+      <const>'6 ценовая категория'</const>
+    </query>
+    <query name="ies_garant_spr_mvt" order="id" timestamp="20.02.2022 13:41:58" title="Группы мощности">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string">'макс. мощность от 0 до 149 кВт '</const>
+      <const>2</const>
+      <const>'макс. мощность от 150 кВт до 669 кВт'</const>
+      <const>3</const>
+      <const>'макс. мощность от 670 кВт до 9999 кВт'</const>
+      <const>4</const>
+      <const>'макс. мощностью св. 10 МВт'</const>
+    </query>
+    <query name="61880_14-itog-all" nogrid="1" timestamp="26.01.2023 16:02:24">
+      <params>
+        <param name="p_kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="dep" />
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" title="№ договора" />
+        <column table="a" column="payer_name" title="Наименование клиента" />
+        <column table="a" column="ym" />
+        <column table="a" column="kod_ck" />
+        <column table="a" column="name_ck" />
+        <column table="a" column="kod_mvt" />
+        <column table="a" column="name_mvt" />
+        <column table="a" column="kod_vidacc" />
+        <column table="a" column="name_vidacc" />
+        <column table="a" column="gn_kvt" title="ГН кВт*ч" group="sum" if="notvidacc1">
+          <if>
+            <call function="=">
+              <column table="a" column="kod_vidacc" />
+              <const>1</const>
+            </call>
+          </if>
+        </column>
+        <column table="a" column="gn_nachisl" title="ГН руб." group="sum" />
+        <column table="a" column="fsk_kvt" title="ФСК кВт*ч" group="sum" if="notvidacc1" />
+        <column table="a" column="fsk_nachisl" title="ФСК руб." group="sum" />
+        <column table="a" column="vn_kvt" title="ВН (110-220) кВт*ч" group="sum" if="notvidacc1" />
+        <column table="a" column="vn_nachisl" title="ВН (110-220) руб." group="sum" />
+        <column table="a" column="sn1_kvt" title="СН1(35) кВт*ч" group="sum" if="notvidacc1" />
+        <column table="a" column="sn1_nachisl" title="СН1(35) руб." group="sum" />
+        <column table="a" column="sn2_kvt" title="СН2 (6-10) кВт*ч" group="sum" if="notvidacc1" />
+        <column table="a" column="sn2_nachisl" title="СН2 (6-10) руб." group="sum" />
+        <column table="a" column="nn_kvt" title="НН (0,4) кВт*ч" group="sum" if="notvidacc1" />
+        <column table="a" column="nn_nachisl" title="НН (0,4) руб." group="sum" />
+        <column table="a" column="itog_kvt" title="Итого кВт*ч" group="sum" if="notvidacc1" />
+        <column table="a" column="itog_nachisl" title="Итого руб." group="sum" />
+        <column table="a" column="itog_nachisl_nds" title="Итого руб. с НДС" group="sum" />
+      </select>
+      <from>
+        <query name="61880_14-data" as="a" />
+        <query name="kr_dogovor" join="left outer" as="k">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="k" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in" optional="1">
+            <column table="k" column="adress_region" />
+            <useparam name="p_kod_adr_m" />
+          </call>
+          <call function="true" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <group>
+            <column table="a" column="dep" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880_14-itog-all-vidacc" nogrid="1" timestamp="25.01.2023 18:38:39">
+      <params>
+        <param name="p_kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" title="№ договора" />
+        <column table="a" column="payer_name" title="Наименование клиента" />
+        <column table="a" column="ym" />
+        <column table="a" column="kod_ck" />
+        <column table="a" column="name_ck" />
+        <column table="a" column="kod_mvt" />
+        <column table="a" column="name_mvt" />
+        <column table="a" column="kod_vidacc" />
+        <column table="a" column="name_vidacc" group="max" />
+        <column table="a" column="fsk_kvt" title="ФСК кВт*ч" group="sum" />
+        <column table="a" column="fsk_nachisl" title="ФСК руб." group="sum" />
+        <column table="a" column="gn_kvt" title="ГН кВт*ч" group="sum" />
+        <column table="a" column="gn_nachisl" title="ГН руб." group="sum" />
+        <column table="a" column="vn_kvt" title="ВН (110-220) кВт*ч" group="sum" />
+        <column table="a" column="vn_nachisl" title="ВН (110-220) руб." group="sum" />
+        <column table="a" column="sn1_kvt" title="СН1(35) кВт*ч" group="sum" />
+        <column table="a" column="sn1_nachisl" title="СН1(35) руб." group="sum" />
+        <column table="a" column="sn2_kvt" title="СН2 (6-10) кВт*ч" group="sum" />
+        <column table="a" column="sn2_nachisl" title="СН2 (6-10) руб." group="sum" />
+        <column table="a" column="nn_kvt" title="НН (0,4) кВт*ч" group="sum" />
+        <column table="a" column="nn_nachisl" title="НН (0,4) руб." group="sum" />
+        <column table="a" column="itog_kvt" title="Итого кВт*ч" group="sum" />
+        <column table="a" column="itog_nachisl" title="Итого руб." group="sum" />
+        <column table="a" column="itog_nachisl_nds" title="Итого руб. с НДС" group="sum" />
+      </select>
+      <from>
+        <query name="61880_14-data" as="a" />
+        <query name="kr_dogovor" join="left outer" as="k">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="k" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in" optional="1">
+            <column table="k" column="adress_region" />
+            <useparam name="p_kod_adr_m" />
+          </call>
+          <call function="true" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <group>
+            <column table="this" column="kod_vidacc" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880_14-dog" nogrid="1" timestamp="25.01.2023 18:39:36">
+      <params>
+        <param name="p_kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="dep" />
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" title="№ договора" group="max" />
+        <column table="a" column="payer_name" title="Наименование клиента" group="max" />
+        <column table="a" column="ym" />
+        <column table="a" column="kod_ck" />
+        <column table="a" column="name_ck" group="max" />
+        <column table="a" column="kod_mvt" />
+        <column table="a" column="name_mvt" group="max" />
+        <column table="a" column="kod_vidacc" />
+        <column table="a" column="name_vidacc" group="max" />
+        <column table="a" column="gn_kvt" title="ГН кВт*ч" group="sum" if="notvidacc1" as="gn_kvt1" nvl="0">
+          <if>
+            <call function="=">
+              <column table="a" column="kod_vidacc" />
+              <const>1</const>
+            </call>
+          </if>
+        </column>
+        <column table="a" column="gn_kvt" title="ГН кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="gn_nachisl" title="ГН руб." group="sum" nvl="0" />
+        <column table="a" column="fsk_kvt" title="ФСК кВт*ч" group="sum" if="notvidacc1" as="fsk_kvt1" nvl="0" />
+        <column table="a" column="fsk_kvt" title="ФСК кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="fsk_nachisl" title="ФСК руб." group="sum" nvl="0" />
+        <column table="a" column="vn_kvt" title="ВН (110-220) кВт*ч" group="sum" if="notvidacc1" as="vn_kvt1" nvl="0" />
+        <column table="a" column="vn_kvt" title="ВН (110-220) кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="vn_nachisl" title="ВН (110-220) руб." group="sum" nvl="0" />
+        <column table="a" column="sn1_kvt" title="СН1(35) кВт*ч" group="sum" if="notvidacc1" as="sn1_kvt1" nvl="0" />
+        <column table="a" column="sn1_kvt" title="СН1(35) кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="sn1_nachisl" title="СН1(35) руб." group="sum" nvl="0" />
+        <column table="a" column="sn2_kvt" title="СН2 (6-10) кВт*ч" group="sum" if="notvidacc1" as="sn2_kvt1" nvl="0" />
+        <column table="a" column="sn2_kvt" title="СН2 (6-10) кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="sn2_nachisl" title="СН2 (6-10) руб." group="sum" nvl="0" />
+        <column table="a" column="nn_kvt" title="НН (0,4) кВт*ч" group="sum" if="notvidacc1" as="nn_kvt1" nvl="0" />
+        <column table="a" column="nn_kvt" title="НН (0,4) кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="nn_nachisl" title="НН (0,4) руб." group="sum" nvl="0" />
+        <column table="a" column="itog_kvt" title="Итого кВт*ч" group="sum" if="notvidacc1" as="itog_kvt1" nvl="0" />
+        <column table="a" column="itog_kvt" title="Итого кВт*ч" group="sum" nvl="0" />
+        <column table="a" column="itog_nachisl" title="Итого руб." group="sum" nvl="0" />
+        <column table="a" column="itog_nachisl_nds" title="Итого руб. с НДС" group="sum" nvl="0" />
+      </select>
+      <from>
+        <query name="61880_14-data" as="a" />
+        <query name="kr_dogovor" join="left outer" as="k">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="k" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in" optional="1">
+            <column table="k" column="adress_region" />
+            <useparam name="p_kod_adr_m" />
+          </call>
+          <call function="true" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="dog">
+          <group>
+            <column table="a" column="kod_dog" />
+          </group>
+          <grset as="itogvc">
+            <group>
+              <column table="a" column="kod_vidacc" />
+            </group>
+          </grset>
+          <grset as="ck">
+            <group>
+              <column table="a" column="kod_ck" />
+            </group>
+            <grset as="mvt">
+              <group>
+                <column table="a" column="kod_mvt" />
+              </group>
+              <grset as="vidacc">
+                <group>
+                  <column table="a" column="kod_vidacc" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+  <reports>
+    <report name="61880_14" timestamp="17.08.2022 23:03:24" nogrid="1" form="61880_14" title="Тарифное меню">
+      <params>
+        <usepart part="61880_14-params" />
+      </params>
+      <procedure>
+        <text comment="рабочая версия">
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+
+     for rec in (select * from adr_m where kod_m in :p_kod_adr_m)
+        loop
+        insert into vr_number_array (array_id,val) values ('adr_m',rec.kod_m);
+     end loop;
+    sqlb_rep_61880_14.fill_table(:p_ym_beg,:p_ym_beg);
+end;
+      </text>
+        <text comment="тест" exclude="1">
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_14_test.fill_table(:p_ym_beg,:p_ym_beg);
+end;
+      </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="61880_14.xlsx" print-proc="2" print-xlsx="1" title="Тарифное меню" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="61880_14-itog-all" as="ia">
+          <withparams>
+            <useparam name="p_kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880_14-itog-all-vidacc" as="iav">
+          <withparams>
+            <useparam name="p_kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880_14-dog" as="d">
+          <withparams>
+            <useparam name="p_kod_adr_m" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="61880_14" timestamp="26.08.2022 11:21:04">
+      <usefield field="asuse_dep_single" name="p_dep" mandatory="1" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym_beg" mandatory="1" title="Период" />
+      <usefield field="asuse_adr_m_obj_dep" name="p_kod_adr_m" />
+    </form>
+  </forms>
+  <parts>
+    <part id="61880_14-params" timestamp="09.03.2022 21:25:57">
+      <param type="array" name="p_dep">
+        <const exclude="1">1172</const>
+      </param>
+      <param type="number" name="p_ym_beg">
+        <const exclude="1">2021.08</const>
+      </param>
+      <param type="array" name="p_kod_adr_m">
+        <const exclude="1">1172</const>
+      </param>
+    </part>
+  </parts>
+</root>

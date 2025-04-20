@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="74989" title="Оборотно-сальдовая ведомость по эквайринговым платежам в последний день месяца по счету 57_08" timestamp="29.06.2025 00:35:43">
+      <usefield field="asuse_ym_tek_dep" name="p_ym_end" mandatory="1" title="Период" />
+      <field name="p_ym_beg" type="number" title="Период с" controlType="UIList" visible="0">
+        <defaultquery>
+          <query name="kr_calc_first_month_year" />
+        </defaultquery>
+      </field>
+    </form>
+  </forms>
+  <reports>
+    <report name="74989" title="Оборотно-сальдовая ведомость по эквайринговым платежам в последний день месяца по счету 57.08" form="74989" nogrid="1" timestamp="03.07.2025 00:45:20">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <params>
+        <param name="p_ym_end" type="number" />
+        <param name="p_ym_beg" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="74989.xlsx" print-xlsx="1" title="Оборотно-сальдовая ведомость по эквайринговым платежам по счету 57_08" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[ ----- ТЭС. ОСВ по 57.08
+ 
+  DECLARE 
+  period_beg NUMBER;
+  period_end NUMBER;
+  period NUMBER;
+  p_ym_beg     NUMBER;
+  p_ym_end     NUMBER; 
+  s_data_id     rr_temp.skod%type;
+
+BEGIN
+  period_beg:= :p_ym_beg;
+  period_end:= kg.ym_add(:p_ym_end,1);
+  period := period_beg;
+  p_ym_beg     := :p_ym_beg;
+  p_ym_end     := :p_ym_end;
+  s_data_id    := '3d8b60b1-74989-8c99c9d294fb';         
+
+ -- заполняем таблицу списком периодов для pivot
+ IF period_beg > period_end 
+ THEN
+   insert into vr_number_array(array_id, val)
+       VALUES('p_ym', 1010.01); 
+ELSE
+
+  delete vr_number_array;  
+  WHILE period < period_end
+  LOOP
+       insert into vr_number_array(array_id, val)
+       VALUES('p_ym', period);
+       period:= kg.ym_add(period,1);
+  END LOOP;
+ END IF;
+ 
+  -- заполняем временную таблицу rr_temp данными для отчета 
+  
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  INSERT INTO rr_temp (skod,
+              n1  -- kod_link
+            , s1	-- num_opl
+						, d1	-- dat_opl
+						, n2 	-- o.kod_dog
+            , n3 	-- opl_ym     1 - для левой части отчета и сальдо;  ym - для правой части с pivot  
+						, s2 	-- ndog
+						, s3 	-- dep_sname
+						
+						, n4	-- opl -- вся оплата по kod_link
+						, n5 	-- saldo_opl_beg
+					
+						, n6 	-- kod_dest
+						, n7 	-- pay_off_pre  -- погашение факта (зачет прошлых оплат)
+						, n8 	-- pay_off_tek  -- погашение факта (зачет текущих оплат)
+
+						, n9 	-- transfer_opl_in_dep_el  -- перенос оплаты внутри филиала на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+						, n10 -- tr_opl_in_dep_no_el  -- перенос оплаты внутри филиала НЕ на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+
+						, n11 	-- tr_opl_between_dep  -- перенос оплаты между филиалами(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+						, n12 	-- refund_opl  -- возврат оплаты (т.к. r.vid_recalc = -2 тоже возврат и в этом отчет есть отдельная колонка, то из возвратов это нужно вычесть)
+						, n13 	-- spis_dz  --  списание ДЗ по оплатам в периоде
+						, n14 	-- transfer_opl_av  -- перерасчет-высвободившиеся авансы 
+					)  
+      SELECT s_data_id     
+       , b.kod_link
+       , b.num_opl as num_opl
+       , max(b.dat_opl) as dat_opl
+       , o.kod_dog
+       , (CASE WHEN o.ym < p_ym_beg THEN 1 ELSE o.ym END) as opl_ym
+       , max(d.ndog) as ndog
+       , max(org.sname) as dep_sname
+       , max(b.opl) as opl -- вся оплата по kod_link
+      , SUM(CASE WHEN o.ym < p_ym_beg  AND o.kod_type_opl in (1,2,5,6) THEN o.opl + COALESCE(o.opls,0) ELSE 0 END) as saldo_opl_beg
+   
+      , max(dest.kod_dest) as kod_dest
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (0,3,4) AND o.ym < fv.ym AND (o.ym between p_ym_beg AND p_ym_end)  THEN o.opl ELSE 0 END) as pay_off_pre  -- погашение факта (зачет прошлых оплат)
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (0,3,4) AND (fv.ym IS NULL OR o.ym = fv.ym) AND (o.ym between p_ym_beg AND p_ym_end)  THEN o.opl ELSE 0 END) as pay_off_tek  -- погашение факта (зачет текущих оплат)
+
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (0,1,2,3,4) AND r.type = 1  AND d.dep = dd.dep AND (o.ym between p_ym_beg AND p_ym_end) THEN o.opl * (-1) ELSE 0 END) as transfer_opl_in_dep_el  -- перенос оплаты внутри филиала на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (0,1,2,3,4) AND r.type = 0  AND r.vid_recalc = -2 AND d.dep = dd.dep AND(o.ym between p_ym_beg AND p_ym_end) THEN o.opl * (-1) ELSE 0 END) as tr_opl_in_dep_no_el  -- перенос оплаты внутри филиала НЕ на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (0,1,2,3,4) AND r.type = 1  AND d.dep <> dd.dep AND(o.ym between p_ym_beg AND p_ym_end)  THEN o.opl * (-1) ELSE 0 END) as tr_opl_between_dep  -- перенос оплаты между филиалами(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (0,1,2,3,4) AND r.type = 0  AND r.vid_recalc <> -2 AND (o.ym between p_ym_beg AND p_ym_end) THEN o.opl * (-1) ELSE 0 END) as refund_opl  -- возврат оплаты (т.к. r.vid_recalc = -2 тоже возврат и в этом отчет есть отдельная колонка, то из возвратов это нужно вычесть)
+      , SUM(CASE WHEN (o.ym between p_ym_beg AND p_ym_end) AND vo.abbr = 'SPS' THEN NVL(o.opl,0) * (-1) ELSE 0 END) as spis_dz  --  списание ДЗ по оплатам в периоде
+
+      , SUM(CASE WHEN o.vid_real < 7 AND o.vid_real <> 1 AND o.kod_type_opl IN (1,2) AND r.type = 1 AND o.kod_dog = r.kod_dog AND (o.ym between p_ym_beg AND p_ym_end) THEN o.opl * (-1) ELSE 0 END) as transfer_opl_av  -- перерасчет-высвободившиеся авансы ???
+
+      FROM  sr_opl_bank b
+		  INNER JOIN sr_opl o ON b.kod_link = o.kod_link
+		  INNER JOIN (SELECT kod_dest FROM ss_dest_opl WHERE buh_schet like '%57.08%') dest ON b.kod_dest = dest.kod_dest
+		  INNER JOIN kr_dogovor d ON o.kod_dog = d.kod_dog
+		  INNER JOIN kr_org org ON d.dep = org.kodp
+		  LEFT JOIN sr_recalc_opl ro ON o.kod_opl = ro.kod_opl
+		  LEFT JOIN sr_recalc r ON ro.kod_recalc = r.kod_recalc
+		  LEFT JOIN kr_dogovor dd ON r.kod_dog = dd.kod_dog
+		  LEFT JOIN sr_facvip fv On o.kod_sf=fv.kod_sf
+		  LEFT JOIN ss_vidopl vo ON o.kod_vidopl = vo.kod_vidopl
+      GROUP BY b.kod_link, b.num_opl, o.dat_opl, o.kod_dog, (CASE WHEN o.ym < p_ym_beg THEN 1 ELSE o.ym END)
+	  ;
+END;]]></procedure>
+      <queries>
+        <query name="74989_data" as="d" />
+        <query name="title_info" as="t">
+          <withparams>
+            <useparam name="p_ym_beg" />
+            <useparam name="p_ym_end" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="payment_per_account_57_08_1" title="Запрос к отчёту по счету 57.08 для левой части" timestamp="02.07.2025 15:34:05">
+      <select>
+        <column table="a" column="kod_link" type="number" as="kod_link" />
+        <column table="a" column="kod_dog" type="number" as="kod_dog" />
+        <column table="a" column="ndog" type="string" as="ndog" />
+        <column table="a" column="dep_sname" type="string" as="dep_sname" />
+        <column table="a" column="num_opl" type="string" as="num_opl" />
+        <column table="a" column="dat_opl" type="date" as="dat_opl" />
+        <column table="a" column="opl" type="number" as="opl" />
+        <column table="a" column="saldo_opl_beg" type="number" as="saldo_opl_beg" nvl="0" />
+      </select>
+      <from>
+        <table name="payment_per_account_57_08_1" title="Эквайринговые платежи по счету 57.08 левая часть" as="a" view="1" />
+      </from>
+    </query>
+    <query name="payment_per_account_57_08_2" title="Запрос к отчёту по счету 57.08 для правой части с pivot" timestamp="02.07.2025 15:34:05">
+      <select>
+        <column table="a" column="kod_link" type="number" as="kod_link" />
+        <column table="a" column="kod_dog" type="number" as="kod_dog" />
+        <column table="a" column="ndog" type="string" as="ndog" />
+        <column table="a" column="dep_sname" type="string" as="dep_sname" />
+        <column table="a" column="num_opl" type="string" as="num_opl" />
+        <column table="a" column="dat_opl" type="date" as="dat_opl" />
+        <column table="a" column="opl_ym" type="number" as="opl_ym" />
+        <column table="a" column="opl" type="number" as="opl" />
+        <column table="a" column="pay_off_pre" type="number" as="pay_off_pre" nvl="0" />
+        <column table="a" column="pay_off_tek" type="number" as="pay_off_tek" nvl="0" />
+        <column table="a" column="transfer_opl_in_dep_el" type="number" as="transfer_opl_in_dep_el" nvl="0" />
+        <column table="a" column="tr_opl_in_dep_no_el" type="number" as="tr_opl_in_dep_no_el" nvl="0" />
+        <column table="a" column="tr_opl_between_dep" type="number" as="tr_opl_between_dep" nvl="0" />
+        <column table="a" column="refund_opl" type="number" as="refund_opl" nvl="0" />
+        <column table="a" column="spis_dz" type="number" as="spis_dz" nvl="0" />
+        <column table="a" column="transfer_opl_av" type="number" as="transfer_opl_av" nvl="0" />
+      </select>
+      <from>
+        <table name="payment_per_account_57_08_2" title="Эквайринговые платежи по счету 57.08 правая часть" as="a" view="1" />
+      </from>
+    </query>
+    <query name="74989_data" title="Основной запрос к отчёту по счету 57.08" timestamp="03.07.2025 01:10:55">
+      <select>
+        <column table="a" column="kod_link" type="number" as="kod_link" />
+        <column table="a" column="kod_dog" type="number" as="kod_dog" />
+        <column table="a" column="ndog" type="string" as="ndog" group="max" />
+        <column table="a" column="dep_sname" type="string" as="dep_sname" group="max" />
+        <column table="a" column="num_opl" type="string" as="num_opl" />
+        <column table="a" column="dat_opl" type="date" as="dat_opl" />
+        <column table="a" column="opl" type="number" as="opl" group="sum" />
+        <column table="a" column="saldo_opl_beg" type="number" as="saldo_opl_beg" group="sum" nvl="0" />
+        <column table="b" column="opl" type="number" group="sum" as="opl_in_period" dimname="ym" key="0" pivot="1" nvl="0">
+          <pivot>
+            <column table="b" column="opl_ym" as="ym" />
+            <query>
+              <select>
+                <column table="a1" column="val" as="val" />
+                <call function="||" as="t">
+                  <call function="mes-name-lowercase" as="mes" type="string">
+                    <call function="mes">
+                      <column table="a1" column="val" />
+                    </call>
+                  </call>
+                  <const type="string">' '</const>
+                  <call function="trunc" as="year">
+                    <column table="a1" column="val" />
+                  </call>
+                </call>
+              </select>
+              <from>
+                <query name="vr_number_array" as="a1" />
+              </from>
+              <where>
+                <call function="=">
+                  <column table="a1" column="array_id" />
+                  <const type="string">'p_ym'</const>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="b" column="pay_off_pre" type="number" group="sum" as="pay_off_pre" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="pay_off_tek" type="number" group="sum" as="pay_off_tek" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="transfer_opl_in_dep_el" type="number" group="sum" as="transfer_opl_in_dep_el" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="tr_opl_in_dep_no_el" type="number" group="sum" as="tr_opl_in_dep_no_el" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="tr_opl_between_dep" type="number" group="sum" as="tr_opl_between_dep" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="refund_opl" type="number" group="sum" as="refund_opl" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="spis_dz" type="number" group="sum" as="spis_dz" dimname="ym" key="0" pivot="1" nvl="0" />
+        <column table="b" column="transfer_opl_av" type="number" group="sum" as="transfer_opl_av" dimname="ym" key="0" pivot="1" nvl="0" />
+      </select>
+      <from>
+        <query name="payment_per_account_57_08_1" title="Эквайринговые платежи по счету 57.08 левая часть" as="a" />
+        <query join="inner" name="payment_per_account_57_08_2" title="Эквайринговые платежи по счету 57.08" as="b">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_link" />
+              <column table="b" column="kod_link" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_dog" />
+              <column table="b" column="kod_dog" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog" />
+        <grset as="dog" order="ndog">
+          <group>
+            <column table="this" column="kod_dog" />
+          </group>
+          <grset as="opl" order="num_opl">
+            <group>
+              <column table="this" column="num_opl" />
+            </group>
+            <grset as="dat" order="dat_opl">
+              <group>
+                <column table="this" column="dat_opl" />
+              </group>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+  <views child-name="view" key-name="id">
+    <view name="payment_per_account_57_08_1" title="Запрос по эквайринговым платежам по счету 57.08 левая часть">
+      ----- ТЭС. ОСВ по 57.08
+      select   
+          n1  as kod_link
+      , s1	as num_opl
+      , d1	as dat_opl
+      , n2 	as kod_dog
+      , n3 	as opl_ym     -- 1 - для левой части отчета и сальдо;  ym - для правой части с pivot
+      , s2 	as ndog
+      , s3 	as dep_sname
+
+      , n4	as opl -- вся оплата по kod_link
+      , n5 	as saldo_opl_beg
+
+      , n6 	as kod_dest
+      , n7 	as pay_off_pre  -- погашение факта (зачет прошлых оплат)
+      , n8 	as pay_off_tek  -- погашение факта (зачет текущих оплат)
+
+      , n9 	as transfer_opl_in_dep_el  -- перенос оплаты внутри филиала на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+      , n10 as tr_opl_in_dep_no_el  -- перенос оплаты внутри филиала НЕ на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+
+      , n11 	as tr_opl_between_dep  -- перенос оплаты между филиалами(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+      , n12 	as refund_opl  -- возврат оплаты (т.к. r.vid_recalc = -2 тоже возврат и в этом отчет есть отдельная колонка, то из возвратов это нужно вычесть)
+      , n13 	as spis_dz  --  списание ДЗ по оплатам в периоде
+      , n14 	as transfer_opl_av  -- перерасчет-высвободившиеся авансы
+      FROM rr_temp
+      WHERE skod = '3d8b60b1-74989-8c99c9d294fb' and n3=1
+    </view>
+    <view name="payment_per_account_57_08_2" title="Запрос по эквайринговым платежам по счету 57.08 для pivot колонок">
+      ----- ТЭС. ОСВ по 57.08
+      select 
+         n1  as kod_link
+      , s1	as num_opl
+      , d1	as dat_opl
+      , n2 	as kod_dog
+      , n3 	as opl_ym
+      , s2 	as ndog
+      , s3 	as dep_sname
+
+      , n4	as opl -- вся оплата по kod_link
+      , n5 	as saldo_opl_beg
+
+      , n6 	as kod_dest
+      , n7 	as pay_off_pre  -- погашение факта (зачет прошлых оплат)
+      , n8 	as pay_off_tek  -- погашение факта (зачет текущих оплат)
+
+      , n9 	as transfer_opl_in_dep_el  -- перенос оплаты внутри филиала на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+      , n10 as tr_opl_in_dep_no_el  -- перенос оплаты внутри филиала НЕ на дог. ЭЭ(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+
+      , n11 	as tr_opl_between_dep  -- перенос оплаты между филиалами(с минусом: зачтено в оплату, с плюсом: списано с оплаты.)
+      , n12 	as refund_opl  -- возврат оплаты (т.к. r.vid_recalc = -2 тоже возврат и в этом отчет есть отдельная колонка, то из возвратов это нужно вычесть)
+      , n13 	as spis_dz  --  списание ДЗ по оплатам в периоде
+      , n14 	as transfer_opl_av  -- перерасчет-высвободившиеся авансы
+      FROM rr_temp
+      WHERE skod = '3d8b60b1-74989-8c99c9d294fb' and n3 != 1
+    </view>
+  </views>
+</root>

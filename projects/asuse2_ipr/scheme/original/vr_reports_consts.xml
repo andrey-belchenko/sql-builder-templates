@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vr_reports_consts" timestamp="19.10.2016 14:24:31" class="1">
+      <select>
+        <column table="a" column="kod_const" type="number" key="1" />
+        <column table="a" column="kod_type" type="number" column-mandatory="1" />
+        <column table="a" column="repname" type="string" data-size="30" />
+        <column table="a" column="value" type="string" data-size="4000" />
+        <column table="a" column="u_m" type="string" data-size="30" />
+        <column table="a" column="d_m" type="date" />
+      </select>
+      <from>
+        <table name="vr_reports_consts" as="a" />
+        <query join="left outer" name="vr_reports_consts_types" as="kod_type">
+          <call function="=">
+            <column table="a" column="kod_type" />
+            <column table="kod_type" column="kod_type" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vr_reports_consts_types" class="1" timestamp="19.10.2016 14:30:43">
+      <select>
+        <column table="a" column="kod_type" type="number" key="1" />
+        <column table="a" column="name" type="string" is-name="1" vid="1" />
+      </select>
+      <from>
+        <table name="vr_reports_consts_types" as="a" view="1" />
+      </from>
+    </query>
+    <query name="vr_reports_consts_test" timestamp="18.10.2016 17:34:37" class="1">
+      <select>
+        <call function="get_reports_const" as="const_">
+          <const>null</const>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="vr_reports_consts_types">
+      select 1 as kod_type, 'Виза 1: ФИО' as name from dual
+      union all
+      select 2 , 'Виза 1: Должность' from dual
+    </view>
+  </views>
+  <forms>
+    <form name="vr_reports_consts" title="Настраиваемые поля в отчетах" timestamp="21.11.2016 14:28:03" is-report="1" folder="invpro" class="1" with-behavior="0">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+          </toolbar>
+          <columns>
+            <column table="a" column="repname" title="Отчет (необязательное)" exclude="1" />
+            <column table="a" column="kod_type" title="Название константы" column-editable="0" />
+            <column table="a" column="value" title="Значение" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="vr_reports_consts" as="a" />
+      </from>
+    </form>
+  </forms>
+</root>

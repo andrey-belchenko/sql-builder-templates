@@ -1,0 +1,540 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="36927-params" timestamp="22.09.2016 22:22:07">
+      <param name="dat1">
+        <const>to_date('01.08.2016','DD.MM.YYYY')</const>
+      </param>
+      <param name="dat2">
+        <const>to_date('01.09.2016','DD.MM.YYYY')</const>
+      </param>
+      <param name="use_spis">
+        <const>1</const>
+      </param>
+      <param name="dat1str">
+        <const>'начало периода'</const>
+      </param>
+      <param name="dat2str">
+        <const>'конец периода'</const>
+      </param>
+    </part>
+    <part id="36927-withparams" timestamp="22.09.2016 22:18:48">
+      <useparam name="dat1" />
+      <useparam name="dat2" />
+      <useparam name="use_spis" />
+      <useparam name="dat1str" />
+      <useparam name="dat2str" />
+    </part>
+  </parts>
+  <reports>
+    <report name="36927" title="Исковая задолженность по абонентам" timestamp="22.09.2016 22:35:00" folder="ur_reports" form="36927">
+      <customers>
+        <customer id="2" />
+      </customers>
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <queries>
+        <query name="36927_abon" as="a" title="По абонентам">
+          <withparams>
+            <usepart part="36927-withparams" />
+          </withparams>
+          <query name="36927_isp" as="b" title="По исп. листам">
+            <call function="=">
+              <column table="a" column="kodp" />
+              <column table="b" column="kodp" />
+            </call>
+            <withparams>
+              <usepart part="36927-withparams" />
+            </withparams>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="36927_isp" title="Исковая задолженность по исп. листам" timestamp="22.09.2016 22:27:45" folder="ur_reports" form="36927">
+      <customers>
+        <customer id="2" />
+      </customers>
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <queries>
+        <query name="36927_abon" as="a" title="По абонентам">
+          <withparams>
+            <usepart part="36927-withparams" />
+          </withparams>
+          <query name="36927_isp" as="b" title="По исп. листам" main="1">
+            <call function="=">
+              <column table="a" column="kodp" />
+              <column table="b" column="kodp" />
+            </call>
+            <withparams>
+              <usepart part="36927-withparams" />
+            </withparams>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="36927" timestamp="22.09.2016 21:48:42">
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <expressions>
+        <call function="if" as="opl_spis" group="sum" type="number">
+          <call function="=1">
+            <call function="nvlu">
+              <useparam name="use_spis" />
+              <const>0</const>
+            </call>
+          </call>
+          <fact column="s_opl_spis_oplf" />
+        </call>
+        <call function="if" as="nachl_spis" group="sum" type="number">
+          <call function="=1">
+            <call function="nvlu">
+              <useparam name="use_spis" />
+              <const>0</const>
+            </call>
+          </call>
+          <fact column="s_facras_spis_nachislf" />
+        </call>
+        <call function="-nvl" as="opl_pr" group="sum">
+          <fact column="s_opl_oplf" />
+          <fact column="opl_spis" />
+        </call>
+        <call function="-nvl" as="nach_pr" group="sum">
+          <fact column="s_facras_nachisl_nds" />
+          <fact column="nachl_spis" />
+        </call>
+        <call function="if" as="opl_do" group="sum" type="number">
+          <call function="and">
+            <call function="lt">
+              <column table="dat" column="val" />
+              <column table="dat_ur" column="val" />
+            </call>
+          </call>
+          <fact column="opl_pr" />
+        </call>
+        <call function="if" as="opl_posle" group="sum" type="number">
+          <call function="and">
+            <call function="ge">
+              <column table="dat" column="val" />
+              <column table="dat_ur" column="val" />
+            </call>
+          </call>
+          <fact column="opl_pr" />
+        </call>
+        <call function="-nvl" as="oborot_do" group="sum" title="Задолженность с НДС (руб)" type="number">
+          <fact column="nach_pr" />
+          <fact column="opl_do" />
+        </call>
+        <call function="-nvl" as="oborot_ur" group="sum" title="Задолженность с НДС (руб)" type="number">
+          <fact column="oborot_do" />
+          <fact column="opl_posle" />
+        </call>
+        <call function="if" as="dolg_beg" group="sum" type="number">
+          <call function="lt">
+            <column table="dat_ur" column="val" />
+            <useparam name="dat1" />
+          </call>
+          <fact column="oborot_ur" />
+        </call>
+        <call function="if" as="nach_prizn" group="sum" type="number">
+          <call function="and">
+            <call function="ge">
+              <column table="dat_ur" column="val" />
+              <useparam name="dat1" />
+            </call>
+            <call function="le">
+              <column table="dat_ur" column="val" />
+              <useparam name="dat2" />
+            </call>
+          </call>
+          <fact column="nach_pr" />
+        </call>
+        <call function="if" as="opl_prizn" group="sum" type="number">
+          <call function="and">
+            <call function="ge">
+              <column table="dat_ur" column="val" />
+              <useparam name="dat1" />
+            </call>
+            <call function="le">
+              <column table="dat_ur" column="val" />
+              <useparam name="dat2" />
+            </call>
+          </call>
+          <fact column="opl_do" />
+        </call>
+        <call function="if" as="opl" group="sum" type="number">
+          <call function="and">
+            <call function="ge">
+              <column table="dat" column="val" />
+              <useparam name="dat1" />
+            </call>
+            <call function="le">
+              <column table="dat" column="val" />
+              <useparam name="dat2" />
+            </call>
+          </call>
+          <fact column="opl_posle" />
+        </call>
+        <call function="if" as="dolg_end" group="sum" type="number">
+          <call function="le">
+            <column table="dat_ur" column="val" />
+            <useparam name="dat2" />
+          </call>
+          <fact column="oborot_ur" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_ur_sf_isp" column="dat_cr_isp" />
+        <column table="kod_ur_sf_isp" column="kod_ur_sf_isp" as="kod_invoice" />
+        <column table="kod_ur_sf_isp" column="num_isp" title="Номер ИЛ" />
+        <column table="kod_ur_sf_isp" column="num_delo" title="Номер дела" />
+        <column table="kod_sf" column="kod_sf" />
+        <column table="kod_opl" column="kod_opl" />
+        <column table="kod_opl" column="datao" />
+        <column table="kodp" column="kodp" />
+        <fact column="dolg_beg" nullif="0" />
+        <fact column="nach_prizn" nullif="0" />
+        <fact column="opl_prizn" table="opl" nullif="0" as="opl_do" />
+        <fact column="opl" table="opl" nullif="0" />
+        <fact column="dolg_end" nullif="0" />
+        <fact column="oborot_o_spis" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="opl">
+            <link name="kod_opl" />
+          </dimset>
+          <link name="kod_ur_sf_isp" />
+          <link name="kodp" />
+          <link name="kod_sf" />
+          <link name="dat" exclude="1" />
+          <link name="dat_ur" exclude="1" />
+          <where>
+            <call function="and">
+              <call function="is not null">
+                <column table="kod_ur_sf_isp" column="kod_ur_sf_isp" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kodp" column="kodp" />
+                <const>322603211</const>
+              </call>
+              <call function="is null">
+                <column table="kod_sf" column="ym_end_dolg" />
+              </call>
+              <call function="!=0">
+                <column table="kod_sf" column="vid_real" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kod_sf" column="kod_sf" />
+                <const>1017992</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="!=0">
+          <fact column="dolg_beg" nullif="0" />
+          <fact column="nach_prizn" nullif="0" />
+          <fact column="opl" table="opl" nullif="0" />
+          <fact column="opl_prizn" table="opl" nullif="0" as="opl_do" thissrc="opl_do" />
+        </call>
+      </where>
+    </query>
+    <query name="36927_l1" timestamp="23.09.2016 12:59:41" materialize="1">
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <select>
+        <column table="a" column="dat_cr_isp" />
+        <column table="a" column="kod_invoice" />
+        <column table="a" column="kod_sf" />
+        <column table="a" column="kod_opl" />
+        <column table="a" column="num_delo" title="Номер дела" />
+        <column table="a" column="num_isp" title="Номер ИЛ" />
+        <column table="a" column="datao" title="Дата оплаты" />
+        <column table="a" column="kodp" />
+        <column table="a" column="dolg_beg" />
+        <column table="a" column="nach_prizn" />
+        <column table="a" column="opl_do" />
+        <column table="a" column="opl" />
+        <column table="a" column="dolg_end" />
+        <call function="over" as="cnt_nach" type="number">
+          <call function="count">
+            <column table="a" column="nach_prizn" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_sf" />
+          </call>
+        </call>
+        <call function="over" as="cnt_dolg_beg" type="number">
+          <call function="count">
+            <column table="a" column="dolg_beg" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_sf" />
+          </call>
+        </call>
+        <call function="over" as="cnt_dolg_end" type="number">
+          <call function="count">
+            <column table="a" column="dolg_end" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_sf" />
+          </call>
+        </call>
+        <call function="over" as="cnt_opl_do" type="number">
+          <call function="count">
+            <column table="a" column="opl_do" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_opl" />
+          </call>
+        </call>
+        <call function="over" as="cnt_opl" type="number" title="Оплачено">
+          <call function="count">
+            <column table="a" column="opl" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_opl" />
+          </call>
+        </call>
+        <call as="nach_prizn_norm" function="/nvl">
+          <column table="a" column="nach_prizn" />
+          <column table="this" column="cnt_nach" />
+        </call>
+        <call as="opl_do_norm" function="/nvl" title="Оплачено">
+          <column table="a" column="opl_do" />
+          <column table="this" column="cnt_opl_do" />
+        </call>
+        <call function="-nvl" as="nach_norm" nvl="0" title="Начислено">
+          <column table="this" column="nach_prizn_norm" />
+          <column table="this" column="opl_do_norm" />
+        </call>
+        <call as="dolg_end_norm" function="/nvl" nvl="0" title="Задолженность на [:dat2str]">
+          <column table="a" column="dolg_end" />
+          <column table="this" column="cnt_dolg_end" />
+        </call>
+        <call as="dolg_beg_norm" function="/nvl" nvl="0" title="Задолженность на [:dat1str]">
+          <column table="a" column="dolg_beg" />
+          <column table="this" column="cnt_dolg_beg" />
+        </call>
+        <call as="opl_norm" function="/nvl" nvl="0" title="Оплачено">
+          <column table="a" column="opl" />
+          <column table="this" column="cnt_opl" />
+        </call>
+      </select>
+      <from>
+        <query name="36927" as="a">
+          <withparams>
+            <usepart part="36927-withparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="36927_l2" timestamp="19.09.2016 18:21:20">
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_invoice" group="1" />
+        <column table="a" column="kod_sf" group="1" />
+        <column table="s_facvip" column="vid_real" group="1" />
+        <column table="pr_obr" column="pr_obr" group="1" exclude="1" />
+        <column table="a" column="kodp" group="1" />
+        <call function="if" as="dolg_beg_norm" type="number" exclude="1">
+          <call function="gt">
+            <column table="a" column="dolg_beg_norm" group="sum" />
+            <const>0</const>
+          </call>
+          <column table="a" column="dolg_beg_norm" group="sum" />
+        </call>
+        <column table="a" column="dolg_beg_norm" group="sum" />
+        <column table="a" column="nach_norm" group="sum" />
+        <column table="a" column="opl_norm" group="sum" />
+        <column table="a" column="dolg_end_norm" group="sum" />
+      </select>
+      <from>
+        <query name="36927_l1" as="a">
+          <withparams>
+            <usepart part="36927-withparams" />
+          </withparams>
+        </query>
+        <query name="s_facvip" join="left outer">
+          <link name="kod_deb" exclude="1">
+            <elink name="s_debet_state">
+              <link name="pr_obr" />
+            </elink>
+          </link>
+          <call function="=">
+            <column table="s_facvip" column="kod_sf" />
+            <column table="a" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <where exclude="1">
+        <call function="=">
+          <column table="pr_obr" column="pr_nokniga" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="36927_abon" timestamp="22.09.2016 19:24:29" order="name">
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <select>
+        <column table="kodp" column="name" group="1" />
+        <column table="a" column="kodp" group="1" />
+        <column table="kodp" column="inn" group="1" />
+        <column table="a" column="dolg_beg_norm" group="sum" />
+        <column table="a" column="nach_norm" group="sum" />
+        <column table="a" column="opl_norm" group="sum" />
+        <column table="a" column="dolg_end_norm" group="sum" />
+      </select>
+      <from>
+        <query name="36927_l1" as="a">
+          <withparams>
+            <usepart part="36927-withparams" />
+          </withparams>
+        </query>
+        <query name="s_facvip" join="left outer">
+          <link name="kodp" />
+          <link name="kod_deb" exclude="1">
+            <elink name="s_debet_state">
+              <link name="pr_obr" />
+            </elink>
+          </link>
+          <call function="=">
+            <column table="s_facvip" column="kod_sf" />
+            <column table="a" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <where exclude="1">
+        <call function="=">
+          <column table="pr_obr" column="pr_nokniga" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="36927_isp" timestamp="20.09.2016 03:00:55" order="name,num_isp">
+      <params>
+        <usepart part="36927-params" />
+      </params>
+      <select>
+        <column table="kodp" column="name" group="1" />
+        <column table="a" column="kodp" group="1" />
+        <column table="kodp" column="inn" group="1" />
+        <column table="a" column="num_delo" group="1" />
+        <column table="a" column="num_isp" group="1" />
+        <column table="a" column="datao" group="max" title="Дата оплаты " />
+        <column table="a" column="dolg_beg_norm" group="sum" />
+        <column table="a" column="nach_norm" group="sum" />
+        <column table="a" column="opl_norm" group="sum" />
+        <column table="a" column="dolg_end_norm" group="sum" />
+      </select>
+      <from>
+        <query name="36927_l1" as="a">
+          <withparams>
+            <usepart part="36927-withparams" />
+          </withparams>
+        </query>
+        <query name="s_facvip" join="left outer">
+          <link name="kodp" />
+          <link name="kod_deb" exclude="1">
+            <elink name="s_debet_state">
+              <link name="pr_obr" />
+            </elink>
+          </link>
+          <call function="=">
+            <column table="s_facvip" column="kod_sf" />
+            <column table="a" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <where exclude="1">
+        <call function="=">
+          <column table="pr_obr" column="pr_nokniga" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="36927_dat1_str" timestamp="22.09.2016 22:16:13">
+      <params>
+        <param name="dat1" type="date" />
+      </params>
+      <select>
+        <call function="date to char" as="val">
+          <useparam name="dat1" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="36927_dat2_str" timestamp="22.09.2016 22:20:35">
+      <params>
+        <param name="dat2" type="date" />
+      </params>
+      <select>
+        <call function="date to char" as="val">
+          <useparam name="dat2" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="36927_dat1" timestamp="23.09.2016 12:08:53">
+      <select>
+        <call function="ym begin time" as="val">
+          <call function="date to ym">
+            <call function="sysdate" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="36927_dat2" timestamp="23.09.2016 12:11:15">
+      <select>
+        <call function="sysdate" as="val" />
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+  </queries>
+  <forms>
+    <form name="36927" timestamp="16.12.2016 00:05:52" with-behavior="0">
+      <usefield field="cmn_date" name="dat1" title="C" mandatory="1">
+        <defaultquery>
+          <query name="36927_dat1" />
+        </defaultquery>
+      </usefield>
+      <usefield field="cmn_date" name="dat2" title="По" mandatory="1">
+        <defaultquery>
+          <query name="36927_dat2" />
+        </defaultquery>
+      </usefield>
+      <usefield field="cmn_check" name="use_spis" title="С учетом списания" />
+      <usefield field="cmn_string" name="dat1str" title="C" column-visible="0">
+        <defaultquery>
+          <query name="36927_dat1_str" />
+        </defaultquery>
+      </usefield>
+      <usefield field="cmn_string" name="dat2str" title="По" column-visible="0">
+        <defaultquery>
+          <query name="36927_dat2_str" />
+        </defaultquery>
+      </usefield>
+    </form>
+  </forms>
+</root>

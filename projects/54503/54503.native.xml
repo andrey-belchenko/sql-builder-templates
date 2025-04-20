@@ -1,0 +1,1303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:35.6653444+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="54503-main" timestamp="14.04.2025 02:37:54" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="kod_emp_isp_pio" type="array" />
+        <param name="kod_group_cust_parent" type="array" />
+        <param name="kod_group_cust" type="array" />
+        <param name="dat_isk_s" type="date" />
+        <param name="dat_isk_po" type="date" />
+        <param name="is_isk_before_dat" type="number" />
+        <param name="kod_emp_isp" type="number" />
+        <param name="kod_emp_podp" type="number" />
+      </params>
+      <select>
+        <column table="ur_mat" column="kod_mat" />
+        <call function="row_num" as="row_num" group="max" comment="с группировкой тут что-то не срослось">
+          <column table="ur_mat" column="dat_doc" />
+          <column table="kod_podr" column="sname" />
+          <column table="kodp" column="name" />
+          <column table="ur_mat" column="num_delo" />
+        </call>
+        <column table="kod_folders" column="kodp" />
+        <column table="kod_folders" column="kod_podr" />
+        <column table="ur_hist_mat" column="kod_hist_mat" />
+        <column table="ur_mat_add_info" column="ur_pretenz_last_pio_kod_emp" as="pio_kod_emp" />
+        <column table="kodp" column="name" comment="-----общий блок 2." as="kodp_name" title="Наименование     абонента" />
+        <column table="ur_mat" column="num_delo" comment="3." title="Номер дела" />
+        <column table="ur_mat" column="dat_doc" comment="4." as="dat_pod" title="Дата подачи иска/заявления" />
+        <column table="ur_hist_mat" column="dat_post" comment="5." as="dat_prin" title="Дата принятия судебного акта" />
+        <call function="||" comment="6." as="predmet_isk" title="Предмет иска/заявления ">
+          <column table="ur_mat_add_info" column="kr_dog_name" />
+          <call function="case">
+            <call function="when">
+              <call function="gt">
+                <call function="nvl0">
+                  <column table="ur_mat_add_info" column="ur_dp_sum_osn" />
+                </call>
+                <const>0</const>
+              </call>
+              <call function="||">
+                <const>' '</const>
+                <column table="ur_mat_add_info" column="ur_dogplat_ym_str" />
+              </call>
+            </call>
+            <call function="when">
+              <call function="and">
+                <call function="le">
+                  <call function="nvl0">
+                    <column table="ur_mat_add_info" column="ur_dp_sum_osn" />
+                  </call>
+                  <const>0</const>
+                </call>
+                <call function="gt">
+                  <call function="nvl0">
+                    <column table="ur_mat_add_info" column="ur_dp_sum_peni" />
+                  </call>
+                  <const>0</const>
+                </call>
+              </call>
+              <call function="||">
+                <const>' '</const>
+                <column table="ur_mat_add_info" column="peni_period_str" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="kod_podr" column="sname" comment="7." as="podr_name" title="Филиал" />
+        <call function="+nvl" comment="-----первый белый блок 8." as="pred_osn" title="Предъявлено - долг, расходы на ограничение" group="sum">
+          <column table="ur_mat_add_info" column="ur_dp_sum_osn" />
+          <column table="ur_hist_mat" column="ogr" />
+        </call>
+        <column table="ur_mat_add_info" column="ur_dp_sum_peni" comment="9." as="pred_peni" title="Предъявлено - проценты/ пени, неустойка" group="sum" />
+        <column table="ur_mat_add_info" column="ur_mat_sum_gp" comment="10." as="pred_gp" title="Предъявлено - госпошлина/ третейскмй сбор" group="sum" />
+        <call function="+" title="Предъявлено - общая сумма" as="pred_sum" comment="11." group="sum">
+          <column table="this" column="pred_osn" />
+          <column table="this" column="pred_peni" />
+          <column table="this" column="pred_gp" />
+        </call>
+        <call function="()" as="pred_count" title="Предъявлено - кол-во" comment="12." group="sum" type="number">
+          <const>1</const>
+        </call>
+        <call function="if" comment="-----зеленый блок 13." as="udv_osn" title="Удовлетворено - долг, расходы на ограничение" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <call function="+">
+            <column table="ur_mat_add_info" column="ur_dp_priz_osn" />
+            <column table="ur_hist_mat" column="ogr" />
+          </call>
+        </call>
+        <call function="if" comment="14." as="udv_peni" title="Удовлетворено - проценты/ неустойка" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <column table="ur_mat_add_info" column="ur_dp_priz_peni" />
+        </call>
+        <call function="if" comment="15." as="udv_gp" title="Удовлетворено - госпошлина/ третейскмй сбор" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <column table="ur_hist_mat" column="gp_otv" />
+        </call>
+        <call function="if" comment="16." as="udv_gp_ret" title="Удовлетворено - справка на возврат" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <column table="ur_hist_mat" column="gp_ret" />
+        </call>
+        <call function="if" comment="17." as="udv_count" title="Удовлетворено - кол-во" group="sum" type="number">
+          <call function="and">
+            <call function="or">
+              <call function="!=">
+                <call function="nvl">
+                  <column table="this" column="udv_osn" />
+                  <const>0</const>
+                </call>
+                <const>0</const>
+              </call>
+              <call function="and">
+                <call function="=">
+                  <call function="nvl">
+                    <column table="this" column="otkaz_osn" />
+                    <const>0</const>
+                  </call>
+                  <const>0</const>
+                </call>
+                <call function="!=0">
+                  <call function="+nvl">
+                    <column table="this" column="udv_peni" />
+                    <column table="this" column="udv_gp" />
+                  </call>
+                </call>
+              </call>
+              <call function="and">
+                <call function="=">
+                  <call function="nvl">
+                    <column table="this" column="otkaz_osn" />
+                    <const>0</const>
+                  </call>
+                  <const>0</const>
+                </call>
+                <call function="=0">
+                  <call function="+nvl">
+                    <column table="this" column="otkaz_peni" />
+                    <column table="this" column="otkaz_gp" />
+                  </call>
+                </call>
+              </call>
+            </call>
+            <call function="in">
+              <column table="ur_hist_mat" column="kod_result" />
+              <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" comment="-----оранжевый блок 18." title="Отказано - долг, расходы на ограничение" as="otkaz_osn" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="pred_osn" />
+            <column table="this" column="udv_osn" />
+          </call>
+        </call>
+        <call function="if" comment="19." title="Отказано - проценты/ неустойка" as="otkaz_peni" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="pred_peni" />
+            <column table="this" column="udv_peni" />
+          </call>
+        </call>
+        <call function="if" comment="20." title="Отказано - госпошлина/ третейскмй сбор" as="otkaz_gp" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="pred_gp" />
+            <call function="+nvl">
+              <column table="this" column="udv_gp_ret" />
+              <column table="this" column="udv_gp" />
+            </call>
+          </call>
+        </call>
+        <call function="if" comment="21." title="Отказано - кол-во" as="otkaz_count" group="sum" type="number">
+          <call function="and">
+            <call function="in">
+              <column table="ur_hist_mat" column="kod_result" />
+              <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+            </call>
+            <call function="=0">
+              <call function="nvl0">
+                <column table="this" column="udv_count" />
+              </call>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" comment="-----желтый блок 22." as="rassm_osn" title="На рассмотрении - долг, расходы на ограничение" group="sum">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <column table="this" column="pred_osn" />
+        </call>
+        <call function="if" comment="23." as="rassm_peni" title="На рассмотрении - проценты/ неустойка" group="sum">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <column table="this" column="pred_peni" />
+        </call>
+        <call function="if" comment="24." as="rassm_gp" title="На рассмотрении - госпошлина/ третейскмй сбор" group="sum">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <column table="this" column="pred_gp" />
+        </call>
+        <call function="if" comment="25." as="rassm_count" title="На рассмотрении - кол-во" group="sum" type="number">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="least" as="opl_osn" title="Оплата - долг, расходы на ограничение" comment="-----второй белый блок 26." group="sum">
+          <column table="this" column="otkaz_osn" />
+          <call function="+nvl">
+            <column table="ur_mat_add_info" column="ur_opl_do_resh_osn" />
+            <column table="ur_mat_add_info" column="ur_opl_do_il_osn" />
+          </call>
+          <call function="+nvl" exclude="1" comment="в удволетворено расходы на ограничение всегда попадают полностью">
+            <call function="if">
+              <call function="ge">
+                <call function="nvl">
+                  <column table="ur_hist_mat" column="dat_entry" />
+                  <call function="doomsday" />
+                </call>
+                <call function="nvl">
+                  <column table="ur_hist_mat" column="opl_ogr_dat" />
+                  <call function="nativity" />
+                </call>
+              </call>
+              <column table="ur_hist_mat" column="opl_ogr" />
+            </call>
+            <column table="ur_mat_add_info" column="ur_opl_do_il_osn" />
+          </call>
+        </call>
+        <call as="opl_peni" title="Оплата - проценты/ неустойка" comment="27." group="sum" function="least">
+          <column table="this" column="otkaz_peni" />
+          <call function="+nvl">
+            <column table="ur_mat_add_info" column="ur_opl_do_resh_peni" />
+            <column table="ur_mat_add_info" column="ur_opl_do_il_peni" />
+          </call>
+        </call>
+        <call as="opl_gp" title="Оплата - госпошлина/ третейскмй сбор" comment="28." group="sum" function="least">
+          <column table="this" column="otkaz_gp" />
+          <column table="ur_mat_add_info" column="ur_opl_do_il_gp" />
+        </call>
+        <call function="if" comment="29." title="Оплата - кол-во" as="opl_count" group="sum" type="number">
+          <call function="gt">
+            <call function="+nvl">
+              <column table="this" column="opl_osn" />
+              <column table="this" column="opl_peni" />
+              <column table="this" column="opl_gp" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" comment="По заявке 64628" title="Отменено судебных приказов - долг, расходы на ограничение" as="otmena_osn" group="sum">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <column table="this" column="pred_osn" />
+        </call>
+        <call function="if" comment="По заявке 64628" title="Отменено судебных приказов - проценты/ неустойка" as="otmena_peni" group="sum">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <column table="this" column="pred_peni" />
+        </call>
+        <call function="if" comment="По заявке 64628" title="Отменено судебных приказов - госпошлина/ третейскмй сбор" as="otmena_gp" group="sum">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <column table="this" column="pred_gp" />
+        </call>
+        <call function="if" comment="По заявке 64628" title="Отменено судебных приказов - кол-во" as="otmena_count" group="sum" type="number">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="ur_mat">
+          <link name="kod_folders">
+            <link name="kodp" />
+            <link name="kod_podr" />
+          </link>
+        </query>
+        <query name="54503-ur_mat_info" join="left outer" as="ur_mat_add_info">
+          <call function="=">
+            <column table="ur_mat" column="kod_mat" />
+            <column table="ur_mat_add_info" column="kod_mat" />
+          </call>
+        </query>
+        <query name="54503-ur_mat_gr_p_filter" join="inner" as="ur_mat_gr_p">
+          <call function="=">
+            <column table="ur_mat" column="kod_mat" />
+            <column table="ur_mat_gr_p" column="kod_mat" />
+          </call>
+          <withparams>
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+          </withparams>
+        </query>
+        <query name="54503-ur_hist_mat_last_resh" join="left outer" as="ur_hist_mat">
+          <call function="and">
+            <call function="=">
+              <column table="ur_mat" column="kod_mat" />
+              <column table="ur_hist_mat" column="kod_mat" />
+            </call>
+            <call function="=">
+              <column table="ur_hist_mat" column="max_date_over_mat_dec" />
+              <column table="ur_hist_mat" column="dat_rassm" />
+            </call>
+            <call function="=">
+              <column table="ur_hist_mat" column="mat_has_decision" />
+              <column table="ur_hist_mat" column="decision" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_folders" column="kod_sdp" />
+            <const>1</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="this" column="kod_podr" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="this" column="pio_kod_emp" />
+            <useparam name="kod_emp_isp_pio" />
+          </call>
+          <call function="le" optional="1">
+            <column table="this" column="dat_pod" />
+            <useparam name="dat_isk_po" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="this" column="dat_pod" />
+            <useparam name="dat_isk_s" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="isk" order="dat_pod,podr_name,kodp_name,num_delo">
+            <group>
+              <column table="this" column="kod_mat" />
+              <column table="this" column="kodp" />
+              <column table="this" column="kod_podr" />
+              <column table="this" column="kod_hist_mat" />
+              <column table="this" column="pio_kod_emp" />
+              <column table="this" column="kodp_name" />
+              <column table="this" column="num_delo" />
+              <column table="this" column="dat_pod" />
+              <column table="this" column="dat_prin" />
+              <column table="this" column="predmet_isk" />
+              <column table="this" column="podr_name" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="54503-ur_mat_info" materialize="1" timestamp="07.11.2022 13:30:00" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <select>
+        <column table="ur_mat" column="kod_mat" />
+        <fact column="kr_dog_name" />
+        <fact column="ur_dogplat_ym_str" />
+        <fact column="ur_dogplat_ym_all" />
+        <fact column="peni_period_str" />
+        <fact column="ur_dp_sum_osn" />
+        <column table="ur_mat" column="ogr" />
+        <fact column="ur_dp_sum_peni" />
+        <fact column="ur_mat_sum_gp" />
+        <fact column="ur_dp_priz_osn" />
+        <fact column="ur_dp_priz_peni" />
+        <fact column="ur_opl_do_il_osn" />
+        <fact column="ur_opl_do_il_peni" />
+        <fact column="ur_opl_do_il_gp" />
+        <fact column="ur_opl_do_resh_osn" />
+        <fact column="ur_opl_do_resh_peni" />
+        <fact column="ur_pretenz_last_pio_kod_emp" />
+      </select>
+      <from>
+        <query name="ur_mat" />
+      </from>
+    </query>
+    <query name="54503-ur_mat_gr_p_filter" materialize="1" timestamp="07.11.2022 13:35:00" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <params>
+        <param name="kod_group_cust_parent" type="array" />
+        <param name="kod_group_cust" type="array" />
+      </params>
+      <select>
+        <column column="kod_mat" table="ur_mat" group="1" />
+      </select>
+      <from>
+        <query name="ur_mat">
+          <elink name="ur_dogplat">
+            <link name="kod_deb_sf">
+              <link name="kod_sf">
+                <link name="kod_dog">
+                  <link name="kod_dog_dop">
+                    <link name="kod_group_cust" />
+                  </link>
+                </link>
+              </link>
+            </link>
+          </elink>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <query>
+              <select>
+                <column table="a" column="kod_group_cust" />
+              </select>
+              <from>
+                <query name="ks_group_cust" as="a" />
+              </from>
+              <start>
+                <call function="=">
+                  <column table="a" column="kod_group_cust" />
+                  <column table="kod_group_cust" column="kod_group_cust" />
+                </call>
+              </start>
+              <connect>
+                <call function="=">
+                  <column table="a" column="kod_gr_parent" prior="1" />
+                  <column table="a" column="kod_group_cust" />
+                </call>
+              </connect>
+              <where>
+                <call function="is null">
+                  <column table="a" column="kod_gr_parent" />
+                </call>
+              </where>
+            </query>
+            <useparam name="kod_group_cust_parent" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_group_cust" column="kod_group_cust" />
+            <useparam name="kod_group_cust" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="54503-params" timestamp="07.11.2022 13:50:00" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="kod_emp_isp_pio" type="array" />
+        <param name="kod_group_cust_parent" type="array" />
+        <param name="kod_group_cust" type="array" />
+        <param name="dat_isk_s" type="date" />
+        <param name="dat_isk_po" type="date" />
+        <param name="is_isk_before_dat" type="number" />
+        <param name="kod_emp_isp" type="number" />
+        <param name="kod_emp_podp" type="number" />
+      </params>
+      <select>
+        <call function="()" as="isp_fio" title="Фио исполнителя" type="string">
+          <query>
+            <select>
+              <column table="e_i_n" column="fio" />
+            </select>
+            <from>
+              <query name="kr_employee" as="e_i_n" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="=" optional="1">
+                  <column table="e_i_n" column="kod_emp" />
+                  <useparam name="kod_emp_isp" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="isp_phone" title="Телефон исполнителя" type="string">
+          <query>
+            <select>
+              <column table="e_i_p" column="tel" />
+            </select>
+            <from>
+              <query name="kr_employee" as="e_i_p" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="=" optional="1">
+                  <column table="e_i_p" column="kod_emp" />
+                  <useparam name="kod_emp_isp" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="podp_fio" title="Фио подписанта" type="string">
+          <query>
+            <select>
+              <column table="e_p_n" column="fio" />
+            </select>
+            <from>
+              <query name="kr_employee" as="e_p_n" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="=" optional="1">
+                  <column table="e_p_n" column="kod_emp" />
+                  <useparam name="kod_emp_podp" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="podp_dolg" title="Должность подписанта" type="string">
+          <query>
+            <select>
+              <column table="e_p_d_n" column="name" />
+            </select>
+            <from>
+              <query name="kr_employee" as="e_p_d">
+                <link name="kod_namedolzh" as="e_p_d_n" />
+              </query>
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="=" optional="1">
+                  <column table="e_p_d" column="kod_emp" />
+                  <useparam name="kod_emp_podp" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="date to char" as="dat_isk_s">
+          <call function="nvlu" type="date">
+            <useparam name="dat_isk_s" />
+            <call function="null" />
+          </call>
+        </call>
+        <call function="date to char" as="dat_isk_po">
+          <call function="nvlu" type="date">
+            <useparam name="dat_isk_po" />
+            <call function="null" />
+          </call>
+        </call>
+        <call function="()" as="dep_arr" title="Подразделения" type="string">
+          <query>
+            <select>
+              <column table="e_k_o" column="sname" group="stragg_dist" />
+            </select>
+            <from>
+              <query name="kr_org" as="e_k_o" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column table="e_k_o" column="kodp" />
+                  <useparam name="dep" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="isp_pio_arr" title="Исполнители ПИО" type="string">
+          <query>
+            <select>
+              <column table="e_k_e" column="fio" group="stragg_dist" />
+            </select>
+            <from>
+              <query name="kr_employee" as="e_k_e" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column table="e_k_e" column="kod_emp" />
+                  <useparam name="kod_emp_isp_pio" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="cust_name_arr" type="string" title="Группы потребления">
+          <query>
+            <select>
+              <column table="e_k_g_c" column="name" as="cust_name" group="stragg_dist" />
+            </select>
+            <from>
+              <query name="ks_group_cust" as="e_k_g_c" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column table="e_k_g_c" column="kod_group_cust" />
+                  <useparam name="kod_group_cust_parent" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="cust_pg_name_arr" type="string" title="Подруппы потребления">
+          <query>
+            <select>
+              <column table="e_k_g_c" column="name" as="cust_name" group="stragg_dist" />
+            </select>
+            <from>
+              <query name="ks_group_cust" as="e_k_g_c" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column table="e_k_g_c" column="kod_group_cust" />
+                  <useparam name="kod_group_cust" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="if" as="view_old_isks" title="Включены данные по искам, поданным до отчетного периода" type="string">
+          <call function="or">
+            <call function="false" />
+            <call function="=1" optional="1">
+              <useparam name="is_isk_before_dat" />
+            </call>
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <call function="sysdate" as="dat" />
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="54503-default_dat_kv_beg" timestamp="13.11.2019 19:11:54" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <select>
+        <call function="add_months" as="prev_kv_begin">
+          <call function="trunc">
+            <call function="sysdate" />
+            <const>'Q'</const>
+          </call>
+          <const>-3</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="54503-default_dat_kv_end" timestamp="13.11.2019 19:14:17" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <select>
+        <call function="-" as="prev_kv_end" type="date">
+          <call function="trunc">
+            <call function="sysdate" />
+            <const>'Q'</const>
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="54503-ur_hist_mat_last_resh" materialize="1" timestamp="07.11.2022 13:40:00" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <select>
+        <column table="ur_hist_mat" column="kod_hist_mat" />
+        <column table="ur_hist_mat" column="kod_mat" />
+        <column table="ur_hist_mat" column="decision" />
+        <column table="ur_hist_mat" column="dat_rassm" />
+        <call function="over" as="max_date_over_mat_dec">
+          <call function="max">
+            <column table="ur_hist_mat" column="dat_rassm" />
+          </call>
+          <call function="partition by">
+            <column table="ur_hist_mat" column="kod_mat" />
+            <column table="ur_hist_mat" column="decision" />
+          </call>
+        </call>
+        <call function="over" as="mat_has_decision">
+          <call function="max">
+            <column table="ur_hist_mat" column="decision" />
+          </call>
+          <call function="partition by">
+            <column table="ur_hist_mat" column="kod_mat" />
+          </call>
+        </call>
+        <column table="ur_hist_mat" column="kod_result" />
+        <column table="ur_hist_mat" column="dat_post" />
+        <column table="ur_hist_mat" column="ogr" />
+        <column table="ur_hist_mat" column="gp_otv" />
+        <column table="ur_hist_mat" column="gp_ret" />
+        <column table="ur_hist_mat" column="dat_entry" />
+        <column table="ur_hist_mat" column="opl_ogr_dat" />
+        <column table="ur_hist_mat" column="opl_ogr" />
+      </select>
+      <from>
+        <query name="ur_hist_mat" />
+      </from>
+    </query>
+    <query name="54503-main_before" timestamp="14.04.2025 02:39:05" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="kod_emp_isp_pio" type="array" />
+        <param name="kod_group_cust_parent" type="array" />
+        <param name="kod_group_cust" type="array" />
+        <param name="dat_isk_s" type="date" />
+        <param name="dat_isk_po" type="date" />
+        <param name="is_isk_before_dat" type="number" />
+        <param name="kod_emp_isp" type="number" />
+        <param name="kod_emp_podp" type="number" />
+      </params>
+      <select>
+        <column table="ur_mat" column="kod_mat" />
+        <call function="row_num" as="row_num" group="max" comment="с группировкой тут что-то не срослось">
+          <column table="ur_mat" column="dat_doc" />
+          <column table="kod_podr" column="sname" />
+          <column table="kodp" column="name" />
+          <column table="ur_mat" column="num_delo" />
+        </call>
+        <column table="kod_folders" column="kodp" />
+        <column table="kod_folders" column="kod_podr" />
+        <column table="ur_hist_mat" column="kod_hist_mat" />
+        <column table="ur_mat_add_info" column="ur_pretenz_last_pio_kod_emp" as="pio_kod_emp" />
+        <column table="kodp" column="name" comment="-----общий блок 2." as="kodp_name" title="Наименование     абонента" />
+        <column table="ur_mat" column="num_delo" comment="3." title="Номер дела" />
+        <column table="ur_mat" column="dat_doc" comment="4." as="dat_pod" title="Дата подачи иска/заявления" />
+        <column table="ur_hist_mat" column="dat_post" comment="5." as="dat_prin" title="Дата принятия судебного акта" />
+        <call function="||" comment="6." as="predmet_isk" title="Предмет иска/заявления ">
+          <column table="ur_mat_add_info" column="kr_dog_name" />
+          <call function="case">
+            <call function="when">
+              <call function="gt">
+                <call function="nvl0">
+                  <column table="ur_mat_add_info" column="ur_dp_sum_osn" />
+                </call>
+                <const>0</const>
+              </call>
+              <call function="||">
+                <const>' '</const>
+                <column table="ur_mat_add_info" column="ur_dogplat_ym_str" />
+              </call>
+            </call>
+            <call function="when">
+              <call function="and">
+                <call function="le">
+                  <call function="nvl0">
+                    <column table="ur_mat_add_info" column="ur_dp_sum_osn" />
+                  </call>
+                  <const>0</const>
+                </call>
+                <call function="gt">
+                  <call function="nvl0">
+                    <column table="ur_mat_add_info" column="ur_dp_sum_peni" />
+                  </call>
+                  <const>0</const>
+                </call>
+              </call>
+              <call function="||">
+                <const>' '</const>
+                <column table="ur_mat_add_info" column="peni_period_str" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="kod_podr" column="sname" comment="7." as="podr_name" title="Филиал" />
+        <call function="+nvl" comment="-----первый белый блок 8." as="pred_osn" title="Предъявлено - долг, расходы на ограничение" group="sum">
+          <column table="ur_mat_add_info" column="ur_dp_sum_osn" />
+          <column table="ur_hist_mat" column="ogr" />
+        </call>
+        <column table="ur_mat_add_info" column="ur_dp_sum_peni" comment="9." as="pred_peni" title="Предъявлено - проценты/ пени, неустойка" group="sum" />
+        <column table="ur_mat_add_info" column="ur_mat_sum_gp" comment="10." as="pred_gp" title="Предъявлено - госпошлина/ третейскмй сбор" group="sum" />
+        <call function="+" title="Предъявлено - общая сумма" as="pred_sum" comment="11." group="sum">
+          <column table="this" column="pred_osn" />
+          <column table="this" column="pred_peni" />
+          <column table="this" column="pred_gp" />
+        </call>
+        <call function="()" as="pred_count" title="Предъявлено - кол-во" comment="12." group="sum" type="number">
+          <const>1</const>
+        </call>
+        <call function="if" comment="-----зеленый блок 13." as="udv_osn" title="Удовлетворено - долг, расходы на ограничение" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <call function="+">
+            <column table="ur_mat_add_info" column="ur_dp_priz_osn" />
+            <column table="ur_hist_mat" column="ogr" />
+          </call>
+        </call>
+        <call function="if" comment="14." as="udv_peni" title="Удовлетворено - проценты/ неустойка" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <column table="ur_mat_add_info" column="ur_dp_priz_peni" />
+        </call>
+        <call function="if" comment="15." as="udv_gp" title="Удовлетворено - госпошлина/ третейскмй сбор" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <column table="ur_hist_mat" column="gp_otv" />
+        </call>
+        <call function="if" comment="16." as="udv_gp_ret" title="Удовлетворено - справка на возврат" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+          </call>
+          <column table="ur_hist_mat" column="gp_ret" />
+        </call>
+        <call function="if" comment="17." as="udv_count" title="Удовлетворено - кол-во" group="sum" type="number">
+          <call function="and">
+            <call function="or">
+              <call function="!=">
+                <call function="nvl">
+                  <column table="this" column="udv_osn" />
+                  <const>0</const>
+                </call>
+                <const>0</const>
+              </call>
+              <call function="and">
+                <call function="=">
+                  <call function="nvl">
+                    <column table="this" column="otkaz_osn" />
+                    <const>0</const>
+                  </call>
+                  <const>0</const>
+                </call>
+                <call function="!=0">
+                  <call function="+nvl">
+                    <column table="this" column="udv_peni" />
+                    <column table="this" column="udv_gp" />
+                  </call>
+                </call>
+              </call>
+              <call function="and">
+                <call function="=">
+                  <call function="nvl">
+                    <column table="this" column="otkaz_osn" />
+                    <const>0</const>
+                  </call>
+                  <const>0</const>
+                </call>
+                <call function="=0">
+                  <call function="+nvl">
+                    <column table="this" column="otkaz_peni" />
+                    <column table="this" column="otkaz_gp" />
+                  </call>
+                </call>
+              </call>
+            </call>
+            <call function="in">
+              <column table="ur_hist_mat" column="kod_result" />
+              <array>42, 43, 7, 10, 45, 97, 8, 91</array>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" comment="-----оранжевый блок 18." title="Отказано - долг, расходы на ограничение" as="otkaz_osn" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="pred_osn" />
+            <column table="this" column="udv_osn" />
+          </call>
+        </call>
+        <call function="if" comment="19." title="Отказано - проценты/ неустойка" as="otkaz_peni" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="pred_peni" />
+            <column table="this" column="udv_peni" />
+          </call>
+        </call>
+        <call function="if" comment="20." title="Отказано - госпошлина/ третейскмй сбор" as="otkaz_gp" group="sum">
+          <call function="in">
+            <column table="ur_hist_mat" column="kod_result" />
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="pred_gp" />
+            <call function="+nvl">
+              <column table="this" column="udv_gp_ret" />
+              <column table="this" column="udv_gp" />
+            </call>
+          </call>
+        </call>
+        <call function="if" comment="21." title="Отказано - кол-во" as="otkaz_count" group="sum" type="number">
+          <call function="and">
+            <call function="in">
+              <column table="ur_hist_mat" column="kod_result" />
+              <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8</array>
+            </call>
+            <call function="=0">
+              <call function="nvl0">
+                <column table="this" column="udv_count" />
+              </call>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" comment="-----желтый блок 22." as="rassm_osn" title="На рассмотрении - долг, расходы на ограничение" group="sum">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <column table="this" column="pred_osn" />
+        </call>
+        <call function="if" comment="23." as="rassm_peni" title="На рассмотрении - проценты/ неустойка" group="sum">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <column table="this" column="pred_peni" />
+        </call>
+        <call function="if" comment="24." as="rassm_gp" title="На рассмотрении - госпошлина/ третейскмй сбор" group="sum">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <column table="this" column="pred_gp" />
+        </call>
+        <call function="if" comment="25." as="rassm_count" title="На рассмотрении - кол-во" group="sum" type="number">
+          <call function="not in">
+            <call function="nvl0">
+              <column table="ur_hist_mat" column="kod_result" />
+            </call>
+            <array>44, 5, 6, 43, 41, 91, 42, 7, 10, 45, 97, 8, 99</array>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="least" as="opl_osn" title="Оплата - долг, расходы на ограничение" comment="-----второй белый блок 26." group="sum">
+          <column table="this" column="otkaz_osn" />
+          <call function="+nvl">
+            <column table="ur_mat_add_info" column="ur_opl_do_resh_osn" />
+            <column table="ur_mat_add_info" column="ur_opl_do_il_osn" />
+          </call>
+          <call function="+nvl" exclude="1" comment="в удволетворено расходы на ограничение всегда попадают полностью">
+            <call function="if">
+              <call function="ge">
+                <call function="nvl">
+                  <column table="ur_hist_mat" column="dat_entry" />
+                  <call function="doomsday" />
+                </call>
+                <call function="nvl">
+                  <column table="ur_hist_mat" column="opl_ogr_dat" />
+                  <call function="nativity" />
+                </call>
+              </call>
+              <column table="ur_hist_mat" column="opl_ogr" />
+            </call>
+            <column table="ur_mat_add_info" column="ur_opl_do_il_osn" />
+          </call>
+        </call>
+        <call function="least" as="opl_peni" title="Оплата - проценты/ неустойка" comment="27." group="sum">
+          <column table="this" column="otkaz_peni" />
+          <call function="+nvl">
+            <column table="ur_mat_add_info" column="ur_opl_do_resh_peni" />
+            <column table="ur_mat_add_info" column="ur_opl_do_il_peni" />
+          </call>
+        </call>
+        <call function="least" as="opl_gp" title="Оплата - госпошлина/ третейскмй сбор" comment="28." group="sum">
+          <column table="this" column="otkaz_gp" />
+          <column table="ur_mat_add_info" column="ur_opl_do_il_gp" />
+        </call>
+        <call function="if" comment="29." title="Оплата - кол-во" as="opl_count" group="sum" type="number">
+          <call function="gt">
+            <call function="+nvl">
+              <column table="this" column="opl_osn" />
+              <column table="this" column="opl_peni" />
+              <column table="this" column="opl_gp" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" comment="По заявке 64628" as="otmena_osn" title="Отменено судебных приказов - долг, расходы на ограничение" group="sum">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <column table="this" column="pred_osn" />
+        </call>
+        <call function="if" comment="По заявке 64628" as="otmena_peni" title="Отменено судебных приказов - проценты/ неустойка" group="sum">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <column table="this" column="pred_peni" />
+        </call>
+        <call function="if" comment="По заявке 64628" as="otmena_gp" title="Отменено судебных приказов - госпошлина/ третейскмй сбор" group="sum">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <column table="this" column="pred_gp" />
+        </call>
+        <call function="if" comment="По заявке 64628" as="otmena_count" title="Отменено судебных приказов - кол-во" group="sum" type="number">
+          <call function="=">
+            <column table="ur_hist_mat" column="kod_result" />
+            <const>99</const>
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="ur_mat">
+          <link name="kod_folders">
+            <link name="kodp" />
+            <link name="kod_podr" />
+          </link>
+        </query>
+        <query name="54503-ur_mat_info" join="left outer" as="ur_mat_add_info">
+          <call function="=">
+            <column table="ur_mat" column="kod_mat" />
+            <column table="ur_mat_add_info" column="kod_mat" />
+          </call>
+        </query>
+        <query name="54503-ur_mat_gr_p_filter" join="inner" as="ur_mat_gr_p">
+          <call function="=">
+            <column table="ur_mat" column="kod_mat" />
+            <column table="ur_mat_gr_p" column="kod_mat" />
+          </call>
+          <withparams>
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+          </withparams>
+        </query>
+        <query name="54503-ur_hist_mat_last_resh" join="left outer" as="ur_hist_mat">
+          <call function="and">
+            <call function="=">
+              <column table="ur_mat" column="kod_mat" />
+              <column table="ur_hist_mat" column="kod_mat" />
+            </call>
+            <call function="=">
+              <column table="ur_hist_mat" column="max_date_over_mat_dec" />
+              <column table="ur_hist_mat" column="dat_rassm" />
+            </call>
+            <call function="=">
+              <column table="ur_hist_mat" column="mat_has_decision" />
+              <column table="ur_hist_mat" column="decision" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="this" column="kod_podr" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="this" column="pio_kod_emp" />
+            <useparam name="kod_emp_isp_pio" />
+          </call>
+          <call function="le" optional="1">
+            <column table="this" column="dat_prin" />
+            <useparam name="dat_isk_po" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="this" column="dat_prin" />
+            <useparam name="dat_isk_s" />
+          </call>
+          <call function="or">
+            <call function="false" />
+            <call function="=1" optional="1">
+              <useparam name="is_isk_before_dat" />
+            </call>
+          </call>
+          <call function="lt" optional="1">
+            <column table="this" column="dat_pod" />
+            <useparam name="dat_isk_s" />
+          </call>
+          <call function="=">
+            <column table="kod_folders" column="kod_sdp" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="isk" order="dat_pod,podr_name,kodp_name,num_delo">
+            <group>
+              <column table="this" column="kod_mat" />
+              <column table="this" column="kodp" />
+              <column table="this" column="kod_podr" />
+              <column table="this" column="kod_hist_mat" />
+              <column table="this" column="pio_kod_emp" />
+              <column table="this" column="kodp_name" />
+              <column table="this" column="num_delo" />
+              <column table="this" column="dat_pod" />
+              <column table="this" column="dat_prin" />
+              <column table="this" column="predmet_isk" />
+              <column table="this" column="podr_name" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="54503" form="54503" datareader="1" nogrid="1" title="Отчет по судебной работе по юридическим лицам" timestamp="07.11.2022 13:50:00" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="kod_emp_isp_pio" type="array" />
+        <param name="kod_group_cust_parent" type="array" />
+        <param name="kod_group_cust" type="array" />
+        <param name="dat_isk_s" type="date" />
+        <param name="dat_isk_po" type="date" />
+        <param name="is_isk_before_dat" type="number" />
+        <param name="kod_emp_isp" type="number" />
+        <param name="kod_emp_podp" type="number" />
+      </params>
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="54503.xlsx" title="Отчёт по судебной работе по юридическим лицам" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="54503-main" as="a" title="data">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="kod_emp_isp_pio" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+            <useparam name="dat_isk_s" />
+            <useparam name="dat_isk_po" />
+            <useparam name="is_isk_before_dat" />
+            <useparam name="kod_emp_isp" />
+            <useparam name="kod_emp_podp" />
+          </withparams>
+        </query>
+        <query name="54503-main_before" as="b" title="data before dat">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="kod_emp_isp_pio" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+            <useparam name="dat_isk_s" />
+            <useparam name="dat_isk_po" />
+            <useparam name="is_isk_before_dat" />
+            <useparam name="kod_emp_isp" />
+            <useparam name="kod_emp_podp" />
+          </withparams>
+        </query>
+        <query name="54503-params" as="param" title="params">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="kod_emp_isp_pio" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+            <useparam name="dat_isk_s" />
+            <useparam name="dat_isk_po" />
+            <useparam name="is_isk_before_dat" />
+            <useparam name="kod_emp_isp" />
+            <useparam name="kod_emp_podp" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="54503" timestamp="14.04.2025 03:53:11" file="sql.builder.templates\sql.builder\projects\54503\all\all.xml">
+      <content>
+        <usefield field="asuse_dep" />
+        <field name="kod_emp_isp_pio" type="number" controlType="UIList" title="Исполнитель ПИО">
+          <listquery>
+            <query name="kr_employee_urists">
+              <withparams>
+                <useparam name="dep" />
+              </withparams>
+            </query>
+          </listquery>
+        </field>
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust_recursive" name="kod_group_cust" />
+        <fieldgroup title="Дата подачи иска/заявления в суд">
+          <usefield field="cmn_date" name="dat_isk_s" title="c" halign="left" width-perc="50">
+            <defaultquery>
+              <query name="54503-default_dat_kv_beg" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date" name="dat_isk_po" title="по" halign="right" width-perc="50">
+            <defaultquery>
+              <query name="54503-default_dat_kv_end" />
+            </defaultquery>
+          </usefield>
+        </fieldgroup>
+        <usefield field="cmn_check" name="is_isk_before_dat" title="Выводить данные по искам, поданным до отчетного периода">
+          <defaultquery>
+            <query name="true" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_combo_num" name="kod_emp_isp" title="Исполнитель">
+          <listquery>
+            <query name="kr_employee_urists" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_combo_num" name="kod_emp_podp" title="Подписант">
+          <listquery>
+            <query name="kr_employee_podpisant_52834" />
+          </listquery>
+        </usefield>
+      </content>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

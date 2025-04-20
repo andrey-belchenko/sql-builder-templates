@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="62458" timestamp="29.08.2022 16:43:22" is-report="1" title="Оплата по Государственному контракту" visible="0">
+      <content>
+        <usefield field="asuse_kod_lim_doc" name="p_kod_lim_doc" mandatory="1" />
+        <fieldgroup title="Период">
+          <usefield field="cmn_date" title="С" name="p_dat_beg" mandatory="1">
+            <defaultquery>
+              <query name="spr_time_date_beg_prev_month" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date_cur" title="По" name="p_dat_end" mandatory="1" />
+        </fieldgroup>
+      </content>
+      <procedure>
+        <text>begin
+
+    sqlb_rep_62458.fill_table(:p_kod_lim_doc, :p_dat_beg, :p_dat_end);
+end; </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="62458.xlsx" title="Оплата по государственному контракту" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="a" column="kodp" group="max" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="kod_lim_doc" group="max" />
+        <column table="a" column="dep_name" group="max" />
+        <column table="a" column="payer_name" group="max" />
+        <column table="a" column="ndog" group="max" />
+        <column group="sum" table="a" column="opl_osnov" nvl="0" />
+        <column group="max" table="a" column="pp_osnov" />
+        <column group="sum" table="a" column="opl_avans" nvl="0" />
+        <column group="max" table="a" column="pp_avans" />
+        <column group="sum" table="a" column="opl_vozvrat" nvl="0" />
+        <column group="max" table="a" column="pp_vozvrat" />
+        <column group="sum" table="a" column="opl_perenos" nvl="0" />
+        <column group="max" table="a" column="pp_perenos" />
+        <column group="sum" table="a" column="all_dog" nvl="0" />
+        <column table="a" column="sdat_beg" group="max" />
+        <column table="a" column="sdat_end" group="max" />
+        <column table="a" column="nb_doc" group="max" />
+      </select>
+      <from>
+        <query name="sqlb_rep_62458_tbl" as="a" />
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="dog">
+            <group>
+              <column table="this" column="kod_dog" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="68841" is-report="1" title="Свод оплат по ГК" visible="0" timestamp="08.07.2025 22:22:10">
+      <content>
+        <fieldgroup title="Период">
+          <usefield field="cmn_date" title="С" name="p_dat_beg" mandatory="1">
+            <defaultquery>
+              <query name="spr_time_date_beg_prev_month" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date_cur" title="По" name="p_dat_end" mandatory="1" />
+        </fieldgroup>
+      </content>
+      <procedure>
+        <text>begin
+
+    sqlb_rep_68841.fill_table( :p_dat_beg, :p_dat_end);
+end; </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="68841_v2.xlsx" title="Свод оплат по ГК" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <select>
+        <call function="row_number" as="rwn" title="Номер строки" type="number" key="1">
+          <call function="order by simple">
+            <column table="this" column="nb_doc" />
+            <column table="this" column="ndog" />
+          </call>
+        </call>
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="kod_lim_doc" />
+        <column table="a" column="dep_name" />
+        <column table="a" column="payer_name" />
+        <column table="a" column="ndog" />
+        <column table="a" column="opl_osnov" nvl="0" />
+        <column table="a" column="pp_osnov" />
+        <column table="a" column="opl_avans" nvl="0" />
+        <column table="a" column="pp_avans" />
+        <column table="a" column="opl_vozvrat" nvl="0" />
+        <column table="a" column="pp_vozvrat" />
+        <column table="a" column="opl_perenos" nvl="0" />
+        <column table="a" column="pp_perenos" />
+        <column table="a" column="all_dog" nvl="0" />
+        <column table="a" column="sdat_beg" />
+        <column table="a" column="sdat_end" />
+        <column table="a" column="nb_doc" />
+      </select>
+      <from>
+        <query name="sqlb_rep_68841_tbl" as="a" />
+      </from>
+      <grouping exclude="1">
+        <grset as="itog">
+          <grset as="dog">
+            <group>
+              <column column="kod_dog" table="this" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

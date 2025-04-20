@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_au_duty_control" title="Контроль обязанностей арб. управляющего" class="1" timestamp="11.11.2024 17:00:00">
+      <select>
+        <column table="a" column="kod_au_duty_control" key="1" type="number" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_an_done_bnk" type="number" comment="Проведен, Анализ наличия/ отсутствия признаков преднамеренного и фиктивного банкротства" />
+        <column table="a" column="result_an_done_bnk" type="string" comment="Результат, Анализ наличия/ отсутствия признаков преднамеренного и фиктивного банкротства" />
+        <column table="a" column="kod_work_done_close_acc" type="number" comment="Работа проведена, Закрытие счетов" />
+        <column table="a" column="comment_close_acc" type="string" comment="Комментарий, Закрытие счетов" />
+        <column table="a" column="fired_in_time" type="number" comment="Уволены в срок, Увольнение работников" />
+        <column table="a" column="reason_working" type="string" comment="Продолжают деятельность, причина, Увольнение работников" />
+        <column table="a" column="dat_sud_spor_sdel" type="date" comment="Дата подачи в суд заявления, Оспаривание сделок должника" />
+        <column table="a" column="comment_sud_spor_sdel" type="string" comment="Комментарий (наличие оснований, дата СА), Оспаривание сделок должника" />
+        <column table="a" column="kod_an_done_subs_resp" type="number" comment="Анализ проведен, Привлечение к субсидиарной ответственности" />
+        <column table="a" column="dat_sud_subs_resp" type="date" comment="Дата подачи в суд заявления, Привлечение к субсидиарной ответственности" />
+        <column table="a" column="comment_sud_subs_resp" type="string" comment="Комментарий (наличие оснований, привлекаемое лицо, дата СА и т.д.), Привлечение к субсидиарной ответственности" />
+        <column table="a" column="zayav_others" type="string" comment="Заявления иного характера" />
+        <column table="a" column="objal_au_actions" type="string" comment="Обжалование действий/ бездействия арб. управляющего" />
+        <column table="a" column="prim" type="string" comment="Примечание" />
+      </select>
+      <from>
+        <table as="a" name="ur_au_duty_control" />
+        <query name="ur_folders" as="kod_folders" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="us_au_duty_control_an_done" join="left outer" as="kod_an_done_bnk">
+          <call function="=">
+            <column table="a" column="kod_an_done_bnk" />
+            <column table="kod_an_done_bnk" column="kod" />
+          </call>
+        </query>
+        <query name="us_au_duty_control_work_done" join="left outer" as="kod_work_done_close_acc">
+          <call function="=">
+            <column table="a" column="kod_work_done_close_acc" />
+            <column table="kod_work_done_close_acc" column="kod" />
+          </call>
+        </query>
+        <query name="ur_yn_list" join="left outer" as="fired_in_time">
+          <call function="=">
+            <column table="a" column="fired_in_time" />
+            <column table="fired_in_time" column="kod" />
+          </call>
+        </query>
+        <query name="us_au_duty_control_an_done" join="left outer" as="kod_an_done_subs_resp">
+          <call function="=">
+            <column table="a" column="kod_an_done_subs_resp" />
+            <column table="kod_an_done_subs_resp" column="kod" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

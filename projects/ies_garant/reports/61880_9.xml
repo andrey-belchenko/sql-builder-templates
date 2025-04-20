@@ -1,0 +1,4053 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="61880_9-main" timestamp="26.09.2023 12:15:24">
+      <params>
+        <param name="p_dep" type="array">
+          <const>1172</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="kod_adr_m" type="array">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_account" key="1" />
+        <!--<column table="sr_facras_text" column="kod_ras" dgroup="max" key="1"/>-->
+        <column table="kod_account" column="kod_f23" as="kod_f46" />
+        <column table="a" column="dep" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="a" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kod_dog" column="adress_region" exclude="1" />
+        <call function="if" as="adress_region" type="number">
+          <call function="=">
+            <column table="kod_obj" column="kodd" nvl="-1" />
+            <const>-1</const>
+          </call>
+          <column table="kod_dog" column="adress_region" />
+          <call function="adress_region">
+            <column table="kod_obj" column="kodd" />
+          </call>
+        </call>
+        <column table="a" column="vid_t" />
+        <column table="a" column="kod_numobj" />
+        <column table="kod_numobj" column="num_obj" />
+        <column table="kod_numobj" column="name" as="obj_name" />
+        <column table="kod_account" column="ym" />
+        <call function="nvl" as="rym">
+          <column table="kod_account" column="rym" />
+          <column table="kod_account" column="ym" />
+        </call>
+        <column table="a" column="f46_razdel_ies" as="f46_razdel" />
+        <column table="a" column="f46_podrazdel_ies" as="f46_podrazdel" />
+        <column table="f46_razdel" column="name" as="f46_razdel_name" />
+        <column table="f46_podrazdel" column="name" as="f46_podrazdel_name" />
+        <!--<column table="a" column="f46_razdel"/>
+
+      <column table="a" column="f46_podrazdel"/>
+
+      <column table="a" column="f46_razdel_name"/>
+
+      <column table="a" column="f46_podrazdel_name"/>-->
+        <column table="kod_f23" column="gr" as="f46_npp" />
+        <column table="kod_f23" column="name" as="f46_name" />
+        <column table="a" column="acc_nach_bn" as="nach" />
+        <column table="a" column="acc_nach" as="nachisl" />
+        <column table="a" column="acc_cust" as="cust" />
+        <column table="vid_t" column="num_t" type="number" />
+        <column table="vid_t" column="name" as="vid_t_name" />
+        <column table="kod_account" column="voltage" as="voltage_old" exclude="1" />
+        <call function="case" type="number" comment="Добавлено условие Case 08.11.2022 Вартановой Т. по согласованию с А.Данилиным" as="voltage">
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="kod_account" column="category_fik" />
+                <const>(1, 2, 3, 5)</const>
+              </call>
+              <call function="in">
+                <column table="kod_account" column="voltage" />
+                <const>(6, -1)</const>
+              </call>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="else">
+            <column table="kod_account" column="voltage" />
+          </call>
+        </call>
+        <call function="case" as="voltage_abbr">
+          <call function="when">
+            <call table="this" column="voltage" function="=">
+              <column table="this" column="voltage" />
+              <const>3</const>
+            </call>
+            <const>'ВН'</const>
+          </call>
+          <call function="else">
+            <column table="voltage" column="abbr" />
+          </call>
+        </call>
+        <column table="voltage" column="abbr" as="voltage_abbr_old" exclude="1" />
+        <column table="kod_account" column="kodinterval" />
+        <column table="kodinterval" column="name" as="interval_name" />
+        <column table="a" column="edizm" />
+        <column table="edizm" column="name" as="edizm_name" />
+        <column table="kod_account" column="category_fik" as="category" />
+        <column table="category_fik" column="name" as="category_name" />
+        <column table="tarif" column="npp" />
+        <call function="case" as="tip_tar" type="string" title="Тип тарифа (для Ф46)">
+          <call function="when">
+            <call function="!=">
+              <call function="nvl">
+                <column table="kod_account" column="kodinterval" />
+                <const>24</const>
+              </call>
+              <const>24</const>
+            </call>
+            <const>'Зонный'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="pr_2rate" />
+              <const>1</const>
+            </call>
+            <const>'Трехставочный'</const>
+          </call>
+          <call function="else">
+            <const>'Одноставочный'</const>
+          </call>
+        </call>
+        <column table="a" column="pr_2rate" />
+        <call function="case" type="string" as="pr_2rate_name" title="">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="pr_2rate" />
+              <const>1</const>
+            </call>
+            <const>'Двухставочный/Трехставочный'</const>
+          </call>
+          <call function="else">
+            <const>'Одноставочный'</const>
+          </call>
+        </call>
+        <column table="kodinterval" column="zone" />
+        <column table="a" column="pr_usl" />
+        <column table="a" column="pr_free" />
+        <column table="a" column="pr_nasel" />
+        <column table="kodp" column="kod_fs" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <link name="kod_account">
+            <link name="tarif" />
+            <link name="kod_numobj">
+              <link name="kod_obj" />
+            </link>
+            <link name="vid_t">
+              <link name="edizm" />
+            </link>
+            <link name="voltage" />
+            <link name="category_fik" />
+            <link name="kod_f23" />
+            <link name="kodinterval" />
+            <!--<dlink name="sr_facras_text"/>-->
+          </link>
+          <link name="kod_dog">
+            <link name="dep" />
+            <link name="kodp" />
+          </link>
+          <extendwhere>
+            <call function="between">
+              <column table="*" column="ym" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+            <call function="is not null">
+              <column table="kod_account" column="price" />
+            </call>
+            <!--<call function="=">
+              <column table="*" column="kod_dog"/>
+              <const>100001158</const>
+            </call>-->
+          </extendwhere>
+        </query>
+        <query name="f46_razdel" as="f46_razdel" join="left outer">
+          <call function="=">
+            <column table="this" column="f46_razdel" />
+            <column table="f46_razdel" column="id" />
+          </call>
+        </query>
+        <query name="f46_podrazdel" as="f46_podrazdel" join="left outer">
+          <call function="=">
+            <column table="this" column="f46_podrazdel" />
+            <column table="f46_podrazdel" column="id" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in" exclude="1">
+            <column table="a" column="edizm" />
+            <call function="array">
+              <const>3</const>
+              <const>4</const>
+            </call>
+          </call>
+          <call function="in" exclude="1">
+            <column table="a" column="edizm" />
+            <call function="array">
+              <const>4</const>
+            </call>
+          </call>
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep">20578</useparam>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="kod_dog" column="pr_active" />
+            </call>
+            <call function="ge">
+              <call function="nvl">
+                <call function="date to ym">
+                  <column table="kod_dog" column="dat_fin" />
+                </call>
+                <useparam name="ym2" />
+              </call>
+              <useparam name="ym2" />
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="this" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="in" exclude="1">
+            <column table="a" column="vid_t" />
+            <usepart part="61880-9-all-t" />
+          </call>
+          <!--<call function="is not null">
+            <column table="this" column="kod_ras"/>
+          </call>-->
+          <useparam name="cond" />
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-IАБ-new" order="f46_npp" timestamp="21.07.2022 13:34:09">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1">
+          <const>2021.01</const>
+        </param>
+        <param name="ym2">
+          <const>2021.11</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="hs_23" column="gr" group="1" as="f46_npp" />
+        <column table="hs_23" column="name" group="max" as="f46_name" />
+        <usepart part="61880-9-IАБ-cols" />
+      </select>
+      <from>
+        <query name="hs_23" />
+        <query name="61880_9-main" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="=">
+            <column table="hs_23" column="kod_f23" />
+            <column table="a" column="kod_f46" />
+          </call>
+          <where exclude="1">
+            <call function="and">
+              <call function="true" />
+              <call function="in" optional="1">
+                <column table="a" column="dep" />
+                <useparam name="p_dep" />
+              </call>
+              <call function="in" optional="1" exclude="1">
+                <column table="a" column="adress_region" />
+                <useparam name="kod_adr_m" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="or">
+            <call function="=0">
+              <column table="a" column="dep" nvl="0" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-IАБ-new-volt" order="kod_sort" timestamp="21.07.2022 16:36:16">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="v46" column="voltage" as="voltage1" />
+        <column table="v46" column="f46_npp" as="f46_npp1" />
+        <column table="v46" column="kod_sort" />
+        <column table="v46" column="voltage_abbr" />
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="61880-9-all-volt-46" as="v46">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-IАБ-new-volt-pre" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="and">
+            <call function="=nvl">
+              <column table="v46" column="voltage" />
+              <column table="a" column="voltage" />
+            </call>
+            <call function="=nvl">
+              <column table="v46" column="f46_npp" />
+              <column table="a" column="f46_npp" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-all-volt-46" timestamp="21.07.2022 16:34:09">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="b" column="f46_npp" />
+        <column table="a" column="voltage" />
+        <column table="a" column="voltage_abbr" />
+        <column table="a" column="kod_sort" />
+      </select>
+      <from>
+        <query name="61880-9-all-volt-pre" as="a" />
+        <query name="61880-9-all-46" as="b" join="cross">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-all-volt" timestamp="18.01.2022 13:39:06">
+      <select>
+        <column table="a" column="voltage" />
+        <column table="a" column="abbr" as="voltage_abbr" />
+        <column table="a" column="kod_sort" />
+      </select>
+      <from>
+        <query name="hk_voltage" as="a" />
+      </from>
+      <where>
+        <call function="le">
+          <column table="a" column="voltage" />
+          <const>6</const>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-all-46" timestamp="21.07.2022 16:34:35">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="f46_npp" group="1" />
+        <column table="a" column="f46_name" group="max" />
+        <column table="a" column="cust" group="max" fixed="1" />
+      </select>
+      <from>
+        <query name="61880_9-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-IАБ-new-volt-pre" timestamp="21.07.2022 16:35:54">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="voltage" group="1" />
+        <column table="a" column="dep" group="1" />
+        <column table="hs_23" column="gr" group="1" as="f46_npp" />
+        <column table="hs_23" column="name" group="max" as="f46_name" />
+        <usepart part="61880-9-IАБ-cols" />
+      </select>
+      <from>
+        <query name="hs_23" />
+        <query name="61880_9-main" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="=">
+            <column table="hs_23" column="kod_f23" />
+            <column table="a" column="kod_f46" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-all-volt-fsk" timestamp="18.01.2022 13:35:22">
+      <select>
+        <const table="a" column="voltage" type="number" as="voltage">5</const>
+        <const table="a" column="abbr" as="voltage_abbr" type="string">'ФСК'</const>
+        <const table="a" column="kod_sort" type="number" as="kod_sort">5</const>
+      </select>
+      <from>
+        <query as="a" name="dual" />
+      </from>
+    </query>
+    <query name="61880-9-all-volt-pre" timestamp="18.01.2022 14:22:27">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query as="a">
+          <union>
+            <query as="a">
+              <select>
+                <column table="a" column="voltage" />
+                <column table="a" column="voltage_abbr" />
+                <column table="a" column="kod_sort" />
+              </select>
+              <from>
+                <query name="61880-9-all-volt" as="a" />
+              </from>
+            </query>
+            <query as="b">
+              <select>
+                <column table="b" column="voltage" />
+                <column table="b" column="voltage_abbr" />
+                <column table="b" column="kod_sort" />
+              </select>
+              <from>
+                <query name="61880-9-all-volt-fsk" as="b" />
+              </from>
+            </query>
+          </union>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-IIАБ-new" order="f46_npp" timestamp="21.07.2022 13:35:14">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1">
+          <const>2021.01</const>
+        </param>
+        <param name="ym2">
+          <const>2021.11</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <usepart part="61880-9-IIАБ-cols" />
+      </select>
+      <from>
+        <query name="61880_9-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" exclude="1" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-IIАБ-new-volt-pre" timestamp="21.07.2022 16:41:02">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="voltage" group="1" />
+        <column table="a" column="dep" group="1" />
+        <usepart part="61880-9-IIАБ-cols" />
+      </select>
+      <from>
+        <query name="61880_9-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-IIАБ-new-volt" order="kod_sort" timestamp="21.07.2022 16:40:37">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="v46" column="voltage" as="voltage1" />
+        <column table="v46" column="f46_npp" as="f46_npp1" />
+        <column table="v46" column="kod_sort" />
+        <column table="v46" column="voltage_abbr" />
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="61880-9-all-volt-46" as="v46">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-IIАБ-new-volt-pre" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="and">
+            <call function="=nvl">
+              <column table="v46" column="voltage" />
+              <column table="a" column="voltage" />
+            </call>
+            <call function="=nvl">
+              <column table="v46" column="f46_npp" />
+              <column table="a" column="f46_npp" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880_9-main_all" timestamp="26.04.2023 11:58:02">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1">
+          <const>2021.01</const>
+        </param>
+        <param name="ym2">
+          <const>2021.08</const>
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="a" column="kod_account" key="1" />
+        <column table="a" column="kod_f46" title="код классификатора потребителя" />
+        <column table="a" column="dep" />
+        <column table="a" column="dep_name" title="Отделение" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="adress_region" title="Регион" />
+        <column table="adr_m" column="name_s" title="Регион наименование" />
+        <column table="a" column="ndog" />
+        <column table="a" column="vid_t" />
+        <column table="a" column="kod_numobj" />
+        <column table="a" column="num_obj" />
+        <column table="a" column="obj_name" />
+        <column table="a" column="ym" />
+        <column table="a" column="rym" />
+        <column table="a" column="f46_razdel" />
+        <column table="a" column="f46_podrazdel" />
+        <column table="a" column="f46_razdel_name" />
+        <column table="a" column="f46_podrazdel_name" />
+        <column table="a" column="f46_npp" />
+        <column table="a" column="f46_name" />
+        <column table="a" column="nach" />
+        <column table="a" column="nachisl" />
+        <column table="a" column="cust" />
+        <column table="a" column="num_t" type="number" />
+        <column table="a" column="vid_t_name" />
+        <column table="a" column="voltage" />
+        <column table="a" column="voltage_abbr" type="string" />
+        <column table="a" column="kodinterval" />
+        <column table="a" column="interval_name" />
+        <column table="a" column="edizm" />
+        <column table="a" column="edizm_name" />
+        <column table="a" column="category" />
+        <column table="a" column="category_name" />
+        <column table="a" column="npp" />
+        <column table="a" column="tip_tar" />
+        <column table="a" column="pr_2rate" />
+        <column table="a" column="pr_2rate_name" />
+        <column table="a" column="zone" />
+        <column table="a" column="pr_usl" />
+        <column table="a" column="pr_free" />
+        <column table="a" column="pr_nasel" />
+        <!--<column table="sr_facras_text" column="kod_ras" dgroup="max" key="1"/>-->
+        <!--<column table="a" column="f46_razdel"/>
+
+      <column table="a" column="f46_podrazdel"/>
+
+      <column table="a" column="f46_razdel_name"/>
+
+      <column table="a" column="f46_podrazdel_name"/>-->
+      </select>
+      <from>
+        <query name="61880_9-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <call function="true" />
+            </call>
+            <useparam name="kod_adr_m" exclude="1" />
+          </withparams>
+        </query>
+        <query name="adr_m" join="left outer">
+          <call function="=">
+            <column table="a" column="adress_region" />
+            <column table="adr_m" column="kod_m" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880_9-III-main" timestamp="21.07.2022 13:33:06">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1">
+          <const>2021.01</const>
+        </param>
+        <param name="ym2">
+          <const>2021.08</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <call function="()" as="id">
+          <const type="number">300</const>
+        </call>
+        <call function="()" as="name_str" group="max" title="Наименование">
+          <const type="string">'Продажа'</const>
+        </call>
+        <call function="()" as="num_str" group="max" title="Код строки">
+          <const type="string">'300 '</const>
+        </call>
+        <call function="if" as="cust_kvth" group="sum" title="Объем электрической энергии за отчетный месяц (год), тыс кВт ч" mp="-3">
+          <call function="in" exclude="1">
+            <column table="a" column="vid_t" />
+            <array>77,78,79</array>
+          </call>
+          <call function="in">
+            <column table="a" column="edizm" />
+            <array>4</array>
+          </call>
+          <column table="a" column="cust" />
+        </call>
+        <call function="if" as="nach_kvth" group="sum" title="Стоимость электрической энергии за отчетный месяц (год), тыс руб" mp="-3">
+          <call function="in" exclude="1">
+            <column table="a" column="vid_t" />
+            <array>77,78,79</array>
+          </call>
+          <call function="in">
+            <column table="a" column="edizm" />
+            <array>4</array>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+        <call function="if" as="cust_mvt" group="sum" title="Величина электрической мощности за отчетный месяц (в среднем" mp="-3">
+          <call function="and">
+            <call function="in">
+              <column table="a" column="vid_t" />
+              <array>72</array>
+            </call>
+            <call function="in">
+              <column table="a" column="edizm" />
+              <array>3</array>
+            </call>
+          </call>
+          <column table="a" column="cust" />
+        </call>
+        <call function="if" as="nach_mvt" group="sum" title="Стоимость электрической мощности за отчетный месяц (год), тыс руб" mp="-3">
+          <call function="in" exclude="1">
+            <column table="a" column="vid_t" />
+            <array>72</array>
+          </call>
+          <call function="in">
+            <column table="a" column="edizm" />
+            <array>3</array>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+        <call function="+nvl" title="Стоимость без дифференциации на энергию и мощность за отчетный месяц (год), тыс руб" as="nach_all" group="sum" mp="-3">
+          <column table="this" column="nach_kvth" />
+          <column table="this" column="nach_mvt" />
+        </call>
+        <!--<column table="sr_facras_text" column="kod_ras" dgroup="max" key="1"/>-->
+        <!--<column table="a" column="f46_razdel"/>
+
+      <column table="a" column="f46_podrazdel"/>
+
+      <column table="a" column="f46_razdel_name"/>
+
+      <column table="a" column="f46_podrazdel_name"/>-->
+      </select>
+      <from>
+        <query name="61880_9-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <call function="true" />
+            </call>
+            <useparam name="kod_adr_m" exclude="1" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="false" comment="Принудительно поставила , что бы ничего не выводилось" exclude="1" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="str" order="id">
+          <group>
+            <column table="this" column="id" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880-9-В-new" order="f46_npp" timestamp="21.07.2022 13:35:41">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1">
+          <const>2021.01</const>
+        </param>
+        <param name="ym2">
+          <const>2021.11</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <usepart part="20484-В-cols" />
+      </select>
+      <from>
+        <query name="61880_9-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-new-I" order="f46_npp" timestamp="26.09.2023 15:11:12">
+      <params>
+        <param name="p_dep" type="array">
+          <const>1172</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="cond">
+          <call function="and" exclude="1">
+            <usepart part="61880-9-I-cond" />
+            <usepart part="61880-9-Б-cond" />
+          </call>
+          <undefined />
+        </param>
+        <param name="kod_adr_m" type="array">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <column table="hs_23" column="gr" group="1" as="f46_npp" />
+        <column table="hs_23" column="name" group="max" as="f46_name" />
+        <column group="sum" table="a" column="cust" as="cust_1k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="=">
+                <column table="a" column="category" />
+                <const>1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_1k" group="sum" as="cust_1k_by" dimname="volt">
+          <pivot>
+            <column table="a" column="voltage" />
+            <query>
+              <select>
+                <column table="a1" column="voltage" />
+                <column table="a1" column="abbr" />
+              </select>
+              <from>
+                <query name="61880-9-voltage" as="a1" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column group="sum" table="a" column="nach" as="nach_1k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in" exclude="1">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="=">
+                <column table="a" column="category" />
+                <const>1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_1k" as="nach_1k_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_2k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="=">
+                <column table="a" column="category" />
+                <const>2</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_2k" group="sum" as="cust_2k_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_2k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in" exclude="1">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="=">
+                <column table="a" column="category" />
+                <const>2</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_2k" as="nach_2k_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_35k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,5</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_35k" group="sum" as="cust_35k_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_35k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4,23</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,5</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_35k" as="nach_35k_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_35m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,5</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_35m" group="sum" as="cust_35m_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_35m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,5</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_35m" as="nach_35m_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_46k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>4,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_46k" group="sum" as="cust_46k_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_46k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>4,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_46k" as="nach_46k_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_46m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="vid_t" />
+                <array>22</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>4,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_46m" group="sum" as="cust_46m_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_46m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="!=">
+                <column table="a" column="vid_t" />
+                <array>22</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>4,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_46m" as="nach_46m_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_46mp" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="vid_t" />
+                <array>22</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>4,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_46mp" group="sum" as="cust_46mp_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_46mp" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="vid_t" />
+                <array>22</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>4,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_46mp" as="nach_46mp_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_34k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,4</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_34k" group="sum" as="cust_34k_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_34k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4,23</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,4</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_34k" as="nach_34k_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_34m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,4</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_34m" group="sum" as="cust_34m_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_34m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>3,4</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_34m" as="nach_34m_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_56k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>5,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_56k" group="sum" as="cust_56k_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_56k" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4,23</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>5,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_56k" as="nach_56k_by" dimname="volt" />
+        <column group="sum" table="a" column="cust" as="cust_56m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>5,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_56m" group="sum" as="cust_56m_by" dimname="volt" />
+        <column group="sum" table="a" column="nach" as="nach_56m" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>72</array>
+              </call>
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="in">
+                <column table="a" column="category" />
+                <array>5,6</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_56m" as="nach_56m_by" dimname="volt" />
+      </select>
+      <from>
+        <query name="hs_23" />
+        <query name="sqlb_rep_61880_9_tbl" as="a" join="left outer">
+          <withparams exclude="1">
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="=" exclude="1">
+            <column table="hs_23" column="kod_f23" />
+            <column table="a" column="kod_f46" />
+          </call>
+          <call function="and">
+            <call function="in" optional="1">
+              <column table="a" column="adress_region" />
+              <useparam name="kod_adr_m" />
+            </call>
+            <call function="=">
+              <column table="hs_23" column="kod_f23" />
+              <column table="a" column="kod_f46" />
+            </call>
+            <useparam name="cond" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="gt">
+            <column table="hs_23" column="kod_f23" />
+            <const>0</const>
+          </call>
+          <call function="lt">
+            <column table="hs_23" column="kod_f23" />
+            <const>38</const>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="a" column="dep" nvl="0" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="or" optional="1" exclude="1">
+            <call function="in">
+              <column table="a" column="adress_region" />
+              <useparam name="kod_adr_m" />
+            </call>
+            <call function="is null">
+              <column table="a" column="adress_region" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="or" exclude="1">
+            <useparam name="cond" />
+            <call function="is null">
+              <column table="a" column="kod_account" />
+            </call>
+          </call>
+          <useparam name="cond" exclude="1" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="hs23">
+            <group>
+              <column table="hs_23" column="gr" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880-9-voltage" order="kod_sort" timestamp="20.07.2022 16:04:44">
+      <select>
+        <column table="a" column="voltage" />
+        <column table="a" column="abbr" />
+        <column table="a" column="kod_sort" />
+      </select>
+      <from>
+        <query name="hk_voltage" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="ge">
+            <column table="a" column="voltage" />
+            <const type="number">-1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-new-IB" order="f46_npp" timestamp="16.03.2023 18:50:46">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2">
+          <const>2022.03</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" />
+      </params>
+      <select>
+        <column table="hs_23" column="gr" group="1" as="f46_npp" />
+        <column table="hs_23" column="name" group="max" as="f46_name" />
+        <column group="sum" table="a" column="cust" as="cust" mp="-3" if="kvtch">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="category" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl" mp="-3" if="kvtch" />
+        <column group="sum" table="a" column="nach" as="nach" mp="-3" if="kvtch" />
+        <column group="sum" table="a" column="cust" as="cust1" mp="-3" if="kvtch1">
+          <if>
+            <call function="and">
+              <call function="=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl1" mp="-3" if="kvtch1" />
+        <column group="sum" table="a" column="nach" as="nach1" mp="-3" if="kvtch1" />
+        <column group="sum" table="a" column="cust" as="cust2n" mp="-3" if="kvtch2n">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-25,-23</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl2n" mp="-3" if="kvtch2n" />
+        <column group="sum" table="a" column="nach" as="nach2n" mp="-3" if="kvtch2n" />
+        <column group="sum" table="a" column="cust" as="cust2d" mp="-3" if="kvtch2d">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-24,26</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl2d" mp="-3" if="kvtch2d" />
+        <column group="sum" table="a" column="nach" as="nach2d" mp="-3" if="kvtch2d" />
+        <column group="sum" table="a" column="cust" as="cust3n" mp="-3" if="kvtch3n">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>23</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3n" mp="-3" if="kvtch3n" />
+        <column group="sum" table="a" column="nach" as="nach3n" mp="-3" if="kvtch3n" />
+        <column group="sum" table="a" column="cust" as="cust3p" mp="-3" if="kvtch3p">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>21,27</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3p" mp="-3" if="kvtch3p" />
+        <column group="sum" table="a" column="nach" as="nach3p" mp="-3" if="kvtch3p" />
+        <column group="sum" table="a" column="cust" as="cust3pp" mp="-3" if="kvtch3pp">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>22,28</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3pp" mp="-3" if="kvtch3pp" />
+        <column group="sum" table="a" column="nach" as="nach3pp" mp="-3" if="kvtch3pp" />
+      </select>
+      <from>
+        <query name="hs_23" />
+        <query name="61880_9-main" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="=">
+            <column table="hs_23" column="kod_f23" />
+            <column table="a" column="kod_f46" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="gt">
+            <column table="hs_23" column="kod_f23" />
+            <const>0</const>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="a" column="dep" nvl="0" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="hs23">
+            <group>
+              <column table="hs_23" column="gr" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880-9-new-II" order="f46_npp" timestamp="26.09.2023 15:12:18">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <column table="hs_23" column="gr" group="1" as="f46_npp" />
+        <column table="hs_23" column="name" group="max" as="f46_name" />
+        <column group="sum" table="a" column="cust" as="cust_1st" mp="-3" if="1st">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_1st" group="sum" as="cust_1st_by" dimname="volt1">
+          <pivot>
+            <column table="a" column="voltage" />
+            <query>
+              <select>
+                <column table="a1" column="voltage" />
+                <column table="a1" column="abbr" />
+              </select>
+              <from>
+                <query name="61880-9-voltage_1" as="a1" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column group="sum" table="a" column="nach" as="nach_1st" mp="-3" if="1st" />
+        <column group="sum" table="this" column="nach_1st" as="nach_1st_by" dimname="volt1" />
+        <column group="sum" table="a" column="cust" as="cust_zon" mp="-3" if="zon">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-24, -25,-23, 26, 21, 22, 23,27,28</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_zon" group="sum" as="cust_zon_by" dimname="volt1" />
+        <column group="sum" table="a" column="nach" as="nach_zon" mp="-3" if="zon" />
+        <column group="sum" table="this" column="nach_zon" as="nach_zon_by" dimname="volt1" />
+        <column group="sum" table="a" column="cust" as="cust_3st" mp="-3" if="3st">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="=">
+                <column table="a" column="pr_2rate" />
+                <const>1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_3st" group="sum" as="cust_3st_by" dimname="volt1" />
+        <column group="sum" table="a" column="nach" as="nach_3st" mp="-3" if="3st" />
+        <column group="sum" table="this" column="nach_3st" as="nach_3st_by" dimname="volt1" />
+        <column group="sum" table="a" column="cust" as="cust_3st_m" mp="-3" if="3st_m">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>3</array>
+              </call>
+              <call function="=">
+                <column table="a" column="pr_2rate" />
+                <const>1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="cust_3st_m" group="sum" as="cust_3st_m_by" dimname="volt1" />
+        <column group="sum" table="a" column="nach" as="nach_3st_m" mp="-3" if="3st_m" />
+        <column group="sum" table="this" column="nach_3st_m" as="nach_3st_m_by" dimname="volt1" />
+        <column group="sum" table="a" column="cust" as="cust_kvtch_all" mp="-3">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="cust_kvtch_all" as="cust_kvtch_all_by" dimname="volt1" />
+        <column group="sum" table="a" column="nach" as="nach_all" mp="-3">
+          <if exclude="1">
+            <call function="and">
+              <call function="in">
+                <column table="a" column="edizm" />
+                <array>4</array>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="this" column="nach_all" as="nach_all_by" dimname="volt1" />
+      </select>
+      <from>
+        <query name="hs_23" />
+        <query name="sqlb_rep_61880_9_tbl" as="a" join="left outer">
+          <withparams exclude="1">
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="=" exclude="1">
+            <column table="hs_23" column="kod_f23" />
+            <column table="a" column="kod_f46" />
+          </call>
+          <call function="and">
+            <call function="in" optional="1">
+              <column table="a" column="adress_region" />
+              <useparam name="kod_adr_m" />
+            </call>
+            <call function="=">
+              <column table="hs_23" column="kod_f23" />
+              <column table="a" column="kod_f46" />
+            </call>
+            <useparam name="cond" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="gt">
+            <column table="hs_23" column="kod_f23" />
+            <const>0</const>
+          </call>
+          <call function="lt">
+            <column table="hs_23" column="kod_f23" />
+            <const>38</const>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="a" column="dep" nvl="0" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="or" optional="1" exclude="1">
+            <call function="in">
+              <column table="a" column="adress_region" />
+              <useparam name="kod_adr_m" />
+            </call>
+            <call function="is null">
+              <column table="a" column="adress_region" />
+            </call>
+          </call>
+          <useparam name="cond" exclude="1" />
+          <call function="or" exclude="1">
+            <useparam name="cond" />
+            <call function="is null">
+              <column table="a" column="kod_account" />
+            </call>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="hs23">
+            <group>
+              <column table="hs_23" column="gr" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880-9-voltage_1" order="kod_sort" timestamp="27.07.2022 13:57:56">
+      <select>
+        <column table="a" column="voltage" />
+        <column table="a" column="abbr" />
+        <column table="a" column="kod_sort" />
+      </select>
+      <from>
+        <query name="hk_voltage" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="ge">
+            <column table="a" column="voltage" />
+            <const type="number">0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-new-IA" order="f46_npp" timestamp="25.09.2023 12:14:33">
+      <params>
+        <param name="p_dep" type="array">
+          <const>1172</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="cond">
+          <call function="and" exclude="1">
+            <usepart part="61880-9-I-cond" />
+            <usepart part="61880-9-А-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="61880-9-new-I" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-new-IБ" order="f46_npp" timestamp="10.07.2023 13:35:03">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="cond">
+          <call function="and" exclude="1">
+            <usepart part="61880-9-I-cond" />
+            <usepart part="61880-9-Б-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="61880-9-new-I" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-new-IIА" order="f46_npp" timestamp="10.07.2023 13:39:25">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="61880-9-new-II" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-new-IIБ" order="f46_npp" timestamp="10.07.2023 13:39:08">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="61880-9-new-II" as="a" join="left outer">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="61880-9-new-4R" timestamp="10.07.2023 15:51:56">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1" type="number" />
+        <param name="ym2" type="number" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <column table="u" column="tr_cust_fsk_kvth" as="tr_cust_fsk_kvth" type="number" mp="-3" />
+        <column table="u" column="tr_cust_tso_kvth" as="tr_cust_tso_kvth" type="number" mp="-3" />
+        <column table="u" column="tr_cust_fsk_kvt" as="tr_cust_fsk_kvt" type="number" mp="-3" />
+        <column table="u" column="tr_cust_tso_kvt" as="tr_cust_tso_kvt" type="number" mp="-3" />
+        <column table="u" column="tr_money_fsk_kvth" as="tr_money_fsk_kvth" type="number" mp="-3" />
+        <column table="u" column="tr_money_tso_kvth" as="tr_money_tso_kvth" type="number" mp="-3" />
+        <column table="u" column="tr_money_fsk_kvt" as="tr_money_fsk_kvt" type="number" mp="-3" />
+        <column table="u" column="tr_money_tso_kvt" as="tr_money_tso_kvt" type="number" mp="-3" />
+      </select>
+      <from>
+        <table name="61880-9-new-4R" view="1" as="u">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </table>
+      </from>
+    </query>
+    <query name="61880-9-info" timestamp="11.07.2023 18:11:37">
+      <params>
+        <param name="p_dep" type="array">
+          <const exclude="1">20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const exclude="1">2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const exclude="1">2022.03</const>
+        </param>
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <call function="mes-name-pp" as="mes">
+          <call function="mes">
+            <useparam name="ym1" />
+          </call>
+        </call>
+        <call function="trunc" as="year">
+          <useparam name="ym1" />
+        </call>
+        <call function="||" group="stragg_dist" as="dep_name">
+          <column table="kr_dep" column="name" />
+        </call>
+        <call function="||" group="stragg" as="adr_name">
+          <column table="adr_m_obj_list_dep" column="name_p" />
+        </call>
+        <call function="sysdate" as="dat" />
+      </select>
+      <from>
+        <qube exclude="1">
+          <link name="kod_dep" all-rows="1" />
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="in" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="p_dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+        <query name="adr_m_obj_list_dep">
+          <withparams>
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+        <query name="kr_dep" join="cross" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="adr_m_obj_list_dep" column="kod_m" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kr_dep" column="kodp" />
+            <useparam name="p_dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="61880-9-new-IB_nas" order="kod_social" timestamp="28.11.2023 14:44:02">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <call table="hs_23" column="gr" group="1" as="kod_social" function="()" type="number">
+          <const>1</const>
+        </call>
+        <call table="hs_23" column="name" group="max" as="name_social" function="()" type="string">
+          <const type="string">'в пределах социальной нормы'</const>
+        </call>
+        <column group="sum" table="a" column="cust" as="cust" mp="-3" if="kvtch">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="category" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl" mp="-3" if="kvtch" />
+        <column group="sum" table="a" column="nach" as="nach" mp="-3" if="kvtch" />
+        <column group="sum" table="a" column="cust" as="cust1" mp="-3" if="kvtch1">
+          <if>
+            <call function="and">
+              <call function="=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl1" mp="-3" if="kvtch1" />
+        <column group="sum" table="a" column="nach" as="nach1" mp="-3" if="kvtch1" />
+        <column group="sum" table="a" column="cust" as="cust2n" mp="-3" if="kvtch2n">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-25,-23</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl2n" mp="-3" if="kvtch2n" />
+        <column group="sum" table="a" column="nach" as="nach2n" mp="-3" if="kvtch2n" />
+        <column group="sum" table="a" column="cust" as="cust2d" mp="-3" if="kvtch2d">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-24,26</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl2d" mp="-3" if="kvtch2d" />
+        <column group="sum" table="a" column="nach" as="nach2d" mp="-3" if="kvtch2d" />
+        <column group="sum" table="a" column="cust" as="cust3n" mp="-3" if="kvtch3n">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>23</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3n" mp="-3" if="kvtch3n" />
+        <column group="sum" table="a" column="nach" as="nach3n" mp="-3" if="kvtch3n" />
+        <column group="sum" table="a" column="cust" as="cust3p" mp="-3" if="kvtch3p">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>21,27</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3p" mp="-3" if="kvtch3p" />
+        <column group="sum" table="a" column="nach" as="nach3p" mp="-3" if="kvtch3p" />
+        <column group="sum" table="a" column="cust" as="cust3pp" mp="-3" if="kvtch3pp">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>22,28</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3pp" mp="-3" if="kvtch3pp" />
+        <column group="sum" table="a" column="nach" as="nach3pp" mp="-3" if="kvtch3pp" />
+      </select>
+      <from>
+        <query name="dual" />
+        <query name="sqlb_rep_61880_9_tbl" as="a" join="left outer">
+          <withparams exclude="1">
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_fs" />
+              <const type="number">-1</const>
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="adress_region" />
+              <useparam name="kod_adr_m" />
+            </call>
+            <useparam name="cond" />
+            <call function="true" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <useparam name="cond" exclude="1" />
+          <call function="=" exclude="1">
+            <column table="a" column="kod_fs" />
+            <const type="number">-1</const>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="a" column="dep" nvl="0" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="social">
+            <group>
+              <column table="this" column="kod_social" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880-9-new-IB_nas_pr" order="kod_social" timestamp="26.09.2023 15:13:50">
+      <params>
+        <param name="p_dep" type="array">
+          <const>20578</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2022.03</const>
+        </param>
+        <param name="cond" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <select>
+        <call table="hs_23" column="gr" group="1" as="kod_social" function="()" type="number">
+          <const>1</const>
+        </call>
+        <call table="hs_23" column="name" group="max" as="name_social" function="()" type="string">
+          <const type="string">'в пределах социальной нормы'</const>
+        </call>
+        <column group="sum" table="a" column="cust" as="cust" mp="-3" if="kvtch">
+          <if>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="a" column="vid_t" />
+                <array>77,78,79</array>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="category" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl" mp="-3" if="kvtch" />
+        <column group="sum" table="a" column="nach" as="nach" mp="-3" if="kvtch" />
+        <column group="sum" table="a" column="cust" as="cust1" mp="-3" if="kvtch1">
+          <if>
+            <call function="and">
+              <call function="=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl1" mp="-3" if="kvtch1" />
+        <column group="sum" table="a" column="nach" as="nach1" mp="-3" if="kvtch1" />
+        <column group="sum" table="a" column="cust" as="cust2n" mp="-3" if="kvtch2n">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-25,-23</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl2n" mp="-3" if="kvtch2n" />
+        <column group="sum" table="a" column="nach" as="nach2n" mp="-3" if="kvtch2n" />
+        <column group="sum" table="a" column="cust" as="cust2d" mp="-3" if="kvtch2d">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>-24,26</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl2d" mp="-3" if="kvtch2d" />
+        <column group="sum" table="a" column="nach" as="nach2d" mp="-3" if="kvtch2d" />
+        <column group="sum" table="a" column="cust" as="cust3n" mp="-3" if="kvtch3n">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>23</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3n" mp="-3" if="kvtch3n" />
+        <column group="sum" table="a" column="nach" as="nach3n" mp="-3" if="kvtch3n" />
+        <column group="sum" table="a" column="cust" as="cust3p" mp="-3" if="kvtch3p">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>21,27</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3p" mp="-3" if="kvtch3p" />
+        <column group="sum" table="a" column="nach" as="nach3p" mp="-3" if="kvtch3p" />
+        <column group="sum" table="a" column="cust" as="cust3pp" mp="-3" if="kvtch3pp">
+          <if>
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kodinterval" />
+                <array>22,28</array>
+              </call>
+              <call function="!=">
+                <column table="a" column="pr_2rate" />
+                <const>0</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="a" column="edizm" />
+                <const>4</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column group="sum" table="a" column="nachisl" as="nachisl3pp" mp="-3" if="kvtch3pp" />
+        <column group="sum" table="a" column="nach" as="nach3pp" mp="-3" if="kvtch3pp" />
+      </select>
+      <from>
+        <query name="dual" />
+        <query name="sqlb_rep_61880_9_tbl" as="a" join="left outer">
+          <withparams exclude="1">
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <call function="and">
+            <call function="!=">
+              <column table="a" column="kod_fs" />
+              <const type="number">-1</const>
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="adress_region" />
+              <useparam name="kod_adr_m" />
+            </call>
+            <useparam name="cond" />
+            <call function="true" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <useparam name="cond" exclude="1" />
+          <call function="!=" exclude="1">
+            <column table="a" column="kod_fs" />
+            <const type="number">-1</const>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="a" column="dep" nvl="0" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="social">
+            <group>
+              <column table="this" column="kod_social" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880_9-main_test" timestamp="25.09.2023 12:03:17">
+      <params>
+        <param name="p_dep" type="array">
+          <const>1172</const>
+        </param>
+        <param name="ym1" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="ym2" type="number">
+          <const>2023.01</const>
+        </param>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="kod_adr_m" type="array">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_account" key="1" />
+        <!--<column table="sr_facras_text" column="kod_ras" dgroup="max" key="1"/>-->
+        <column table="kod_account" column="kod_f23" as="kod_f46" />
+        <column table="a" column="dep" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="a" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kod_dog" column="adress_region" exclude="1" />
+        <call function="if" as="adress_region">
+          <call function="=">
+            <column table="kod_obj" column="kodd" nvl="-1" />
+            <const>-1</const>
+          </call>
+          <column table="kod_dog" column="adress_region" />
+          <call function="adress_region">
+            <column table="kod_obj" column="kodd" />
+          </call>
+        </call>
+        <column table="a" column="vid_t" />
+        <column table="a" column="kod_numobj" />
+        <column table="kod_numobj" column="num_obj" />
+        <column table="kod_numobj" column="name" as="obj_name" />
+        <column table="kod_account" column="ym" />
+        <call function="nvl" as="rym">
+          <column table="kod_account" column="rym" />
+          <column table="kod_account" column="ym" />
+        </call>
+        <column table="a" column="f46_razdel_ies" as="f46_razdel" />
+        <column table="a" column="f46_podrazdel_ies" as="f46_podrazdel" />
+        <column table="f46_razdel" column="name" as="f46_razdel_name" />
+        <column table="f46_podrazdel" column="name" as="f46_podrazdel_name" />
+        <!--<column table="a" column="f46_razdel"/>
+
+      <column table="a" column="f46_podrazdel"/>
+
+      <column table="a" column="f46_razdel_name"/>
+
+      <column table="a" column="f46_podrazdel_name"/>-->
+        <column table="kod_f23" column="gr" as="f46_npp" />
+        <column table="kod_f23" column="name" as="f46_name" />
+        <column table="a" column="acc_nach_bn" as="nach" />
+        <column table="a" column="acc_nach" as="nachisl" />
+        <column table="a" column="acc_cust" as="cust" />
+        <column table="vid_t" column="num_t" type="number" />
+        <column table="vid_t" column="name" as="vid_t_name" />
+        <column table="kod_account" column="voltage" as="voltage_old" exclude="1" />
+        <call function="case" type="number" comment="Добавлено условие Case 08.11.2022 Вартановой Т. по согласованию с А.Данилиным" as="voltage">
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="kod_account" column="category_fik" />
+                <const>(1, 2, 3, 5)</const>
+              </call>
+              <call function="in">
+                <column table="kod_account" column="voltage" />
+                <const>(6, -1)</const>
+              </call>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="else">
+            <column table="kod_account" column="voltage" />
+          </call>
+        </call>
+        <call function="case" as="voltage_abbr">
+          <call function="when">
+            <call table="this" column="voltage" function="=">
+              <column table="this" column="voltage" />
+              <const>3</const>
+            </call>
+            <const>'ВН'</const>
+          </call>
+          <call function="else">
+            <column table="voltage" column="abbr" />
+          </call>
+        </call>
+        <column table="voltage" column="abbr" as="voltage_abbr_old" exclude="1" />
+        <column table="kod_account" column="kodinterval" />
+        <column table="kodinterval" column="name" as="interval_name" />
+        <column table="a" column="edizm" />
+        <column table="edizm" column="name" as="edizm_name" />
+        <column table="kod_account" column="category_fik" as="category" />
+        <column table="category_fik" column="name" as="category_name" />
+        <column table="tarif" column="npp" />
+        <call function="case" as="tip_tar" type="string" title="Тип тарифа (для Ф46)">
+          <call function="when">
+            <call function="!=">
+              <call function="nvl">
+                <column table="kod_account" column="kodinterval" />
+                <const>24</const>
+              </call>
+              <const>24</const>
+            </call>
+            <const>'Зонный'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="pr_2rate" />
+              <const>1</const>
+            </call>
+            <const>'Трехставочный'</const>
+          </call>
+          <call function="else">
+            <const>'Одноставочный'</const>
+          </call>
+        </call>
+        <column table="a" column="pr_2rate" />
+        <call function="case" type="string" as="pr_2rate_name" title="">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="pr_2rate" />
+              <const>1</const>
+            </call>
+            <const>'Двухставочный/Трехставочный'</const>
+          </call>
+          <call function="else">
+            <const>'Одноставочный'</const>
+          </call>
+        </call>
+        <column table="kodinterval" column="zone" />
+        <column table="a" column="pr_usl" />
+        <column table="a" column="pr_free" />
+        <column table="a" column="pr_nasel" />
+        <column table="kodp" column="kod_fs" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <link name="kod_account">
+            <link name="tarif" />
+            <link name="kod_numobj">
+              <link name="kod_obj" />
+            </link>
+            <link name="vid_t">
+              <link name="edizm" />
+            </link>
+            <link name="voltage" />
+            <link name="category_fik" />
+            <link name="kod_f23" />
+            <link name="kodinterval" />
+            <!--<dlink name="sr_facras_text"/>-->
+          </link>
+          <link name="kod_dog">
+            <link name="dep" />
+            <link name="kodp" />
+          </link>
+          <extendwhere>
+            <call function="between">
+              <column table="*" column="ym" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+            <call function="is not null">
+              <column table="kod_account" column="price" />
+            </call>
+            <!--<call function="=">
+              <column table="*" column="kod_dog"/>
+              <const>100001158</const>
+            </call>-->
+          </extendwhere>
+        </query>
+        <query name="f46_razdel" as="f46_razdel" join="left outer">
+          <call function="=">
+            <column table="this" column="f46_razdel" />
+            <column table="f46_razdel" column="id" />
+          </call>
+        </query>
+        <query name="f46_podrazdel" as="f46_podrazdel" join="left outer">
+          <call function="=">
+            <column table="this" column="f46_podrazdel" />
+            <column table="f46_podrazdel" column="id" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in" exclude="1">
+            <column table="a" column="edizm" />
+            <call function="array">
+              <const>3</const>
+              <const>4</const>
+            </call>
+          </call>
+          <call function="in" exclude="1">
+            <column table="a" column="edizm" />
+            <call function="array">
+              <const>4</const>
+            </call>
+          </call>
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="p_dep">20578</useparam>
+          </call>
+          <call function="or" exclude="1">
+            <call function="=0">
+              <column table="kod_dog" column="pr_active" />
+            </call>
+            <call function="ge">
+              <call function="nvl">
+                <call function="date to ym">
+                  <column table="kod_dog" column="dat_fin" />
+                </call>
+                <useparam name="ym2" />
+              </call>
+              <useparam name="ym2" />
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="this" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="in" exclude="1">
+            <column table="a" column="vid_t" />
+            <usepart part="61880-9-all-t" />
+          </call>
+          <!--<call function="is not null">
+            <column table="this" column="kod_ras"/>
+          </call>-->
+          <useparam name="cond" />
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="61880-9-new-4R" timestamp="07.07.2023 14:00:00">
+WITH
+    param As (
+              Select  :ym1 As p_date_beg,
+                      :ym2 As p_date_end		      
+                From dual
+              ),
+     obj_per_adm
+         as (Select kod_numobj, kod_adm, kod_dog, ndog
+               from (select numobj.kod_numobj, numobj.kod_dog , ndog,
+                            case when obj.kodd=-1 then nk_adress.xf_adr_region(d.kod_d_dog) else  nk_adress.xf_adr_region(obj.kodd) end kod_adm
+                       from kr_numobj numobj
+                           left join kr_dogovor d on d.kod_dog=numobj.kod_dog
+                           left join kr_object obj on obj.kod_obj=numobj.kod_obj
+                      where 1=1 { AND d.dep IN :p_dep}
+                      ) pre                
+              where 1=1 {AND pre.kod_adm IN :kod_adr_m}
+            )
+   
+Select  /* по услугам по передачи ЭЭ*/
+       Sum(Case When n.edizm = 4 And volt.voltage = -1 Then a.cust Else 0 End) As tr_cust_fsk_kvth,  -- объем ЭЭ только ФСК
+       Sum(Case When n.edizm = 4 And volt.voltage != -1 Then a.cust ELSE 0 End) As tr_cust_tso_kvth, -- объем ЭЭ всех ТСО за исключением ФСК
+       
+       Sum(Case When n.edizm = 3 And volt.voltage = -1 Then a.cust Else 0 End) As tr_cust_fsk_kvt,  -- объем мощности только ФСК
+       Sum(Case When n.edizm = 3 And volt.voltage != -1 Then a.cust Else 0 End) As tr_cust_tso_kvt, -- объем мощности всех ТСО за исключением ФСК
+
+       Sum(Case When n.edizm = 4 And volt.voltage = -1 Then a.money Else 0 End) As tr_money_fsk_kvth,  /*стоимость без НДС*/
+       Sum(Case When n.edizm = 4 And volt.voltage != -1 Then a.money Else 0 End) As tr_money_tso_kvth,  /*стоимость без НДС*/
+       Sum(Case When n.edizm = 3 And volt.voltage = -1 Then a.money Else 0 End) As tr_money_fsk_kvt,
+       Sum(Case When n.edizm = 3 And volt.voltage != -1 Then a.money Else 0 End) As tr_money_tso_kvt
+             
+  From kr_dogovor d 
+        Join nv_account_sost_obj a On a.kod_dog = d.kod_dog
+        Join sk_nachisl n On a.vid_t = n.vid_t              
+        join hk_voltage volt On a.voltage = volt.voltage    
+        Join hr_reglament_pp p On p.kod_reglament = a.kod_reglament
+        Join hr_calc_variant v On v.kod_variant = p.kod_variant
+        Join obj_per_adm ob On a.kod_numobj = ob.kod_numobj
+        Cross Join param pa
+ Where a.ym Between pa.p_date_beg And pa.p_date_end
+       {AND d.dep IN :p_dep}
+       And v.kod_typevariant = 1    -- покупка
+       And v.pr_notransit = 1
+       And a.price Is Not Null
+       And (a.tip_tarif_sost = 2 Or a.vid_t = -222)
+    </view>
+  </views>
+  <parts>
+    <part id="61880-9-all-t" timestamp="18.01.2022 16:18:55">
+      <call function="array">
+        <usepart part="61880-9-vid_t_val" />
+        <usepart part="61880-9-vid_t_otklon" />
+      </call>
+    </part>
+    <part id="61880-9-vid_t_val" timestamp="18.01.2022 16:37:32">
+      <const>77</const>
+      <const>78</const>
+      <const>79</const>
+      <const>22</const>
+      <const>72</const>
+      <const>23</const>
+      <const>35</const>
+    </part>
+    <part id="61880-9-vid_t_otklon" timestamp="18.01.2022 11:28:31">
+      <const>80</const>
+      <const>-81</const>
+      <const>-82</const>
+      <const>-83</const>
+      <const>-84</const>
+      <const>-78</const>
+      <const>-79</const>
+    </part>
+    <part id="61880-9-I-cond" timestamp="26.09.2023 13:30:49">
+      <call function="=">
+        <column table="a" column="f46_razdel" />
+        <const>'I'</const>
+      </call>
+    </part>
+    <part id="61880-9-vid_t_otklon">
+      <const>80</const>
+      <const>-81</const>
+      <const>-82</const>
+      <const>-83</const>
+      <const>-84</const>
+      <const>-78</const>
+      <const>-79</const>
+    </part>
+    <part id="61880-9-А-cond" timestamp="26.09.2023 13:31:43">
+      <call function="in">
+        <column table="a" column="f46_podrazdel" />
+        <call function="array">
+          <const>'А'</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-IАБ-cols" timestamp="08.06.2022 13:39:07">
+      <column table="a" column="f46_npp" group="1" exclude="1" />
+      <column table="a" column="f46_name" group="max" exclude="1" />
+      <usepart part="61880-9-case-category-kvtc" as="cust_1k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>1</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="nach_1k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>1</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="cust_2k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>2</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="nach_2k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>2</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="cust_35k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>3</const>
+          <const>5</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="nach_35k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>3</const>
+          <const>5</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="custm_35k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>3</const>
+          <const>5</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="nachm_35k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>3</const>
+          <const>5</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="cust_46k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>4</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="nach_46k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>4</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="custm72_46k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>4</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="nachm72_46k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>4</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-22" as="custm22_46k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>4</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-22" as="nachm22_46k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>4</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="cust_34k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>3</const>
+          <const>4</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="nach_34k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>3</const>
+          <const>4</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="custm_34k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>3</const>
+          <const>4</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="nachm_34k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>3</const>
+          <const>4</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="cust_56k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>5</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-kvtc" as="nach_56k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>5</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="custm72_56k">
+        <column table="a" column="cust" />
+        <call function="array">
+          <const>5</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <usepart part="61880-9-case-category-72" as="nachm72_56k">
+        <column table="a" column="nach" />
+        <call function="array">
+          <const>5</const>
+          <const>6</const>
+        </call>
+      </usepart>
+      <call function="case" as="nach_all" group="sum" type="number" mp="-3">
+        <call function="when">
+          <call function="and">
+            <call function="not in">
+              <column table="a" column="vid_t" />
+              <usepart part="61880-9-otklon" />
+            </call>
+            <call function="gt">
+              <column table="a" column="category" />
+              <const>2</const>
+            </call>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+      </call>
+      <call function="case" as="nach_otcl" group="sum" type="number" mp="-3">
+        <call function="when">
+          <call function="and">
+            <call function="in">
+              <column table="a" column="vid_t" />
+              <usepart part="61880-9-otklon" />
+            </call>
+            <call function="gt">
+              <column table="a" column="category" />
+              <const>4</const>
+            </call>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-tip-tar" timestamp="18.01.2022 11:54:04">
+      <params>
+        <param name="col" />
+        <param name="tip-tar" />
+      </params>
+      <call function="case" type="number" group="sum">
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="tip_tar" />
+              <useparam name="tip-tar" />
+            </call>
+            <call function="=">
+              <column table="a" column="edizm" />
+              <const>4</const>
+            </call>
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-kvt" timestamp="18.01.2022 11:56:41">
+      <params>
+        <param name="col" />
+      </params>
+      <call function="case" type="number" group="sum">
+        <call function="when">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <const>3</const>
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-kvtch" timestamp="18.01.2022 11:57:59">
+      <params>
+        <param name="col" />
+      </params>
+      <call function="case" type="number" group="sum">
+        <call function="when">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <const>4</const>
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-category-kvtc" timestamp="08.06.2022 11:59:38">
+      <params>
+        <param name="col" />
+        <param name="category" />
+      </params>
+      <call function="case" type="number" group="sum" format="N3">
+        <call function="when">
+          <call function="and">
+            <call function="in">
+              <column table="a" column="vid_t" />
+              <call function="array">
+                <const>77</const>
+                <const>78</const>
+                <const>79</const>
+              </call>
+            </call>
+            <call function="in">
+              <column table="a" column="category" />
+              <useparam name="category" />
+            </call>
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-category-72" timestamp="18.01.2022 14:48:26">
+      <params>
+        <param name="col" />
+        <param name="category" />
+      </params>
+      <call function="case" type="number" group="sum">
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_t" />
+              <const>72</const>
+            </call>
+            <call function="in">
+              <column table="a" column="category" />
+              <useparam name="category" />
+            </call>
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-category-22" timestamp="18.01.2022 14:49:36">
+      <params>
+        <param name="col" />
+        <param name="category" />
+      </params>
+      <call function="case" type="number" group="sum">
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_t" />
+              <const>22</const>
+            </call>
+            <call function="in">
+              <column table="a" column="category" />
+              <useparam name="category" />
+            </call>
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-otklon" timestamp="18.01.2022 14:50:42">
+      <call function="array">
+        <usepart part="61880-9-vid_t_otklon" />
+      </call>
+    </part>
+    <part id="61880-9-Б-cond" timestamp="26.09.2023 13:33:19">
+      <call function="=">
+        <column table="a" column="f46_podrazdel" />
+        <const function="array">'Б'</const>
+      </call>
+    </part>
+    <part id="61880-9-II-cond" timestamp="26.09.2023 13:43:12">
+      <call function="=" exclude="1">
+        <column table="a" column="f46_razdel_ies" />
+        <const>'II'</const>
+      </call>
+      <call function="=">
+        <column table="a" column="f46_razdel" />
+        <const>'II'</const>
+      </call>
+    </part>
+    <part id="61880-9-IIАБ-cols" timestamp="27.07.2022 13:02:33">
+      <column table="a" column="f46_npp" group="1" />
+      <column table="a" column="f46_name" group="max" />
+      <usepart part="61880-9-case-tip-tar" as="nach_1st">
+        <column table="a" column="nach" nvl="0" />
+        <const>'Одноставочный'</const>
+      </usepart>
+      <usepart part="61880-9-case-tip-tar" as="cust_1st">
+        <column table="a" column="cust" />
+        <const>'Одноставочный'</const>
+      </usepart>
+      <usepart part="61880-9-case-tip-tar" as="nach_z">
+        <column table="a" column="nach" />
+        <const>'Зонный'</const>
+      </usepart>
+      <usepart part="61880-9-case-tip-tar" as="cust_z">
+        <column table="a" column="cust" />
+        <const>'Зонный'</const>
+      </usepart>
+      <usepart part="61880-9-case-tip-tar" as="nach_3st">
+        <column table="a" column="nach" />
+        <const>'Трехставочный'</const>
+      </usepart>
+      <usepart part="61880-9-case-tip-tar" as="cust_3st">
+        <column table="a" column="cust" />
+        <const>'Трехставочный'</const>
+      </usepart>
+      <usepart part="61880-9-case-kvt" as="nach_kvt">
+        <column table="a" column="nach" />
+      </usepart>
+      <usepart part="61880-9-case-kvt" as="cust_kvt">
+        <column table="a" column="cust" />
+      </usepart>
+      <usepart part="61880-9-case-kvtch" as="nach_kvtch">
+        <column table="a" column="nach" />
+      </usepart>
+      <usepart part="61880-9-case-kvtch" as="cust_kvtch">
+        <column table="a" column="cust" />
+      </usepart>
+      <call function="case" as="nach_all" group="sum" type="number" mp="-3">
+        <call function="when">
+          <call function="and">
+            <call function="not in">
+              <column table="a" column="vid_t" />
+              <usepart part="61880-9-otklon" />
+            </call>
+            <call function="gt">
+              <column table="a" column="category" />
+              <const>2</const>
+            </call>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+      </call>
+      <call function="case" as="nach_otcl" group="sum" type="number" mp="-3">
+        <call function="when">
+          <call function="and">
+            <call function="in">
+              <column table="a" column="vid_t" />
+              <usepart part="61880-9-otklon" />
+            </call>
+            <call function="gt">
+              <column table="a" column="category" />
+              <const>4</const>
+            </call>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+      </call>
+    </part>
+    <part id="61880-9-case-zone" timestamp="21.04.2022 18:03:35">
+      <params>
+        <param name="col" />
+        <param name="zone" />
+      </params>
+      <call function="case" type="number" group="sum">
+        <call function="when">
+          <call function="=">
+            <column table="a" column="zone" />
+            <useparam name="zone" />
+          </call>
+          <usepart part="div1000">
+            <useparam name="col" />
+          </usepart>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+  </parts>
+  <forms>
+    <form name="61880-9" with-behavior="0" timestamp="26.08.2022 11:15:10">
+      <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+      <usefield field="asuse_ym_tek_dep" name="ym1" mandatory="1" title="Период с" />
+      <usefield field="asuse_ym_tek_dep" name="ym2" mandatory="1" title="Период по" />
+      <usefield field="asuse_adr_m_obj_dep" />
+      <content exclude="1">
+        <field name="ym1" controlType="UICombo" title="Период c">
+          <listquery>
+            <query name="n_calc_dist" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max" />
+          </defaultquery>
+        </field>
+        <field name="ym2" controlType="UICombo" title="Период по">
+          <listquery>
+            <query name="n_calc_dist" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max" />
+          </defaultquery>
+        </field>
+      </content>
+    </form>
+    <form name="61880-9-NEW" timestamp="10.07.2023 19:05:40">
+      <usefield field="asuse_dep" name="p_dep" mandatory="1" title="Отделение" />
+      <usefield field="asuse_ym_tek_dep" name="ym1" mandatory="1" title="Период с" />
+      <usefield field="asuse_ym_tek_dep" name="ym2" mandatory="1" title="Период по" />
+      <usefield field="asuse_adr_m_obj_dep" name="kod_adr_m" title="Субъект Федерации" />
+    </form>
+  </forms>
+  <reports>
+    <report name="61880-9-IА" title="Ф46 Раздел I. А" form="61880-9" folder="f46" timestamp="21.07.2022 16:36:28">
+      <customers exclude="1">
+        <customer id="8" />
+        <customer id="16" />
+      </customers>
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond">
+          <call function="and">
+            <usepart part="61880-9-I-cond" />
+            <usepart part="61880-9-А-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880-9-IАБ-new" as="a">
+          <columns>
+            <column table="a" name="f46_name" title="Потребители" />
+            <column table="a" name="f46_npp" title="Код строки" />
+            <band title="1 ценовая категория">
+              <band title="Объем электрической энергии (мощности) потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_1k" title="Всего" default="0" />
+                <band table="b" column="cust_1k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии (мощности) потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_1k" title="Всего" default="0" />
+                <band table="b" column="nach_1k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="2 ценовая категория">
+              <band title="Объем электрической энергии (мощности) потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_2k" title="Всего" default="0" />
+                <band table="b" column="cust_2k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии (мощности) потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_2k" title="Всего" default="0" />
+                <band table="b" column="nach_2k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="3 и 5 ценовые категории">
+              <band title="Объем электрической энергии потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_35k" title="Всего" default="0" />
+                <band table="b" column="cust_35k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_35k" title="Всего" default="0" />
+                <band table="b" column="nach_35k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="3 и 5 ценовые категории">
+              <band title="Объем электрической мощности за отчетный месяц (год), МВт">
+                <column name="custm_35k" title="Всего" default="0" />
+                <band table="b" column="custm_35k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической мощности за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nachm_35k" title="Всего" default="0" />
+                <band table="b" column="nachm_35k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="4 и 6 ценовые категории">
+              <band title="Объем электрической энергии потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_46k" title="Всего" default="0" />
+                <band table="b" column="cust_46k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_46k" title="Всего" default="0" />
+                <band table="b" column="nach_46k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="4 и 6 ценовые категории">
+              <band title="Объем электрической мощности за отчетный месяц (год), МВт">
+                <column name="custm72_46k" title="Всего" default="0" />
+                <band table="b" column="custm72_46k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической мощности за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nachm72_46k" title="Всего" default="0" />
+                <band table="b" column="nachm72_46k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="4 и 6 ценовые категории">
+              <band title="Объем мощности услуг по передаче электроэнергии потребителей за отчетный месяц (год), МВт">
+                <column name="custm22_46k" title="Всего" default="0" />
+                <band table="b" column="custm22_46k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость мощности услуг по передаче электроэнергии потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nachm22_46k" title="Всего" default="0" />
+                <band table="b" column="nachm22_46k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="Стоимость электрической энергии (мощности) по 3-6 ценовой категории без учета стоимости отклонений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_all" title="Всего" default="0" />
+              <band table="b" column="nach_all" title="в том числе" default="0" />
+            </band>
+          </columns>
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <query name="61880-9-IАБ-new-volt" as="b">
+            <withparams>
+              <useparam name="p_dep" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+              <useparam name="cond" />
+              <useparam name="kod_adr_m" />
+            </withparams>
+            <call function="=nvl">
+              <column table="a" column="f46_npp" />
+              <column table="b" column="f46_npp1" />
+            </call>
+            <transpose>
+              <dimension>
+                <column column="voltage1" title="voltage_abbr" />
+              </dimension>
+              <values>
+                <column column="cust_1k" type="number" />
+                <column column="nach_1k" />
+                <column column="cust_2k" />
+                <column column="nach_2k" />
+                <column column="cust_35k" />
+                <column column="nach_35k" />
+                <column column="custm_35k" />
+                <column column="nachm_35k" />
+                <column column="cust_46k" />
+                <column column="nach_46k" />
+                <column column="custm72_46k" />
+                <column column="nachm72_46k" />
+                <column column="custm22_46k" />
+                <column column="nachm22_46k" />
+                <column column="nach_all" />
+              </values>
+            </transpose>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-IБ" title="Ф46 Раздел I. Б" form="61880-9" folder="f46" timestamp="25.05.2022 10:53:12">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond">
+          <call function="and">
+            <usepart part="61880-9-I-cond" />
+            <usepart part="61880-9-Б-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880-9-IАБ-new" as="a">
+          <columns>
+            <column table="a" name="f46_name" title="Потребители" />
+            <column table="a" name="f46_npp" title="Код строки" />
+            <band title="1 ценовая категория">
+              <band title="Объем электрической энергии (мощности) потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_1k" title="Всего" default="0" />
+                <band table="b" column="cust_1k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии (мощности) потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_1k" title="Всего" default="0" />
+                <band table="b" column="nach_1k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="2 ценовая категория">
+              <band title="Объем электрической энергии (мощности) потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_2k" title="Всего" default="0" />
+                <band table="b" column="cust_2k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии (мощности) потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_2k" title="Всего" default="0" />
+                <band table="b" column="nach_2k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="3 и 4 ценовые категории">
+              <band title="Объем электрической энергии потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_34k" title="Всего" default="0" />
+                <band table="b" column="cust_34k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_34k" title="Всего" default="0" />
+                <band table="b" column="nach_34k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="3 и 4 ценовые категории">
+              <band title="Объем электрической мощности за отчетный месяц (год), МВт">
+                <column name="custm_34k" title="Всего" default="0" />
+                <band table="b" column="custm_34k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической мощности за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nachm_34k" title="Всего" default="0" />
+                <band table="b" column="nachm_34k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="5 и 6 ценовые категории">
+              <band title="Объем электрической энергии потребителей за отчетный месяц (год), тыс кВт ч">
+                <column name="cust_56k" title="Всего" default="0" />
+                <band table="b" column="cust_56k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической энергии потребителей за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nach_56k" title="Всего" default="0" />
+                <band table="b" column="nach_56k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="5 и 6 ценовые категории">
+              <band title="Объем электрической мощности за отчетный месяц (год), МВт">
+                <column name="custm72_56k" title="Всего" default="0" />
+                <band table="b" column="custm72_56k" title="в том числе" default="0" />
+              </band>
+              <band title="Стоимость электрической мощности за отчетный месяц (год) без НДС, тыс руб">
+                <column name="nachm72_56k" title="Всего" default="0" />
+                <band table="b" column="nachm72_56k" title="в том числе" default="0" />
+              </band>
+            </band>
+            <band title="Стоимость электрической энергии (мощности) по 3-6 ценовой категории без учета стоимости отклонений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_all" title="Всего" default="0" />
+              <band table="b" column="nach_all" title="в том числе" default="0" />
+            </band>
+            <band title="Стоимость отклонений фактических объемов потребления электрической энергии по 5 и 6 ценовой категории от плановых (договорных) значений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_otcl" title="Всего" default="0" />
+              <band table="b" column="nach_otcl" title="в том числе" default="0" />
+            </band>
+          </columns>
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <query name="61880-9-IАБ-new-volt" as="b">
+            <withparams>
+              <useparam name="p_dep" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+              <useparam name="cond" />
+              <useparam name="kod_adr_m" />
+            </withparams>
+            <call function="=nvl">
+              <column table="a" column="f46_npp" />
+              <column table="b" column="f46_npp1" />
+            </call>
+            <transpose>
+              <dimension>
+                <column column="voltage1" title="voltage_abbr" />
+              </dimension>
+              <values>
+                <column column="cust_1k" />
+                <column column="nach_1k" />
+                <column column="cust_2k" />
+                <column column="nach_2k" />
+                <column column="cust_34k" />
+                <column column="nach_34k" />
+                <column column="custm_34k" />
+                <column column="nachm_34k" />
+                <column column="cust_56k" />
+                <column column="nach_56k" />
+                <column column="custm72_56k" />
+                <column column="nachm72_56k" />
+                <column column="nach_all" />
+                <column column="nach_otcl" />
+              </values>
+            </transpose>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-IIА" title="Ф46 Раздел II. А" form="61880-9" folder="f46" timestamp="04.02.2022 23:21:48">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond">
+          <call function="and">
+            <usepart part="61880-9-II-cond" />
+            <usepart part="61880-9-А-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880-9-IIАБ-new" as="a">
+          <columns>
+            <column table="a" name="f46_name" title="Потребители" />
+            <column table="a" name="f46_npp" title="Код строки" />
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по одноставочным тарифам (ценам) за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_1st" title="Всего" format="" default="0" />
+              <band table="b" column="cust_1st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по одноставочным тарифам (ценам) за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_1st" title="Всего" format="" default="0" />
+              <band table="b" column="nach_1st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по зонным тарифам (ценам) за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_z" title="Всего" format="" default="0" />
+              <band table="b" column="cust_z" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по зонным тарифам (ценам) за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_z" title="Всего" format="" default="0" />
+              <band table="b" column="nach_z" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по трехставочным тарифам (ценам) за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_3st" title="Всего" format="" default="0" />
+              <band table="b" column="cust_3st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по трехставочным тарифам (ценам) за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_3st" title="Всего" format="" default="0" />
+              <band table="b" column="nach_3st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической мощности потребителей, осуществляющих оплату услуг по передаче электрической энергии по трехставочным ценам за отчетный месяц (год), МВт">
+              <column table="a" name="cust_kvt" title="Всего" format="" default="0" />
+              <band table="b" column="cust_kvt" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической мощности потребителей, осуществляющих оплату услуг по передаче электрической энергии по трехставочным ценам за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_kvt" title="Всего" format="" default="0" />
+              <band table="b" column="nach_kvt" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической энергии за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_kvtch" title="Всего" format="" default="0" />
+              <band table="b" column="cust_kvtch" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_kvtch" title="Всего" format="" default="0" />
+              <band table="b" column="nach_kvtch" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии (мощности) без учета стоимости отклонений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_all" title="Всего" default="0" />
+              <band table="b" column="nach_all" title="в том числе" default="0" />
+            </band>
+            <band title="Стоимость отклонений фактических объемов потребления электрической энергии от плановых (договорных) значений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_otcl" title="Всего" default="0" />
+              <band table="b" column="nach_otcl" title="в том числе" default="0" />
+            </band>
+          </columns>
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <query name="61880-9-IIАБ-new-volt" as="b">
+            <withparams>
+              <useparam name="p_dep" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+              <useparam name="cond" />
+              <useparam name="kod_adr_m" />
+            </withparams>
+            <call function="=nvl">
+              <column table="a" column="f46_npp" />
+              <column table="b" column="f46_npp1" />
+            </call>
+            <transpose>
+              <dimension>
+                <column column="voltage1" title="voltage_abbr" />
+              </dimension>
+              <values>
+                <column column="cust_1st" />
+                <column column="nach_1st" />
+                <column column="cust_z" />
+                <column column="nach_z" />
+                <column column="cust_3st" />
+                <column column="nach_3st" />
+                <column column="cust_kvt" />
+                <column column="nach_kvt" />
+                <column column="cust_kvtch" />
+                <column column="nach_kvtch" />
+                <column column="nach_all" />
+                <column column="nach_otcl" />
+              </values>
+            </transpose>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-IIБ" title="Ф46 Раздел II. Б" form="61880-9" folder="f46" timestamp="04.02.2022 23:22:55">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond">
+          <call function="and">
+            <usepart part="61880-9-II-cond" />
+            <usepart part="61880-9-Б-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880-9-IIАБ-new" as="a">
+          <columns>
+            <column table="a" name="f46_name" title="Потребители" />
+            <column table="a" name="f46_npp" title="Код строки" />
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по одноставочным тарифам (ценам) за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_1st" title="Всего" format="" default="0" />
+              <band table="b" column="cust_1st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по одноставочным тарифам (ценам) за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_1st" title="Всего" format="" default="0" />
+              <band table="b" column="nach_1st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по зонным тарифам (ценам) за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_z" title="Всего" format="" default="0" />
+              <band table="b" column="cust_z" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по зонным тарифам (ценам) за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_z" title="Всего" format="" default="0" />
+              <band table="b" column="nach_z" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по трехставочным тарифам (ценам) за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_3st" title="Всего" format="" default="0" />
+              <band table="b" column="cust_3st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по трехставочным тарифам (ценам) за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_3st" title="Всего" format="" default="0" />
+              <band table="b" column="nach_3st" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической мощности потребителей, осуществляющих оплату услуг по передаче электрической энергии по трехставочным ценам за отчетный месяц (год), МВт">
+              <column table="a" name="cust_kvt" title="Всего" format="" default="0" />
+              <band table="b" column="cust_kvt" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической мощности потребителей, осуществляющих оплату услуг по передаче электрической энергии по трехставочным ценам за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_kvt" title="Всего" format="" default="0" />
+              <band table="b" column="nach_kvt" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Объем электрической энергии за отчетный месяц (год), тыс кВт ч">
+              <column table="a" name="cust_kvtch" title="Всего" format="" default="0" />
+              <band table="b" column="cust_kvtch" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии за отчетный месяц (год) без НДС, тыс руб">
+              <column table="a" name="nach_kvtch" title="Всего" format="" default="0" />
+              <band table="b" column="nach_kvtch" title="в том числе" format="" default="0" />
+            </band>
+            <band title="Стоимость электрической энергии (мощности) без учета стоимости отклонений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_all" title="Всего" default="0" />
+              <band table="b" column="nach_all" title="в том числе" default="0" />
+            </band>
+            <band title="Стоимость отклонений фактических объемов потребления электрической энергии от плановых (договорных) значений за отчетный месяц (год) без НДС, тыс руб">
+              <column name="nach_otcl" title="Всего" default="0" />
+              <band table="b" column="nach_otcl" title="в том числе" default="0" />
+            </band>
+          </columns>
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+          <query name="61880-9-IIАБ-new-volt" as="b">
+            <withparams>
+              <useparam name="p_dep" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+              <useparam name="cond" />
+              <useparam name="kod_adr_m" />
+            </withparams>
+            <call function="=nvl">
+              <column table="a" column="f46_npp" />
+              <column table="b" column="f46_npp1" />
+            </call>
+            <transpose>
+              <dimension>
+                <column column="voltage1" title="voltage_abbr" />
+              </dimension>
+              <values>
+                <column column="cust_1st" />
+                <column column="nach_1st" />
+                <column column="cust_z" />
+                <column column="nach_z" />
+                <column column="cust_3st" />
+                <column column="nach_3st" />
+                <column column="cust_kvt" />
+                <column column="nach_kvt" />
+                <column column="cust_kvtch" />
+                <column column="nach_kvtch" />
+                <column column="nach_all" />
+                <column column="nach_otcl" />
+              </values>
+            </transpose>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-all" title="Ф46 (Исходные данные, детализация)" form="61880-9" folder="f46" timestamp="04.02.2022 23:23:46">
+      <customers exclude="1">
+        <customer id="8" />
+        <customer id="16" />
+      </customers>
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880_9-main_all" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-III" title="Ф46 Раздел III" form="61880-9" folder="f46" timestamp="19.05.2022 18:00:15">
+      <customers exclude="1">
+        <customer id="8" />
+        <customer id="16" />
+      </customers>
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880_9-III-main" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-В" title="Ф46 Раздел I. В" form="61880-9" folder="f46" timestamp="21.04.2022 18:09:35">
+      <params>
+        <param name="p_dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+        <param name="cond">
+          <call function="and">
+            <usepart part="61880-9-I-cond" />
+            <usepart part="61880-9-В-cond" />
+          </call>
+        </param>
+        <param name="kod_adr_m" />
+      </params>
+      <queries>
+        <query name="61880-9-В-new" as="a">
+          <columns>
+            <column table="a" name="f46_name" title="Потребители" />
+            <column table="a" name="f46_npp" title="Код строки" />
+            <column table="a" name="cust_kvtch" title="Объем электрической энергии за отчетный месяц (год), тыс кВт ч всего" format="" default="0" />
+            <column table="a" name="nachisl_kvtch" title="Стоимость электрической энергии за отчетный месяц (год) с НДС, тыс руб всего" format="" default="0" />
+            <column table="a" name="nach_kvtch" title="Стоимость электрической энергии за отчетный месяц (год) без НДС, тыс руб всего" format="" default="0" />
+            <column table="a" name="cust_1st" format="" default="0" title="Объем электрической энергии потребителей, осуществляющих оплату по одноставочному тарифу за отчетный месяц (год), тыс кВт ч всего" />
+            <column table="a" name="nachisl_1st" format="" default="0" title="Стоимость электрической энергии потребителей, осуществляющих оплату по одноставочному тарифу за отчетный месяц (год) с НДС, тыс руб всего" />
+            <column table="a" name="nach_1st" format="" default="0" title="Стоимость электрической энергии потребителей, осуществляющих оплату по одноставочному тарифу за отчетный месяц (год) без НДС,  тыс руб всего" />
+            <band title="Объем электрической энергии потребителей, осуществляющих оплату по зонным тарифам за отчетный месяц (год), тыс кВт ч" exclude="1">
+              <column table="a" name="cust_z1" format="" default="0" title="ночь" />
+              <column table="a" name="cust_z2" format="" default="0" title="пик" />
+              <column table="a" name="cust_z3" format="" default="0" title="полупик (день)" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по зонным тарифам за отчетный месяц (год) с НДС, тыс руб всего" exclude="1">
+              <column table="a" name="nachisl_z1" format="" default="0" title="ночь" />
+              <column table="a" name="nachisl_z2" format="" default="0" title="пик" />
+              <column table="a" name="nachisl_z3" format="" default="0" title="полупик (день)" />
+            </band>
+            <band title="Стоимость электрической энергии потребителей, осуществляющих оплату по зонным тарифам за отчетный месяц (год) без НДС, тыс руб всего" exclude="1">
+              <column table="a" name="nach_z1" format="" default="0" title="ночь" />
+              <column table="a" name="nach_z2" format="" default="0" title="пик" />
+              <column table="a" name="nach_z3" format="" default="0" title="полупик (день)" />
+            </band>
+          </columns>
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="cond" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="61880-9-NEW" title="4.6.2.3.2.2. Форма N 46-ЭЭ (полезный отпуск)" folder="f46" nogrid="1" form="61880-9-NEW" timestamp="29.09.2023 16:02:00">
+      <!--form="61880-9-NEW"-->
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="ym1" type="number" />
+        <param name="ym2" type="number" />
+        <param name="kod_adr_m" type="array" />
+      </params>
+      <procedure>
+        <text>
+        begin
+        delete vr_number_array;
+        for rec in (select * from kr_org where kodp in :p_dep)
+        loop
+        insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+        end loop;
+        sqlb_rep_61880_9.fill_table(:ym1,:ym2);
+        end;
+      </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="61880_9.xlsx" title="Форма 46-ЭЭ (полезный отпуск)" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="61880-9-new-IA" as="r1a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <usepart part="61880-9-I-cond" />
+              <usepart part="61880-9-А-cond" />
+            </call>
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-new-IБ" as="r1b">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <usepart part="61880-9-I-cond" />
+              <usepart part="61880-9-Б-cond" />
+            </call>
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-new-IB_nas" as="r1v_n">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <usepart part="61880-9-I-cond" />
+              <usepart part="61880-9-В-cond" />
+            </call>
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-new-IB_nas_pr" as="r1v_np">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <usepart part="61880-9-I-cond" />
+              <usepart part="61880-9-В-cond" />
+            </call>
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-new-IIА" as="r2a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <usepart part="61880-9-II-cond" />
+              <usepart part="61880-9-А-cond" />
+            </call>
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-new-IIБ" as="r2b">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <call function="and">
+              <usepart part="61880-9-II-cond" />
+              <usepart part="61880-9-Б-cond" />
+            </call>
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-new-4R" as="r4">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+        <query name="61880-9-info" as="info">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_adr_m" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+</root>

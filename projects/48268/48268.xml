@@ -1,0 +1,800 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:31.2281072+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="48268-zayav_power" timestamp="15.11.2018 17:49:19" title="Мощность по заявке" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml" haskeys="1">
+      <select>
+        <column table="a" column="kod_zayav" group="1" as="kod_zayav" key="1" fixed="1" />
+        <call function="nvl0" as="s_k1" title="Существующая мощность, кат. 1" group="sum" key="0">
+          <column table="a" column="qs_so" />
+        </call>
+        <call function="nvl0" as="s_k2" title="Существующая мощность, кат. 2" group="sum" key="0">
+          <column table="a" column="qs_sw" />
+        </call>
+        <call function="nvl0" as="s_k3" title="Существующая мощность, кат. 3" group="sum" key="0">
+          <column table="a" column="qs_sk" />
+        </call>
+        <call function="nvl0" as="d_k1" title="Добавленная мощность, кат. 1" group="sum" key="0">
+          <column table="a" column="qd_so" />
+        </call>
+        <call function="nvl0" as="d_k2" title="Добавленная мощность, кат. 2" group="sum" key="0">
+          <column table="a" column="qd_sw" />
+        </call>
+        <call function="nvl0" as="d_k3" title="Добавленная мощность, кат. 3" group="sum" key="0">
+          <column table="a" column="qd_sk" />
+        </call>
+      </select>
+      <from>
+        <query name="qr_numobj_zayav" as="a" />
+      </from>
+    </query>
+    <query name="48268-q1" timestamp="28.11.2018 14:36:02" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml" haskeys="1">
+      <params>
+        <param type="number" name="kod_zayav">
+          <const>550565</const>
+        </param>
+      </params>
+      <select>
+        <column table="zz" column="kod_zayav" as="kod_zayav" key="1" fixed="1" />
+        <column table="zz" column="num_zayav" as="num_zayav" key="0" />
+        <column table="kodp" column="name" as="name" key="0" />
+        <call as="region" title="Город/Область" function="case" type="string" key="0">
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="pr_city" />
+              </call>
+              <const>1</const>
+            </call>
+            <const>'Город'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="pr_city" />
+              </call>
+              <const>0</const>
+            </call>
+            <const>'Область'</const>
+          </call>
+        </call>
+        <column table="c_zayav_family" column="str_adr" as="str_adr" key="0" />
+        <column table="c_zayav_family" column="str_obj" as="str_obj" key="0" />
+        <column table="c_zayav_family" column="zona" as="zona" key="0" />
+        <column table="kod_voltage" column="name_kr" title="Уровень напряжения" as="volt" key="0" />
+        <column table="qr_tu_energo" column="name_tp_1" as="name_tp_1" key="0" />
+        <column table="qr_tu_energo" column="name_ist_1" as="name_ist_1" key="0" />
+        <column table="qr_tu_energo" column="name_ist_2" as="name_ist_2" key="0" />
+        <column table="zp" column="d_k1" as="d_k1" key="0" />
+        <column table="zp" column="d_k2" as="d_k2" key="0" />
+        <column table="zp" column="d_k3" as="d_k3" key="0" />
+        <call function="+nvl" as="d_k123" title="Добавленная мощность" key="0">
+          <column table="zp" column="d_k1" />
+          <column table="zp" column="d_k2" />
+          <column table="zp" column="d_k3" />
+        </call>
+        <column table="zp" column="s_k1" as="s_k1" key="0" />
+        <column table="zp" column="s_k2" as="s_k2" key="0" />
+        <column table="zp" column="s_k3" as="s_k3" key="0" />
+        <call function="+nvl" as="s_k123" title="Существующая мощность" key="0">
+          <column table="zp" column="s_k1" />
+          <column table="zp" column="s_k2" />
+          <column table="zp" column="s_k3" />
+        </call>
+        <call function="+nvl" as="s_d_k123" title="Мощность итого" key="0">
+          <column table="zp" column="d_k1" />
+          <column table="zp" column="d_k2" />
+          <column table="zp" column="d_k3" />
+          <column table="zp" column="s_k1" />
+          <column table="zp" column="s_k2" />
+          <column table="zp" column="s_k3" />
+        </call>
+        <call as="category" function="case" title="Категория" type="number" key="0">
+          <call function="when">
+            <call function="is not null">
+              <column table="zp" column="d_k3" />
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <column table="zp" column="d_k2" />
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <column table="zp" column="d_k1" />
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <column table="kod_ocenka" column="kwt_without_nds" as="kwt_without_nds" key="0" />
+        <column table="kod_ocenka" column="sum_ad_kwt" as="sum_ad_kwt" key="0" />
+        <column table="kod_ocenka" column="stand_tarif" as="stand_tarif" key="0" />
+        <column table="kod_ocenka" column="sum_ad_stav_cher" as="sum_ad_stav_cher" key="0" />
+      </select>
+      <from>
+        <query name="c_zayav" as="zz">
+          <link name="c_zayav_energo" as="c_zayav_energo" table="c_zayav_energo" child="c_zayav" field="c_zayav_energo" parent="c_zayav_energo" back="c_zayav">
+            <link name="kod_voltage" as="kod_voltage" table="as_voltage" child="c_zayav_energo" field="kod_voltage" parent="as_voltage" back="c_zayav_energo" />
+          </link>
+          <link name="c_zayav_family" as="c_zayav_family" table="c_zayav_family" child="c_zayav" field="c_zayav_family" parent="c_zayav_family" back="c_zayav" />
+          <link name="kodp" as="kodp" table="is_creditors" child="c_zayav" field="kodp" parent="is_creditors" back="c_zayav" title="Контрагенты" />
+          <link name="qr_links" as="qr_links" table="qr_links" child="c_zayav" field="qr_links" parent="qr_links" back="c_zayav">
+            <link name="kod_ocenka" as="kod_ocenka" table="qr_ocenka" child="qr_links" field="kod_ocenka" parent="qr_ocenka" back="qr_links" />
+            <link name="kod_tu" as="kod_tu" table="qr_tu" child="qr_links" field="kod_tu" parent="qr_tu" back="qr_links">
+              <link name="qr_tu_energo" as="qr_tu_energo" table="qr_tu_energo" child="qr_tu" field="qr_tu_energo" parent="qr_tu_energo" back="qr_tu" />
+            </link>
+          </link>
+        </query>
+        <query name="48268-zayav_power" join="left outer" as="zp" dname="48268-q1" title="Мощность по заявке">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="zp" column="kod_zayav" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="zz" column="kod_zayav" />
+          <useparam name="kod_zayav" />
+        </call>
+      </where>
+    </query>
+    <query name="48268-q2" timestamp="28.11.2018 17:27:34" order="str_num_tu nulls last, upper(name) nulls last" materialize="1" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml" haskeys="1">
+      <params>
+        <param type="number" name="kod_zayav">
+          <const>550565</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="rown" as="rown" key="1" />
+        <column table="a" column="str_num_tu" as="str_num_tu" key="0" />
+        <column table="a" column="name" as="name" key="0" />
+        <column table="a" column="pr_last_mile" as="pr_last_mile" key="0" />
+        <column table="a" column="type_object" as="type_object" key="0" />
+        <column table="a" column="tarif_work" as="tarif_work" key="0" />
+        <column table="a" column="cost" as="cost" key="0" />
+        <column table="volt" column="str_value" as="volt_lvl" key="0" />
+        <call as="obyem" function="case" key="0">
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="a" column="vid_obj" />
+                <const>'ПС/ТП'</const>
+              </call>
+              <call function="is not null">
+                <column table="kolvo_tp" column="value" />
+              </call>
+            </call>
+            <call function="||">
+              <column table="kolvo_tp" column="value" />
+              <const>' '</const>
+              <column table="kolvo_tp" column="abbr" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="a" column="vid_obj" />
+                <const>'ЛЭП'</const>
+              </call>
+              <call function="is not null">
+                <column table="protyazh" column="value" />
+              </call>
+            </call>
+            <call function="||">
+              <column table="protyazh" column="value" />
+              <const>' '</const>
+              <column table="protyazh" column="abbr" />
+            </call>
+          </call>
+        </call>
+        <column table="kolvo_cabel" column="value" as="kolvo_lin" key="0" />
+        <call as="obyem_tz" function="if" key="0">
+          <call function="is null">
+            <column table="a" column="kod_analog" />
+          </call>
+          <column table="this" column="obyem" />
+          <call function="case">
+            <call function="when">
+              <call function="and">
+                <call function="=">
+                  <column table="a" column="vid_obj" />
+                  <const>'ПС/ТП'</const>
+                </call>
+                <call function="is not null">
+                  <column table="kolvo_tp_an" column="value" />
+                </call>
+              </call>
+              <call function="||">
+                <column table="kolvo_tp_an" column="value" />
+                <const>' '</const>
+                <column table="kolvo_tp_an" column="abbr" />
+              </call>
+            </call>
+            <call function="when">
+              <call function="and">
+                <call function="=">
+                  <column table="a" column="vid_obj" />
+                  <const>'ЛЭП'</const>
+                </call>
+                <call function="is not null">
+                  <column table="protyazh_an" column="value" />
+                </call>
+              </call>
+              <call function="||">
+                <column table="protyazh_an" column="value" />
+                <const>' '</const>
+                <column table="protyazh_an" column="abbr" />
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="48268-q2_0" as="a">
+          <withparams>
+            <useparam name="kod_zayav" />
+          </withparams>
+        </query>
+        <query join="left outer" name="48268-character" as="volt" dname="48268-q2">
+          <call function="=">
+            <column table="a" column="kod_tituls_object" />
+            <column table="volt" column="kod_tituls_object" />
+          </call>
+          <withparams>
+            <const>564</const>
+          </withparams>
+        </query>
+        <query join="left outer" name="48268-character" as="kolvo_tp" dname="48268-q2">
+          <call function="=">
+            <column table="a" column="kod_tituls_object" />
+            <column table="kolvo_tp" column="kod_tituls_object" />
+          </call>
+          <withparams>
+            <const>985</const>
+          </withparams>
+        </query>
+        <query join="left outer" name="48268-character" as="kolvo_cabel" dname="48268-q2">
+          <call function="=">
+            <column table="a" column="kod_tituls_object" />
+            <column table="kolvo_cabel" column="kod_tituls_object" />
+          </call>
+          <withparams>
+            <const>961</const>
+          </withparams>
+        </query>
+        <query join="left outer" name="48268-character" as="protyazh" dname="48268-q2">
+          <call function="=">
+            <column table="a" column="kod_tituls_object" />
+            <column table="protyazh" column="kod_tituls_object" />
+          </call>
+          <withparams>
+            <const>962</const>
+          </withparams>
+        </query>
+        <query join="left outer" name="48268-character" as="kolvo_tp_an" dname="48268-q2">
+          <call function="=">
+            <column table="a" column="kod_analog" />
+            <column table="kolvo_tp_an" column="kod_tituls_object" />
+          </call>
+          <withparams>
+            <const>985</const>
+          </withparams>
+        </query>
+        <query join="left outer" name="48268-character" as="protyazh_an" dname="48268-q2">
+          <call function="=">
+            <column table="a" column="kod_analog" />
+            <column table="protyazh_an" column="kod_tituls_object" />
+          </call>
+          <withparams>
+            <const>962</const>
+          </withparams>
+        </query>
+      </from>
+      <order>
+        <column column="str_num_tunullslast" />
+        <column column="upper(name)nullslast" />
+      </order>
+    </query>
+    <query name="48268-q3" timestamp="15.11.2018 15:47:18" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <params>
+        <param type="number" name="kod_zayav">
+          <const>550565</const>
+        </param>
+      </params>
+      <select>
+        <const as="pk" type="number" key="0">0</const>
+        <call as="cost_itog" function="coalesce" group="sum" key="0">
+          <column table="kod_tituls_object" column="smet_cost" />
+          <column table="kod_tituls_object" column="cost_calculate" />
+          <const>0</const>
+        </call>
+        <call as="cost_itog_ns" function="if" group="sum" key="0">
+          <call function="=">
+            <call function="nvl0">
+              <column table="kod_doc_osnov" column="type_object" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="coalesce">
+            <column table="kod_tituls_object" column="smet_cost" />
+            <column table="kod_tituls_object" column="cost_calculate" />
+            <const>0</const>
+          </call>
+        </call>
+        <call as="cost_itog_r" function="if" group="sum" key="0">
+          <call function="=">
+            <call function="nvl0">
+              <column table="kod_doc_osnov" column="type_object" />
+            </call>
+            <const>2</const>
+          </call>
+          <call function="coalesce">
+            <column table="kod_tituls_object" column="smet_cost" />
+            <column table="kod_tituls_object" column="cost_calculate" />
+            <const>0</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ipr_doc" as="a">
+          <link name="kod_doc_osnov" as="kod_doc_osnov" table="ipr_tituls_objects" child="ipr_doc" field="kod_doc_osnov" parent="ipr_tituls_objects" back="ipr_doc">
+            <link name="kod_vid_object" as="kod_vid_object" table="ips_vid_object" child="ipr_tituls_objects" field="kod_vid_object" parent="ips_vid_object" back="ipr_tituls_objects" />
+            <link name="kod_tituls_object" as="kod_tituls_object" table="ipr_works_body" child="ipr_tituls_objects" field="kod_tituls_object" parent="ipr_works_body" back="ipr_tituls_objects">
+              <link name="kod_work_kind" as="kod_work_kind" table="ips_work_kind" child="ipr_works_body" field="kod_work_kind" parent="ips_work_kind" back="ipr_works_body" />
+              <link name="kod_settings" as="kod_settings" table="is_settings_work" child="ipr_works_body" field="kod_settings" parent="is_settings_work" back="ipr_works_body" />
+            </link>
+          </link>
+          <link name="kod_dog" as="kod_dog" table="qr_links" child="ipr_doc" field="kod_dog" parent="qr_links" back="ipr_doc">
+            <link name="kod_zayav" as="kod_zayav" table="c_zayav" child="qr_links" field="kod_zayav" parent="c_zayav" back="qr_links">
+              <link name="c_zayav_family" as="c_zayav_family" table="c_zayav_family" child="c_zayav" field="c_zayav_family" parent="c_zayav_family" back="c_zayav" />
+            </link>
+            <link name="kod_ocenka" as="kod_ocenka" table="qr_ocenka" child="qr_links" field="kod_ocenka" parent="qr_ocenka" back="qr_links" />
+          </link>
+        </query>
+        <link name="kod_doc_osnov">
+          <link name="kod_vid_object" />
+          <link name="kod_tituls_object">
+            <link name="kod_work_kind" />
+            <link name="kod_settings" />
+          </link>
+        </link>
+        <link name="kod_tituls_object">
+          <link name="kod_work_kind" />
+          <link name="kod_settings" />
+        </link>
+        <link name="kod_work_kind" />
+        <link name="kod_settings" />
+        <link name="kod_dog">
+          <link name="kod_zayav">
+            <link name="c_zayav_family" />
+          </link>
+          <link name="kod_ocenka" />
+        </link>
+        <link name="kod_zayav">
+          <link name="c_zayav_family" />
+        </link>
+        <link name="c_zayav_family" />
+        <link name="kod_ocenka" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_dog" column="kod_zayav" />
+            <useparam name="kod_zayav" />
+          </call>
+          <call function="=">
+            <call function="nvl0">
+              <column table="a" column="pr_active" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="=">
+            <column table="a" column="kod_doc_type" />
+            <const>25</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="48268-q4" timestamp="15.11.2018 17:44:37" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml" haskeys="1">
+      <params>
+        <param type="number" name="kod_zayav">
+          <const>550565</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_zayav" column="kod_zayav" group="1" as="kod_zayav" key="1" fixed="1" />
+        <column table="kod_zayav" column="num_zayav" group="1" as="num_zayav" key="1" fixed="1" />
+        <call function="+nvl" as="s_d_k123" title="Мощность итого" group="max" key="0">
+          <column table="zp" column="d_k1" />
+          <column table="zp" column="d_k2" />
+          <column table="zp" column="d_k3" />
+          <column table="zp" column="s_k1" />
+          <column table="zp" column="s_k2" />
+          <column table="zp" column="s_k3" />
+        </call>
+        <call function="case" type="string" group="stragg_dist" as="str_num_tu" key="0">
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column column="num_tu_def" table="kod_tituls_object" />
+              </call>
+              <const>1</const>
+            </call>
+            <const>'10.1.'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column column="num_tu_def" table="kod_tituls_object" />
+              </call>
+              <const>2</const>
+            </call>
+            <const>'10.2.'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column column="num_tu_def" table="kod_tituls_object" />
+              </call>
+              <const>3</const>
+            </call>
+            <const>'11.'</const>
+          </call>
+        </call>
+        <call as="cost" function="nvl" type="number" group="sum" key="0">
+          <column table="kod_tituls_object" column="smet_cost" />
+          <column table="kod_tituls_object" column="cost_calculate" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_doc" as="a">
+          <link name="kod_doc_osnov" as="kod_doc_osnov" table="ipr_tituls_objects" child="ipr_doc" field="kod_doc_osnov" parent="ipr_tituls_objects" back="ipr_doc">
+            <link name="analog" as="analog" table="ipr_tituls_objects" child="ipr_tituls_objects" field="analog" parent="ipr_tituls_objects" back="ipr_tituls_objects">
+              <link name="kod_tituls_object" as="kod_tituls_object" table="ipr_works_body" child="ipr_tituls_objects" field="kod_tituls_object" parent="ipr_works_body" back="ipr_tituls_objects" />
+              <link name="ipr_doc_osnov" as="ipr_doc2" table="ipr_doc" child="ipr_tituls_objects" field="ipr_doc_osnov" parent="ipr_doc" back="ipr_tituls_objects">
+                <link name="kod_dog" as="kod_dog2" table="qr_links" child="ipr_doc" field="kod_dog" parent="qr_links" back="ipr_doc">
+                  <link name="kod_zayav" as="kod_zayav" table="c_zayav" child="qr_links" field="kod_zayav" parent="c_zayav" back="qr_links" />
+                </link>
+              </link>
+            </link>
+          </link>
+          <link name="kod_dog" as="kod_dog" table="qr_links" child="ipr_doc" field="kod_dog" parent="qr_links" back="ipr_doc" />
+        </query>
+        <query name="48268-zayav_power" join="left outer" as="zp" dname="48268-q4" title="Мощность по заявке">
+          <call function="=">
+            <column table="kod_zayav" column="kod_zayav" />
+            <column table="zp" column="kod_zayav" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="and">
+            <call function="=">
+              <column table="kod_dog" column="kod_zayav" />
+              <useparam name="kod_zayav" />
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="a" column="pr_active" />
+              </call>
+              <const>1</const>
+            </call>
+            <call function="=">
+              <column table="a" column="kod_doc_type" />
+              <const>25</const>
+            </call>
+          </call>
+          <call function="is not null">
+            <column table="kod_zayav" column="kod_zayav" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="48268-q0" timestamp="16.11.2018 11:15:25" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <select>
+        <column table="r" column="kod_person" as="kod_person" key="0" />
+        <column table="kod_person" column="fio" as="fio" key="0" />
+        <call as="dat" function="to_char" key="0">
+          <call function="sysdate" />
+          <const>'dd.mm.yyyy'</const>
+        </call>
+      </select>
+      <from>
+        <query name="is_rights" as="r">
+          <link name="kod_person" as="kod_person" table="is_person" child="is_rights" field="kod_person" parent="is_person" back="is_rights" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="kod_person" column="kod_person" />
+          </call>
+          <call function="=">
+            <column table="r" column="puser" />
+            <const>user</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="48268-character" timestamp="05.12.2018 11:39:24" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <params>
+        <param type="number" name="kod_character" />
+      </params>
+      <select>
+        <column table="a" column="kod_tituls_object" as="kod_tituls_object" key="0" />
+        <column table="work_value" column="name" as="str_value" key="0" />
+        <call as="value" function="replace" type="string" key="0">
+          <call function="nvl">
+            <call function="to_char">
+              <column table="work_value" column="num_value" />
+            </call>
+            <column table="a" column="work_value" />
+          </call>
+          <const>'.'</const>
+          <const>','</const>
+        </call>
+        <call as="abbr" function="ipr_get_character_abbr" key="0">
+          <column table="kod_character" column="kod_character" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_character_values" as="a">
+          <link name="kod_character_set" as="kod_character_set" table="ipr_character_set" child="ipr_character_values" field="kod_character_set" parent="ipr_character_set" back="ipr_character_values">
+            <link name="kod_character" as="kod_character" table="ipr_character" child="ipr_character_set" field="kod_character" parent="ipr_character" back="ipr_character_set">
+              <link name="kod_unit" as="kod_unit" table="ips_units" child="ipr_character" field="kod_unit" parent="ips_units" back="ipr_character" />
+            </link>
+          </link>
+          <link name="work_value" as="work_value" table="ips_character_spr_values" child="ipr_character_values" field="work_value" parent="ips_character_spr_values" back="ipr_character_values" />
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="kod_character" column="kod_character" />
+          <useparam name="kod_character" />
+        </call>
+      </where>
+    </query>
+    <query name="48268-q2_0" timestamp="28.11.2018 17:05:30" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml" haskeys="1">
+      <params>
+        <param type="number" name="kod_zayav">
+          <const>550565</const>
+        </param>
+      </params>
+      <select>
+        <call as="rown" function="rownum" key="1" />
+        <call as="str_num_tu" function="case" type="string">
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="kod_tituls_object" column="num_tu_def" />
+              </call>
+              <const>1</const>
+            </call>
+            <const>'10.1.'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="kod_tituls_object" column="num_tu_def" />
+              </call>
+              <const>2</const>
+            </call>
+            <const>'10.2.'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="kod_tituls_object" column="num_tu_def" />
+              </call>
+              <const>3</const>
+            </call>
+            <const>'11.'</const>
+          </call>
+        </call>
+        <call as="name" function="nvl">
+          <column table="kod_tituls_object" column="str_name_tu" />
+          <column table="kod_work_kind" column="name" />
+        </call>
+        <call as="pr_last_mile" type="string" function="case">
+          <call function="when">
+            <call function="=">
+              <call function="nvl">
+                <column table="kod_ocenka" column="pr_last_mile" />
+                <const>2</const>
+              </call>
+              <const>2</const>
+            </call>
+            <const>'Нет'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl">
+                <column table="kod_ocenka" column="pr_last_mile" />
+                <const>2</const>
+              </call>
+              <const>1</const>
+            </call>
+            <const>'Да'</const>
+          </call>
+        </call>
+        <call as="type_object" function="case" type="string">
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="kod_doc_osnov" column="type_object" />
+              </call>
+              <const>1</const>
+            </call>
+            <const>'НС'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="kod_doc_osnov" column="type_object" />
+              </call>
+              <const>2</const>
+            </call>
+            <const>'ТПиР'</const>
+          </call>
+        </call>
+        <call as="tarif_work" function="case" type="number">
+          <call function="when">
+            <call function="gt">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="zona" />
+              </call>
+              <const>0</const>
+            </call>
+            <column table="kod_settings" column="sum_city" />
+          </call>
+          <call function="else">
+            <column table="kod_settings" column="sum_region" />
+          </call>
+        </call>
+        <call as="cost" function="nvl" type="number">
+          <column table="kod_tituls_object" column="smet_cost" />
+          <column table="kod_tituls_object" column="cost_calculate" />
+        </call>
+        <column table="kod_doc_osnov" column="kod_tituls_object" as="kod_tituls_object" />
+        <column table="kod_vid_object" column="name" as="vid_obj" />
+        <column table="kod_doc_osnov" column="kod_analog" as="kod_analog" />
+      </select>
+      <from>
+        <query name="ipr_doc" as="a" part-id="48268-q2-from">
+          <link name="kod_doc_osnov" part-id="48268-q2-from" as="kod_doc_osnov" table="ipr_tituls_objects" child="ipr_doc" field="kod_doc_osnov" parent="ipr_tituls_objects" back="ipr_doc">
+            <link name="kod_vid_object" as="kod_vid_object" table="ips_vid_object" child="ipr_tituls_objects" field="kod_vid_object" parent="ips_vid_object" back="ipr_tituls_objects" />
+            <link name="kod_tituls_object" part-id="48268-q2-from" as="kod_tituls_object" table="ipr_works_body" child="ipr_tituls_objects" field="kod_tituls_object" parent="ipr_works_body" back="ipr_tituls_objects">
+              <link name="kod_work_kind" part-id="48268-q2-from" as="kod_work_kind" table="ips_work_kind" child="ipr_works_body" field="kod_work_kind" parent="ips_work_kind" back="ipr_works_body" />
+              <link name="kod_settings" part-id="48268-q2-from" as="kod_settings" table="is_settings_work" child="ipr_works_body" field="kod_settings" parent="is_settings_work" back="ipr_works_body" />
+            </link>
+          </link>
+          <link name="kod_dog" part-id="48268-q2-from" as="kod_dog" table="qr_links" child="ipr_doc" field="kod_dog" parent="qr_links" back="ipr_doc">
+            <link name="kod_zayav" part-id="48268-q2-from" as="kod_zayav" table="c_zayav" child="qr_links" field="kod_zayav" parent="c_zayav" back="qr_links">
+              <link name="c_zayav_family" part-id="48268-q2-from" as="c_zayav_family" table="c_zayav_family" child="c_zayav" field="c_zayav_family" parent="c_zayav_family" back="c_zayav" />
+            </link>
+            <link name="kod_ocenka" part-id="48268-q2-from" as="kod_ocenka" table="qr_ocenka" child="qr_links" field="kod_ocenka" parent="qr_ocenka" back="qr_links" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and" part-id="48268-q2-where">
+          <call function="=">
+            <column table="kod_dog" column="kod_zayav" />
+            <useparam name="kod_zayav" />
+          </call>
+          <call function="=">
+            <call function="nvl0">
+              <column table="a" column="pr_active" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="=">
+            <column table="a" column="kod_doc_type" />
+            <const>25</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="form:48268" haskeys="1">
+      <select>
+        <const type="string" as="title" title="Параметр">'Код заявки'</const>
+        <const type="string" as="name" key="1">'kod_zayav'</const>
+        <const type="string" as="text" title="Значение">NULL</const>
+      </select>
+      <from>
+        <table name="dual" as="dual" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id">
+    <part id="48268-params" timestamp="28.11.2018 15:03:43" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <param type="number" name="kod_zayav">
+        <const>550565</const>
+      </param>
+    </part>
+    <part id="48268-withparams" timestamp="15.11.2018 11:49:04" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <useparam name="kod_zayav" />
+    </part>
+  </parts>
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="48268" form="48268" title="Расчёт тарифа по заявке" visible="0" nogrid="1" mode="excel" timestamp="16.11.2018 11:15:22" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <params>
+        <param type="number" name="kod_zayav">
+          <const>550565</const>
+        </param>
+      </params>
+      <print-templates>
+        <excel>
+          <template name="48268.xlsx" title="Расчет тарифа по заявке" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="48268-q0" as="q0" />
+        <query name="48268-q1" as="q1">
+          <withparams>
+            <useparam name="kod_zayav" />
+          </withparams>
+        </query>
+        <query name="48268-q2" as="q2">
+          <withparams>
+            <useparam name="kod_zayav" />
+          </withparams>
+        </query>
+        <query name="48268-q3" as="q3">
+          <withparams>
+            <useparam name="kod_zayav" />
+          </withparams>
+        </query>
+        <query name="48268-q4" as="q4">
+          <withparams>
+            <useparam name="kod_zayav" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="48268" timestamp="16.11.2018 18:28:04" file="sql.builder.templates\sql.builder\projects\48268\reports\48268-rep.xml">
+      <content>
+        <field controlType="UINumber" edit-mask="d" type="number" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" name="kod_zayav" title="Код заявки" />
+      </content>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

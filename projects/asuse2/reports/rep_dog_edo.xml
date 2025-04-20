@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="rep_dog_edo" title="Признак эл.документооборота в договорах" timestamp="10.08.2022 11:03:38" form="form_dog_edo" nogrid="1">
+      <params>
+        <param name="p_dep" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="rep_dog_edo.xlsx" print-proc="2" title="Признак эл.документооборота в договорах" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="16" />
+      </customers>
+      <queries>
+        <query name="dog_edo_main" as="main">
+          <withparams>
+            <useparam name="p_dep" />
+          </withparams>
+          <query name="dog_edo_total" join="left outer" as="t">
+            <withparams>
+              <useparam name="p_dep" />
+            </withparams>
+            <call function="=">
+              <column table="main" column="kod_dog" />
+              <column table="t" column="kod_dog" />
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="form_dog_edo" timestamp="01.08.2022 12:13:17" title="Признак эл.документооборота в договорах">
+      <content>
+        <usefield field="asuse_dep" name="p_dep" show-checkbox="0" />
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="dog_edo_main" timestamp="10.08.2022 11:04:02" order="kr_dogovor.ndog">
+      <params>
+        <param name="p_dep" />
+      </params>
+      <select>
+        <column table="kr_dogovor" column="ndog" />
+        <column table="kr_dogovor" column="kod_dog" />
+        <column table="kr_payer" column="name" />
+        <column table="kk_el_inter_type" column="name" title="Текущий способ эл.взаимодействия" as="name_type" />
+        <column table="dog_edo_total" column="text" exclude="1" />
+        <column table="dog_edo_total" column="dat_s" exclude="1" />
+        <call function="decode" as="active" exclude="1">
+          <column table="dog_edo_total" column="pr_active" />
+          <const>0</const>
+          <const>'А'</const>
+          <const>1</const>
+          <const>'У'</const>
+          <const>2</const>
+          <const>'Н'</const>
+        </call>
+        <column table="dog_edo_total" column="text1" as="text1" exclude="1" />
+        <column table="dog_edo_total" column="dat_s1" as="dat_s1" exclude="1" />
+        <call function="decode" as="active1" exclude="1">
+          <column table="dog_edo_total" column="pr_active1" />
+          <const>0</const>
+          <const>'А'</const>
+          <const>1</const>
+          <const>'У'</const>
+          <const>2</const>
+          <const>'Н'</const>
+        </call>
+        <column table="dog_edo_date" column="dataizm" />
+        <column table="dog_edo_total" column="rn1" as="rn1" exclude="1" />
+      </select>
+      <from>
+        <query name="kr_dogovor" />
+        <query name="kr_payer" join="inner">
+          <call function="=">
+            <column table="kr_payer" column="kodp" />
+            <column table="kr_dogovor" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_dogovor_el_inter_type" join="inner">
+          <call function="=">
+            <column table="kr_dogovor_el_inter_type" column="kod_dog" />
+            <column table="kr_dogovor" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kk_el_inter_type" join="left outer">
+          <call function="=">
+            <column table="kr_dogovor_el_inter_type" column="kod_el_inter_type" />
+            <column table="kk_el_inter_type" column="kod_el_inter_type" />
+          </call>
+        </query>
+        <query name="dog_edo_total" join="left outer" exclude="1">
+          <call function="=">
+            <column table="kr_dogovor" column="kod_dog" />
+            <column table="dog_edo_total" column="kod_dog" />
+          </call>
+        </query>
+        <query name="dog_edo_date" join="left outer">
+          <call function="=">
+            <column table="kr_dogovor" column="kod_dog" />
+            <column table="dog_edo_date" column="kod" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in" optional="1">
+            <column table="kr_dogovor" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="!=">
+            <column table="kr_dogovor" column="pr_active" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="dog_edo_date" timestamp="02.08.2022 12:06:09">
+      <select>
+        <column table="rv_izmen" column="dataizm" group="max" />
+        <column table="rv_izmen" column="kod" />
+      </select>
+      <from>
+        <query name="rv_izmen" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="rv_izmen" column="izm" />
+            <const>'способ взаимодействия'</const>
+          </call>
+          <call function="=">
+            <column table="rv_izmen" column="tablekod" />
+            <const>1898</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset>
+          <group>
+            <column table="rv_izmen" column="kod" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="dog_edo_edo" timestamp="10.08.2022 09:50:16" order="decode(pr_active,0,1,2,2,1,3)">
+      <select>
+        <column table="kr_el_inter_contact" column="kod_el_inter_contact" />
+        <column table="kr_el_inter_contact" column="kod_dog" />
+        <call function="row_number" as="rn">
+          <call function="partition by">
+            <column table="kr_el_inter_contact" column="kod_dog" />
+          </call>
+          <call type="" function="order by simple">
+            <column table="kr_el_inter_contact" column="pr_active" as="" type="">1</column>
+          </call>
+        </call>
+        <column table="kr_el_inter_contact" column="text" />
+        <column table="kr_el_inter_contact" column="dat_s" />
+        <column table="kr_el_inter_contact" column="pr_active" />
+      </select>
+      <from>
+        <query name="kr_el_inter_contact" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="kr_el_inter_contact" column="kod_el_inter_type" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="dog_edo_email" timestamp="10.08.2022 09:50:54" order="decode(pr_active,0,1,2,2,1,3)">
+      <select>
+        <column table="kr_el_inter_contact" column="kod_el_inter_contact" />
+        <column table="kr_el_inter_contact" column="kod_dog" />
+        <call function="row_number" as="rn">
+          <call function="partition by">
+            <column table="kr_el_inter_contact" column="kod_dog" />
+          </call>
+          <call type="" function="order by simple">
+            <column table="kr_el_inter_contact" column="pr_active" as="" type="">1</column>
+          </call>
+        </call>
+        <column table="kr_el_inter_contact" column="text" />
+        <column table="kr_el_inter_contact" column="dat_s" />
+        <column table="kr_el_inter_contact" column="pr_active" />
+      </select>
+      <from>
+        <query name="kr_el_inter_contact" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="kr_el_inter_contact" column="kod_el_inter_type" />
+          <const>3</const>
+        </call>
+      </where>
+    </query>
+    <query name="dog_edo_total" timestamp="09.08.2022 14:23:03" order="rn1">
+      <params exclude="1">
+        <param name="p_dep" />
+      </params>
+      <select>
+        <call as="kod" type="number" function="coalesce" key="1">
+          <column table="dog_edo_edo" column="kod_el_inter_contact" as="" type="" />
+          <column table="dog_edo_email" column="kod_el_inter_contact" />
+        </call>
+        <call as="kod_dog" type="number" function="coalesce">
+          <column table="dog_edo_edo" column="kod_dog" as="" type="" />
+          <column table="dog_edo_email" column="kod_dog" />
+        </call>
+        <column table="dog_edo_edo" column="text" as="text" />
+        <column table="dog_edo_email" column="text" as="text1" />
+        <column table="dog_edo_edo" column="dat_s" />
+        <column table="dog_edo_email" column="dat_s" as="dat_s1" />
+        <call as="pr_active" type="string" function="decode">
+          <column table="dog_edo_edo" column="pr_active" as="" type="" />
+          <const>0</const>
+          <const>'А'</const>
+          <const>1</const>
+          <const>'У'</const>
+          <const>2</const>
+          <const>'Н'</const>
+        </call>
+        <call as="pr_active1" type="string" function="decode">
+          <column table="dog_edo_email" column="pr_active" as="" type="" />
+          <const>0</const>
+          <const>'А'</const>
+          <const>1</const>
+          <const>'У'</const>
+          <const>2</const>
+          <const>'Н'</const>
+        </call>
+        <column table="dog_edo_edo" column="pr_active" as="pr_active" exclude="1" />
+        <column table="dog_edo_email" column="pr_active" as="pr_active1" exclude="1" />
+        <call as="rn1" type="number" function="coalesce">
+          <column table="dog_edo_edo" column="rn" as="" type="" />
+          <column table="dog_edo_email" column="rn" />
+        </call>
+      </select>
+      <from>
+        <query name="dog_edo_edo" />
+        <query name="dog_edo_email" join="full outer">
+          <call type="" function="and">
+            <call function="=" as="" type="">
+              <column table="dog_edo_edo" column="kod_dog" />
+              <column table="dog_edo_email" column="kod_dog" />
+            </call>
+            <call function="=">
+              <column table="dog_edo_edo" column="rn" />
+              <column table="dog_edo_email" column="rn" />
+            </call>
+          </call>
+        </query>
+        <query name="kr_dogovor" exclude="1">
+          <call function="=">
+            <call as="kod_dog" type="number" function="coalesce">
+              <column table="dog_edo_edo" column="kod_dog" as="" type="" />
+              <column table="dog_edo_email" column="kod_dog" />
+            </call>
+            <column table="kr_dogovor" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where exclude="1">
+        <call function="and">
+          <call function="in" optional="1">
+            <column table="kr_dogovor" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="!=">
+            <column table="kr_dogovor" column="pr_active" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

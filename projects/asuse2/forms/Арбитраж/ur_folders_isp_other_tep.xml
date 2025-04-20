@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_isp_other_tep" title="Прочее" security-id="asuse_ur_isp_other" with-behavior="0" timestamp="23.04.2025 18:31:54">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <params>
+        <param name="kod_folders" type="number">
+          <const>5197</const>
+        </param>
+      </params>
+      <content>
+        <column table="kod_mat" column="kod_mat" as="kod_mat_main" parname="kod_mat_main" column-visible="0" />
+        <column table="ur_folders" column="kod_isp" parname="kod_isp" column-visible="0" invisible-in-column-chooser="1" />
+        <grid table="ur_isp_other" show-toolbar="1">
+          <toolbar>
+            <uicommand action-type="dynamic-form" call="ur_dp_isp_other" modal="1" editable="cur_kod_isp_other">
+              <useparam name="cur_kod_isp_other" />
+              <useparam name="kod_mat_main" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column table="ur_isp_other" column="kod_isp_other" parname="cur_kod_isp_other" column-visible="0" />
+            <column table="ur_isp_other" column="dat_event" title="Дата направления ИЛ" column-width="105" mandatory="1" />
+            <column table="ur_isp_other" column="destination" title="Куда направлен ИЛ" column-width="165" mandatory="1" />
+            <column table="ur_isp_other" column="initiator" title="Инициатор" column-width="168" mandatory="1" />
+            <band title="Сумма задолженности заявленная к выплате">
+              <fact table="ur_isp_other" column="dolg_on_il_hnd" title="Всего" />
+              <fact table="ur_isp_other" column="dolg_on_il_osn" title="Основная реализация" />
+              <fact table="ur_isp_other" column="dolg_on_il_peni" title="Проценты (пени)" />
+              <fact column="peni_period_str" table="ur_isp_other" title="Период пени" column-visible="is_customer10_flag" />
+              <fact table="ur_isp_other" column="dolg_on_il_shtr" title="Штраф" />
+              <fact table="ur_isp_other" column="ur_hist_mat_dec_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_isp_other" column="dolg_on_il_gp_doc" title="Гос. пошлина" />
+              <fact table="ur_isp_other" column="dolg_on_il_astr" width-perc="50" title="Астрент" />
+              <fact table="ur_isp_other" column="ur_hist_mat_dec_sud_izd" />
+            </band>
+            <band title="Задолженность удовлетворена на сумму">
+              <fact table="ur_isp_other" column="ur_opl_isp_other" title="Всего" />
+              <fact table="ur_isp_other" column="ur_opl_posl_il_osn" title="Основная реализация" />
+              <fact table="ur_isp_other" column="ur_opl_posl_il_peni" title="Проценты (пени)" />
+              <fact table="ur_isp_other" column="ur_opl_posl_il_shtr" title="Штраф" />
+              <column table="ur_isp_other" column="paid_rvre" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_isp_other" column="ur_opl_posl_il_gp" title="Гос. пошлина" />
+              <column table="ur_isp_other" column="paid_astr" title="Астрент" />
+              <column table="ur_isp_other" column="paid_sud_izd" title="Судебные издержки" />
+            </band>
+            <band title="Остаток задолженности">
+              <fact table="ur_isp_other" column="dolg_isp_other" title="Всего" />
+              <fact table="ur_isp_other" column="dolg_resh_tek_osn" title="Основная реализация" />
+              <fact table="ur_isp_other" column="dolg_resh_tek_peni" title="Проценты (пени)" />
+              <fact table="ur_isp_other" column="dolg_resh_tek_shtr" title="Штраф" />
+              <fact table="ur_isp_other" column="dolg_isp_other_tek_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_isp_other" column="dolg_resh_tek_gp_doc" title="Гос. пошлина" />
+              <fact table="ur_isp_other" column="dolg_isp_other_tek_astr" title="Астрент" />
+              <fact table="ur_isp_other" column="dolg_isp_other_tek_sud_izd" title="Судебные издержки" />
+            </band>
+            <column table="ur_isp_other" column="prim" title="Примечание" column-width="365" />
+          </columns>
+          <events>
+            <useaction event-name="new-row-save" action-type="execute-add" call="ur_dp_isp_other_insert_all">
+              <useparam name="cur_kod_isp_other" />
+            </useaction>
+          </events>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders_isp" as="ur_folders">
+          <link name="kod_isp">
+            <link name="kod_hist_mat">
+              <link name="kod_mat" />
+            </link>
+          </link>
+          <elink name="ur_isp_other" />
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

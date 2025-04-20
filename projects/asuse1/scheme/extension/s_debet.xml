@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="s_debet_ext" class="1" extend="s_debet" timestamp="23.02.2016 02:51:32">
+      <select>
+        <column table="st_spis" column="dat_ust" dgroup="min" as="date_spis" />
+        <column table="st_dead" column="dat_ust" dgroup="min" as="date_dead" />
+      </select>
+      <links>
+        <dlink name="s_debet_state" as="st_spis" pushpred="1">
+          <link name="pr_obr" as="st_spis_i"/>
+          <where>
+            <call function="=">
+              <column table="st_spis_i" column="pr_nokniga" />
+              <const>1</const>
+            </call>
+          </where>
+        </dlink>
+        <dlink name="s_debet_state" as="st_dead">
+          <where>
+            <call function="=">
+              <column table="st_dead" column="pr_obr" />
+              <const>44</const>
+            </call>
+          </where>
+        </dlink>
+      </links>
+      <from>
+        <query name="s_debet_spis" as="spis_kod_deb" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_deb" />
+            <column table="spis_kod_deb" column="kod_deb" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

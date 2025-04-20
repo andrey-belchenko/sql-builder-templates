@@ -1,0 +1,1728 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:24:15.1177595+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="dolg_uved_bu_sf" timestamp="02.11.2018 19:43:45" is-report="1" use-temp="1" comment="Не актуально, используется dolg_uved_bu_sf_m" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const>to_date ('07.09.2017','DD.MM.YYYY')</const>
+        </param>
+        <param name="p_kodp" type="string">
+          <const exclude="1">null</const>
+          <const>'81943'</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="-nvl" as="oborot" group="sum">
+          <fact column="m_facras_summa" />
+          <fact column="m_opl_oplf" />
+        </call>
+        <call function="over" as="deb_dolg" group="max">
+          <call function="sum">
+            <fact column="oborot" />
+          </call>
+          <call function="partition by">
+            <column table="kod_sf" column="kod_deb" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_sf" column="kodp" group="1" />
+        <fact column="m_facras_codeabon" group="1" as="codeabon" />
+        <column table="kod_sf" column="kod_sf" group="1" />
+        <column table="kod_sf" column="dat_sf" group="1" />
+        <column table="kod_sf" column="kod_deb" group="1" />
+        <column table="kod_sf" column="name" group="max" as="sf_name" />
+        <column table="kod_bu_akt" column="kod_bu_akt" group="1" />
+        <column table="kod_bu_akt" column="dat" group="max" as="dat_akt" />
+        <column table="kod_bu_akt" column="akt_name" group="max" />
+        <fact column="m_facras_summa" group="sum" as="nachisl" />
+        <fact column="m_opl_oplf" group="sum" as="opl" />
+        <fact column="oborot" as="dolg" group="sum" />
+        <fact column="deb_dolg" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf">
+            <link name="kod_deb" />
+          </link>
+          <link name="kod_bu_akt" />
+          <link name="dat_dolg" />
+          <where>
+            <call function="=">
+              <column table="kod_sf" column="kodp" />
+              <call function="nvl">
+                <useparam name="p_kodp" />
+                <column table="kod_sf" column="kodp" />
+              </call>
+            </call>
+            <call function="is not null">
+              <column table="kod_bu_akt" column="kod_bu_akt" />
+            </call>
+            <call function="lt">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_date" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=0">
+            <fact column="oborot" />
+          </call>
+          <call function="!=0">
+            <fact column="deb_dolg" />
+          </call>
+          <call function="is not null">
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </call>
+      </where>
+      <having>
+        <call function="and">
+          <call function="gt">
+            <column table="this" column="deb_dolg" />
+            <const>0</const>
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="dolg_uved_bu_dog" timestamp="21.09.2017 19:08:18" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="p_kodp" type="string">
+          <const exclude="1">null</const>
+          <const exclude="1">'80146'</const>
+          <const>'81943'</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp" group="1" />
+        <column table="a" column="codeabon" group="1" />
+        <column table="a" column="sf_name" group="stragg" />
+        <column table="a" column="akt_name" group="stragg" />
+        <column table="a" column="nachisl" group="sum" />
+        <column table="a" column="opl" group="sum" />
+        <column table="a" column="dolg" group="sum" />
+      </select>
+      <from>
+        <query name="dolg_uved_bu_sf" as="a">
+          <withparams>
+            <useparam name="p_date" />
+            <useparam name="p_kodp" />
+          </withparams>
+        </query>
+      </from>
+      <having>
+        <call function="and">
+          <call function="gt">
+            <column table="this" column="dolg" />
+            <const>0</const>
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="dolg_uved_bu_sf_m" timestamp="06.02.2019 20:12:20" is-report="1" use-temp="1" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const>sysdate-7</const>
+        </param>
+        <param name="p_kodp_array_name" type="string">
+          <const>'array1'</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="-nvl" as="oborot" group="sum">
+          <fact column="m_facras_summa" />
+          <fact column="m_opl_oplf" />
+        </call>
+        <call function="over" as="deb_dolg" group="max">
+          <call function="sum">
+            <fact column="oborot" />
+          </call>
+          <call function="partition by">
+            <column table="kod_sf" column="kod_deb" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_sf" column="kodp" group="1" />
+        <fact column="m_facras_codeabon" group="1" as="codeabon" />
+        <fact column="m_facras_ym" group="1" as="rym" exclude="1" />
+        <column table="kod_sf" column="kod_sf" group="1" />
+        <column table="kod_sf" column="dat_sf" group="1" />
+        <column table="kod_sf" column="kod_deb" group="1" />
+        <column table="kod_sf" column="name" group="max" as="sf_name" />
+        <column table="kod_bu_akt" column="kod_bu_akt" group="1" />
+        <column table="kod_bu_akt" column="dat" group="max" as="dat_akt" />
+        <column table="kod_bu_akt" column="akt_name" group="max" />
+        <fact column="m_facras_summa" group="sum" as="nachisl" />
+        <fact column="m_opl_oplf" group="sum" as="opl" />
+        <fact column="oborot" as="dolg" group="sum" />
+        <fact column="deb_dolg" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf">
+            <link name="kod_deb" />
+          </link>
+          <link name="kod_bu_akt" />
+          <link name="dat_dolg" />
+          <where>
+            <call function="in">
+              <column table="kod_sf" column="kodp" />
+              <call function="vr_str_array.get">
+                <useparam name="p_kodp_array_name" />
+              </call>
+            </call>
+            <call function="lt">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_date" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=0">
+            <fact column="oborot" />
+          </call>
+          <call function="!=0">
+            <fact column="deb_dolg" />
+          </call>
+          <call function="is not null">
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="dolg_uved_bu_sf_m_test" timestamp="13.08.2019 00:23:10" is-report="1" use-temp="1" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="p_kodp_array_name" type="string">
+          <const>'array1'</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="-nvl" as="oborot" group="sum">
+          <fact column="m_facras_summa" />
+          <fact column="m_opl_oplf" />
+        </call>
+        <call function="over" as="deb_dolg" group="max">
+          <call function="sum">
+            <fact column="oborot" />
+          </call>
+          <call function="partition by">
+            <column table="kod_sf" column="kod_deb" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_sf" column="kodp" group="1" />
+        <fact column="m_facras_codeabon" group="1" as="codeabon" />
+        <column table="kod_sf" column="kod_sf" group="1" />
+        <column table="kod_sf" column="dat_sf" group="1" />
+        <column table="kod_sf" column="kod_deb" group="1" />
+        <column table="kod_sf" column="name" group="max" as="sf_name" exclude="1" />
+        <column table="kod_bu_akt" column="kod_bu_akt" group="1" />
+        <column table="kod_bu_akt" column="dat" group="max" as="dat_akt" />
+        <column table="kod_bu_akt" column="akt_name" group="max" />
+        <fact column="m_facras_summa" group="sum" as="nachisl" />
+        <fact column="m_opl_oplf" group="sum" as="opl" />
+        <fact column="oborot" as="dolg" group="sum" />
+        <fact column="deb_dolg" group="sum" />
+        <call function="over" type="number" as="vv">
+          <call function="sum">
+            <column table="this" column="dolg" />
+          </call>
+          <call function="partition by">
+            <const>null</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf">
+            <link name="kod_deb" />
+          </link>
+          <link name="kod_bu_akt" />
+          <link name="dat_dolg" />
+          <where>
+            <call function="in">
+              <column table="kod_sf" column="kodp" />
+              <const>90234</const>
+              <call function="vr_str_array.get" exclude="1">
+                <useparam name="p_kodp_array_name" />
+              </call>
+            </call>
+            <call function="lt">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_date" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=0">
+            <fact column="oborot" />
+          </call>
+          <call function="!=0">
+            <fact column="deb_dolg" />
+          </call>
+          <call function="is not null">
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="dolg_uved_bu_sf_ms" timestamp="27.03.2019 19:05:13" is-report="1" use-temp="1" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="p_kodp_array_name" type="string">
+          <const>'array1'</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="-nvl" as="oborot" group="sum">
+          <fact column="m_facras_summa" />
+          <fact column="m_opl_oplf" />
+        </call>
+        <call function="over" as="deb_dolg" group="max">
+          <call function="sum">
+            <fact column="oborot" />
+          </call>
+          <call function="partition by">
+            <column table="kod_sf" column="kod_deb" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_sf" column="kodp" group="1" />
+        <fact column="m_facras_codeabon" group="1" as="codeabon" />
+        <fact column="m_facras_ym" group="1" as="rym" exclude="1" />
+        <column table="kod_sf" column="kod_sf" group="1" />
+        <column table="kod_sf" column="dat_sf" group="1" />
+        <column table="kod_sf" column="kod_deb" group="1" />
+        <column table="kod_sf" column="name" group="max" as="sf_name" />
+        <column table="kod_bu_akt" column="kod_bu_akt" group="1" exclude="1" />
+        <column table="kod_bu_akt" column="dat" group="max" as="dat_akt" exclude="1" />
+        <column table="kod_bu_akt" column="akt_name" group="max" exclude="1" />
+        <fact column="m_facras_summa" group="sum" as="nachisl" />
+        <fact column="m_opl_oplf" group="sum" as="opl" />
+        <fact column="oborot" as="dolg" group="sum" />
+        <fact column="deb_dolg" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf">
+            <link name="kod_deb" />
+          </link>
+          <link name="kod_bu_akt" exclude="1" />
+          <link name="dat_dolg" />
+          <where>
+            <call function="in">
+              <column table="kod_sf" column="kodp" />
+              <call function="vr_str_array.get">
+                <useparam name="p_kodp_array_name" />
+              </call>
+            </call>
+            <call function="lt">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_date" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=0">
+            <fact column="oborot" />
+          </call>
+          <call function="!=0">
+            <fact column="deb_dolg" />
+          </call>
+          <call function="is not null" exclude="1">
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="dolg_uved_bu_sf_ma" timestamp="27.03.2019 19:04:38" is-report="1" use-temp="1" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const>sysdate-7</const>
+        </param>
+        <param name="p_kodp_array_name" type="string">
+          <const>'array1'</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_sf" column="kod_sf" group="1" />
+        <column table="kod_bu_akt" column="kod_bu_akt" group="1" />
+        <column table="kod_bu_akt" column="dat" group="max" as="dat_akt" />
+        <column table="kod_bu_akt" column="akt_name" group="max" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf" all-rows="1">
+            <link name="kod_deb" />
+          </link>
+          <link name="kod_bu_akt" />
+          <where>
+            <call function="in">
+              <column table="kod_sf" column="kodp" />
+              <call function="vr_str_array.get">
+                <useparam name="p_kodp_array_name" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="38880-q1" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      <select>
+        <column table="a" column="kodp" type="number" />
+        <column table="a" column="name_abon" type="string" />
+        <column table="a" column="dolg_full_abon_current" type="number" />
+      </select>
+      <from>
+        <table name="38880-v1" as="a" view="1" />
+      </from>
+    </query>
+    <query name="38880-q2" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="a" column="kodp" type="number" />
+        <column table="a" column="notes_pred" type="string" />
+        <column table="a" column="dat_notes_pred" type="date" />
+        <column table="a" column="dat_ogr_pred" type="date" />
+        <column table="a" column="dat_otkl_pred" type="date" />
+        <column table="a" column="nom_tlg_pred" type="string" />
+        <column table="a" column="dat_tlg_pred" type="date" />
+        <!--<column table="a" column="nom_tlg2_pred" type="string"/>-->
+        <!--<column table="a" column="dat_tlg2_pred" type="date"/>-->
+        <column table="a" column="dat_rep_pred" type="date" />
+        <column table="a" column="dolg_pred" type="number" />
+        <column table="a" column="avans_pred" type="number" />
+        <column table="a" column="peni_pred" type="number" />
+        <column table="a" column="straf_pred" type="number" />
+        <column table="a" column="kol_per_all_pred" type="number" />
+        <column table="a" column="nerazn_opl_pred" type="number" />
+        <column table="a" column="otsr_sum_pred" type="number" />
+        <column table="a" column="otozv_sum_pred" type="number" />
+        <column table="a" column="nkredit_pred" type="number" />
+        <column table="a" column="dpp_pred" type="number" />
+        <column table="a" column="otviaz_pred" type="number" />
+        <column table="a" column="morat_pred" type="number" />
+        <column table="a" column="morat_peni_pred" type="number" />
+        <column table="a" column="morat_straf_pred" type="number" />
+        <column table="a" column="prich_otkl_pred" type="string" />
+        <column table="a" column="current_pred" type="string" />
+        <column table="a" column="sved_isp_pred" type="string" />
+        <column table="a" column="pr_edin_pred" type="string" />
+        <column table="a" column="prich_clear_pred" type="string" />
+        <column table="a" column="fio_isp_pred" type="string" />
+        <column table="a" column="dat_uved_pred" type="date" />
+        <column table="a" column="dolg_full_abon" type="string" />
+      </select>
+      <from>
+        <table name="38880-v2" as="a" view="1" />
+      </from>
+    </query>
+    <query name="38880-q3" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="a" column="kodp" type="number" />
+        <column table="a" column="notes_abon" type="string" />
+        <column table="a" column="dat_cont" type="string" />
+        <column table="a" column="pr_arx" type="number" />
+        <column table="a" column="phones" type="string" />
+        <column table="a" column="faces" type="string" />
+      </select>
+      <from>
+        <table name="38880-v3" as="a" view="1" />
+      </from>
+    </query>
+    <query name="38880-q4" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="a" column="kodp" type="number" />
+        <column table="a" column="kod_potr" type="string" />
+        <column table="a" column="namepotr" type="string" />
+        <column table="a" column="adres_potr" type="string" />
+        <column table="a" column="notes_tex" type="string" />
+        <column table="a" column="dat_notes_tex" type="date" />
+        <column table="a" column="dat_otkl_tex" type="date" />
+        <column table="a" column="dat_fotkl_tex" type="date" />
+        <column table="a" column="vel_otkl_tex" type="number" />
+        <column table="a" column="vel_otkl_fact_tex" type="number" />
+        <column table="a" column="dat_samogr_tex" type="date" />
+        <column table="a" column="otkl_nagr_tex" type="string" />
+        <column table="a" column="dat_vkl_tex" type="string" />
+        <column table="a" column="nom_tlg_tex" type="string" />
+        <column table="a" column="dat_tlg_tex" type="date" />
+        <column table="a" column="dolg_tex" type="number" />
+        <column table="a" column="avans_tex" type="number" />
+        <column table="a" column="peni_tex" type="number" />
+        <column table="a" column="straf_tex" type="number" />
+        <column table="a" column="kol_per_all_tex" type="number" />
+        <column table="a" column="nerazn_opl_tex" type="number" />
+        <column table="a" column="otsr_sum_tex" type="number" />
+        <column table="a" column="otozv_sum_tex" type="number" />
+        <column table="a" column="nkredit_tex" type="number" />
+        <column table="a" column="morat_tex" type="number" />
+        <column table="a" column="morat_peni_tex" type="number" />
+        <column table="a" column="morat_straf_tex" type="number" />
+        <column table="a" column="dpp_tex" type="number" />
+        <column table="a" column="otviaz_tex" type="number" />
+        <column table="a" column="ogr_otkl_tex" type="string" />
+        <column table="a" column="prich_otkl_tex" type="string" />
+        <column table="a" column="dat_contr_tex" type="date" />
+        <column table="a" column="fio_kontr_tex" type="string" />
+        <column table="a" column="rez_osm_tex" type="string" />
+        <column table="a" column="current_tex" type="string" />
+        <column table="a" column="srok_tex" type="string" />
+        <column table="a" column="dolzn_otsr_tex" type="string" />
+        <column table="a" column="sved_isp_tex" type="string" />
+        <column table="a" column="prich_vkl_tex" type="string" />
+        <column table="a" column="dat_rep_tex" type="date" />
+        <column table="a" column="nom_akt_tex" type="string" />
+        <column table="a" column="fio_isp_tex" type="string" />
+        <column table="a" column="dolg_full_abon_tex" type="string" />
+      </select>
+      <from>
+        <table name="38880-v4" as="a" view="1" />
+      </from>
+    </query>
+    <query name="39475-q" file="sql.builder.templates\sql.builder\projects\psk\reports\39475.xml">
+      <select>
+        <column table="a" column="kodp" as="kodp" type="number" />
+        <column table="a" column="name" as="name" type="string" />
+        <column table="a" column="summ" as="summ" type="number" />
+        <column table="a" column="kol_pred" as="kol_pred" type="number" />
+        <column table="a" column="dat_last_pred" as="dat_last_pred" type="date" />
+        <column table="a" column="kol_tex" as="kol_tex" type="number" />
+        <column table="a" column="last_dat_tex" as="last_dat_tex" type="date" />
+        <column table="a" column="last_sved_isp_tex" as="last_sved_isp_tex" type="string" />
+        <column table="a" column="notes_cont" as="notes_cont" type="string" />
+        <column table="a" column="dat_cont" as="dat_cont" type="string" />
+        <column table="a" column="phones_cont" as="phones_cont" type="string" />
+        <column table="a" column="faces_cont" as="faces_cont" type="string" />
+      </select>
+      <from>
+        <table name="39475-v" view="1" as="a" />
+      </from>
+    </query>
+    <query name="39475(5)-q" order="summ desc" file="sql.builder.templates\sql.builder\projects\psk\reports\39475.xml">
+      <select>
+        <column table="a" column="kodp" as="kodp" type="number" />
+        <column table="a" column="name" as="name" type="string" />
+        <column table="a" column="summ" as="summ" type="number" />
+        <column table="a" column="kol_pred" as="kol_pred" type="number" />
+        <column table="a" column="dat_last_pred" as="dat_last_pred" type="date" />
+        <column table="a" column="kol_tex" as="kol_tex" type="number" />
+        <column table="a" column="last_dat_tex" as="last_dat_tex" type="date" />
+        <column table="a" column="last_sved_isp_tex" as="last_sved_isp_tex" type="string" />
+        <column table="a" column="notes_cont" as="notes_cont" type="string" />
+        <column table="a" column="dat_cont" as="dat_cont" type="string" />
+        <column table="a" column="phones_cont" as="phones_cont" type="string" />
+        <column table="a" column="faces_cont" as="faces_cont" type="string" />
+      </select>
+      <from>
+        <table name="39475(5)-v" view="1" as="a" />
+      </from>
+    </query>
+    <query name="e_payer" class="1" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\e_payer.xml">
+      <select>
+        <column table="a" column="kodp" type="string" title="" />
+        <column table="a" column="podr" type="number" title="" />
+        <column table="a" column="kod_dom" type="number" />
+        <column table="a" column="kod_dom_ur" type="number" />
+        <column table="a" column="kodbpl" type="number" title="" />
+        <column table="a" column="kodbpol" type="number" title="" />
+        <column table="a" column="kodbon" type="number" title="" />
+        <column table="a" column="pr_obr" type="number" title="" />
+        <column table="a" column="kod_m" type="number" />
+        <column table="a" column="kod_otrasl" type="number" />
+        <column table="a" column="kod_kazn" type="number" />
+        <column table="a" column="kod_sec" type="number" />
+        <column table="a" column="komit" type="number" title="" />
+        <column table="a" column="kod_ist" type="number" />
+        <column table="a" column="kod_reg" type="number" comment="код административного района" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="rassh1" type="string" title="" />
+        <column table="a" column="okpo" type="string" title="" />
+        <column table="a" column="okonh" type="string" title="" />
+        <column table="a" column="inn" type="string" title="" />
+        <column table="a" column="direct" type="string" title="" />
+        <column table="a" column="tel_dir" type="string" title="" />
+        <column table="a" column="tel_sek" type="string" title="" />
+        <column table="a" column="tel_en" type="string" title="" />
+        <column table="a" column="tel_buh" type="string" title="" />
+        <column table="a" column="telet" type="string" title="" comment="адрес эл.почты" />
+        <column table="a" column="telfax" type="string" title="" />
+        <column table="a" column="tel_deg" type="string" title="" />
+        <column table="a" column="gor_obl" type="number" title="" comment="0 - город, 1 - область" />
+        <column table="a" column="plat_spos" type="number" title="" />
+        <column table="a" column="vid_pl" type="number" title="" />
+        <column table="a" column="vid_pld" type="number" title="" />
+        <column table="a" column="dat_udal" type="date" title="" />
+        <column table="a" column="dat_dog" type="date" title="" />
+        <column table="a" column="acc_kaz" type="string" title="" />
+        <column table="a" column="count_dog" type="number" title="" />
+        <column table="a" column="kod_insp" type="number" />
+        <column table="a" column="otr_gr" type="number" title="" />
+        <column table="a" column="fio_bux" type="string" title="" />
+        <column table="a" column="fio_en" type="string" title="" />
+        <column table="a" column="kodgo" type="number" title="" />
+        <column table="a" column="dat" type="date" title="" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="prim1" type="string" title="" />
+        <column table="a" column="prim2" type="string" title="" />
+        <column table="a" column="avans" type="number" title="" comment="аванс: 0 - нет; number_null - расчет; &lt; 0 - процент; &gt; 0 - фиксир.сумма" />
+        <column table="a" column="pid" type="number" title="" />
+        <column table="a" column="day_zad" type="number" title="" />
+        <column table="a" column="num_por" type="number" title="" />
+        <column table="a" column="num_pl" type="string" title="" />
+        <column table="a" column="kodinsp" type="number" title="" />
+        <column table="a" column="urlico" type="number" title="" />
+        <column table="a" column="beznal" type="number" title="" />
+        <column table="a" column="plat_kod" type="string" title="" />
+        <column table="a" column="country_kod" type="string" title="" />
+        <column table="a" column="overenergy" type="number" title="" />
+        <column table="a" column="overpower" type="number" title="" />
+        <column table="a" column="kod_oper" type="number" />
+        <column table="a" column="pr_multipriem" type="number" title="" comment="признак многоразовой приемки" />
+        <column table="a" column="platel" type="number" title="" />
+        <column table="a" column="pr_newpriem" type="number" title="" />
+        <column table="a" column="kodvdog" type="number" title="" comment="код формы договора" />
+        <column table="a" column="kod_okved" type="number" />
+        <column table="a" column="kpp" type="number" title="" comment="кпп" />
+        <column table="a" column="kod_opsp" type="number" />
+        <column table="a" column="kod_bez_prich" type="number" />
+        <column table="a" column="allname" type="string" title="" comment="полное наименование" />
+        <column table="a" column="name_gr" type="string" title="" comment="наименование грузополучателя" />
+        <column table="a" column="kod_dom_gr" type="number" comment="код адреса грузополучателя" />
+        <column table="a" column="free_price" type="number" title="" comment="участие в своб.ценах" />
+        <column table="a" column="contact" type="string" title="" comment="контактное лицо" />
+        <column table="a" column="ccb" type="number" title="" comment="расчеты в билинговой системе" />
+        <column table="a" column="kod_subrr" type="number" comment="код субъекта розничного рынка" />
+        <column table="a" column="kpp_vc" type="string" title="" comment="новое кпп" />
+        <column table="a" column="kod_oesk" type="number" comment="код &quot;классификатор оэск&quot;" />
+        <column table="a" column="proc_energy" type="number" title="" comment="% превышения факт.величин энергии над договорными" />
+        <column table="a" column="proc_power" type="number" title="" comment="% превышения факт.величин мощности над договорными" />
+        <column table="a" column="kod_side" type="number" comment="код из справочника &quot;связанные стороны&quot;" />
+        <column table="a" column="ndog_for_pd" type="string" title="" />
+        <column table="a" column="ruk_dolzh" type="string" title="" />
+        <column table="a" column="ruk_fio_r" type="string" title="" />
+        <column table="a" column="ruk_dolzh_r" type="string" title="" />
+        <column table="a" column="kod_ccb" type="number" comment="код из справочника &quot;ccb&quot;" />
+        <column table="a" column="pr_active" type="number" title="" comment="признак деятельность прекращена" />
+      </select>
+      <from>
+        <table name="e_payer" as="a" />
+        <query name="k_opsp" as="kod_opsp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opsp"></column>
+            <column table="kod_opsp" column="kod_opsp"></column>
+          </call>
+        </query>
+        <query name="k_house" as="kod_dom" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dom"></column>
+            <column table="kod_dom" column="kodd"></column>
+          </call>
+        </query>
+        <query name="k_house" as="kod_dom_ur" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dom_ur"></column>
+            <column table="kod_dom_ur" column="kodd"></column>
+          </call>
+        </query>
+        <query name="k_house" as="kod_dom_gr" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dom_gr"></column>
+            <column table="kod_dom_gr" column="kodd"></column>
+          </call>
+        </query>
+        <query name="d_istfin" as="kod_ist" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ist"></column>
+            <column table="kod_ist" column="kod"></column>
+          </call>
+        </query>
+        <query name="d_komit" as="komit" join="left outer">
+          <call function="=">
+            <column table="a" column="komit"></column>
+            <column table="komit" column="komit"></column>
+          </call>
+        </query>
+        <query name="d_otr_gr" as="otr_gr" join="left outer">
+          <call function="=">
+            <column table="a" column="otr_gr"></column>
+            <column table="otr_gr" column="kod"></column>
+          </call>
+        </query>
+        <query name="hk_vdog" as="kodvdog" join="left outer">
+          <call function="=">
+            <column table="a" column="kodvdog"></column>
+            <column table="kodvdog" column="kodvdog"></column>
+          </call>
+        </query>
+        <query name="hr_inspector" as="kodinsp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodinsp"></column>
+            <column table="kodinsp" column="kodinsp"></column>
+          </call>
+        </query>
+        <query name="kk_ccb" as="kod_ccb" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ccb"></column>
+            <column table="kod_ccb" column="kod_ccb"></column>
+          </call>
+        </query>
+        <query name="ks_uni_side" as="kod_side" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_side"></column>
+            <column table="kod_side" column="kod_side"></column>
+          </call>
+        </query>
+        <query name="k_bank" as="kodbon" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbon"></column>
+            <column table="kodbon" column="kod"></column>
+          </call>
+        </query>
+        <query name="k_bank" as="kodbpl" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpl"></column>
+            <column table="kodbpl" column="kod"></column>
+          </call>
+        </query>
+        <query name="k_bank" as="kodbpol" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpol"></column>
+            <column table="kodbpol" column="kod"></column>
+          </call>
+        </query>
+        <query name="k_bezakcept_prich" as="kod_bez_prich" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bez_prich"></column>
+            <column table="kod_bez_prich" column="kod_bez_prich"></column>
+          </call>
+        </query>
+        <query name="k_ministry" as="kod_m" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_m"></column>
+            <column table="kod_m" column="kod_m"></column>
+          </call>
+        </query>
+        <query name="k_oesk" as="kod_oesk" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_oesk"></column>
+            <column table="kod_oesk" column="kod_oesk"></column>
+          </call>
+        </query>
+        <query name="k_okved" as="kod_okved" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_okved"></column>
+            <column table="kod_okved" column="kod_okved"></column>
+          </call>
+        </query>
+        <query name="k_otrasl" as="kod_otrasl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_otrasl"></column>
+            <column table="kod_otrasl" column="kod_otrasl"></column>
+          </call>
+        </query>
+        <query name="k_platel" as="platel" join="left outer">
+          <call function="=">
+            <column table="a" column="platel"></column>
+            <column table="platel" column="platel"></column>
+          </call>
+        </query>
+        <query name="k_plat_spos" as="plat_spos" join="left outer">
+          <call function="=">
+            <column table="a" column="plat_spos"></column>
+            <column table="plat_spos" column="plat_spos"></column>
+          </call>
+        </query>
+        <query name="k_podr" as="podr" join="left outer">
+          <call function="=">
+            <column table="a" column="podr"></column>
+            <column table="podr" column="podr"></column>
+          </call>
+        </query>
+        <query name="k_subject_rr" as="kod_subrr" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_subrr"></column>
+            <column table="kod_subrr" column="kod_subrr"></column>
+          </call>
+        </query>
+        <query name="m_por" as="num_por" join="left outer">
+          <call function="=">
+            <column table="a" column="num_por"></column>
+            <column table="num_por" column="num_por"></column>
+          </call>
+        </query>
+        <query name="n_kazn" as="kod_kazn" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_kazn"></column>
+            <column table="kod_kazn" column="kod_kazn"></column>
+          </call>
+        </query>
+        <query name="n_oper" as="kod_oper" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_oper"></column>
+            <column table="kod_oper" column="kod_oper"></column>
+          </call>
+        </query>
+        <query name="n_sectors" as="kod_sec" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sec"></column>
+            <column table="kod_sec" column="kod_sec"></column>
+          </call>
+        </query>
+        <query name="n_vid_pl" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl"></column>
+            <column table="vid_pl" column="vid_pl"></column>
+          </call>
+        </query>
+        <query name="n_vid_pl" as="vid_pld" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pld"></column>
+            <column table="vid_pld" column="vid_pl"></column>
+          </call>
+        </query>
+        <query name="k_state" as="pr_obr" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_obr"></column>
+            <column table="pr_obr" column="pr_obr"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="hr_bu_akr" class="1" timestamp="22.09.2016 01:04:05" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\hr_bu_akr.xml">
+      <select>
+        <column table="a" column="kod_bu_akt" type="number" comment="код акта безучетного ползования" />
+        <column table="a" column="num" type="string" title="" comment="номер акта на безучетное пользование" />
+        <column table="a" column="dat" type="date" title="" comment="дата акта на безучетное пользование" />
+        <column table="a" column="u_m" type="string" title="" comment="кем изменено" />
+        <column table="a" column="d_m" type="date" title="" comment="когда изменено" />
+        <column table="a" column="kodpoint" type="number" title="" comment="код ту" />
+        <column table="a" column="d_kor" type="date" title="" comment="дата последней кор-ки данных по акту" />
+        <column table="a" column="polz_kor" type="string" title="" comment="&quot;автор&quot; последней кор-ки данных по акту" />
+        <column table="a" column="kodinsp" type="number" title="" comment="код инспектора эи" />
+        <column table="a" column="codeabon" type="number" title="" comment="код потребителя" />
+        <column table="a" column="codeabon2" type="string" title="" />
+        <column table="a" column="pr_import" type="number" title="" comment="1 - признак &quot;импортированный с sigma&quot;" />
+        <column table="a" column="power_akt" type="number" title="" comment="мощность по акту" />
+        <column table="a" column="vid_calc" type="string" title="" comment="вид расчета мощности (0  - вручнуюб 1 - по таблицам пуэ)" />
+        <call function="||" as="akt_name">
+          <const>'№ '</const>
+          <column table="a" column="num" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="hr_bu_akr" as="a" />
+        <query name="hr_inspector" as="kodinsp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodinsp" />
+            <column table="kodinsp" column="kodinsp" />
+          </call>
+        </query>
+        <query name="hr_point" as="kodpoint" join="left outer">
+          <call function="=">
+            <column table="a" column="kodpoint" />
+            <column table="kodpoint" column="kodpoint" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="mv_recalc" class="1" timestamp="13.08.2019 00:33:42" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\mv_recalc.xml">
+      <select>
+        <column table="a" column="code23" type="number" title="" />
+        <column table="a" column="codeabon" type="number" title="" />
+        <column table="a" column="code46" type="number" title="" />
+        <column table="a" column="calcdate" type="date" title="" />
+        <column table="a" column="tarif" type="number" title="" />
+        <column table="a" column="k_vid" type="number" title="" />
+        <column table="a" column="accountsum" type="number" title="" />
+        <column table="a" column="tarifsum" type="number" title="" />
+        <column table="a" column="accountmoney" type="number" title="" />
+        <column table="a" column="accountnds" type="number" title="" />
+        <column table="a" column="mes" type="number" title="" />
+        <column table="a" column="god" type="number" title="" />
+        <column table="a" column="point" type="number" title="" />
+        <column table="a" column="tpoint" type="number" title="" />
+        <column table="a" column="prpl" type="number" title="" />
+        <column table="a" column="flagstor" type="number" title="" />
+        <column table="a" column="kod_deb" type="number" />
+        <column table="a" column="voltage" type="number" title="" />
+        <column table="a" column="editor" type="string" title="" />
+        <column table="a" column="datesys" type="date" title="" />
+        <column table="a" column="vid_sf" type="number" title="" />
+        <column table="a" column="tip_nds" type="number" title="" />
+        <column table="a" column="kod_sf" type="number" />
+        <column table="a" column="tax" type="number" title="" />
+        <column table="a" column="kod_bu_akt" type="number" />
+        <column table="a" column="kod_recalc" type="number" />
+        <column table="a" column="kod_ras" type="number" />
+        <column table="a" column="townflag" type="number" title="" />
+        <column table="a" column="kod_tiptar" type="number" />
+        <column table="a" column="kod_reglament" type="number" />
+        <column table="a" column="rate_free" type="number" title="" />
+        <column table="a" column="rate_cfr" type="number" title="" />
+        <column table="a" column="rate_usl" type="number" title="" />
+        <column table="a" column="rate_sn" type="number" title="" />
+        <column table="a" column="flagarh" type="number" title="" />
+        <call function="rowid" as="mv_recalc_id" key="1" />
+        <call function="over" as="kod_sf_rec_last">
+          <call function="max">
+            <column table="a" column="kod_sf" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_bu_akt" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="mv_recalc" as="a" />
+        <query name="m_facvip" as="kod_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="hr_bu_akr" as="kod_bu_akt" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bu_akt" />
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="mv_recalc_akt" class="1" timestamp="13.08.2019 00:33:38" inherit="mv_recalc" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\mv_recalc.xml">
+      <select>
+        <call function="over" as="kod_sf_rec_last" exclude="1">
+          <call function="max">
+            <column table="a" column="kod_sf" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_bu_akt" />
+          </call>
+        </call>
+        <call function="if" as="pr_rec_last" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="this" column="kod_sf_rec_last" />
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="m_facvip" as="kod_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf_rec_last" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <where exclude="1">
+        <call function="is not null" exclude="1">
+          <column table="this" column="kod_bu_akt" />
+        </call>
+        <call function="=1">
+          <column table="this" column="pr_rec_last" />
+        </call>
+      </where>
+    </query>
+    <query name="m_debet" class="1" timestamp="08.09.2017 19:48:40" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\m_debet.xml">
+      <select>
+        <column table="a" column="kod_deb" type="number" />
+        <column table="a" column="vid_pl" type="number" title="" />
+        <column table="a" column="kodbpol" type="number" title="" />
+        <column table="a" column="pr_mor" type="number" title="" />
+        <column table="a" column="dat_deb" type="date" title="" />
+        <column table="a" column="pr_obr" type="number" title="" />
+        <column table="a" column="kodp" type="string" title="" />
+        <column table="a" column="god" type="number" title="" />
+        <column table="a" column="mes" type="number" title="" />
+        <column table="a" column="den" type="number" title="" />
+        <column table="a" column="pr_old" type="number" title="" />
+        <column table="a" column="num_pl" type="string" title="" />
+        <column table="a" column="rs" type="string" title="" />
+        <column table="a" column="nachisl" type="number" title="" />
+        <column table="a" column="nds" type="number" title="" />
+        <column table="a" column="pr_perep" type="number" title="" />
+        <column table="a" column="pinn" type="string" title="" />
+        <column table="a" column="pname" type="string" title="" />
+        <column table="a" column="psch1" type="string" title="" />
+        <column table="a" column="kodbpl" type="number" title="" />
+        <column table="a" column="lic_sch" type="string" title="" />
+        <column table="a" column="prich_perep" type="string" title="" />
+        <column table="a" column="kodbpol_old" type="number" title="" />
+        <column table="a" column="kodbpl_old" type="number" title="" />
+        <column table="a" column="dcalc_peni" type="date" title="" />
+        <column table="a" column="platel" type="number" title="" />
+        <column table="a" column="promezhut" type="number" title="" />
+        <call function="||" as="name">
+          <const>'№ '</const>
+          <column table="a" column="num_pl" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_deb" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="m_debet" as="a" />
+        <query name="e_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="k_bank" as="kodbpl" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpl" />
+            <column table="kodbpl" column="kod" />
+          </call>
+        </query>
+        <query name="k_bank" as="kodbpol" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpol" />
+            <column table="kodbpol" column="kod" />
+          </call>
+        </query>
+        <query name="k_platel" as="platel" join="left outer">
+          <call function="=">
+            <column table="a" column="platel" />
+            <column table="platel" column="platel" />
+          </call>
+        </query>
+        <query name="m_moratory" as="pr_mor" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_mor" />
+            <column table="pr_mor" column="kod_mor" />
+          </call>
+        </query>
+        <query name="n_vid_pl" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl" />
+            <column table="vid_pl" column="vid_pl" />
+          </call>
+        </query>
+        <query name="k_state" as="pr_obr" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_obr" />
+            <column table="pr_obr" column="pr_obr" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="m_facopl" class="1" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\m_facopl.xml">
+      <select>
+        <column table="a" column="kod_fopl" type="number" />
+        <column table="a" column="kod_ras" type="number" />
+        <column table="a" column="kod_opl" type="number" />
+        <column table="a" column="datao" type="date" title="" />
+        <column table="a" column="god" type="number" title="" />
+        <column table="a" column="mes" type="number" title="" />
+        <column table="a" column="opl" type="number" title="" />
+        <column table="a" column="nal" type="number" title="" />
+        <column table="a" column="datao_vdoc" type="date" title="" />
+        <column table="a" column="cust" type="number" title="" />
+      </select>
+      <from>
+        <table name="m_facopl" as="a" />
+        <query name="m_facras" as="kod_ras" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ras"></column>
+            <column table="kod_ras" column="kod_ras"></column>
+          </call>
+        </query>
+        <query name="m_opl" as="kod_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl"></column>
+            <column table="kod_opl" column="kod_opl"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="m_facras" class="1" timestamp="02.11.2018 19:17:05" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\m_facras.xml">
+      <select>
+        <column table="a" column="kod_ras" type="number" />
+        <column table="a" column="kod_sf" type="number" />
+        <column table="a" column="kodg" type="number" title="" />
+        <column table="a" column="tip_nds" type="number" title="" />
+        <column table="a" column="vid_t" type="number" title="" />
+        <column table="a" column="okdp" type="string" title="" />
+        <column table="a" column="edizm" type="number" title="" />
+        <column table="a" column="cust" type="number" title="" />
+        <column table="a" column="price" type="number" title="" />
+        <column table="a" column="nachisl" type="number" title="" />
+        <column table="a" column="tax" type="number" title="" />
+        <column table="a" column="nds" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="mes" type="number" title="" />
+        <column table="a" column="god" type="number" title="" />
+        <column table="a" column="abonname" type="string" title="" />
+        <column table="a" column="codeabon" type="number" title="" fact="m_facras_codeabon" agg="max" />
+        <column table="a" column="osn_tu" type="number" title="" />
+        <column table="a" column="kod_opl" type="number" />
+        <column table="a" column="kod_ras_kor" type="number" />
+        <column table="a" column="flagstor" type="number" title="" />
+        <column table="a" column="kod_reglament" type="number" />
+        <column table="a" column="kod_account" type="number" />
+        <column table="a" column="kod_recalc" type="number" />
+        <call function="num to ym" as="ym" is-fact="1" agg="max">
+          <column table="this" column="god" />
+          <column table="this" column="mes" />
+        </call>
+        <call function="+nvl" as="summa" type="number" title="Начислено (руб)" fact="m_facras_summa" agg="sum">
+          <column table="a" column="nachisl" />
+          <column table="a" column="nds" />
+        </call>
+      </select>
+      <from>
+        <table name="m_facras" as="a" />
+        <query name="k_nds" as="tip_nds" join="left outer">
+          <call function="=">
+            <column table="a" column="tip_nds" />
+            <column table="tip_nds" column="tip_nds" />
+          </call>
+        </query>
+        <query name="m_facvip" as="kod_sf" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="s_edizm" as="edizm" join="left outer">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <column table="edizm" column="kod" />
+          </call>
+        </query>
+        <query name="s_nachisl" as="vid_t" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_t" />
+            <column table="vid_t" column="k_vid" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="m_facvip" class="1" timestamp="26.09.2016 18:40:45" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\m_facvip.xml">
+      <select>
+        <column table="a" column="kod_sf" type="number" />
+        <column table="a" column="kod_deb" type="number" />
+        <column table="a" column="num_sf" type="string" title="" />
+        <column table="a" column="kodbpol" type="number" title="" />
+        <column table="a" column="vid_real" type="number" title="" />
+        <column table="a" column="vid_pl" type="number" title="" />
+        <column table="a" column="kodp" type="string" title="" />
+        <column table="a" column="dat_sf" type="date" title="" />
+        <column table="a" column="god" type="number" title="" />
+        <column table="a" column="mes" type="number" title="" />
+        <column table="a" column="den" type="number" title="" />
+        <column table="a" column="pr_old" type="number" title="" />
+        <column table="a" column="pr_sv" type="number" title="" />
+        <column table="a" column="pr_osn" type="number" title="" />
+        <column table="a" column="vid_sf" type="number" title="" />
+        <column table="a" column="dat_deb" type="date" title="" />
+        <column table="a" column="gru_pl" type="number" title="" />
+        <column table="a" column="kodbpol_old" type="number" title="" />
+        <column table="a" column="dcalc_peni" type="date" title="" />
+        <column table="a" column="dat_priem" type="date" title="" />
+        <column table="a" column="dat_bzad" type="date" title="" />
+        <column table="a" column="dat_uchet" type="date" title="" />
+        <column table="a" column="pr_plat" type="number" title="" />
+        <column table="a" column="num_sf_uch" type="string" title="" />
+        <column table="a" column="god_uch" type="number" title="" />
+        <column table="a" column="mes_uch" type="number" title="" />
+        <column table="a" column="vid_dpp" type="number" title="" />
+        <column table="a" column="day_nach_zad" type="number" title="" />
+        <column table="a" column="vid_avans" type="number" title="" />
+        <column table="a" column="dat_zs" type="date" title="" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="korr_sf" type="number" title="" />
+        <column table="a" column="sprefix" type="string" title="" />
+        <column table="a" column="spostfix" type="string" title="" />
+        <column table="a" column="nom_sf" type="string" title="" />
+        <column table="a" column="kod_sf_ispr" type="number" />
+        <column table="a" column="kod_vid_dpp" type="number" />
+        <column table="a" column="num_perep" type="number" title="" />
+        <column table="a" column="dat_perep" type="date" title="" />
+        <call function="date add days" as="dat_bzad_uved" dimension="dat_dolg">
+          <call function="nvl">
+            <column table="kod_deb" column="dat_deb" />
+            <column table="a" column="dat_sf" />
+          </call>
+          <const>1</const>
+        </call>
+        <call function="||" as="name">
+          <const>'№ '</const>
+          <column table="a" column="num_sf" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_sf" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="m_facvip" as="a" />
+        <query name="k_vid_dpp" as="kod_vid_dpp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vid_dpp" />
+            <column table="kod_vid_dpp" column="kod_vid_dpp" />
+          </call>
+        </query>
+        <query name="e_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="k_bank" as="kodbpol" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpol" />
+            <column table="kodbpol" column="kod" />
+          </call>
+        </query>
+        <query name="k_vid_real" as="vid_real" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <column table="vid_real" column="vid_real" />
+          </call>
+        </query>
+        <query name="k_vid_sf" as="vid_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_sf" />
+            <column table="vid_sf" column="vid_sf" />
+          </call>
+        </query>
+        <query name="m_debet" as="kod_deb" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_deb" />
+            <column table="kod_deb" column="kod_deb" />
+          </call>
+        </query>
+        <query name="n_vid_pl" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl" />
+            <column table="vid_pl" column="vid_pl" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="mv_recalc_akt">
+          <link name="kod_bu_akt" dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="m_opl" class="1" timestamp="22.09.2016 01:41:19" file="sql.builder.templates\sql.builder\projects\psk\scheme\original\m_opl.xml">
+      <select>
+        <column table="a" column="kod_opl" type="number" />
+        <column table="a" column="kodp" type="string" title="" />
+        <column table="a" column="kod_stat" type="number" />
+        <column table="a" column="kod_deb" type="number" />
+        <column table="a" column="vid_pl" type="number" title="" />
+        <column table="a" column="kod_ist" type="number" />
+        <column table="a" column="vid_opl" type="string" title="" />
+        <column table="a" column="opl" type="number" title="" />
+        <column table="a" column="obr" type="string" title="" />
+        <column table="a" column="mes" type="number" title="" />
+        <column table="a" column="num_opl" type="string" title="" />
+        <column table="a" column="god" type="number" title="" />
+        <column table="a" column="remark" type="string" title="" />
+        <column table="a" column="nalp" type="number" title="" />
+        <column table="a" column="datao" type="date" title="" />
+        <column table="a" column="editor" type="string" title="" />
+        <column table="a" column="datesys" type="date" title="" />
+        <column table="a" column="flag_raznos" type="number" title="" />
+        <column table="a" column="pr_close" type="number" title="" />
+        <column table="a" column="kod_vza" type="number" />
+        <column table="a" column="num_sf" type="string" title="" />
+        <column table="a" column="kod_link" type="number" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="kod_sf" type="number" />
+        <column table="a" column="nal" type="number" title="" />
+        <column table="a" column="opls" type="number" title="" />
+        <column table="a" column="kod_sf_uo" type="number" />
+        <column table="a" column="kod_opl_prev" type="number" />
+        <column table="a" column="tax" type="number" title="" />
+        <column table="a" column="dat_ist" type="date" title="" />
+        <column table="a" column="dat_doc" type="date" title="" />
+        <column table="a" column="sprefix" type="string" title="" />
+        <column table="a" column="spostfix" type="string" title="" />
+        <column table="a" column="nom_sf" type="string" title="" />
+        <call function="+nvl" as="oplf" fact="m_opl_oplf" agg="sum">
+          <column table="a" column="opl" />
+          <column table="a" column="opls" />
+        </call>
+        <call function="greatest" as="dat_dolg" agg="sum" dimension="dat_dolg">
+          <column table="a" column="datao" />
+          <column table="kod_sf" column="dat_bzad_uved" />
+        </call>
+      </select>
+      <from>
+        <table name="m_opl" as="a" />
+        <query name="e_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="k_ist_opl" as="kod_ist" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ist" />
+            <column table="kod_ist" column="kod_ist" />
+          </call>
+        </query>
+        <query name="k_stat_opl" as="kod_stat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_stat" />
+            <column table="kod_stat" column="kod_stat" />
+          </call>
+        </query>
+        <query name="k_vidopl" as="vid_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_opl" />
+            <column table="vid_opl" column="vid_opl" />
+          </call>
+        </query>
+        <query name="k_vid_real" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl" />
+            <column table="vid_pl" column="vid_real" />
+          </call>
+        </query>
+        <query name="m_debet" as="kod_deb" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_deb" />
+            <column table="kod_deb" column="kod_deb" />
+          </call>
+        </query>
+        <query name="m_facvip" as="kod_sf" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="m_opl" as="kod_opl_prev" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl_prev" />
+            <column table="kod_opl_prev" column="kod_opl" />
+          </call>
+        </query>
+        <query name="m_opl" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_opl" />
+          </call>
+        </query>
+        <query name="n_vz_avizo" as="kod_vza" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vza" />
+            <column table="kod_vza" column="kod_vza" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id">
+    <view name="38880-v1" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      -- абонент
+      with dolg as(select kodp, sum(n2) as summ from RR_TEMP where skod='22160' group by kodp)
+      SELECT a.KODP, a.name as name_abon, dolg.summ as dolg_full_abon_current
+      FROM e_payer a, dolg
+      WHERE a.podr=3 and
+      dolg.kodp=a.kodp and
+      dolg.summ&gt;=500000
+    </view>
+    <view name="38880-v2" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      -- архив предупредительных ТФ
+      with dolg as(select kodp, sum(n2) as summ from RR_TEMP where skod='22160' group by kodp)
+      SELECT dolg.kodp,
+      a2.NOTES as notes_pred, a2.DAT_NOTES as dat_notes_pred, a2.DAT_OGR as dat_ogr_pred, a2.DAT_OTKL as dat_otkl_pred,
+      a2.NOM_TLG as nom_tlg_pred, a2.DAT_TLG as dat_tlg_pred,
+      a2.DAT_REP as dat_rep_pred, (nvl(a2.DOLG,0) + nvl(a2.AVANS,0) + nvl(a2.PENI,0) + nvl(a2.STRAF,0) + nvl(a2.DPP,0) + nvl(a2.OTVIAZ,0) - nvl(a2.MORAT,0)) as dolg_full_abon,
+      nvl(a2.DOLG,0) as dolg_pred, nvl(a2.AVANS,0) as avans_pred, nvl(a2.PENI,0) as peni_pred,
+      nvl(a2.STRAF,0) as straf_pred, a2.KOL_PER_ALL as kol_per_all_pred,
+      nvl(a2.NERAZN_OPL,0) as nerazn_opl_pred, nvl(a2.OTSR_SUM,0) as otsr_sum_pred, nvl(a2.OTOZV_SUM,0) as otozv_sum_pred, nvl(a2.NKREDIT,0) as nkredit_pred,
+      nvl(a2.DPP,0) as dpp_pred, nvl(a2.OTVIAZ,0) as otviaz_pred,
+      nvl(a2.MORAT,0) as morat_pred, nvl(a2.MORAT_P,0) as morat_peni_pred, nvl(a2.MORAT_S,0) as morat_straf_pred,
+      a2.PRICH_OTKL as prich_otkl_pred, hr_tf.find_in_current(1,a2.KOD_PRED) as current_pred, b2.NAME as sved_isp_pred,
+      decode(a2.PR_EDIN, 1, 'единый', nvl(d2.KODP_PARENT,'')) as pr_edin_pred,
+      a2.PRICH_CLEAR as prich_clear_pred, o2.FIO as fio_isp_pred, a2.DAT_UV as dat_uved_pred
+      FROM hr_predabon c, HR_ARX_PRED a2, N_SVED b2, HS_NASTR_TLG d2, HS_TF_ISP o2, dolg
+      WHERE  dolg.summ&gt;=500000 and
+      c.kodp=dolg.kodp and
+      a2.KODP(+)=dolg.kodp AND
+      b2.KOD_ISP(+)=a2.KOD_ISP  AND
+      d2.KODP(+)=a2.KODP   AND
+      o2.KOD_TF_ISP(+)=a2.KOD_TF_ISP
+      ORDER BY  nvl(a2.DAT_OGR , a2.DAT_OTKL) DESC nulls last
+    </view>
+    <view name="38880-v3" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      -- абонент (записная книжка)
+      with dolg as(select kodp, sum(n2) as summ from RR_TEMP where skod='22160' group by kodp)
+      SELECT dolg.KODP, b.NOTES as notes_abon, b.DAT_CONT, b.PR_ARX, b.PHONES, b.FACES
+      FROM HD_NOTEBOOK b, dolg
+      WHERE dolg.summ&gt;=500000 and
+      b.kodp=dolg.kodp
+    </view>
+    <view name="38880-v4" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      -- архив технических ТФ
+      with dolg as(select kodp, sum(n2) as summ from RR_TEMP where skod='22160' group by kodp)
+
+      SELECT dolg.KODP,
+
+      b3.CODEABON2 as kod_potr, b3.NAMEPOTR , nk_adress.kf_address(2,f3.KODD) as adres_potr, a3.NOTES as notes_tex, a3.DAT_NOTES as dat_notes_tex, a3.DAT_OTKL as dat_otkl_tex,
+      a3.DAT_FOTKL as dat_fotkl_tex, a3.VEL_OTKL as vel_otkl_tex, a3.VEL_OTKL_FACT as vel_otkl_fact_tex,
+      a3.DAT_SAMOGR as dat_samogr_tex, a3.OTKL_NAGR as otkl_nagr_tex,
+      a3.DAT_VKL as dat_vkl_tex, a3.NOM_TLG as nom_tlg_tex, a3.DAT_TLG as dat_tlg_tex,
+      nvl(a3.DOLG,0) as dolg_tex, nvl(a3.AVANS,0) as avans_tex, nvl(a3.PENI,0) as peni_tex,
+      nvl(a3.STRAF,0) as straf_tex, a3.KOL_PER_ALL as kol_per_all_tex,
+      nvl(a3.NERAZN_OPL,0) as nerazn_opl_tex, nvl(a3.OTSR_SUM,0) as otsr_sum_tex, nvl(a3.OTOZV_SUM,0) as otozv_sum_tex, nvl(a3.NKREDIT,0) as nkredit_tex,
+      nvl(a3.MORAT,0) as morat_tex, nvl(a3.MORAT_P,0) as morat_peni_tex,
+      nvl(a3.MORAT_S,0) as morat_straf_tex, nvl(a3.DPP,0) as dpp_tex, nvl(a3.OTVIAZ,0) as otviaz_tex,
+      (nvl(a3.DOLG,0) + nvl(a3.AVANS,0) + nvl(a3.PENI,0) + nvl(a3.STRAF,0) + nvl(a3.DPP,0) + nvl(a3.OTVIAZ,0) - nvl(a3.MORAT,0)) as dolg_full_abon_tex,
+      decode(a3.PR_OGR , 0, 'отключение', 1, 'ограничение','') as ogr_otkl_tex,
+      a3.PRICH_OTKL as prich_otkl_tex, a3.DAT_CONTR as dat_contr_tex, m3.FIO_KONTR as fio_kontr_tex, k3.NAME as rez_osm_tex,
+      hr_tf.find_in_current(2,a3.KOD_TEX) as current_tex, a3.SROK as srok_tex, d3.NAME as dolzn_otsr_tex, e3.NAME as sved_isp_tex,
+      a3.PRICH_VKL as prich_vkl_tex,
+      a3.DAT_REP as dat_rep_tex, a3.NOM_AKT as nom_akt_tex, o3.FIO as fio_isp_tex
+
+      FROM HR_ARX_TEX a3 , HR_DOGPOTR b3, HR_KONTR m3, HS_REZ_OSM k3, HS_DOL d3, N_SVED e3, N_DOGOVOR f3, HS_TF_ISP o3, dolg
+      WHERE dolg.summ&gt;=500000 and
+      b3.KODP=dolg.kodp AND
+      (b3.DATE_FIN is null OR b3.DATE_FIN&gt;sysdate) AND
+      nvl(b3.pereoforml,0)!=1 AND
+      f3.CODEABON=b3.CODEABON  AND
+      a3.CODEABON=b3.CODEABON  AND
+      m3.KODKONTR(+)=a3.KODKONTR  AND
+      k3.KOD_REZ(+)=a3.KOD_REZ  AND
+      d3.KODDOL(+)=a3.KODDOL  AND
+      e3.KOD_ISP(+)=a3.KOD_ISP   AND
+      o3.KOD_TF_ISP(+)=a3.KOD_TF_ISP
+
+      ORDER BY  b3.CODEABON2, a3.DAT_OTKL DESC nulls last
+    </view>
+    <view name="39475-v" file="sql.builder.templates\sql.builder\projects\psk\reports\39475.xml">
+      WITH dolg
+      AS (SELECT kodp, SUM (n2) AS summ
+      FROM rr_temp t
+      INNER JOIN m_facvip f ON f.kod_sf = t.n5
+      LEFT JOIN m_debet d ON d.kod_deb = f.kod_deb
+      WHERE     skod = '22160-sf'
+      -- фильтр по долгу укладывающемуся в срок исковой давности, т.е. тот которому менее 35 месяцев от текущей даты
+      AND NVL (d.dat_deb, f.dat_sf) &gt; ADD_MONTHS (SYSDATE, -35)
+      GROUP BY kodp)
+      SELECT dolg.kodp,
+      a.name,
+      dolg.summ,
+      (SELECT COUNT (*) AS kol_pr
+      FROM hr_arx_pred c2
+      WHERE c2.kodp = c.kodp AND c2.nom_tlg IS NOT NULL)
+      AS kol_pred,
+      hr_tf.dolg_last_pred (c.kodp) AS dat_last_pred,
+      (SELECT COUNT (*) AS kol_tex
+      FROM hr_dogpotr c3, hr_arx_tex c2
+      WHERE     c3.kodp = c.kodp
+      AND (c3.date_fin IS NULL OR c3.date_fin &gt; SYSDATE)
+      AND c2.codeabon = c3.codeabon
+      AND c2.nom_tlg IS NOT NULL)
+      AS kol_tex,
+      (SELECT MAX (b.dat_tlg)
+      FROM hr_dogpotr a2, hr_arx_tex b
+      WHERE     a2.kodp = c.kodp
+      AND (a2.date_fin IS NULL OR a2.date_fin &gt; SYSDATE)
+      AND b.codeabon = a2.codeabon
+      AND b.nom_tlg IS NOT NULL)
+      AS last_dat_tex,
+      (SELECT DISTINCT d.name
+      FROM hr_dogpotr a2, hr_arx_tex cc, n_sved d
+      WHERE     a2.kodp = c.kodp
+      AND (a2.date_fin IS NULL OR a2.date_fin &gt; SYSDATE)
+      AND cc.codeabon = a2.codeabon
+      AND cc.dat_tlg =
+      (SELECT MAX (dat_tlg)
+      FROM hr_arx_tex
+      WHERE codeabon = cc.codeabon AND nom_tlg IS NOT NULL)
+      AND cc.nom_tlg IS NOT NULL
+      AND d.kod_isp(+) = cc.kod_isp
+      AND ROWNUM = 1)
+      AS last_sved_isp_tex,
+      (SELECT b.notes
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS notes_cont,
+      (SELECT b.dat_cont
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS dat_cont,
+      (SELECT b.phones
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS phones_cont,
+      (SELECT b.faces
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS faces_cont
+      FROM hr_predabon c, dolg, e_payer a
+      WHERE dolg.summ &gt;= 500000 AND c.kodp = dolg.kodp AND a.kodp = c.kodp
+      ORDER BY dolg.summ
+    </view>
+    <view name="39475(5)-v" file="sql.builder.templates\sql.builder\projects\psk\reports\39475.xml">
+      WITH dolg
+      AS (select  kodp, sum(dolg) as summ
+      from table (sqlb_dolg_uved_bu_sf.get(sysdate,null)) sf
+      inner join hr_bu_akr a on sf.kod_bu_akt = a.kod_bu_akt
+      where a.dat &gt; ADD_MONTHS (SYSDATE, -35)
+      group by kodp)
+      SELECT dolg.kodp,
+      a.name,
+      dolg.summ,
+      (SELECT COUNT (*) AS kol_pr
+      FROM hr_arx_pred c2
+      WHERE c2.kodp = c.kodp AND c2.nom_tlg IS NOT NULL)
+      AS kol_pred,
+      hr_tf.dolg_last_pred (c.kodp) AS dat_last_pred,
+      (SELECT COUNT (*) AS kol_tex
+      FROM hr_dogpotr c3, hr_arx_tex c2
+      WHERE     c3.kodp = c.kodp
+      AND (c3.date_fin IS NULL OR c3.date_fin &gt; SYSDATE)
+      AND c2.codeabon = c3.codeabon
+      AND c2.nom_tlg IS NOT NULL)
+      AS kol_tex,
+      (SELECT MAX (b.dat_tlg)
+      FROM hr_dogpotr a2, hr_arx_tex b
+      WHERE     a2.kodp = c.kodp
+      AND (a2.date_fin IS NULL OR a2.date_fin &gt; SYSDATE)
+      AND b.codeabon = a2.codeabon
+      AND b.nom_tlg IS NOT NULL)
+      AS last_dat_tex,
+      (SELECT DISTINCT d.name
+      FROM hr_dogpotr a2, hr_arx_tex cc, n_sved d
+      WHERE     a2.kodp = c.kodp
+      AND (a2.date_fin IS NULL OR a2.date_fin &gt; SYSDATE)
+      AND cc.codeabon = a2.codeabon
+      AND cc.dat_tlg =
+      (SELECT MAX (dat_tlg)
+      FROM hr_arx_tex
+      WHERE codeabon = cc.codeabon AND nom_tlg IS NOT NULL)
+      AND cc.nom_tlg IS NOT NULL
+      AND d.kod_isp(+) = cc.kod_isp
+      AND ROWNUM = 1)
+      AS last_sved_isp_tex,
+      (SELECT b.notes
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS notes_cont,
+      (SELECT b.dat_cont
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS dat_cont,
+      (SELECT b.phones
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS phones_cont,
+      (SELECT b.faces
+      FROM hd_notebook b
+      WHERE     b.kodp = c.kodp
+      AND b.kodrec = (SELECT MAX (kodrec)
+      FROM hd_notebook
+      WHERE kodp = c.kodp AND dat_cont IS NOT NULL))
+      AS faces_cont
+      FROM hr_predabon c, dolg, e_payer a
+      WHERE dolg.summ &gt;= 500000 AND c.kodp = dolg.kodp AND a.kodp = c.kodp
+      ORDER BY dolg.summ
+    </view>
+  </views>
+  <reports child-name="report" key-name="name">
+    <report name="dolg_u_bu_sf_mr" title="Абоненты" nogrid="1" timestamp="27.03.2019 19:10:10" file="sql.builder.templates\sql.builder\projects\psk\reports\38229.xml">
+      <params>
+        <param name="p_date" type="date">
+          <const exclude="1">sysdate-7</const>
+        </param>
+        <param name="p_kodp_array_name" type="string">
+          <const>'array1'</const>
+        </param>
+      </params>
+      <queries>
+        <query name="dolg_uved_bu_sf_ms" title="q1" as="sf">
+          <withparams>
+            <useparam part="49533-withparams" name="p_date" />
+            <useparam part="49533-withparams" name="p_kodp_array_name" />
+          </withparams>
+          <query name="dolg_uved_bu_sf_ma" as="akt" title="q2">
+            <withparams>
+              <useparam part="49533-withparams" name="p_date" />
+              <useparam part="49533-withparams" name="p_kodp_array_name" />
+            </withparams>
+            <call function="=">
+              <column table="sf" column="kod_sf" />
+              <column table="akt" column="kod_sf" />
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="38880" title="Абоненты" nogrid="1" file="sql.builder.templates\sql.builder\projects\psk\reports\38880.xml">
+      <customers>
+        <customer id="1" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="38880.xml" title="Абоненты" print-proc="2" />
+        </excel>
+      </print-templates>
+      <procedure>
+        <text>
+          begin
+          kg_reports.uvedoml_bu(sysdate, null);
+          end;
+        </text>
+      </procedure>
+      <queries>
+        <query name="38880-q1" as="q1" title="q1">
+          <query name="38880-q2" as="q2" title="q2">
+            <call function="=">
+              <column table="q1" column="kodp" />
+              <column table="q2" column="kodp" />
+            </call>
+          </query>
+          <query name="38880-q3" as="q3" title="q3">
+            <call function="=">
+              <column table="q1" column="kodp" />
+              <column table="q3" column="kodp" />
+            </call>
+          </query>
+          <query name="38880-q4" as="q4" title="q4">
+            <call function="=">
+              <column table="q1" column="kodp" />
+              <column table="q4" column="kodp" />
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="39475" title="Абоненты 2" nogrid="1" timestamp="20.12.2016 11:48:03" file="sql.builder.templates\sql.builder\projects\psk\reports\39475.xml">
+      <customers>
+        <customer id="1" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="39475.xlsx" title="Абоненты 2" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <procedure>
+        <text>
+          begin
+          kg_reports.uvedoml_bu(sysdate, null);
+          end;
+        </text>
+      </procedure>
+      <queries>
+        <query name="39475-q" as="a" title="Абоненты" />
+      </queries>
+    </report>
+    <report name="39475(5)" title="Абоненты 2 - акты" nogrid="1" timestamp="20.12.2016 11:48:03" file="sql.builder.templates\sql.builder\projects\psk\reports\39475.xml">
+      <customers>
+        <customer id="1" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="39475.xlsx" title="Абоненты 2" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="39475(5)-q" as="a" title="Абоненты" />
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name" />
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name">
+    <dimension-package name="main" timestamp="22.09.2016 00:42:57" file="sql.builder.templates\sql.builder\projects\psk\other\dimensions.xml">
+      <dimension class-type="m_facvip" name="kod_sf" />
+      <dimension class-type="hr_bu_akr" name="kod_bu_akt" />
+      <dimension class-type="m_facras" name="kod_ras" />
+      <dimension class-type="m_opl" name="kod_opl" />
+      <dimension name="dat_dolg" time-type="day" timeline="time_dolg" />
+    </dimension-package>
+  </dimension-packages>
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

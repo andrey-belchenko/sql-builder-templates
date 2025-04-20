@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_il" title="Исполнительные листы" security-id="asuse_ur_pir_il" with-behavior="0" timestamp="08.12.2022 14:16:57">
+      <params>
+        <param name="kod_folders" type="number">
+          <const>157</const>
+        </param>
+      </params>
+      <content>
+        <column table="ur_folders" column="kodp" column-visible="0" parname="ur_folders_kodp" />
+        <column table="ur_folders" column="vvod" column-visible="0" parname="is_vvod" />
+        <column table="ur_folders" column="not_vvod" column-visible="0" parname="is_not_vvod" title="1" />
+        <column table="ur_folders_isp" column="kod_folders" parname="kod_folders_isp" title="2" column-visible="0" as="kod_folders_isp" />
+        <column table="f10" column="val" parname="f10" column-editable="1" column-visible="0" />
+        <grid table="ur_isp" show-toolbar="1">
+          <toolbar>
+            <uicommand object="ur_pretenz" name="form_ur_dogplat_hand" button-type="select-money" editable="item_is_not_new" modal="1" visible="is_vvod" exclude="1">
+              <const>4</const>
+            </uicommand>
+            <uicommand object="ur_pretenz" name="form_ur_dogplat_select" button-type="select-money" editable="item_is_not_new" modal="1" visible="is_not_vvod" exclude="1">
+              <const>4</const>
+              <useparam name="ur_folders_kodp" />
+            </uicommand>
+            <uicommand action-type="dynamic-form" call="ur_dogplat_doc_view_isk" modal="1" editable="kod_mat">
+              <useparam name="kod_mat" />
+              <const>6</const>
+              <useparam name="kod_folders" />
+            </uicommand>
+            <uicommand action-type="dynamic-form" call="ur_folders_isp_main" title="Карточка исп. произв." visible="kod_folders_isp">
+              <useparam name="kod_folders_isp" />
+            </uicommand>
+            <uicommand action-type="dynamic-form-create" call="ur_folders_isp_main" title="Создать карточку исп. произв." visible="kod_folders_isp" visible-invert="1" editable="ur_isp_is_not_new">
+              <const>null</const>
+              <useparam name="kod_isp" />
+            </uicommand>
+            <usefield field="cmn_check" title="Не показывать архивные" name="no_arh" checked="1" />
+          </toolbar>
+          <columns>
+            <column table="ur_isp" column="kod_isp" column-visible="0" parname="kod_isp" />
+            <column table="kod_hist_mat" column="dat_entry" parname="dat_entry" column-visible="0" />
+            <fact table="ur_isp" column="kr_dog_name" />
+            <column table="ur_isp" column="kod_hist_mat" title="Исковой док-т № арбитражного дела" />
+            <column table="kod_hist_mat" column="kod_mat" column-visible="0" parname="kod_mat" />
+            <column table="ur_isp" column="dat_function" new-val="dat_entry" />
+            <column table="ur_isp" column="num_reg" />
+            <column table="ur_isp" column="dat_doc" valid="dat_doc_vld" />
+            <column table="ur_isp" column="dat_doc_vld" parname="dat_doc_vld" column-visible="0" />
+            <band title="Сумма взимаемая по исп. листу">
+              <fact table="ur_isp" column="dolg_on_il_hnd" title="Всего" />
+              <fact table="ur_isp" column="ur_dp_ym_min_priz" title="Период задолж. с" />
+              <fact table="ur_isp" column="ur_dp_ym_max_priz" title="Период задолж. по" />
+              <fact table="ur_isp" column="dolg_on_il_osn" title="Основная реализация" />
+              <fact table="ur_isp" column="dolg_on_il_peni" title="Проценты (пени)" />
+              <fact column="peni_period_str" table="ur_isp" title="Период пени" column-visible="is_customer10_flag" />
+              <fact table="ur_isp" column="dolg_on_il_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <column table="kod_hist_mat" column="ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <column table="kod_hist_mat" column="gp_otv" title="ГП с ответчика" />
+              <column table="kod_hist_mat" column="gp_es" title="ГП с истца" />
+              <fact table="ur_isp" column="dolg_on_il_astr" width-perc="50" title="Астрент" />
+              <column table="kod_hist_mat" column="sud_izd" />
+            </band>
+            <column table="ur_isp" column="dat_post" />
+            <column table="ur_isp" column="kod_emp" />
+            <column table="ur_isp" column="dat_srok" title="Срок отсрочки/рассрочки исп. листа" />
+            <band title="Оплата по исп. листу">
+              <fact table="ur_isp" column="ur_opl_posl_il_hnd" title="Всего" />
+              <fact table="ur_isp" column="ur_opl_posl_il_osn" title="Осн. реал." />
+              <fact table="ur_isp" column="ur_opl_posl_il_peni" title="Проценты (пени)" />
+              <fact table="ur_isp" column="ur_opl_posl_il_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <column table="kod_hist_mat" column="opl_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_isp" column="ur_opl_posl_il_gp" title="ГП" />
+              <fact table="ur_isp" column="ur_opl_posl_il_astr" title="Астрент" />
+              <column table="kod_hist_mat" column="opl_sud_izd" title="Судебные издержки" />
+            </band>
+            <band title="Остаток задолженности по исп. листу">
+              <fact table="ur_isp" column="dolg_resh_tek_hnd" title="Всего" />
+              <fact table="ur_isp" column="dolg_resh_tek_osn" title="Осн. реал." />
+              <fact table="ur_isp" column="dolg_resh_tek_peni" title="Проценты (пени)" />
+              <fact table="ur_isp" column="dolg_resh_tek_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <column table="kod_hist_mat" column="ost_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_isp" column="dolg_resh_tek_gp" title="ГП" />
+              <fact table="ur_isp" column="fin_ul_dolg_astr" title="Астрент" />
+              <column table="kod_hist_mat" column="ost_sud_izd" title="Судебные издержки" />
+            </band>
+            <fact table="ur_isp" column="ur_opl_do_il" exclude="1" />
+            <fact table="ur_isp" column="dolg_on_il" exclude="1" />
+            <column table="ur_isp" column="kod_scan" />
+            <column table="ur_isp" column="prim" />
+            <column table="ur_isp" column="dat_arh" />
+            <column table="ur_isp" column="work_done" title="Проделанная работа" controlType="UITextEx" />
+            <column table="ur_isp" column="is_not_new" parname="ur_isp_is_not_new" column-visible="0" as="is_not_new" />
+          </columns>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <elink name="ur_isp" new-rows-vis-for-other-tbls="1">
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="and" optional="1">
+                  <call function="is null">
+                    <column table="ur_isp" column="dat_arh" />
+                  </call>
+                  <call function="=1">
+                    <useparam name="no_arh" />
+                  </call>
+                </call>
+              </call>
+            </where>
+            <elink name="ur_folders_isp" />
+            <link name="kod_hist_mat" />
+          </elink>
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+        <query name="is_customer10_flag" as="f10" />
+      </from>
+    </form>
+  </forms>
+</root>

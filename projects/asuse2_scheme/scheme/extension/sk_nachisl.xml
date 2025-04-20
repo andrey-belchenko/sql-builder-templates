@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="sk_nachisl_ext" class="1" extend="sk_nachisl" timestamp="11.06.2016 13:43:24">
+      <select>
+        <column table="vid_real" column="vid_real" vid="1" as="vid_real_num" title="Код вида реализации" />
+        <column table="vid_real" column="name" vid="1" as="vid_real_name" />
+        <call function="||" as="full_name" title="Вид товара">
+          <column table="a" column="vid_t" />
+          <const>' '</const>
+          <column table="a" column="name" />
+        </call>
+      </select>
+    </query>
+    <query name="sk_nachisl_teplo">
+      <select>
+        <column table="a" column="vid_t_teplo" type="number" />
+        <column table="a" column="vid_t_gr" type="number" />
+        <column table="a" column="name" type="string" />
+      </select>
+      <from>
+        <table name="sk_nachisl_teplo" as="a" view="1" />
+        <query name="sk_nachisl_gr_teplo" as="vid_t_gr" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_t_gr"></column>
+            <column table="vid_t_gr" column="vid_t_gr"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="sk_nachisl_gr_teplo" class="1" timestamp="21.12.2016 21:30:57">
+      <select>
+        <column table="a" column="vid_t_gr" type="number" />
+        <column table="a" column="name" type="string" />
+      </select>
+      <from>
+        <table name="sk_nachisl_gr_teplo" as="a" view="1" />
+      </from>
+    </query>
+    <query name="sk_nachisl(vidreal)" class="1" timestamp="11.06.2016 14:01:26">
+      <params>
+        <param name="vid_real" type="array" />
+      </params>
+      <select>
+        <column table="a" column="vid_t" />
+        <column table="a" column="full_name" />
+      </select>
+      <from>
+        <query name="sk_nachisl" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="vid_real" />
+            <useparam name="vid_real" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="sk_nachisl_teplo">
+      select 1.1 as vid_t_teplo,1 as vid_t_gr,'тепловая энергия в горячей воде' as name from  dual  union
+      select 1.2 as vid_t_teplo,1 as vid_t_gr,'тепловая энергия в паре' as name from  dual  union
+      select 2.1 ,2 ,'тепловая энергия на подогрев воды'  from  dual  union
+      select 2.2 ,2 ,'холодная вода'  from  dual  union
+      select 2.3 ,2 ,'теплоноситель'  from  dual  union
+      select 3.1 ,3 ,'вода (ХОЧ)'  from  dual  union
+      select 3.2 ,3,'пар (ХОВ)'  from  dual union
+      select 4.1 ,4,'Тепловая энергия в горячей воде (по повышающему коэффициенту стоимости)' from dual union
+      select 5.1 ,2,'Горячая вода (компонент холодная вода)'  from  dual union
+      select 5.2 ,2,'Горячая вода'  from  dual
+    </view>
+    <view name="sk_nachisl_gr_teplo">
+      select 1 as vid_t_gr,'Тепловая энергия' as name from  dual  union
+      select 2 ,'Горячее водоснабжение'  from  dual  union
+      select 3 ,'Теплоноситель'  from  dual union
+      select 4 ,'Тепловая энергия в горячей воде (по повышающему коэффициенту стоимости)' from dual 
+   
+    </view>
+  </views>
+  <parts>
+    <part id="vid_t_teplo" class="1" timestamp="27.12.2022 23:00:19">
+      <params>
+        <param name="vid_t" />
+        <param name="tarif" />
+      </params>
+      <call function="case" type="number">
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>61</array>
+          </call>
+          <const>4.1</const>
+        </call>
+        <!--
+        в зависимости от vid_t и отделения
+        
+          Тепловая энергия 1,2
+
+          Горячее водоснабжение:
+          2.1) тепловая энергия на подогрев воды 55
+
+          2.2) холодная вода 54 - казань, нижнекамск, заинск
+          2.3) теплоноситель 54 - уруссу
+             + теплоноситель 58 - заинск,челны
+          по коду отделения
+
+          Теплоноситель:
+          3.1) вода (ХОЧ) 11,56
+          3.2) пар (ХОВ) 3,57
+
+      102276621	Филиал ОАО "ТАТТЕПЛОСБЫТ" - Казанский
+      102276623	Филиал ОАО "ТАТТЕПЛОСБЫТ" - Набережночелнинский
+      102276626	Уруссинский участок Филиала ОАО "ТАТТЕПЛОСБЫТ" - Камский
+      102276624	Елабужский участок Филиала ОАО "ТАТТЕПЛОСБЫТ" - Набережночелнинский
+      102276625	Филиал ОАО "ТАТТЕПЛОСБЫТ" - Камский
+      2572294  	Заинский участок Филиала ОАО "ТАТТЕПЛОСБЫТ" - Камский
+      
+      -->
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>1</array>
+          </call>
+          <const>1.1</const>
+        </call>
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>2</array>
+          </call>
+          <const>1.2</const>
+        </call>
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>55,85</array>
+          </call>
+          <const>2.1</const>
+        </call>
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>84</array>
+          </call>
+          <const>2.2</const>
+        </call>
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>54</array>
+          </call>
+          <const>5.1</const>
+        </call>
+        <call function="when">
+          <call function="in">
+            <useparam name="vid_t" />
+            <array>64</array>
+          </call>
+          <const>5.2</const>
+        </call>
+        <call function="when">
+          <call function="=">
+            <useparam name="vid_t" />
+            <const>58</const>
+          </call>
+          <const>2.3</const>
+        </call>
+        <call function="when">
+          <call function="and">
+            <call function="in">
+              <useparam name="vid_t" />
+              <array>11,56</array>
+            </call>
+            <call function="not in">
+              <useparam name="tarif" />
+              <array>6219,16378,16460,72711</array>
+            </call>
+          </call>
+          <const>3.1</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="vid_t" />
+              <array>3,57</array>
+            </call>
+            <call function="and">
+              <call function="in">
+                <useparam name="vid_t" />
+                <array>56</array>
+              </call>
+              <call function="in">
+                <useparam name="tarif" />
+                <array>6219,16378,16460,72711</array>
+              </call>
+            </call>
+          </call>
+          <const>3.2</const>
+        </call>
+      </call>
+    </part>
+  </parts>
+</root>

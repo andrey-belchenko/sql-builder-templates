@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="10653(38)-params">
+      <param name="ym1">
+        <const>2012.05</const>
+      </param>
+      <param name="ym2">
+        <const>2012.06</const>
+      </param>
+      <param name="org"></param>
+    </part>
+    <part id="10653(38)-withparams">
+      <withparams>
+        <useparam name="ym1" />
+        <useparam name="ym2" />
+        <useparam name="org" />
+      </withparams>
+    </part>
+  </parts>
+  <forms>
+    <form name="10653(38)" with-behavior="0" timestamp="21.11.2016 14:26:32">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <content>
+        <usefield field="asuse_ym12" />
+        <usefield field="asuse_kod_bu_org" name="org" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="10653(38)-new" title="Приложение № 7. Сводный отчет по филиалам по актам неучтенного потребления электроэнергии" form="10653(38)" folder="bu" kod-menu="12209" visible="1" nogrid="1" timestamp="20.04.2021 16:31:16">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="10653(38)-7-new.xml" title="Приложение № 7" print-proc="2" />
+        </excel>
+      </print-templates>
+      <params>
+        <usepart part="10653(38)-params" />
+      </params>
+      <queries>
+        <query name="10653(38)-new" as="a">
+          <usepart part="10653(38)-withparams" />
+        </query>
+        <query name="10653(38)-new-title" as="t">
+          <usepart part="10653(38)-withparams" />
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="10653(38)-new-title">
+      <params>
+        <usepart part="10653(38)-params" />
+      </params>
+      <select>
+        <call function="date to char" as="date_beg" type="string">
+          <call function="ym begin time">
+            <useparam name="ym1" />
+          </call>
+        </call>
+        <call function="date to char" as="date_end" type="string">
+          <call function="ym end time">
+            <useparam name="ym2" />
+          </call>
+        </call>
+        <column table="kod_emp" column="fio" />
+        <column table="kod_emp" column="tel" />
+      </select>
+      <from>
+        <query name="ks_user" as="a">
+          <link name="kod_emp" />
+        </query>
+        <query name="hr_bu_org" as="org" join="cross" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="puser" />
+          <const>USER</const>
+        </call>
+      </where>
+    </query>
+    <query name="10653(38)-new" timestamp="07.08.2019 11:41:14">
+      <params>
+        <usepart part="10653(38)-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="10653(38)-data" as="a">
+          <usepart part="10653(38)-withparams" />
+          <grsets>
+            <grset level="1" title="по Организациям" as="org">
+              <grset level="2" title="по подразделениям" as="podr" order="dep_name" />
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="10653(38)-data" grouplevel="no" timestamp="09.08.2019 17:28:22">
+      <params>
+        <usepart part="10653(38)-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_bu_org" group="1" />
+        <column table="a" column="akt_bu_org_name" group="kod_bu_org" />
+        <column table="a" column="kod_bu_org" as="kod_bu_org1" group="kod_bu_org" nvl="0" />
+        <column table="d" column="kodp" as="dep" group="2" />
+        <column table="d" column="name" as="dep_name" group="dep" title="Отделение" />
+        <!--<column table="a" column="dep" group="2" />
+        <column table="a" column="dep_name" group="dep" title="Отделение" />-->
+        <column table="a" column="kod_bu_akt" group="3" />
+        <column table="a" column="first_akt_ym" group="min" />
+        <call function="if" as="bu_akt_cnt_nach" group="sum" title="Кол-во составленных актов">
+          <call function="and">
+            <call function="between">
+              <column table="a" column="first_akt_ym" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+            <call function="!=0">
+              <column table="this" column="acc_cust_pl_bu" group="" window="kod_bu_akt" />
+            </call>
+          </call>
+          <column table="a" column="bu_akt_cnt" />
+        </call>
+        <column table="a" column="acc_cust_pl_bu" group="sum" if="tek_ym" nvl="0">
+          <if>
+            <call function="between">
+              <column table="a" column="ym_nach" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+          </if>
+        </column>
+        <column table="a" column="acc_cust_pl_dbu_e4" group="sum" if="tek_ym" nvl="0">
+          <if>
+            <call function="between">
+              <column table="a" column="ym_nach" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+          </if>
+        </column>
+        <column table="a" column="acc_cust_pl_dbu_e3_t22" group="sum" if="tek_ym" nvl="0" as="acc_cust_pl_dbu_e3">
+          <if>
+            <call function="between">
+              <column table="a" column="ym_nach" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+          </if>
+        </column>
+        <column table="a" column="acc_nach_pl_bu" group="sum" if="tek_ym" nvl="0" />
+        <call function="if" as="bu_akt_cnt_opl" group="sum" title="Кол-во оплаченных актов">
+          <call function="and">
+            <call function="between">
+              <column table="a" column="ym_opl" group="" window="kod_bu_akt" />
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+            </call>
+            <call function="!=0">
+              <column table="this" column="opl_nach_cust" group="" window="kod_bu_akt" />
+            </call>
+          </call>
+          <column table="a" column="bu_akt_cnt_opl" />
+        </call>
+        <column table="a" column="opl_nach_cust" group="sum" if="tek_ym" nvl="0" />
+        <column table="a" column="opl_nach_cust_e4" group="sum" if="tek_ym" nvl="0" />
+        <column table="a" column="opl_nach_cust_e3" group="sum" if="tek_ym" nvl="0" />
+        <column table="a" column="opl_nach" group="sum" if="tek_ym" nvl="0" />
+      </select>
+      <from>
+        <query name="kr_dep" as="d" />
+        <query name="10653-common" as="a" grouplevel="14" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="d" column="kodp" />
+              <column table="a" column="dep" />
+            </call>
+            <call function="=1">
+              <column table="a" column="bu_akt_prizn" />
+            </call>
+          </call>
+          <extendwhere target="a">
+            <call function="true" />
+            <!--<call function="between" optional="1">
+              <column table="*" column="ym" />
+              <useparam name="ym" />
+              <useparam name="ym" />
+            </call>-->
+            <call function="in" optional="1">
+              <column table="kod_bu_akt" column="kod_bu_org" />
+              <useparam name="org" />
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

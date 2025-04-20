@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="hr_point" class="1" timestamp="24.10.2022 13:35:00">
+      <select>
+        <column table="a" column="kod_point" type="number" comment="код ту" />
+        <column table="a" column="kod_obj" type="number" comment="код потребителя" />
+        <column table="a" column="nomer" type="number" title="Номер ТУ" comment="номер точки учета" />
+        <column table="a" column="mesto" type="string" title="" comment="место расположения" />
+        <column table="a" column="dat_s" type="date" title="" dimension="dat_s" is-final-dimension="1" is-private-dimension="1" />
+        <column table="a" column="dat_po" type="date" title="" comment="дата удаления точки учета" dimension="dat_po" is-final-dimension="1" is-private-dimension="1" />
+        <column table="this" column="dat_s" as="dat_s1" dimension="point_dat_s" is-final-dimension="1" is-private-dimension="1" />
+        <column table="this" column="dat_po" as="dat_po1" dimension="point_dat_po" is-final-dimension="1" is-private-dimension="1" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="prizn_sa" type="number" title="" />
+        <column table="a" column="kod_pointmain" type="number" comment="код ту" />
+        <column table="a" column="tpoint" type="number" title="" comment=" 0  - основная&#xA; 1  - прочее потребление&#xA; 2  - субабонент&#xA; 3  - транзит" />
+        <column table="a" column="pr_active" type="number" title="" />
+        <column table="a" column="kod_point_dost" type="number" />
+        <column table="a" column="mop" type="number" title="" comment="признак &quot;вариант расчета моп&quot; в точке учета:&#xA;0 - не участвует&#xA;1 - расход распределяется по квартирам&#xA;2 - с расхода снимается расход населения&#xA;имеет смысл для быт. и пром. потребителей." />
+        <column table="a" column="nagruz_type" type="number" title="" comment="тип назначения нагузки (для расчёта вдр):&#xA;0 - не указана&#xA;1 - общая&#xA;2 - вдр (моп)&#xA;3 - бытовая&#xA;4 - юл" />
+        <column table="a" column="kod_vid_kpt" type="number" />
+        <column table="a" column="kod_pr_kind" type="number" comment="код типа присоединения" />
+        <column table="a" column="kod_algpoint" type="number" />
+        <column table="a" column="kod_obj_vdr" type="number" comment="код объекта вдр" dimension="kod_obj_vdr" />
+        <column table="a" column="pr_view" type="number" title="" comment="признак &quot;точка проекция&quot; (1 | 0)&#xA;1 - точка является проекцией точки (транзит - абонент) другого потребителя." />
+        <column table="a" column="typetu" type="number" title="" comment="тип ту (жилая=1, нежилая=0)" />
+        <column table="a" column="sn_isp" type="number" title="" comment="учет в расчетах соц.норм (1-учет)" />
+        <column table="a" column="id_askue" type="number" title="" comment="идентификатор системы аскуэ" />
+        <column table="a" column="kodp_net" type="number" title="" comment="Код организации к сетям которой выполнено присоединение" />
+        <column table="a" column="kodp_rsk" type="number" title="" comment="Код РЭС, в зоне которого находится точка учета" />
+        <column table="a" column="kodp_fsk" type="number" title="" comment="Код ТСО (филиал териториальной сетевой организации) в зоне которого находится точка" />
+        <column table="a" column="kodp_pwrcompany" type="number" title="" comment="Код сетевой организации (РСК, ССО, ПЭЭ), в группу потребителей которой входит точка рассматриваемого потребителя. Потребители входят одну группу, если они присоединены к данной сети непосредственно или опосредовано (через сети ИВС и безхозяйные сети)." />
+        <column table="a" column="pr_gkh" type="number" title="" comment="признак принадлежности точки к выгрузке в ГИС ЖКХ." />
+        <column table="a" column="kod_attpoint" type="number" comment="Код точки присоединения" />
+        <column table="tpoint" column="name" as="type_point" />
+        <column table="kod_net" column="name" as="net_point" title="Признак присоединения к сетям" />
+        <column table="kod_net" column="kod_org_group" />
+        <column table="dover" column="dover" as="dover" />
+        <call function="decode" type="string" as="use_maket">
+          <column table="grs" column="kod_rpoint" />
+          <const>null</const>
+          <const>0</const>
+          <const>1</const>
+        </call>
+        <call as="use_maket" function="IsPointFromPr15" type="number" exclude="1">
+          <column table="a" column="kod_point" />
+        </call>
+      </select>
+      <from>
+        <table name="hr_point" as="a" />
+        <query name="ak_pr_kind" as="kod_pr_kind" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_pr_kind" />
+            <column table="kod_pr_kind" column="kod_pr_kind" />
+          </call>
+        </query>
+        <query name="hk_algpoint" as="kod_algpoint" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_algpoint" />
+            <column table="kod_algpoint" column="kod_algpoint" />
+          </call>
+        </query>
+        <query name="hk_tpoint" as="tpoint" join="left outer">
+          <call function="=">
+            <column table="a" column="tpoint" />
+            <column table="tpoint" column="tpoint" />
+          </call>
+        </query>
+        <query name="hk_vid_kpt" as="kod_vid_kpt" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vid_kpt" />
+            <column table="kod_vid_kpt" column="kod_vid_kpt" />
+          </call>
+        </query>
+        <query name="hk_vid_point_calc" as="mop" join="left outer">
+          <call function="=">
+            <column table="a" column="mop" />
+            <column table="mop" column="kod" />
+          </call>
+        </query>
+        <query name="hr_point" as="kod_pointmain" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_pointmain" />
+            <column table="kod_pointmain" column="kod_point" />
+          </call>
+        </query>
+        <query name="kr_object" as="kod_obj_vdr" join="left outer" dname="hr_point_vdr">
+          <call function="=">
+            <column table="a" column="kod_obj_vdr" />
+            <column table="kod_obj_vdr" column="kod_obj" />
+          </call>
+        </query>
+        <query name="kr_object" as="kod_obj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_obj" />
+            <column table="kod_obj" column="kod_obj" />
+          </call>
+        </query>
+        <query name="ts_point_dost" as="kod_point_dost" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_point_dost" />
+            <column table="kod_point_dost" column="kod_point_dost" />
+          </call>
+        </query>
+        <query name="ts_id_askue" as="id_askue" join="left outer">
+          <call function="=">
+            <column table="a" column="id_askue" />
+            <column table="id_askue" column="id" />
+          </call>
+        </query>
+        <query name="hk_gisgkh" as="pr_gkh" join="left inner">
+          <call function="=">
+            <column table="a" column="pr_gkh" />
+            <column table="pr_gkh" column="pr_gkh" />
+          </call>
+        </query>
+        <query name="kr_org" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp_pwrcompany" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="hk_vid_point_calc" as="kod" join="left inner">
+          <call function="=">
+            <column table="a" column="mop" />
+            <column table="kod" column="kod" />
+          </call>
+        </query>
+        <query name="ts_id_askue" as="id" join="left outer">
+          <call function="=">
+            <column table="a" column="id_askue" />
+            <column table="id" column="id" />
+          </call>
+        </query>
+        <query name="hr_point" as="kod_point" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_pointmain" />
+            <column table="kod_point" column="kod_point" />
+          </call>
+        </query>
+        <query name="hv_elter_org" as="kod_elter" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="a" column="kodp_rsk" />
+            <column table="kod_elter" column="kodp" />
+          </call>
+        </query>
+        <query name="hv_seti" as="kod_seti" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <call function="nvl">
+              <column table="a" column="kodp_fsk" />
+              <const>0</const>
+            </call>
+            <column table="kod_seti" column="kod" />
+          </call>
+        </query>
+        <query name="hv_nugruzpotreb2" as="kod_nugruz" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="a" column="kod_obj" />
+            <column table="kod_nugruz" column="kod_obj" />
+          </call>
+        </query>
+        <query name="hv_point_prov" as="prov" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_point" />
+            <column table="prov" column="kod_point" />
+          </call>
+        </query>
+        <query name="kr_org_group" as="kod_net" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp_net" />
+            <column table="kod_net" column="kod_org" />
+          </call>
+        </query>
+        <query name="hv_point_dover" join="left outer" as="dover">
+          <call function="=">
+            <column table="a" column="kod_point" />
+            <column table="dover" column="kod_point" />
+          </call>
+        </query>
+        <query name="hv_point_in_group_schema" join="left outer" as="grs" comment="Точка используется в макете">
+          <call function="=">
+            <column table="a" column="kod_point" />
+            <column table="grs" column="kod_rpoint" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="hr_point_pu" dimension="1">
+          <dimlink name="kod_pktippu" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_point_ini" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+        <dlink name="hr_point_tar" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="kod_point_rasx" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="voltage" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_numobj" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="day_pokaz" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_org_sbyt" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kodd" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+        </dlink>
+        <dlink name="hr_point_har" dimension="1">
+          <dimlink name="eobj_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_v" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_parent_eo" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_srckind" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp_bal" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp_elter" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_org_group" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_eobject_senter_nut" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_elnet" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+        <link name="kod_obj" dimension="1">
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_numobj_mn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_numobj" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="day_pokaz" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_org_sbyt" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodd" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+  </queries>
+</root>

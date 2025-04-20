@@ -1,0 +1,357 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="41293-params" timestamp="03.09.2018 16:00:44">
+      <param name="id_slice" type="number" />
+    </part>
+    <part id="41293-withparams" timestamp="18.04.2017 12:36:59">
+      <useparam name="id_slice" />
+    </part>
+    <part id="41293-params-ext" timestamp="20.11.2018 15:54:41">
+      <param name="num_req" type="array" />
+      <param name="kod_dop_contr_filtr" type="array" />
+      <param name="key" type="array" />
+      <param name="kod_dop_contract" type="array" />
+    </part>
+    <part id="41293-withparams-ext" timestamp="20.11.2018 15:54:41">
+      <useparam name="num_req" />
+      <useparam name="kod_dop_contr_filtr" />
+      <useparam name="key" />
+      <useparam name="kod_dop_contract" />
+    </part>
+  </parts>
+  <reports>
+    <report form="41293" name="41293" title="Абонентские договоры 2 (ВСЯ БАЗА)" nogrid="1" folder="kido" datareader="1" timestamp="11.08.2017 14:04:03">
+      <params>
+        <usepart part="41293-params" />
+      </params>
+      <procedure>
+begin
+    is_job.set_id_slice(:id_slice);
+end;
+</procedure>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="41293.xlsx" title="Абонентские договоры 2 (ВСЯ БАЗА)" print-proc="2" output-format="xlsb" print-xlsx="1" post-process="0" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="41293-data" as="a">
+          <withparams>
+            <usepart part="41293-withparams" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report form="41293-cur" name="41293-cur" title="Абонентские договоры (ВСЯ БАЗА) оперативный" nogrid="1" folder="kido" timestamp="17.01.2019 18:52:05" visible="0">
+      <params>
+        <usepart part="41293-params-ext" />
+      </params>
+      <procedure exclude="1">
+begin
+    is_job.set_id_slice(:id_slice);
+end;
+</procedure>
+      <procedure>
+begin
+    declare arr_count number:=0;
+    begin
+        delete from vr_number_array where array_id = 'is_ad_sl_ADs';
+        insert into vr_number_array
+        select 'is_ad_sl_ADs' as array_id, a.kod_dop_contract as val
+        from is_dop_contract a
+        where {a.kod_dop_contract in :kod_dop_contract or} 1=0;
+
+        select count(*) into arr_count from vr_number_array where array_id = 'is_ad_sl_ADs';
+
+        if arr_count &gt; 0 then	    
+            is_ad_slice.ins_ad_all(sysdate, 1);
+        end if;
+    end;
+end;
+</procedure>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="41293-cur.xlsx" title="Абонентские договоры 2 (ВСЯ БАЗА) оперативный" print-proc="2" output-format="xlsb" print-xlsx="1" post-process="0" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="41293-data-par" as="a">
+          <withparams>
+            <usepart part="41293-withparams-ext" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report form="empty" name="41293-actual" title="Абонентские договоры (ВСЯ БАЗА)" nogrid="1" folder="kido" datareader="1" timestamp="11.08.2017 14:03:29">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="41293.xlsx" title="Абонентские договоры (ВСЯ БАЗА)" print-proc="2" output-format="xlsb" print-xlsx="1" post-process="0" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="isv_ad_all" as="a" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="41293-data" timestamp="17.01.2018 16:32:00" order="decode(status,4,0,1,1,5,2,0,3,2,4,5), num_req desc, num_ouco">
+      <params>
+        <usepart part="41293-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="is_ad_all" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="id_slice" />
+            <useparam name="id_slice" />
+          </call>
+          <call function="is not null">
+            <column table="a" column="kod_dop_contract" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41293-zayavka-list-pre" timestamp="05.10.2018 13:37:24">
+      <select>
+        <column table="a" column="num_req" as="id" title="-" group="1" />
+        <column table="a" column="num_req" as="name" group="max" />
+      </select>
+      <from>
+        <query name="is_dop_contract" as="a" />
+      </from>
+    </query>
+    <query name="41293-data-par" timestamp="09.01.2019 15:32:14" order="decode(status,4,0,1,1,5,2,0,3,2,4,5), num_req desc, num_ouco">
+      <params>
+        <usepart part="41293-params-ext" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+        <call as="ost_viruchki" function="-nvl">
+          <column table="a" column="contr_sumf" />
+          <column table="a" column="sum_akts" />
+        </call>
+        <call as="key" function="||">
+          <column table="a" column="num_ouco" />
+          <column table="a" column="num_req" />
+        </call>
+      </select>
+      <from>
+        <query name="vr_ad_all_base_cur" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="kod_dop_contract" />
+          </call>
+          <call function="or">
+            <call function="=">
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="kod_dop_contract" />
+              <useparam name="kod_dop_contract" />
+            </call>
+          </call>
+          <call function="is null" comment="Не ДС (доп согл)">
+            <column table="a" column="kn_contract_p" />
+          </call>
+          <call function="=" comment="договорами на ТП не являются договоры типа &quot;К&quot;, &quot;Р&quot;, &quot;ИП&quot;, а также договоры, имеющие признак &quot;ЦП&quot; (например, &quot;тестовые&quot;)">
+            <call function="nvl0">
+              <column table="a" column="cp" />
+            </call>
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41293-zayavka-list" timestamp="05.10.2018 13:34:20" order="name">
+      <select>
+        <column table="a" column="id" as="id" title="-" group="1" />
+        <column table="a" column="name" as="name" group="max" is-name="1" />
+      </select>
+      <from>
+        <query name="41293-zayavka-list-pre" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="name" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41293-sel-ids" timestamp="21.11.2018 13:44:25">
+      <params>
+        <usepart part="41293-params-ext" />
+      </params>
+      <select>
+        <column table="a" column="kod_dop_contract" />
+      </select>
+      <from>
+        <query name="is_dop_contract" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="kod_dop_contract" />
+          </call>
+          <call function="or">
+            <call function="=">
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="num_req" />
+              <useparam name="num_req" />
+            </call>
+            <call function="in" optional="1">
+              <column table="a" column="kod_dop_contract" />
+              <useparam name="kod_dop_contr_filtr" />
+            </call>
+            <call function="in" optional="1">
+              <call function="||">
+                <column table="a" column="num_ouco" />
+                <column table="a" column="num_req" />
+              </call>
+              <useparam name="key" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41293-ad-list" timestamp="21.11.2018 13:51:37" order="name">
+      <select>
+        <column table="a" column="id" as="id" title="-" group="1" />
+        <column table="a" column="name" as="name" is-name="1" group="max" />
+      </select>
+      <from>
+        <query name="41293-ad-list-pre" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="name" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41293-key-list" timestamp="21.11.2018 14:32:44" order="name">
+      <select>
+        <column table="a" column="id" as="id" title="-" group="1" />
+        <column table="a" column="name" as="name" is-name="1" group="max" />
+      </select>
+      <from>
+        <query name="41293-key-list-pre" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="name" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41293-ad-list-pre" timestamp="21.11.2018 13:41:49">
+      <select>
+        <column table="a" column="kod_dop_contract" as="id" title="-" />
+        <column table="a" column="num_ouco" as="name" />
+      </select>
+      <from>
+        <query name="is_dop_contract" as="a" />
+      </from>
+    </query>
+    <query name="41293-key-list-pre" timestamp="21.11.2018 14:33:29">
+      <select>
+        <call title="-" as="id" function="||" group="1">
+          <column table="a" column="num_ouco" />
+          <column table="a" column="num_req" />
+        </call>
+        <call title="Ключ" as="name" function="||" group="max">
+          <column table="a" column="num_ouco" />
+          <column table="a" column="num_req" />
+        </call>
+      </select>
+      <from>
+        <query name="is_dop_contract" as="a" />
+      </from>
+    </query>
+  </queries>
+  <forms>
+    <form name="41293" timestamp="18.04.2017 15:47:30">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <usefield field="kido_id_slice" />
+      </content>
+    </form>
+    <form name="41293-cur" timestamp="04.12.2018 17:15:19">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <usefield field="kido_id_slice" exclude="1" />
+        <usefield field="cmn_list" name="num_req" type="string" rows-limit="100" title="Заявки">
+          <buttons>
+            <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+            <menu title="save/load" side="Right">
+              <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+              <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+            </menu>
+          </buttons>
+          <listquery>
+            <query name="41293-zayavka-list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_list" name="kod_dop_contr_filtr" type="number" rows-limit="100" title="Договоры">
+          <buttons>
+            <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+            <menu title="save/load" side="Right">
+              <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+              <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+            </menu>
+          </buttons>
+          <listquery>
+            <query name="41293-ad-list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_list" name="key" type="string" rows-limit="100" title="Ключи">
+          <buttons>
+            <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+            <menu title="save/load" side="Right">
+              <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+              <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+            </menu>
+          </buttons>
+          <listquery>
+            <query name="41293-key-list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_list" type="string" rows-limit="100" title="Коды" name="kod_dop_contract" column-visible="0">
+          <listquery>
+            <query name="41293-sel-ids" />
+          </listquery>
+          <defaultquery>
+            <query name="41293-sel-ids" />
+          </defaultquery>
+        </usefield>
+      </content>
+    </form>
+  </forms>
+</root>

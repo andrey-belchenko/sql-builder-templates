@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="tgkkido1" with-behavior="0" timestamp="21.11.2016 14:27:57">
+      <content>
+        <field name="dat_zased_comm" controlType="UIDate" title="Дата заседания" mandatory="1" valuequery="cur-date" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="tgkkido1" title="Отчёт заседание Комиссии по подведению итогов ОЗП" form="tgkkido1">
+      <customers>
+        <customer id="11" />
+      </customers>
+      <params>
+        <param name="dat_zased_comm">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <print-templates>
+        <excel>
+          <template name="tgkkido1.xml" title="Отчёт заседание Комиссии по подведению итогов ОЗП" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="tgkkido1-rep" as="m" title="Шапка">
+          <withparams>
+            <useparam name="dat_zased_comm" />
+          </withparams>
+          <query name="tgkkido1-data1" as="a1" title="Группы">
+            <withparams>
+              <useparam name="dat_zased_comm" />
+            </withparams>
+            <query name="tgkkido1-data2" as="a2" title="Закупки">
+              <withparams>
+                <useparam name="dat_zased_comm" />
+              </withparams>
+              <call function="=">
+                <column table="a1" column="gr_konk" />
+                <column table="a2" column="gr_konk" />
+              </call>
+            </query>
+            <call function="=">
+              <column table="m" column="kod" />
+              <column table="a1" column="kod" />
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="tgkkido1-rep">
+      <params>
+        <param name="dat_zased_comm">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <const as="kod" type="number" key="1">1</const>
+        <call function="" as="dat_zased_comm" title="Дата заседания" type="string">
+          <call function="date to char">
+            <useparam name="dat_zased_comm" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="tgkkido1-data1">
+      <params>
+        <param name="dat_zased_comm">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <const as="kod" type="number">1</const>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="zv_prizn_procedure" as="a">
+          <dlink name="zv_zak_konk_prproc">
+            <where>
+              <call function="=">
+                <column table="zv_zak_konk_prproc" column="dat_zased_comm" />
+                <useparam name="dat_zased_comm" />
+              </call>
+            </where>
+          </dlink>
+        </query>
+      </from>
+      <where>
+        <call function="gt">
+          <column table="zv_zak_konk_prproc" column="kod_str" dgroup="count" />
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+    <query name="tgkkido1-data2" order="gr_konk, sum_tz desc, summa asc">
+      <params>
+        <param name="dat_zased_comm">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <call function="||" type="string" as="key" key="1">
+          <column table="b" column="kod_str_uni" type="string" />
+          <column table="a" column="kod_str" type="string" />
+        </call>
+        <call function="dense_rank" type="number" as="num">
+          <call function="partition by">
+            <column table="a" column="gr_konk" />
+          </call>
+          <call function="order by 2">
+            <call function="desc">
+              <column table="a" column="sum_tz" />
+            </call>
+          </call>
+        </call>
+        <column table="b" column="name_adr_uchastnik" type="string" title="Участник(и)" />
+        <column table="b" column="pr_msp" type="string" title="Принадлежность Участника к СМСП " />
+        <column table="b" column="summa" type="number" title="Цена Участника начальная (руб., без НДС)****" />
+        <column table="a" column="dat_zased_comm" type="date" title="Дата заседания" />
+        <column table="a" column="gr_konk" type="number" title="" />
+        <column table="a" column="kod_zak" type="number" />
+        <column table="a" column="kod_konk" type="number" />
+        <column table="a" column="kod_lot" type="number" />
+        <column table="a" column="num_gkpz" type="string" title="Номер закупки" />
+        <column table="a" column="name_podr" type="string" title="Заказчик (предприятие, филиал, подразделение)" />
+        <column table="a" column="name_zak" type="string" title="Наименование" />
+        <column table="a" column="msp_konk" type="string" title="Закупка у СМСП" />
+        <column table="a" column="per_post_n" type="string" title="Дата начала поставки / оказания услуг" />
+        <column table="a" column="per_post_k" type="string" title="Дата окончания поставки / оказания услуг" />
+        <column table="a" column="dat_obyav" type="date" title="Дата объявления ОЗП" />
+        <column table="a" column="dat_vskr" type="date" title="Дата вскрытия заявок" />
+        <column table="a" column="kol_zayav" type="number" title="Кол-во уч-ков" />
+        <column table="a" column="sum_tz" type="number" title="Начальная (максимальная) стоимость закупки (руб., без НДС)***" />
+      </select>
+      <from>
+        <query name="zv_zak_konk_prproc" as="a">
+          <elink name="zv_zayav_konk" as="b" />
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="dat_zased_comm" />
+          <useparam name="dat_zased_comm" />
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

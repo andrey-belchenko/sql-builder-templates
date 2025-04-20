@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="61880_19" is-report="1" title="РСД" order="namep,ndog,dat_sf" timestamp="30.06.2024 21:29:09">
+      <print-templates exclude="1">
+        <excel>
+          <template name="61880_15.xlsx" title="Структура потребления электрической энергии (в разрезе ОКВЭД)" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep_single" name="p_dep" mandatory="1" />
+        <usefield field="asuse_ym_tek_dep" name="p_ym_beg" />
+        <usefield field="asuse_adr_m_subject_dep" />
+        <fieldgroup title="Период" exclude="1">
+          <usefield field="asuse_ym_tek" title="с" name="p_ym_beg" mandatory="1" />
+          <usefield field="asuse_ym_tek" title="по" name="p_ym_end" mandatory="1" />
+        </fieldgroup>
+      </content>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_19.fill_table(:p_ym_beg);
+end;
+      </text>
+      </procedure>
+      <customers>
+        <customer id="29" />
+      </customers>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="kod_sf" group="1" />
+        <call function="()" title="Код системы" as="kod_sist" group="max">
+          <const>14</const>
+        </call>
+        <column function="null" title="Признак типа данных по ДЗ (за что)" as="kod_type" group="max" table="a" column="pr_rre" />
+        <column table="a" column="ddate" title="Период расчета" group="max" />
+        <column table="a" column="name_url" title="Юридическое лицо контура Сбыт" group="max" />
+        <column table="a" column="name_dep" group="max" title="Филиал" />
+        <column table="a" column="kod_be" group="max" title="Код БЕ" />
+        <column table="a" column="name_gr_potr" group="max" title="Группа потребителей" />
+        <column table="a" column="namep" group="max" title="Наименование контрагента" />
+        <column table="a" column="pr_rre" group="max" title="признак РРЭ" exclude="1" />
+        <column table="a" column="pr_vgo" group="max" title="Признак ВГО" />
+        <column table="a" column="inn" group="max" title="ИНН контрагента" />
+        <column table="a" column="ndog" group="max" title="Номер договора" />
+        <column table="a" column="ddate_dog" title="Дата договора" group="max" />
+        <column group="max" table="a" column="name_typedog" title="Предмет договора" />
+        <column group="max" table="a" column="pr_bankr" title="Банкроты / Ликвидируемые" />
+        <column group="max" title="Стадия банкротства (ликвидации)" table="a" column="pr_stbankr" />
+        <column group="1" title="Номер документа долга" table="a" column="num_sf" />
+        <column group="max" title="Дата документа долга" table="a" column="dat_sf" />
+        <column group="min" title="Плановая дата платежа по договору" table="a" column="dat_bzad" />
+        <column table="a" title="Срок возникновения просроченной задолженности, дней" column="nday" group="max" />
+        <column group="sum" title="Списано ДЗ за счет РСД за отчетный период" table="a" column="spis_rsd" />
+        <column group="sum" title="Списано ДЗ за счет прибыли за отчетный период" table="a" column="spis_dz" />
+        <column group="sum" title="Восстановление ранее списанной ДЗ" table="a" column="re_spis_dz" />
+        <column group="sum" title="ДЗ на конец периода" table="a" column="dz_on_date" />
+        <column group="sum" title="Текущая задолженность" table="a" column="dz_tek" />
+        <column table="a" column="dz_prosr_0_30" group="sum" title="Просроченная задолженность от 0 до 30" />
+        <column table="a" column="dz_prosr_30_45" group="sum" title="Просроченная задолженность от 30 до 45" />
+        <column table="a" column="dz_prosr_45_60" group="sum" title="Просроченная задолженность от 45 до 60" />
+        <column table="a" column="dz_prosr_60_90" group="sum" title="Просроченная задолженность от 60 до 90" />
+        <column table="a" column="dz_prosr_90_180" group="sum" title="Просроченная задолженность от 90 до 180" />
+        <column table="a" column="dz_prosr_180_365" group="sum" title="Просроченная задолженность от 180 до 365" />
+        <column table="a" column="dz_prosr_365_1095" group="sum" title="Просроченная задолженность от 365 до 1095" />
+        <column table="a" column="dz_prosr_1095" group="sum" title="Просроченная задолженность свыше 1095" />
+        <column group="sum" title="КЗ на конец периода" table="a" column="kz_ym_end" />
+        <column group="sum" title="ДЗ для расчета РСД Всего" table="a" column="dz_rsd_all" />
+        <column group="sum" title="ДЗ для расчета РСД Текущая" table="a" column="dz_rsd_tek" />
+        <column group="sum" title="ДЗ для расчета РСД Остаток после вычета КЗ от 0 до 45" table="a" column="dz_rsd_0_45" />
+        <column group="sum" title="ДЗ для расчета РСД Остаток после вычета КЗ от 45 до 90" table="a" column="dz_rsd_45_90" />
+        <column group="sum" title="ДЗ для расчета РСД Остаток после вычета КЗ свыше 90" table="a" column="dz_rsd_90" />
+        <column group="sum" title="РСД Расчет РСД НУ от 45 до 90 50 %" table="a" column="rsd_45_90" />
+        <column group="sum" title="РСД Расчет РСД НУ свыше 90 100%" table="a" column="rsd_90" />
+        <column group="sum" table="a" column="rsd_all" title="РСД НУ Всего " />
+        <column group="sum" title="Не учитывается в НУ" table="a" column="not_nu" />
+        <column group="sum" table="a" column="spis_dz_rsd" title="Списано ДЗ за счет РСД за отчетный период (НУ)" />
+        <column table="a" column="sdat_beg" group="max" />
+        <column table="a" column="sdat_end" group="max" />
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_19_tbl" as="a" />
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="d" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping exclude="1">
+        <grset as="itog">
+          <grset as="rd" order="kod_razd">
+            <group>
+              <column table="this" column="kod_razd" />
+            </group>
+            <grset as="prd" order="kod_podrazd">
+              <group>
+                <column table="this" column="kod_podrazd" />
+              </group>
+              <grset as="kodp" order="payer_name">
+                <group>
+                  <column table="this" column="kodp" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

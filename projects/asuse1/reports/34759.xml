@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="34759-params">
+      <param name="ym1">
+        <const>2016.01</const>
+      </param>
+      <param name="ym2">
+        <const>2016.01</const>
+      </param>
+      <param name="voda_par" />
+      <param name="kodp" />
+    </part>
+    <part id="34759-withparams">
+      <withparams>
+        <useparam name="ym1" />
+        <useparam name="ym2" />
+        <useparam name="voda_par" />
+        <useparam name="kodp" />
+      </withparams>
+    </part>
+  </parts>
+  <forms>
+    <form name="34759" with-behavior="0" timestamp="16.12.2016 00:05:52">
+      <usefield field="asuse1_ym12" />
+      <field name="voda_par" controlType="UIList" title="Вода/Пар">
+        <listquery>
+          <query name="voda_par"></query>
+        </listquery>
+      </field>
+      <field name="kodp" controlType="UIList" title="Абоненты">
+        <listquery>
+          <query name="d_payer%tbl"></query>
+        </listquery>
+      </field>
+    </form>
+  </forms>
+  <queries>
+    <query name="d_payer%tbl" timestamp="10.10.2017 16:09:32">
+      <select>
+        <column table="a" column="kodp" />
+        <column table="a" column="kodp" as="nump" />
+        <column table="a" column="inn" />
+        <column table="a" column="name" />
+        <column table="a" column="dat_udal" />
+      </select>
+      <from>
+        <query name="d_payer" as="a" />
+      </from>
+    </query>
+    <query name="34759-data" title="Оборотная ведомость по видам товара (детализация по СФ)" timestamp="16.12.2016 00:05:50" folder="oborot" is-report="1" form="34759" edit-columns="1" allow-save="1" with-behavior="0">
+      <params>
+        <usepart part="34759-params" />
+      </params>
+      <customers>
+        <customer id="2" />
+      </customers>
+      <columns>
+        <column name="id" />
+        <band title="Абонент">
+          <column name="voda_par" title="Вода/Пар" />
+          <column name="kodp" title="Код" />
+          <column name="names" title="Наименование" />
+          <column name="dat_udal" title="Дата удаления" />
+        </band>
+        <band title="Счет-фактура">
+          <column name="num_sf" />
+          <column name="dat_sf" />
+          <column name="ym" />
+          <column name="kod_ras" exclude="1" />
+        </band>
+        <band title="Вид товара">
+          <column name="name" title="Группа" />
+          <column name="k_vid" title="Код" />
+          <column name="vid_t_name" title="Наименование" />
+          <column name="edizm_name" />
+        </band>
+        <band title="На начало периода">
+          <column name="oborot_beg" title="Деб. задолженность" />
+          <column name="spis_beg" title="В т.ч. списанная" />
+        </band>
+        <band title="За период">
+          <column name="s_facras_nachisl_nds_ym" title="Начислено " />
+          <column name="s_facras_cust_ym" title="Начислено (нат. показат.)" />
+          <column name="s_facopl_opl_nds_ym" title="Оплачено" />
+          <column name="s_facras_spis_nachislf_ym" title="Списано" />
+        </band>
+        <band title="На конец периода">
+          <column name="oborot_end" title="Деб. задолженность" />
+          <column name="spis_end" title="В т.ч. списанная" />
+        </band>
+      </columns>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="voda_par" column="name" as="voda_par" />
+        <column table="kodp" column="kodp" />
+        <column table="kodp" column="dat_udal" title="Дата удаления абонента" />
+        <column table="kodp" column="names" title="Наименование абонента" />
+        <column table="kod_sf" column="num_sf" />
+        <column table="kod_sf" column="dat_sf" />
+        <call function="||" as="num_sf" title="Дата и номер счета/СФ" exclude="1">
+          <const>'№ '</const>
+          <column table="kod_sf" column="nom_sf" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="kod_sf" column="dat_sf" />
+          </call>
+        </call>
+        <column table="kod_sf" column="ym" title="Отчетный период начисления" agg="no" />
+        <column table="kod_ras" column="kod_ras" exclude="1" />
+        <column table="kod_edizm" column="kod" exclude="1" />
+        <column table="kod_edizm" column="name" title="Наименование нат. показат." as="edizm_name" />
+        <column table="vid_t_gr" column="name" title="Вид товара (группа)" />
+        <column table="vid_t" column="k_vid" title="Вид товара (код)" agg="no" />
+        <column table="vid_t" column="name" title="Вид товара (наименование)" as="vid_t_name" />
+        <fact column="oborot_beg" title="Деб. задолженность на начало периода" />
+        <fact column="spis_beg" title="В т.ч. списанная задолженность на начало периода" />
+        <fact column="s_facras_nachisl_nds_ym" title="Начислено за период" />
+        <fact column="s_facras_cust_ym" title="Начислено за период (нат. показат.)" />
+        <fact column="s_facopl_opl_nds_ym" title="Оплачено за период" />
+        <fact column="s_facras_spis_nachislf_ym" title="Списано за период" />
+        <fact column="oborot_end" title="Деб. задолженность на конец периода" />
+        <fact column="spis_end" title="В т.ч. списанная задолженность на конец периода" />
+      </select>
+      <expressions>
+        <call function="between" as="cond1" exclude="1">
+          <column table="ym" column="val" />
+          <useparam name="ym1" />
+          <useparam name="ym2" />
+        </call>
+        <call function="and" as="cond2" exclude="1">
+          <call function="lt">
+            <column table="ym" column="val" />
+            <useparam name="ym1" />
+          </call>
+        </call>
+        <call function="and" as="cond3" exclude="1">
+          <call function="le">
+            <column table="ym" column="val" />
+            <useparam name="ym2" />
+          </call>
+        </call>
+        <call function="if" as="s_facopl_opl_nds_ym" group="sum">
+          <call function="between" as="cond1">
+            <column table="ym" column="val" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </call>
+          <fact column="s_facopl_opl_nds" />
+        </call>
+        <call function="if" as="s_facras_nachisl_nds_ym" group="sum">
+          <call function="between" as="cond1">
+            <column table="ym" column="val" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </call>
+          <fact column="s_facras_nachisl_nds" />
+        </call>
+        <call function="if" as="s_facras_cust_ym" group="sum">
+          <call function="between" as="cond1">
+            <column table="ym" column="val" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </call>
+          <fact column="s_facras_cust" />
+        </call>
+        <call function="if" as="s_facras_spis_nachislf_ym" group="sum">
+          <call function="between" as="cond1">
+            <column table="ym" column="val" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </call>
+          <!--<fact column="s_facras_spis_nachislf" />-->
+          <fact column="oborot_spis" />
+        </call>
+        <call function="if" as="oborot_beg" group="sum">
+          <call function="and" as="cond2">
+            <call function="lt">
+              <column table="ym" column="val" />
+              <useparam name="ym1" />
+            </call>
+          </call>
+          <fact column="oborot" />
+        </call>
+        <call function="if" as="spis_beg" group="sum">
+          <call function="and" as="cond2">
+            <call function="lt">
+              <column table="ym" column="val" />
+              <useparam name="ym1" />
+            </call>
+          </call>
+          <fact column="oborot_spis" />
+        </call>
+        <call function="if" as="oborot_end" group="sum">
+          <call function="and" as="cond3">
+            <call function="le">
+              <column table="ym" column="val" />
+              <useparam name="ym2" />
+            </call>
+          </call>
+          <fact column="oborot" />
+        </call>
+        <call function="if" as="spis_end" group="sum">
+          <call function="and" as="cond3">
+            <call function="le">
+              <column table="ym" column="val" />
+              <useparam name="ym2" />
+            </call>
+          </call>
+          <fact column="oborot_spis" />
+        </call>
+      </expressions>
+      <from>
+        <qube>
+          <link name="kod_sf">
+            <link name="dpp_kod_sf" />
+          </link>
+          <link name="kod_ras" />
+          <link name="kodp">
+            <link name="voda_par" />
+          </link>
+          <link name="kod_edizm" />
+          <link name="vid_t" />
+          <link name="vid_t_gr" />
+          <where>
+            <call function="and">
+              <call function="or">
+                <call function="in">
+                  <column table="kod_sf" column="vid_real" />
+                  <array>2</array>
+                </call>
+                <call function="=1">
+                  <column table="dpp_kod_sf" column="pr_osn2" />
+                </call>
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_edizm" column="kod" />
+                <array>-2,1,2</array>
+              </call>
+              <call function="in" optional="1">
+                <column table="kodp" column="kodp" />
+                <useparam name="kodp" />
+                <!--<array>322603183</array>
+                <const exclude="1">514600426</const>-->
+              </call>
+              <call function="in" optional="1">
+                <column table="kodp" column="voda_par" />
+                <useparam name="voda_par" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="!=0">
+          <const>0</const>
+          <column column="oborot_beg" title="Деб. задолженность на начало периода" table="this" />
+          <column column="spis_beg" title="В т.ч. списанная задолженность на начало периода" table="this" />
+          <column column="s_facras_nachisl_nds_ym" title="Начислено за период" table="this" />
+          <column column="s_facopl_opl_nds_ym" title="Оплачено за период" table="this" />
+          <column column="s_facras_spis_nachislf_ym" title="Списано за период" table="this" />
+          <column column="oborot_end" title="Деб. задолженность на конец периода" table="this" />
+          <column column="spis_end" title="В т.ч. списанная задолженность на конец периода" table="this" />
+        </call>
+      </where>
+      <grouping exclude="1">
+        <grset as="all" title="Итого">
+          <grset as="edizm" title="По видам товара" order="name">
+            <group>
+              <sourcelink table="kod_edizm" />
+            </group>
+            <grset as="kodp" title="Абоненты">
+              <group>
+                <sourcelink table="kodp" />
+              </group>
+              <where>
+                <call function="or">
+                  <call function="!=0">
+                    <column table="this" column="oborot_beg" />
+                  </call>
+                  <call function="!=0">
+                    <column table="this" column="s_facras_nachisl_nds_ym" />
+                  </call>
+                  <call function="!=0">
+                    <column table="this" column="s_facopl_opl_nds_ym" />
+                  </call>
+                  <call function="!=0">
+                    <column table="this" column="oborot_end" />
+                  </call>
+                </call>
+              </where>
+              <grset as="sf" title="По СФ">
+                <group>
+                  <sourcelink table="kod_sf" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

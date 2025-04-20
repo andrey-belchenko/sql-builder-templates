@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="72595" title="Отчет по начисленной мощности" timestamp="12.03.2025 18:57:02">
+      <usefield name="p_dep" field="asuse_dep_single" />
+      <usefield name="p_ym" field="asuse_ym_tek_dep" />
+      <field id="field_ndog_dep" name="p_no_dog" controlType="UIList" title="Договоры вне списка" type="number" timestamp="10.04.2023 10:51:01" file="sql.builder.templates\sql.builder\projects\ies_garant\reports\64224.xml">
+        <listquery>
+          <query name="ndog_list_dep" />
+        </listquery>
+      </field>
+    </form>
+  </forms>
+  <reports>
+    <report name="72595" title="29. Отчет по начисленной мощности" form="72595" nogrid="1" timestamp="14.03.2025 14:42:28">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" />
+        <param name="p_ym" type="number" />
+        <param name="p_no_dog" type="array" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="72595.xlsx" print-proc="2" print-xlsx="1" title="Отчет по начисленной мощности" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[DECLARE
+   s_data_id     rr_temp.skod%type;
+   p_ym          NUMBER;
+ BEGIN
+  s_data_id    :='{3d8b60b1-72595-ac16-8c99c9d294fb}';  
+  p_ym := :p_ym;       
+  delete vr_number_array;     
+ -- добавляем во временную таблицу данные по выбранному отделению
+  INSERT INTO vr_number_array (array_id,val) values ('p_dep',:p_dep);  -- добавляем фильтр по отделению
+  INSERT INTO vr_number_array (array_id,val) values ('p_tipdog',0);    -- нужны только договоры э/э и купли-продажи    
+ -- заполняем вр. таблицу rr_rep_dog данными по договорам в разрезе объектов
+  kg_rep_dog.dog_obj_short;
+
+ -- Удаляем "договоры вне списка"
+  DELETE rr_rep_dog where 1 = 0 {OR kod_dog in :p_no_dog};
+
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  -- заполняем вр. таблицу  rr_temp
+  INSERT INTO rr_temp (skod, -- kod report
+                       n1,   -- kodp для ТСО
+                       s1,   -- tco_name
+                       n2,   -- kod_dog
+                       s2,   -- ndog
+                       n3,   -- kod_numobj
+                       n4,   -- numobj_num
+                       s3,   -- numobj_name
+                       n5,   -- max_power (максимальная мощность на объекте)
+                       n6,   -- max_by_obj_per_period (максимальное числовое значение по объекту в течение месяца)
+                       n7,   -- cust_kvth
+                       n8,   -- cust_kvt
+                       n9,   -- cust_kvt_set
+                       n10   -- kod_gtp               
+                        )     
+   SELECT  s_data_id,
+         max(tco.kodp) as kodp_tco
+        , max(tco.name) as tco_name
+        , max(a.kod_dog) as kod_dog
+        , max(d.ndog) as ndog        
+        , a.kod_numobj
+        , max(n.num_obj) as numobj_num
+        , max(n.name) as numobj_name
+        , max(COALESCE(HG_DOGR.get_PMAX_NUMOBJ(a.kod_numobj, 2, kg.ym_first_day(a.ym) ,0,null),0)) as max_power
+        , max(ng_priem.f_max_potr_hour(a.kod_numobj,p_ym)) as max_by_obj_per_period  -- максимальное числовое значение по объекту в течение месяца
+        , sum(CASE WHEN s.edizm = 4 THEN COALESCE(cust,0) ELSE 0 END)   as cust_kvth
+        , sum(CASE WHEN a.vid_t = -272 THEN COALESCE(cust,0) ELSE 0 END)  as cust_kvt
+        , sum(CASE WHEN a.vid_t = -222 THEN COALESCE(cust,0) ELSE 0 END) as cust_kvt_set
+        , max(COALESCE(hg_common.get_gtp_add_regl(a.kod_numobj, ym, 0),0)) as kod_gtp
+FROM rr_rep_dog d   
+   INNER JOIN nr_account a ON d.kod_numobj = a.kod_numobj  -- предварительно таблица rr_rep_dog д.б. заполнена данными по нужным договорам с нужными фильтрами  
+   INNER JOIN TABLE (HG_SALEPOINT_R.PL_getSLPOrgs (kod_numobj_  => a.kod_numobj,
+                                                       ym_      => p_ym)     
+                                                   ) pc  ON (a.kod_numobj = pc.kod_numobj)
+   LEFT JOIN kr_payer tco ON pc.kodp_pwrcompany = tco.kodp  
+   INNER JOIN sk_nachisl s ON a.vid_t = s.vid_t
+   INNER JOIN hr_reglament_pp p ON a.kod_reglament = p.kod_reglament
+   INNER JOIN hr_calc_variant v ON p.kod_variant = v.kod_variant   
+   LEFT JOIN kr_numobj n ON a.kod_numobj = n.kod_numobj  
+ WHERE a.ym = p_ym 
+   AND kod_typevariant = 0 -- продажа (Доп. регламент "Факт")
+ GROUP BY a.kod_numobj
+;
+
+ UPDATE rr_temp t
+ SET (t.n11, -- pw as "генерирующая" (Мощность фактическая по общему профилю ГТП) 
+      t.n12  -- pw_set as "сетевая" (Мощность сетевая по общему профилю ГТП)
+      ) 
+      = ( select pw, pw_set
+                         from nr_gtp_cost c
+                          inner join hs_gtp g  ON g.XLS_GTP_ID = c.XLS_GTP_ID
+                        where pr_plan = 0 and ym = p_ym    
+                           AND kod_gtp = t.n10          
+                      )
+ WHERE t.skod = s_data_id;
+END;]]></procedure>
+      <queries>
+        <query name="72595_data_tco" as="d" />
+        <query name="72595_data_obj" as="d2" />
+        <query name="title_info" as="t">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_ym" />
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="72595_data_tco" timestamp="14.03.2025 12:34:06">
+      <select>
+        <column table="r" column="n1" as="kodp" title="код ТСО" />
+        <column table="r" column="s1" as="tco_name" group="max" />
+        <column table="r" column="n5" as="max_power" title="максимальная мощность на объекте" nvl="0" group="sum" />
+        <column table="r" column="n7" as="cust_kvth" nvl="0" group="sum" />
+        <column table="r" column="n8" as="cust_kvt" nvl="0" group="sum" />
+        <column table="r" column="n9" as="cust_kvt_set" nvl="0" group="sum" />
+        <call group="sum" function="-" title="резервируемая мощность" as="pw_reserve">
+          <column table="this" column="max_power" />
+          <column table="this" column="cust_kvt_set" />
+        </call>
+        <column table="r" column="n11" title="генерирующая (Мощность фактическая по общему профилю ГТП) " as="pw" group="max" />
+        <column table="r" column="n12" as="pw_set" title="сетевая (Мощность сетевая по общему профилю ГТП)" group="max" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="r" column="skod" />
+          <const type="string">'{3d8b60b1-72595-ac16-8c99c9d294fb}'</const>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog" />
+        <grset as="tco" order="tco_name">
+          <group>
+            <column table="this" column="kodp" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="72595_data_obj" timestamp="14.03.2025 14:24:44">
+      <select>
+        <column table="r" column="n2" as="kod_dog" />
+        <column table="r" column="s2" as="ndog" group="max" />
+        <column table="r" column="n3" as="kod_numobj" />
+        <column table="r" column="n4" as="numobj_num" group="max" />
+        <column table="r" column="s3" as="numobj_name" group="max" />
+        <column table="r" column="n5" as="max_power" title="максимальная мощность на объекте" nvl="0" group="sum" />
+        <column table="r" column="n6" as="max_by_obj_per_period" title="максимальное числовое значение по объекту в течение месяца" group="max" />
+        <column table="r" column="n7" as="cust_kvth" nvl="0" group="sum" />
+        <column table="r" column="n8" as="cust_kvt" nvl="0" group="sum" />
+        <column table="r" column="n9" as="cust_kvt_set" nvl="0" group="sum" />
+        <column table="r" column="n11" title="генерирующая (Мощность фактическая по общему профилю ГТП) " as="pw" group="max" />
+        <column table="r" column="n12" as="pw_set" title="сетевая (Мощность сетевая по общему профилю ГТП)" group="max" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="r" column="skod" />
+          <const type="string">'{3d8b60b1-72595-ac16-8c99c9d294fb}'</const>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog" />
+        <grset as="dog" order="ndog">
+          <group>
+            <column table="this" column="kod_dog" />
+          </group>
+          <grset as="numobj" order="numobj_num">
+            <group>
+              <column table="this" column="kod_numobj" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

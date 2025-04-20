@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="75227" title="1063. Сведения о заключенных договорах" timestamp="17.04.2025 15:58:54">
+      <usefield field="asuse_dep_single" type="number" name="p_dep" mandatory="1" />
+      <usefield field="cmn_date_cur" type="date" name="p_date_from" mandatory="1" title="Дата с" />
+      <usefield field="cmn_date_cur" type="date" name="p_date_to" mandatory="1" title="Дата по" />
+      <field name="p_tco" controlType="UIList" type="number" title="ТСО (граница с сетями)">
+        <listquery>
+          <query name="tco_net_dep">
+            <withparams>
+              <useparam name="p_dep" />
+            </withparams>
+          </query>
+        </listquery>
+      </field>
+    </form>
+  </forms>
+  <reports>
+    <report name="75227" title="1063. Сведения о заключенных договорах (v1.1)" form="75227" nogrid="1" timestamp="23.04.2025 20:48:59">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param type="number" name="p_dep" />
+        <param type="date" name="p_date_from" />
+        <param name="p_date_to" type="date" />
+        <param name="p_tco" type="array" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="75227.xlsx" print-proc="2" print-xlsx="1" title="Сведения о заключенных договорах." />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[-- Отчет № 1063. SD: 75227. Сведения о заключенных договорах. ( Рязань. ГП)
+BEGIN
+  DELETE vr_number_array;
+  INSERT INTO vr_number_array (array_id,val)  SELECT 'p_dep', kodp  FROM kr_org  WHERE kodp=:p_dep;   
+  INSERT INTO vr_number_array (array_id,val)  SELECT 'p_tco_net_kodp', kodp  FROM kr_payer WHERE 1=0 { OR kodp in :p_tco};   
+  kg_rep_dog.dog_obj(:p_date_from, :p_date_to, 1, 1);
+END;]]></procedure>
+      <queries>
+        <query name="75227_data" as="d" />
+        <query name="title_info" as="t">
+          <withparams>
+            <const>NULL</const>
+            <const>NULL</const>
+            <useparam name="p_dep" />
+            <const>NULL</const>
+            <const>NULL</const>
+            <useparam name="p_date_from" />
+            <useparam name="p_date_to" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="75227_data" title="запрос для отчета № 1063 и № 1064." timestamp="23.04.2025 14:09:56">
+      <select>
+        <call function="row_number" as="rwn" title="Номер строки" type="number" key="1">
+          <call function="order by simple">
+            <call function="lpad">
+              <column table="this" column="ndog" />
+              <const>10</const>
+              <const>0</const>
+            </call>
+            <column table="this" column="num_obj" />
+          </call>
+        </call>
+        <column table="a" column="ndog" as="ndog" type="string" />
+        <column table="a" column="payer_name" as="payer_name" />
+        <column table="a" column="num_obj" as="num_obj" />
+        <column table="a" column="obj_name" as="obj_name" />
+        <column table="a" column="obj_adr_name" as="obj_adr_name" />
+        <column table="a" column="obj_dat_create" as="obj_dat_create" />
+        <column table="a" column="obj_dat_postav" as="obj_dat_postav" />
+        <column table="a" column="obj_dat_fin" as="obj_dat_fin" />
+      </select>
+      <from>
+        <query name="rr_rep_dog_obj" as="a" />
+      </from>
+    </query>
+  </queries>
+</root>

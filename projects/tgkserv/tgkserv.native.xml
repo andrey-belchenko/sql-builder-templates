@@ -1,0 +1,468 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:13.0873451+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="45469" timestamp="19.11.2019 12:36:19" is-report="1" title="План закупок на 2018 год" nogrid="1" file="sql.builder.templates\sql.builder\projects\tgkserv\reports\45469.xml">
+      <customers>
+        <customer id="6" />
+      </customers>
+      <content>
+        <usefield field="cmn_combo_num" name="year" mandatory="1" title="Год">
+          <listquery>
+            <query name="z_zak_years_list" />
+          </listquery>
+        </usefield>
+      </content>
+      <print-templates>
+        <excel>
+          <template name="45469.xlsx" title="План закупок на 2018 год" print-xlsx="1" print-proc="2" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="zv_plan_zak_serv" column="*" />
+      </select>
+      <from>
+        <query name="zv_plan_zak_serv" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="zv_plan_zak_serv" column="year" />
+            <useparam name="year" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="45598" timestamp="26.03.2018 16:27:40" is-report="1" title="Отчет по закупочной деятельности" nogrid="1" file="sql.builder.templates\sql.builder\projects\tgkserv\reports\45598.xml">
+      <customers>
+        <customer id="6" />
+      </customers>
+      <content>
+        <usefield field="cmn_combo_num" name="year" mandatory="1" title="Год">
+          <listquery>
+            <query name="z_zak_years_list" />
+          </listquery>
+        </usefield>
+      </content>
+      <print-templates>
+        <excel>
+          <template name="45598.xlsx" title="Отчет по закупочной деятельности" print-xlsx="1" print-proc="2" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="zv_zakup_deyat" column="*" />
+      </select>
+      <from>
+        <query name="zv_zakup_deyat" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="zv_zakup_deyat" column="year" />
+            <useparam name="year" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="z_zak_years_list" order="year desc" timestamp="17.01.2018 18:55:22" class="1" file="sql.builder.templates\sql.builder\projects\tgkserv\scheme\extension\z_zak.xml">
+      <select>
+        <column table="a" column="year" group="1" />
+        <call function="to_char" as="name" group="max">
+          <column table="a" column="year" />
+        </call>
+      </select>
+      <from>
+        <query name="z_zak" as="a" />
+      </from>
+    </query>
+    <query name="zv_plan_zak_serv" class="1" timestamp="19.11.2019 12:40:21" file="sql.builder.templates\sql.builder\projects\tgkserv\scheme\original\zv_plan_zak_serv.xml">
+      <select>
+        <column table="a" column="kod_zak" type="number" key="1" />
+        <column table="a" column="year" type="number" title="" />
+        <column table="a" column="num_gkpz" type="string" title="Униникальный номер закупки" />
+        <column table="a" column="kod_okved" type="string" title="Код по ОКВЭД 2" />
+        <column table="a" column="kod_okdp" type="string" title="Код по ОКДП 2" />
+        <column table="a" column="name_zak" type="string" title="Предмет договора" />
+        <column table="a" column="min_treb" type="string" title="Минимально необходимые требования, предъявляемые к закупаемым товарам" />
+        <column table="a" column="kod_okei" type="string" title="Код по ОКЕИ" />
+        <column table="a" column="name_okei" type="string" title="Наименование" />
+        <column table="a" column="sved_kol" type="string" title="Сведения о количестве" />
+        <column table="a" column="kod_okato" type="string" title="Код по ОКАТО" />
+        <column table="a" column="name_okato" type="string" title="Наименование" />
+        <column table="a" column="rash_vsego" type="number" title="Сведение о начальной (максимальной) цене договора" />
+        <column table="a" column="per_zak" type="string" title="Планируемая дата или период размещения извещения о закупке" />
+        <column table="a" column="per_post_k" type="string" title="Дата окончания поставки МТР, выполнения работ, оказания услуг" />
+        <column table="a" column="kod_spr_sposob_zak" type="number" />
+        <column table="a" column="sposob_plan" type="string" title="Способ закупки" />
+        <column table="a" column="prim_etp" type="string" title="Закупка в электронной форме" />
+        <column table="a" column="punkts_if" type="string" title="Источник финансировани" />
+      </select>
+      <from>
+        <table name="zv_plan_zak_serv" as="a" />
+      </from>
+    </query>
+    <query name="zv_zakup_deyat" class="1" timestamp="26.03.2018 18:37:10" file="sql.builder.templates\sql.builder\projects\tgkserv\scheme\original\zv_zakup_deyat.xml">
+      <select>
+        <column table="a" column="kod_zak" type="number" column-mandatory="1" key="1" />
+        <column table="a" column="year" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_spr_naprav" type="number" column-mandatory="1" />
+        <column table="a" column="naprav_zatr" type="string" title="" />
+        <column table="a" column="name_predpr" type="string" title="" />
+        <column table="a" column="kod_ini" type="number" column-mandatory="1" />
+        <column table="a" column="name_ini" type="string" column-mandatory="1" title="" />
+        <column table="a" column="kod_spr_word" type="number" />
+        <column table="a" column="name_word" type="string" title="" />
+        <column table="a" column="num_gkpz" type="string" title="" />
+        <column table="a" column="name_lot" type="string" title="" />
+        <column table="a" column="kod_spr_sposob_zak" type="number" />
+        <column table="a" column="sposob_plan" type="string" title="" />
+        <column table="a" column="obosn_vib_ei" type="string" title="" />
+        <column table="a" column="num_zatr_ip" type="string" title="" />
+        <column table="a" column="rash_tek" type="number" title="" />
+        <column table="a" column="rash_bud" type="number" title="" />
+        <column table="a" column="rash_all" type="number" title="" />
+        <column table="a" column="sum_mtr" type="number" title="" />
+        <column table="a" column="per_zak" type="string" title="" />
+        <column table="a" column="per_post_n" type="string" title="" />
+        <column table="a" column="per_post_k" type="string" title="" />
+        <column table="a" column="kod_org_zak" type="number" />
+        <column table="a" column="org_zak" type="string" title="" />
+        <column table="a" column="e_code" type="number" title="" />
+        <column table="a" column="name_cred" type="string" title="" />
+        <column table="a" column="prim_etp" type="string" title="" />
+        <column table="a" column="dat_tz_txt" type="string" title="" />
+        <column table="a" column="dat_rdoc_txt" type="string" title="" />
+        <column table="a" column="dat_agent_txt" type="string" title="" />
+        <column table="a" column="sost_zak" type="string" title="" />
+        <column table="a" column="otkl_sposob" type="string" title="" />
+        <column table="a" column="num_etp" type="string" title="" />
+        <column table="a" column="dat_obyav" type="string" title="" />
+        <column table="a" column="dat_protocol_vscr" type="string" title="" />
+        <column table="a" column="name_cena_uch_konk" type="string" title="" />
+        <column table="a" column="num_kzk" type="string" title="" />
+        <column table="a" column="dat_kzk" type="string" title="" />
+        <column table="a" column="inn_v" type="string" title="" />
+        <column table="a" column="name_v" type="string" title="" />
+        <column table="a" column="sum_tz" type="number" title="" />
+        <column table="a" column="stoim_zak_konk" type="number" title="" />
+        <column table="a" column="sum_curr" type="number" title="" />
+        <column table="a" column="rasch_minus_itog" type="number" title="" />
+        <column table="a" column="rasch_minus_itog_percent" type="string" title="" />
+        <column table="a" column="num_dog" type="string" title="" />
+        <column table="a" column="dat_dog" type="string" title="" />
+        <column table="a" column="sum_dog" type="number" title="" />
+        <column table="a" column="sum_mtr_dog" type="number" title="" />
+        <column table="a" column="num_dat_ds" type="string" title="" />
+        <column table="a" column="sum_dog_all" type="number" title="" />
+        <column table="a" column="sum_mtr_all" type="number" title="" />
+        <column table="a" column="dat_rastorg" type="string" title="" />
+        <column table="a" column="osn_rastorg" type="string" title="" />
+        <column table="a" column="sum_noisp" type="number" title="" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="rasch_minus_plan" type="number" title="" />
+      </select>
+      <from>
+        <table name="zv_zakup_deyat" as="a" />
+      </from>
+    </query>
+    <query name="z_zak" class="1" file="sql.builder.templates\sql.builder\projects\tgkserv\scheme\original\z_zak.xml">
+      <select>
+        <column table="a" column="kod_zak" type="number" comment="код закупки" />
+        <column table="a" column="year" type="number" title="" comment="год (текущий по триггеру)" />
+        <column table="a" column="dat_cr_zak" type="date" title="" comment="дата создания закупки" />
+        <column table="a" column="kod_direct" type="number" comment="дирекция" />
+        <column table="a" column="kod_spr_razdel" type="number" comment="код раздела" />
+        <column table="a" column="kod_spr_vzak" type="number" comment="код вида закупки" />
+        <column table="a" column="kod_spr_naprav" type="number" comment="код направления затрат" />
+        <column table="a" column="kod_spr_sposob_zak" type="number" comment="код способа закупки" />
+        <column table="a" column="num_zak" type="number" title="" comment="номер закупки (внутри раздела)" />
+        <column table="a" column="kod_prod" type="number" comment="код группы продукции" />
+        <column table="a" column="kod_kl" type="number" comment="код классификатора" />
+        <column table="a" column="prim" type="string" title="" comment="комментарий" />
+        <column table="a" column="sum_zak" type="number" title="" comment="сумма зак.по результатам конкурса" />
+        <column table="a" column="dat_n_post" type="date" title="" comment="дата начала поставки товаров (вып.услуг)" />
+        <column table="a" column="dat_k_post" type="date" title="" comment="дата окончания поставки товаров (вып.услуг)" />
+        <column table="a" column="dat_n_zak" type="date" title="" comment="дата нач.офиц.объявления о нач. процедур" />
+        <column table="a" column="dat_k_zak" type="date" title="" comment="дата кон.офиц.объявл.о нач.процедур" />
+        <column table="a" column="num_gkpz" type="string" title="" comment="номер ГКПЗ (сложенный из кусочков)" />
+        <column table="a" column="status" type="number" title="" comment="статус" />
+        <column table="a" column="kod_org_zak" type="number" comment="Организатор закупки" />
+        <column table="a" column="e_code" type="number" title="" comment="организация-победитель" />
+        <column table="a" column="kod_podr" type="number" comment="Подразделение" />
+        <column table="a" column="del_zak" type="date" title="" comment="дата удаления закупки" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="num_zak_god" type="number" title="" comment="номер закупки в пределах года" />
+        <column table="a" column="kod_rdoc" type="number" comment="код расп.документа" />
+        <column table="a" column="lot" type="string" title="" />
+        <column table="a" column="osn_del" type="string" title="" comment="основание для удаления" />
+        <column table="a" column="pr_zei" type="number" title="" comment="признак ЗЕИ" />
+        <column table="a" column="kod_spr_publ" type="number" comment="плановый источник публикации" />
+        <column table="a" column="kod_spr_word" type="number" comment="доп.признак" />
+        <column table="a" column="sum_th" type="number" title="" />
+        <column table="a" column="prim_import" type="string" title="" />
+        <column table="a" column="imp_num_gkpz" type="string" title="" />
+        <column table="a" column="per_zak" type="string" title="" comment="строка периода оф.объяв.о нач.проц." />
+        <column table="a" column="vid_per_z" type="number" title="" comment="вид периода для оф.объявл." />
+        <column table="a" column="per_post_n" type="string" title="" comment="период начала поставки" />
+        <column table="a" column="vid_per_p_n" type="number" title="" comment="вид периода начала поставки" />
+        <column table="a" column="per_post_k" type="string" title="" comment="конец поставки" />
+        <column table="a" column="vid_per_p_k" type="number" title="" comment="вид периода конца поставки" />
+        <column table="a" column="edit_ist_fin" type="number" title="" comment="Признак редактирования закупки для ОКО" />
+        <column table="a" column="old_kod_podr" type="number" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="sum_itog" type="number" title="" comment="Итоговая сумма по закупке" />
+        <column table="a" column="prov" type="number" title="" comment="признак прохождения проверки" />
+        <column table="a" column="sum_czo" type="number" title="" />
+        <column table="a" column="pr_send" type="number" title="" comment="признак &quot;передано в управление&quot; - 1-передано,0-признак снят" />
+        <column table="a" column="pr_hide" type="number" title="" comment="1 - закупка не утверждена, 0 - утверждена" />
+        <column table="a" column="sum_first" type="number" title="" comment="первоначальная стоимость закупки (на момент первого перевода ИЗ Проекта)" />
+        <column table="a" column="sum_tz" type="number" title="" comment="сумма использования по ТЗ" />
+        <column table="a" column="st_old" type="number" title="" comment="статус перед исключением" />
+        <column table="a" column="sum_per" type="number" title="" comment="сумма переходящих закупок" />
+        <column table="a" column="kvart" type="number" title="" comment="признак закупки 4 квартала (для Ленэнерго)" />
+        <column table="a" column="pr_planzak" type="number" title="" comment="признак плановая(0)/внеплановая(1) закупка (для ЛЭ), доп.закупка(1) для ТГК" />
+        <column table="a" column="dat_form_doc" type="date" title="" comment="дата форм-я комплекта документов (для Ленэнерго)" />
+        <column table="a" column="dat_status_9" type="date" title="" comment="дата изменения статуса на Преддоговорной" />
+        <column table="a" column="dat_status_11" type="date" title="" comment="дата изменения статуса на Договорной" />
+        <column table="a" column="dat_status_0" type="date" title="" comment="дата изменения статуса на ПРОЕКТ" />
+        <column table="a" column="dat_status_1" type="date" title="" comment="дата изменения статуса на ДЕЙСТВУЮЩИЙ" />
+        <column table="a" column="dat_status_7" type="date" title="" comment="дата изменения статуса на ПРЕДВАРИТЕЛЬНО ДЕЙСТВУЮЩИЙ" />
+        <column table="a" column="dat_status_10" type="date" title="" comment="дата изменения статуса на ИСКЛЮЧЕН" />
+        <column table="a" column="kod_parent_gkpz" type="number" comment="код родит.заявки, вход. в реестр № 2 (ЛЭ)" />
+        <column table="a" column="reestr_1" type="number" title="" comment="принадлежность закупки к реестру 1 - предварительная (ЛЭ)" />
+        <column table="a" column="reestr_2" type="number" title="" comment="принадлежность закупки к реестру 2 - итоговая (ЛЭ)" />
+        <column table="a" column="reestr_3" type="number" title="" comment="принадлежность закупки к реестру 3 - ГКПЗ (ЛЭ)" />
+        <column table="a" column="kod_direct_cfo" type="number" comment="код подразделения ЦФО, соотв. статьям бюджета ист. фин." />
+        <column table="a" column="dr" type="number" title="" comment="доход -0, расход - 1" />
+        <column table="a" column="e_code_d" type="number" title="" comment="ДЛЯ ДОХОДНЫХ - ЗАКАЗЧИК" />
+        <column table="a" column="name_shab" type="string" title="" comment="шаблон проекта договора" />
+        <column table="a" column="kod_zak_ram" type="number" comment="код рамочной закупки, для кот. данная закупка - подчиненная (ЛЭ)" />
+        <column table="a" column="kod_lot_ram" type="number" comment="код лота рамочной закупки (ЛЭ)" />
+        <column table="a" column="pr_ram" type="number" title="" comment="1 - рамочная закупка (ЛЭ)" />
+        <column table="a" column="pr_schet" type="number" title="" comment="признак СЧЕТ (для Теплосети)" />
+        <column table="a" column="proc_nds" type="number" title="" comment="% НДС (для ЛЭ)" />
+        <column table="a" column="dat_n_post_pl" type="date" title="" />
+        <column table="a" column="dat_k_post_pl" type="date" title="" />
+        <column table="a" column="dat_n_zak_pl" type="date" title="" />
+        <column table="a" column="dat_k_zak_pl" type="date" title="" />
+        <column table="a" column="per_zak_pl" type="string" title="" />
+        <column table="a" column="per_post_n_pl" type="string" title="" />
+        <column table="a" column="per_post_k_pl" type="string" title="" />
+        <column table="a" column="kod_spr_vuslug" type="number" comment="код вида услуг (для ТГК-Сервис)" />
+        <column table="a" column="e_code_org_konk" type="number" title="" comment="код оранизатора конкурса (для ТГК-Сервис)" />
+        <column table="a" column="sum_rezgd" type="number" title="" comment="сумма, переданнвя в резерв ген.директора (для ТГК)" />
+        <column table="a" column="kod_spr_osn_zakldog" type="number" comment="код основания для закл. договора (для ТГК)" />
+        <column table="a" column="kod_okato" type="number" comment="Код ОКАТО" />
+        <column table="a" column="sved_kol" type="number" title="" comment="сведения о количестве (объеме)" />
+        <column table="a" column="kod_okved" type="number" comment="Код ОКВЭД" />
+        <column table="a" column="kod_okpd" type="number" comment="Код ОКПД" />
+        <column table="a" column="kod_okei_grp" type="number" comment="Код группы единиц измерения" />
+        <column table="a" column="kod_okei_type" type="number" comment="Код раздела ед измер" />
+        <column table="a" column="kod_okei" type="number" comment="Код един измерения" />
+        <column table="a" column="pr_rgd" type="number" title="" comment="1 - закупка сформир. из  резерва ген.директора (для ТГК)" />
+        <column table="a" column="min_treb" type="string" title="" comment="мин.необх.треб-я, предъявл. к закуп.товарам (ТГК)" />
+        <column table="a" column="not_control" type="number" title="" comment="не вып. проверку (для ПЗ - на соотв. сумм прив. закупок)" />
+        <column table="a" column="ivlp" type="number" title="" comment="признак - иннов., высокотехн. продукция, лекарств. ср-ва" />
+        <column table="a" column="num_structur_plan" type="number" title="" comment="Порядковый № структурир. плана на ГЗ" />
+        <column table="a" column="obosn_vib_ei" type="string" title="" comment="Обоснование выбора ЕИ" />
+        <column table="a" column="kod_spr_prizn_zak" type="number" comment="код признака закупки" />
+        <column table="a" column="el_form_zak" type="number" title="" comment="Закупка в электронной форме" />
+        <column table="a" column="limit_bisnes_plan" type="number" title="" comment="Лимиты по статье бизнес-плана" />
+        <column table="a" column="plan_spis_tek" type="number" title="" comment="Расходы текущего периода(план списания в производство)" />
+        <column table="a" column="plan_spis_bud" type="number" title="" comment="Расходы будущих периодов" />
+        <column table="a" column="rentab" type="number" title="" comment="Рентабельность (%)" />
+        <column table="a" column="sum_mtr" type="number" title="" comment="Стоимость МТР, подрядчика в работах (услугах)" />
+        <column table="a" column="dat_tz" type="date" title="" comment="Дата поступления ТЗ от заказчика (ТГК-Сервис)" />
+        <column table="a" column="limit_bisnes_fact" type="number" title="" comment="Лимиты по статье бизнес-плана (факт)" />
+        <column table="a" column="not_control_dog" type="number" title="" comment="Не контролировать соотв. сумм дох. и расх. договоров" />
+        <column table="a" column="num_structur_plan_txt" type="string" title="" comment="№ структур. плана по ГЗ (символьное)" />
+        <column table="a" column="dat_n_post_doh" type="date" title="" comment="Дата нач. пост. МТР по доходн.договору (для ТГК-Сервис)" />
+        <column table="a" column="dat_k_post_doh" type="date" title="" comment="Дата оконч. пост. МТР по доходн.договору (для ТГК-Сервис)" />
+        <column table="a" column="status_rash_dog" type="number" title="" comment="Статус расх.договора;1-под закл.дох.дог.;2-под планир. к закл.;3-под собств.нужды/прочие(без дох.дог.) (для ТГК-Сервис)" />
+        <column table="a" column="pr_msp" type="number" title="" comment="принадлежность к МСП" />
+        <column table="a" column="pr_asutp" type="number" title="" comment="признак АСУ ТП (ТГК, ТС)" />
+        <column table="a" column="pr_smsp" type="number" title="" comment="признак &quot;c привлечением субподрядч. из числа СМСП&quot; (ТГК)" />
+        <column table="a" column="kod_zak_main" type="number" comment="код основной закупки (связь с архивными закупками и изменениями)" />
+        <column table="a" column="num_union_proc" type="number" title="" comment="№ объединенной процедуры (для ТГК)" />
+      </select>
+      <from>
+        <table name="z_zak" as="a" />
+        <query name="z_spr_prizn_zak" as="kod_spr_prizn_zak" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_prizn_zak" />
+            <column table="kod_spr_prizn_zak" column="kod_spr_prizn_zak" />
+          </call>
+        </query>
+        <query name="is_spr_classifier_okei" as="kod_okei" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_okei" />
+            <column table="kod_okei" column="id" />
+          </call>
+        </query>
+        <query name="is_spr_classifier_okdp" as="kod_okpd" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_okpd" />
+            <column table="kod_okpd" column="id" />
+          </call>
+        </query>
+        <query name="is_spr_classifier_okved" as="kod_okved" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_okved" />
+            <column table="kod_okved" column="id" />
+          </call>
+        </query>
+        <query name="z_spr_osn_zakldog" as="kod_spr_osn_zakldog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_osn_zakldog" />
+            <column table="kod_spr_osn_zakldog" column="kod_spr_osn_zakldog" />
+          </call>
+        </query>
+        <query name="is_creditors" as="e_code_org_konk" join="left outer">
+          <call function="=">
+            <column table="a" column="e_code_org_konk" />
+            <column table="e_code_org_konk" column="e_code" />
+          </call>
+        </query>
+        <query name="z_spr_vuslug" as="kod_spr_vuslug" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_vuslug" />
+            <column table="kod_spr_vuslug" column="kod_spr_vuslug" />
+          </call>
+        </query>
+        <query name="is_spr_classifier_okato" as="kod_okato" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_okato" />
+            <column table="kod_okato" column="id" />
+          </call>
+        </query>
+        <query name="is_status" as="status" join="left outer">
+          <call function="=">
+            <column table="a" column="status" />
+            <column table="status" column="status" />
+          </call>
+        </query>
+        <query name="z_zak" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_zak" />
+          </call>
+        </query>
+        <query name="is_creditors" as="e_code_d" join="left outer">
+          <call function="=">
+            <column table="a" column="e_code_d" />
+            <column table="e_code_d" column="e_code" />
+          </call>
+        </query>
+        <query name="is_creditors" as="e_code" join="left outer">
+          <call function="=">
+            <column table="a" column="e_code" />
+            <column table="e_code" column="e_code" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="kod_direct" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_direct" />
+            <column table="kod_direct" column="kod_direct" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="kod_podr" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_podr" />
+            <column table="kod_podr" column="kod_direct" />
+          </call>
+        </query>
+        <query name="z_org_zak" as="kod_org_zak" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_org_zak" />
+            <column table="kod_org_zak" column="kod_org_zak" />
+          </call>
+        </query>
+        <query name="z_rdoc" as="kod_rdoc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rdoc" />
+            <column table="kod_rdoc" column="kod_rdoc" />
+          </call>
+        </query>
+        <query name="z_spr_naprav" as="kod_spr_naprav" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_naprav" />
+            <column table="kod_spr_naprav" column="kod_spr_naprav" />
+          </call>
+        </query>
+        <query name="z_spr_publ" as="kod_spr_publ" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_publ" />
+            <column table="kod_spr_publ" column="kod_spr_publ" />
+          </call>
+        </query>
+        <query name="z_spr_razdel" as="kod_spr_razdel" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_razdel" />
+            <column table="kod_spr_razdel" column="kod_spr_razdel" />
+          </call>
+        </query>
+        <query name="z_spr_sposob_zak" as="kod_spr_sposob_zak" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_sposob_zak" />
+            <column table="kod_spr_sposob_zak" column="kod_spr_sposob_zak" />
+          </call>
+        </query>
+        <query name="z_spr_vzak" as="kod_spr_vzak" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_vzak" />
+            <column table="kod_spr_vzak" column="kod_spr_vzak" />
+          </call>
+        </query>
+        <query name="z_spr_word_old" as="kod_spr_word" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_word" />
+            <column table="kod_spr_word" column="kod_spr_word" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name" />
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name">
+    <project name="ipr" timestamp="26.03.2018 16:00:08" file="sql.builder.templates\sql.builder\projects\tgkserv\reports\45469.xml">
+      <references>
+        <reference project="common" />
+        <reference project="asuse2_ipr" />
+      </references>
+    </project>
+  </projects>
+</root>

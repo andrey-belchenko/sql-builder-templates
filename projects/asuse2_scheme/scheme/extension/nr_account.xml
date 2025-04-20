@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="nr_account_ext" class="1" extend="nr_account" timestamp="02.12.2022 18:04:31">
+      <select>
+        <column table="nr_account_sost_16" column="tarif" as="tarif16" dgroup="max" />
+        <column table="nr_account_sost_2" column="tarif" as="tarif2" dgroup="max" />
+        <column table="sr_facras_text" column="kod_ras" dgroup="max" />
+        <!--<column table="nr_account_nal" column="nal" dgroup="sum"/>
+
+        <call function="/" as="tax">
+          <column table="this" column="nal"/>
+          <column table="a" column="nachisl"/>
+        </call>-->
+        <!--<usepart part="tarif_bu" as="kod_tarif_bu">
+          <column table="tarif" column="npp"/>
+          <column table="tarif2" column="npp"/>
+        </usepart>-->
+        <call function="nvl" as="kod_tarif_bu">
+          <call function="nullif">
+            <column table="tarif_ext" column="kod_tarif_bu" />
+            <const>0</const>
+          </call>
+          <column table="tarif_ext2" column="kod_tarif_bu" />
+        </call>
+        <call function="ng_account.f_category_account" as="category" type="number">
+          <column table="a" column="kod_account" />
+        </call>
+        <call function="case" type="number" as="category_fik_wrong" comment="Добавлено условие Case 08.11.2022 Вартановой Т. по согласованию с А.Данилиным" exclude="1">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="voltage" />
+              <const>6</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="else">
+            <call function="decode">
+              <call function="ng_account.f_category_account_fik">
+                <column table="a" column="kod_account" />
+              </call>
+              <const>0</const>
+              <const>1</const>
+              <call function="ng_account.f_category_account_fik">
+                <column table="a" column="kod_account" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="decode" as="category_fik">
+          <call function="ng_account.f_category_account_fik" type="number">
+            <column table="a" column="kod_account" />
+          </call>
+          <const>0</const>
+          <const>1</const>
+          <call function="ng_account.f_category_account_fik" type="number">
+            <column table="a" column="kod_account" />
+          </call>
+        </call>
+        <call function="||" as="kod_gr">
+          <column table="this" column="category" />
+          <const>','</const>
+          <column table="a" column="voltage" />
+          <const>','</const>
+          <column table="a" column="kodinterval" />
+        </call>
+        <call function="||" as="gr_name" title="Группа">
+          <call function="||">
+            <column table="category" column="name" />
+            <const>', '</const>
+          </call>
+          <column table="voltage" column="abbr" />
+          <call function="case">
+            <call function="when">
+              <call function="!=">
+                <column table="a" column="kodinterval" />
+                <const>24</const>
+              </call>
+              <call function="||">
+                <const>', '</const>
+                <column table="kodinterval" column="name" />
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ks_tarif" as="tarif16" join="left outer">
+          <call function="=">
+            <column table="this" column="tarif16" />
+            <column table="tarif16" column="tarif" />
+          </call>
+        </query>
+        <query name="ks_tarif" as="tarif2" join="left outer">
+          <call function="=">
+            <column table="this" column="tarif2" />
+            <column table="tarif2" column="tarif" />
+          </call>
+          <link name="tarif_ext" as="tarif_ext2" />
+        </query>
+        <query name="ks_tarif_bu" as="kod_tarif_bu" join="left outer">
+          <call function="=">
+            <column table="kod_tarif_bu" column="kod_tarif_bu" />
+            <column table="this" column="kod_tarif_bu" />
+          </call>
+        </query>
+        <query name="kr_calc_list" as="ym" join="left outer">
+          <using>
+            <column column="ym" />
+          </using>
+        </query>
+        <query name="price_cat" as="category" join="left outer">
+          <call function="=">
+            <column table="this" column="category" />
+            <column table="category" column="category" />
+          </call>
+        </query>
+        <query name="price_cat" as="category_fik" join="left outer">
+          <call function="=">
+            <column table="this" column="category_fik" />
+            <column table="category_fik" column="category" />
+          </call>
+        </query>
+        <query name="sr_facras" as="kod_ras" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="nr_account_sost" as="nr_account_sost_16">
+          <where>
+            <call function="in">
+              <column table="nr_account_sost_16" column="tip_tarif_sost" />
+              <call function="array">
+                <const>5</const>
+                <const>16</const>
+              </call>
+            </call>
+          </where>
+        </dlink>
+        <dlink name="nr_account_sost" as="nr_account_sost_2">
+          <where>
+            <call function="in">
+              <column table="nr_account_sost_2" column="tip_tarif_sost" />
+              <call function="array">
+                <const>2</const>
+              </call>
+            </call>
+          </where>
+        </dlink>
+        <dlink name="nr_account_nal" />
+        <dlink name="sr_facras_text" />
+        <link name="tarif">
+          <link name="tarif_ext" />
+        </link>
+      </links>
+    </query>
+    <query name="nr_account_hpriem_ext" class="1" extend="nr_account_hpriem" timestamp="23.02.2016 02:43:11">
+      <select>
+        <column table="kod_account_priem" column="kod_account_priem"></column>
+      </select>
+      <from>
+        <query name="nr_account_priem" as="kod_account_priem" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_priem"></column>
+            <column table="kod_account_priem" column="kod_priem"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="price_cat">
+      <select>
+        <column table="a" column="category" type="number" />
+        <column table="a" column="name" type="string" title="Ценовая категория" />
+      </select>
+      <from>
+        <table name="price_cat" as="a" view="1" />
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="price_cat">
+      select 0 as category,'Население' as name from dual union
+      select 1,'Первая ценовая категория' from dual union
+      select 2,'Вторая ценовая категория' from dual union
+      select 3,'Третяя ценовая категория' from dual union
+      select 4,'Четвертая ценовая категория' from dual union
+      select 5,'Пятая ценовая категория' from dual union
+      select 6,'Шестая ценовая категория' from dual
+    </view>
+  </views>
+</root>

@@ -1,0 +1,1511 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:24:15.7581139+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="vr_sprav_data" timestamp="31.03.2017 23:22:53" file="sql.builder.templates\sql.builder\projects\ipr_test\ipr_struct\vr_sprav_union_data.xml">
+      <select>
+        <call as="kod_sprav_data" function="||" key="1">
+          <column table="this" column="kod_sprav" />
+          <const>'-'</const>
+          <column table="this" column="kod_razdel" />
+          <column table="this" column="kod_klass" />
+          <column table="this" column="kod_krit_minenergo" />
+        </call>
+        <call function="case" as="kod_sprav" type="number" dimension="ipr_kod_sprav">
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="kod_razdel" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="kod_klass" />
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="kod_krit_minenergo" />
+            </call>
+            <const>3</const>
+          </call>
+        </call>
+        <call function="if" as="kod_parent" type="string">
+          <call function="is not null">
+            <column table="ipr_kod_razdel" column="kod_parent" />
+            <column table="ipr_kod_klass_titul" column="kod_parent" />
+          </call>
+          <call function="||">
+            <column table="this" column="kod_sprav" />
+            <const>'-'</const>
+            <column table="ipr_kod_razdel" column="kod_parent" />
+            <column table="ipr_kod_klass_titul" column="kod_parent" />
+          </call>
+        </call>
+        <call as="name" function="||" title="Наименование">
+          <column table="ipr_kod_razdel" column="vid_full" />
+          <column table="ipr_kod_klass_titul" column="vid_full" />
+          <column table="ipr_kod_krit_minenergo" column="vid_full" />
+        </call>
+        <call as="abbr" function="||" title="Наименование">
+          <column table="ipr_kod_razdel" column="vid" />
+          <column table="ipr_kod_klass_titul" column="vid" />
+          <column table="ipr_kod_krit_minenergo" column="vid" />
+        </call>
+        <column table="ipr_kod_razdel" column="vid" as="vid_razdel" is-fact="1" agg="list" exclude="1" />
+        <column table="ipr_kod_klass_titul" column="vid" as="vid_kl_tit" is-fact="1" agg="list" exclude="1" />
+        <column table="ipr_kod_krit_minenergo" column="vid" as="vid_kr_me" is-fact="1" agg="list" exclude="1" />
+        <column table="ipr_kod_razdel" column="kod_razdel" />
+        <column table="ipr_kod_klass_titul" column="kod_klass" />
+        <column table="ipr_kod_krit_minenergo" column="kod_krit_minenergo" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="razdel">
+            <link name="ipr_kod_razdel" all-rows="1" />
+          </dimset>
+          <dimset as="klass">
+            <link name="ipr_kod_klass_titul" all-rows="1" />
+          </dimset>
+          <dimset as="krit_me">
+            <link name="ipr_kod_krit_minenergo" all-rows="1" />
+          </dimset>
+        </qube>
+      </from>
+    </query>
+    <query name="ipr-test" file="sql.builder.templates\sql.builder\projects\ipr_test\test\ipr-test.xml">
+      <select>
+        <column table="a" column="*" />
+        <call function="level" as="lvl" />
+        <column table="kod_titul_ip" column="with_details" title="Выводить в структуре когнос" />
+        <column table="kod_titul_ip" column="export_cognos_num" title="Номер титула (Когнос)" />
+      </select>
+      <from>
+        <query name="26630_tituls" as="a">
+          <link name="kod_titul_ip" />
+          <withparams>
+            <const>43383</const>
+            <undefined />
+            <undefined />
+            <const>1</const>
+            <const>1</const>
+          </withparams>
+        </query>
+      </from>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_parent_node" />
+          <column table="a" column="kod_node" prior="1" />
+        </call>
+      </connect>
+      <start>
+        <call function="not in">
+          <column table="a" column="kod_parent_node" />
+          <query>
+            <select>
+              <column table="a" column="kod_node" />
+            </select>
+            <from>
+              <query name="26630_tituls" as="a">
+                <link name="kod_titul_ip" />
+                <withparams>
+                  <const>43383</const>
+                  <undefined />
+                  <undefined />
+                  <const>1</const>
+                  <const>1</const>
+                </withparams>
+              </query>
+            </from>
+          </query>
+        </call>
+      </start>
+    </query>
+    <query name="my_test_query" timestamp="12.10.2017 19:03:21" file="sql.builder.templates\sql.builder\projects\ipr_test\test\my_test_query.xml">
+      <expressions>
+        <call function="listagg" as="test" group="/*inner*/">
+          <fact column="ips_vid_zatrat_ext_full_name_tst" />
+          <const>'   +    '</const>
+          <column table="ipr_kod_zatrat" column="abbr" />
+        </call>
+      </expressions>
+      <select>
+        <column table="ipr_kod_smet" column="kod_smet" />
+        <fact column="test" />
+      </select>
+      <from>
+        <qube>
+          <link name="ipr_kod_smet" />
+        </qube>
+      </from>
+    </query>
+    <query name="union_fin_qv" cstyle="union" title="Начисления и оплаты" file="sql.builder.templates\sql.builder\projects\ipr_test\test\QlikView.xml">
+      <select>
+        <column table="*" column="kod_dog" group="1" />
+        <column table="*" column="kod_deb" group="1" />
+        <column table="*" column="kod_opl" group="1" />
+        <column table="kod_deb" column="dat_bzad" group="kod_deb" qv_split="1" />
+        <!--<column table="nach" column="dat_bzad" group="kod_deb" qv_split = "1"/>-->
+        <column table="nach" column="nachisl" group="sum" />
+        <column table="kod_opl" column="datao" group="kod_opl" />
+        <call function="+nvl" as="opl_all" title="Оплачено">
+          <column table="this" column="opl_nach" group="sum" />
+          <column table="this" column="opl_per" group="sum" />
+        </call>
+        <column table="opl_nach" column="opl" as="opl_nach" title="Оплата начислений" group="sum" />
+        <column table="opl" column="opl" as="opl_per" title="Переплата" group="sum" />
+      </select>
+      <from>
+        <query name="qv_nachisl" as="nach" />
+        <query name="qv_opl_nachisl" as="opl_nach" />
+        <query name="qv_opl" as="opl" />
+      </from>
+      <push>
+        <from>
+          <query name="is_dop_contract" as="kod_dog" join="left outer">
+            <call function="=">
+              <column table="*" column="kod_dog"></column>
+              <column table="kod_dog" column="kod_dop_contract"></column>
+            </call>
+          </query>
+          <query name="c_opl" as="kod_opl" join="left outer">
+            <using>
+              <column column="kod_opl" />
+            </using>
+          </query>
+          <query name="c_facvip" as="kod_deb" join="left outer">
+            <using>
+              <column column="kod_deb" />
+            </using>
+          </query>
+        </from>
+      </push>
+    </query>
+    <query name="qv_nachisl" title="График оплат" file="sql.builder.templates\sql.builder\projects\ipr_test\test\QlikView.xml">
+      <select>
+        <column table="kod_deb" column="kod_dog" qlikview="1" />
+        <column table="a" column="kod_deb" qlikview="1" />
+        <const as="kod_opl">null</const>
+        <call function="+nvl" as="nachisl" qlikview="1">
+          <column table="kod_deb" column="nachisl" />
+          <column table="kod_deb" column="nds" />
+        </call>
+        <column table="a" column="dat_bzad" qlikview="1" />
+      </select>
+      <from>
+        <query name="c_facvip" as="a">
+          <link name="kod_deb" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="!=">
+            <column table="a" column="vid_sf" />
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="qv_opl_nachisl" title="Оплата начислений" file="sql.builder.templates\sql.builder\projects\ipr_test\test\QlikView.xml">
+      <select>
+        <column table="kod_deb" column="kod_dog" qlikview="1" />
+        <column table="a" column="kod_opl" />
+        <column table="a" column="kod_deb" />
+        <column table="a" column="datao" />
+        <call function="+nvl" as="opl" qlikview="1">
+          <column table="a" column="opl" />
+          <column table="a" column="opls" />
+        </call>
+      </select>
+      <from>
+        <query name="c_opl" as="a">
+          <link name="kod_deb">
+            <link name="kod_akt" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="a" column="kod_parent" />
+          </call>
+          <call function="=">
+            <column table="a" column="flag_raznos" />
+            <const>1</const>
+          </call>
+          <call function="or">
+            <call function="is null">
+              <column table="kod_deb" column="kod_akt" />
+            </call>
+            <call function="=">
+              <column table="kod_akt" column="vid_akt" />
+              <const>0</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="qv_opl" title="Переплата" timestamp="03.06.2021 14:11:10" file="sql.builder.templates\sql.builder\projects\ipr_test\test\QlikView.xml">
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="kod_opl" />
+        <column table="a" column="kod_deb" />
+        <column table="a" column="datao" />
+        <call function="+nvl" as="opl" qlikview="1">
+          <column table="a" column="opl" />
+          <column table="a" column="opls" />
+        </call>
+      </select>
+      <from>
+        <query name="c_opl" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="or">
+            <call function="and">
+              <call function="=">
+                <column table="a" column="vid_pl" />
+                <const>2</const>
+              </call>
+              <call function="=">
+                <column table="a" column="kod_type_opl" />
+                <const>1</const>
+              </call>
+            </call>
+            <call function="and">
+              <call function="is null">
+                <column table="a" column="kod_deb" />
+              </call>
+              <call function="in">
+                <column table="a" column="kod_type_opl" />
+                <array>2,3,4</array>
+              </call>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="qv_is_fin_doc" title="Источники финансирования" file="sql.builder.templates\sql.builder\projects\ipr_test\test\QlikView.xml">
+      <select>
+        <column table="a" column="kod_fin_doc" key="1" qlikview="1" />
+        <column table="a" column="kod_period" qlikview="1" />
+        <column table="a" column="kod_dop_contract" qlikview="1" />
+        <column table="a" column="num_ip" qlikview="1" />
+        <column table="a" column="num_dpn" qlikview="1" />
+        <column table="a" column="num_smet" qlikview="1" />
+        <column table="a" column="num_zak" qlikview="1" />
+        <column table="a" column="num_prib" qlikview="1" />
+        <column table="a" column="num_ad" qlikview="1" />
+      </select>
+      <from>
+        <query name="is_fin_doc_qv" as="a" />
+        <query name="is_period" as="kod_period">
+          <call function="=">
+            <column table="a" column="kod_period" />
+            <column table="kod_period" column="kod_period" />
+          </call>
+        </query>
+        <query name="is_dop_contract" as="kod_dop_contract">
+          <call function="=">
+            <column table="a" column="kod_dop_contract" />
+            <column table="kod_dop_contract" column="kod_dop_contract" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="this" column="kod_dop_contract"></column>
+        </call>
+      </where>
+    </query>
+    <query name="is_fin_doc_qv" file="sql.builder.templates\sql.builder\projects\ipr_test\test\QlikView.xml">
+      <select>
+        <column table="a" column="kod_period" group="1" />
+        <column table="a" column="kod_fin_doc" group="max" />
+        <column table="a" column="kod_dop_contract" group="max" />
+        <column table="a" column="num_ip" group="max" />
+        <column table="a" column="num_dpn" group="max" />
+        <column table="a" column="num_smet" group="max" />
+        <column table="a" column="num_zak" group="max" />
+        <column table="a" column="num_prib" group="max" />
+        <column table="a" column="num_ad" group="max" />
+      </select>
+      <from>
+        <query name="is_fin_doc" as="a">
+          <!--<link name="kod_period"/>
+          <link name="kod_dog"/>-->
+        </query>
+      </from>
+    </query>
+    <query name="test-smet-ipr" timestamp="05.12.2017 14:06:21" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test-ipr.xml">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ipr_fin_zatrat" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_ipr" />
+            <const>61205</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="test_ipr_fin_body_union_repos" timestamp="18.08.2016 16:38:20" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test-ipr1.xml">
+      <select>
+        <column table="a" column="kod_doc_osn" as="kod_doc_osn" />
+        <column table="a" column="kod_ipr" as="kod_ipr" />
+        <column table="a" column="kod_ipr_ext" as="kod_ipr_ext" />
+        <column table="a" column="year" as="year" />
+        <column table="a" column="period" as="period" />
+        <column table="a" column="ym" as="ym" />
+        <column table="a" column="max_ym" as="max_ym" />
+        <column table="a" column="min_ym" as="min_ym" />
+        <column table="a" column="kodzatrat" as="kodzatrat" />
+        <column table="a" column="kod_titul_ip" as="kod_titul_ip" />
+        <column table="a" column="kod_main_titul" as="kod_main_titul" />
+        <column table="a" column="kod_titul_ip_sb" as="kod_titul_ip_sb" />
+        <column table="a" column="kod_ipr_dog" as="kod_ipr_dog" />
+        <column table="a" column="kod_dog" as="kod_dog" />
+        <column table="a" column="kod_dog_i" as="kod_dog_i" />
+        <column table="a" column="kod_smet" as="kod_smet" />
+        <column table="a" column="pr_last_smet" as="pr_last_smet" />
+        <column table="a" column="kap_sum" as="kap_sum" exclude="1" />
+        <column table="a" column="kap_sum_nds" as="kap_sum_nds" exclude="1" />
+        <column table="a" column="kap_sum_wait" as="kap_sum_wait" exclude="1" />
+        <column table="a" column="kap_sum_nds_wait" as="kap_sum_nds_wait" exclude="1" />
+        <column table="a" column="fp_sum" as="fp_sum" exclude="1" />
+        <column table="a" column="fp_sum_nds" as="fp_sum_nds" exclude="1" />
+        <column table="a" column="fp_sum_wait" as="fp_sum_wait" exclude="1" />
+        <column table="a" column="fp_sum_nds_wait" as="fp_sum_nds_wait" exclude="1" />
+        <column table="a" column="god_vvod" as="god_vvod" exclude="1" />
+        <column table="a" column="vvod_sum" as="vvod_sum" exclude="1" />
+        <column table="a" column="vvod_sum_nds" as="vvod_sum_nds" exclude="1" />
+        <column table="a" column="vvod_sum_wait" as="vvod_sum_wait" exclude="1" />
+        <column table="a" column="vvod_sum_nds_wait" as="vvod_sum_nds_wait" exclude="1" />
+        <column table="a" column="kap_nds" as="kap_nds" exclude="1" />
+        <column table="a" column="kap_nds_wait" as="kap_nds_wait" exclude="1" />
+        <column table="a" column="fp_nds" as="fp_nds" exclude="1" />
+        <column table="a" column="fp_nds_wait" as="fp_nds_wait" exclude="1" />
+        <column table="a" column="pow_km" as="pow_km" exclude="1" />
+        <column table="a" column="pow_mba" as="pow_mba" exclude="1" />
+        <column table="a" column="pow_cnt" as="pow_cnt" exclude="1" />
+        <column table="a" column="pow_km_del" as="pow_km_del" exclude="1" />
+        <column table="a" column="pow_mba_del" as="pow_mba_del" exclude="1" />
+        <column table="a" column="pow_km_pr" as="pow_km_pr" exclude="1" />
+        <column table="a" column="pow_mba_pr" as="pow_mba_pr" exclude="1" />
+        <column table="a" column="pow_cnt_pr" as="pow_cnt_pr" exclude="1" />
+        <column table="a" column="pow_mba_fact" as="pow_mba_fact" exclude="1" />
+        <column table="a" column="pow_km_fact" as="pow_km_fact" exclude="1" />
+        <column table="a" column="pow_cnt_fact" as="pow_cnt_fact" exclude="1" />
+        <column table="a" column="pow_km_fact_pr" as="pow_km_fact_pr" exclude="1" />
+        <column table="a" column="pow_mba_fact_pr" as="pow_mba_fact_pr" exclude="1" />
+        <column table="a" column="pow_cnt_fact_pr" as="pow_cnt_fact_pr" exclude="1" />
+        <column table="a" column="pow_mba_wait" as="pow_mba_wait" exclude="1" />
+        <column table="a" column="pow_km_wait" as="pow_km_wait" exclude="1" />
+        <column table="a" column="pow_cnt_wait" as="pow_cnt_wait" exclude="1" />
+        <column table="a" column="pow_cnt_proch_wait" as="pow_cnt_proch_wait" exclude="1" />
+        <column table="a" column="pow_km_wait_pr" as="pow_km_wait_pr" exclude="1" />
+        <column table="a" column="pow_mba_wait_pr" as="pow_mba_wait_pr" exclude="1" />
+        <column table="a" column="pow_cnt_wait_pr" as="pow_cnt_wait_pr" exclude="1" />
+        <column table="a" column="pow_cnt_proch_wait_pr" as="pow_cnt_proch_wait_pr" exclude="1" />
+        <column table="a" column="pow_cnt_proch" as="pow_cnt_proch" exclude="1" />
+        <column table="a" column="pow_cnt_proch_pr" as="pow_cnt_proch_pr" exclude="1" />
+        <column table="a" column="pow_cnt_proch_fact" as="pow_cnt_proch_fact" exclude="1" />
+        <column table="a" column="pow_cnt_proch_fact_pr" as="pow_cnt_proch_fact_pr" exclude="1" />
+        <column table="a" column="pow_km_kl" as="pow_km_kl" exclude="1" />
+        <column table="a" column="pow_km_kl_del" as="pow_km_kl_del" exclude="1" />
+        <column table="a" column="pow_km_kl_fact" as="pow_km_kl_fact" exclude="1" />
+        <column table="a" column="pow_km_kl_ekspl" as="pow_km_kl_ekspl" exclude="1" />
+        <column table="a" column="pow_km_kl_pr" as="pow_km_kl_pr" exclude="1" />
+        <column table="a" column="pow_km_kl_fact_pr" as="pow_km_kl_fact_pr" exclude="1" />
+        <column table="a" column="pow_km_kl_wait" as="pow_km_kl_wait" exclude="1" />
+        <column table="a" column="pow_km_kl_wait_pr" as="pow_km_kl_wait_pr" exclude="1" />
+        <column table="a" column="pow_any" as="pow_any" exclude="1" />
+        <column table="a" column="pow_any_fact" as="pow_any_fact" exclude="1" />
+        <column table="a" column="pow_km_itog" as="pow_km_itog" exclude="1" />
+        <column table="a" column="pow_mba_itog" as="pow_mba_itog" exclude="1" />
+        <column table="a" column="pow_cnt_itog" as="pow_cnt_itog" exclude="1" />
+        <column table="a" column="pow_km_del_itog" as="pow_km_del_itog" exclude="1" />
+        <column table="a" column="pow_mba_del_itog" as="pow_mba_del_itog" exclude="1" />
+        <column table="a" column="pow_km_pr_itog" as="pow_km_pr_itog" exclude="1" />
+        <column table="a" column="pow_mba_pr_itog" as="pow_mba_pr_itog" exclude="1" />
+        <column table="a" column="pow_cnt_pr_itog" as="pow_cnt_pr_itog" exclude="1" />
+        <column table="a" column="pow_mba_fact_itog" as="pow_mba_fact_itog" exclude="1" />
+        <column table="a" column="pow_km_fact_itog" as="pow_km_fact_itog" exclude="1" />
+        <column table="a" column="pow_cnt_fact_itog" as="pow_cnt_fact_itog" exclude="1" />
+        <column table="a" column="pow_km_fact_pr_itog" as="pow_km_fact_pr_itog" exclude="1" />
+        <column table="a" column="pow_mba_fact_pr_itog" as="pow_mba_fact_pr_itog" />
+        <column table="a" column="pow_cnt_fact_pr_itog" as="pow_cnt_fact_pr_itog" exclude="1" />
+        <column table="a" column="pow_mba_wait_itog" as="pow_mba_wait_itog" exclude="1" />
+        <column table="a" column="pow_km_wait_itog" as="pow_km_wait_itog" exclude="1" />
+        <column table="a" column="pow_cnt_wait_itog" as="pow_cnt_wait_itog" exclude="1" />
+        <column table="a" column="pow_cnt_proch_wait_itog" as="pow_cnt_proch_wait_itog" exclude="1" />
+        <column table="a" column="pow_km_wait_pr_itog" as="pow_km_wait_pr_itog" exclude="1" />
+        <column table="a" column="pow_mba_wait_pr_itog" as="pow_mba_wait_pr_itog" exclude="1" />
+        <column table="a" column="pow_cnt_wait_pr_itog" as="pow_cnt_wait_pr_itog" exclude="1" />
+        <column table="a" column="pow_cnt_proch_wait_pr_itog" as="pow_cnt_proch_wait_pr_itog" exclude="1" />
+        <column table="a" column="pow_cnt_proch_itog" as="pow_cnt_proch_itog" exclude="1" />
+        <column table="a" column="pow_cnt_proch_pr_itog" as="pow_cnt_proch_pr_itog" exclude="1" />
+        <column table="a" column="pow_cnt_proch_fact_itog" as="pow_cnt_proch_fact_itog" exclude="1" />
+        <column table="a" column="pow_cnt_proch_fact_pr_itog" as="pow_cnt_proch_fact_pr_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_itog" as="pow_km_kl_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_del_itog" as="pow_km_kl_del_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_fact_itog" as="pow_km_kl_fact_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_ekspl_itog" as="pow_km_kl_ekspl_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_pr_itog" as="pow_km_kl_pr_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_fact_pr_itog" as="pow_km_kl_fact_pr_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_wait_itog" as="pow_km_kl_wait_itog" exclude="1" />
+        <column table="a" column="pow_km_kl_wait_pr_itog" as="pow_km_kl_wait_pr_itog" exclude="1" />
+        <column table="a" column="pow_any_itog" as="pow_any_itog" exclude="1" />
+        <column table="a" column="pow_any_fact_itog" as="pow_any_fact_itog" exclude="1" />
+        <column table="a" column="pow_km_all" as="pow_km_all" exclude="1" />
+        <column table="a" column="pow_other" as="pow_other" exclude="1" />
+        <column table="a" column="pow_km_all_pr" as="pow_km_all_pr" exclude="1" />
+        <column table="a" column="pow_other_pr" as="pow_other_pr" exclude="1" />
+        <column table="a" column="pow_km_all_fact" as="pow_km_all_fact" exclude="1" />
+        <column table="a" column="pow_other_fact" as="pow_other_fact" exclude="1" />
+        <column table="a" column="pow_km_all_fact_pr" as="pow_km_all_fact_pr" exclude="1" />
+        <column table="a" column="pow_other_fact_pr" as="pow_other_fact_pr" exclude="1" />
+        <column table="a" column="kap_sum_nds_fact_a" as="kap_sum_nds_fact_a" exclude="1" />
+        <column table="a" column="kap_nds_fact_a" as="kap_nds_fact_a" exclude="1" />
+        <column table="a" column="kap_sum_fact_per" as="kap_sum_fact_per" exclude="1" />
+        <column table="a" column="kap_nds_fact_per" as="kap_nds_fact_per" exclude="1" />
+        <column table="a" column="kap_sum_nds_fact_per" as="kap_sum_nds_fact_per" exclude="1" />
+        <column table="a" column="kap_sum_fact_per_pr" as="kap_sum_fact_per_pr" exclude="1" />
+        <column table="a" column="kap_nds_fact_per_pr" as="kap_nds_fact_per_pr" exclude="1" />
+        <column table="a" column="kap_sum_fact_sp" as="kap_sum_fact_sp" exclude="1" />
+        <column table="a" column="kap_nds_fact_sp" as="kap_nds_fact_sp" exclude="1" />
+        <column table="a" column="kap_sum_nds_fact_sp" as="kap_sum_nds_fact_sp" exclude="1" />
+        <column table="a" column="kap_sum_fact_sp_pr" as="kap_sum_fact_sp_pr" exclude="1" />
+        <column table="a" column="kap_nds_fact_sp_pr" as="kap_nds_fact_sp_pr" exclude="1" />
+        <column table="a" column="kap_sum_fact_pri" as="kap_sum_fact_pri" exclude="1" />
+        <column table="a" column="kap_nds_fact_pri" as="kap_nds_fact_pri" exclude="1" />
+        <column table="a" column="kap_sum_nds_fact_pri" as="kap_sum_nds_fact_pri" exclude="1" />
+        <column table="a" column="kap_sum_fact_pri_pr" as="kap_sum_fact_pri_pr" exclude="1" />
+        <column table="a" column="kap_nds_fact_pri_pr" as="kap_nds_fact_pri_pr" exclude="1" />
+        <column table="a" column="kap_sum_nds_fact" as="kap_sum_nds_fact" exclude="1" />
+        <column table="a" column="kap_nds_fact" as="kap_nds_fact" exclude="1" />
+        <column table="a" column="fp_fact_sum" as="fp_fact_sum" exclude="1" />
+        <column table="a" column="fp_fact_sum_pr" as="fp_fact_sum_pr" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact_a" as="fp_sum_nds_fact_a" exclude="1" />
+        <column table="a" column="fp_fact_nds" as="fp_fact_nds" exclude="1" />
+        <column table="a" column="fp_fact_nds_pr" as="fp_fact_nds_pr" exclude="1" />
+        <column table="a" column="fp_nds_fact_a" as="fp_nds_fact_a" exclude="1" />
+        <column table="a" column="fp_sum_fact_per1" as="fp_sum_fact_per1" exclude="1" />
+        <column table="a" column="fp_nds_fact_per1" as="fp_nds_fact_per1" exclude="1" />
+        <column table="a" column="fp_sum_fact_per" as="fp_sum_fact_per" exclude="1" />
+        <column table="a" column="fp_nds_fact_per" as="fp_nds_fact_per" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact_per" as="fp_sum_nds_fact_per" exclude="1" />
+        <column table="a" column="fp_sum_fact_sp1" as="fp_sum_fact_sp1" exclude="1" />
+        <column table="a" column="fp_nds_fact_sp1" as="fp_nds_fact_sp1" exclude="1" />
+        <column table="a" column="fp_sum_fact_sp" as="fp_sum_fact_sp" exclude="1" />
+        <column table="a" column="fp_nds_fact_sp" as="fp_nds_fact_sp" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact_sp" as="fp_sum_nds_fact_sp" exclude="1" />
+        <column table="a" column="fp_sum_fact_pri1" as="fp_sum_fact_pri1" exclude="1" />
+        <column table="a" column="fp_nds_fact_pri1" as="fp_nds_fact_pri1" exclude="1" />
+        <column table="a" column="fp_sum_fact_pri" as="fp_sum_fact_pri" exclude="1" />
+        <column table="a" column="fp_nds_fact_pri" as="fp_nds_fact_pri" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact_pri" as="fp_sum_nds_fact_pri" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact" as="fp_sum_nds_fact" exclude="1" />
+        <column table="a" column="fp_nds_fact" as="fp_nds_fact" exclude="1" />
+        <column table="a" column="vvod_sum_fact" as="vvod_sum_fact" exclude="1" />
+        <column table="a" column="kap_sum_fact" as="kap_sum_fact" exclude="1" />
+        <column table="a" column="fp_sum_fact" as="fp_sum_fact" exclude="1" />
+        <column table="a" column="km" as="km" />
+        <column table="a" column="km_kl" as="km_kl" />
+        <column table="a" column="pow" as="pow" />
+        <column table="a" column="other" as="other" />
+        <column table="a" column="ipr_fin_ipr" as="ipr_fin_ipr" exclude="1" />
+        <column table="a" column="summ_s" as="summ_s" exclude="1" />
+        <column table="a" column="sum_psd" as="sum_psd" exclude="1" />
+        <column table="a" column="sum_utvpsd" as="sum_utvpsd" exclude="1" />
+        <column table="a" column="sum_usr" as="sum_usr" exclude="1" />
+        <column table="a" column="summ_smet_tek" as="summ_smet_tek" exclude="1" />
+        <column table="a" column="summ_smet_tek_on_doc" as="summ_smet_tek_on_doc" exclude="1" />
+        <column table="a" column="summ_nds_usr" as="summ_nds_usr" exclude="1" />
+        <column table="a" column="summ_10_nds_usr" as="summ_10_nds_usr" exclude="1" />
+        <column table="a" column="summ_30_nds_usr" as="summ_30_nds_usr" exclude="1" />
+        <column table="a" column="summ_usr" as="summ_usr" exclude="1" />
+        <column table="a" column="summ_10_usr" as="summ_10_usr" exclude="1" />
+        <column table="a" column="summ_30_usr" as="summ_30_usr" exclude="1" />
+        <column table="a" column="summ_nds_psd" as="summ_nds_psd" exclude="1" />
+        <column table="a" column="summ_nds_psd_10" as="summ_nds_psd_10" exclude="1" />
+        <column table="a" column="summ_nds_psd_30" as="summ_nds_psd_30" exclude="1" />
+        <column table="a" column="summ_psd" as="summ_psd" exclude="1" />
+        <column table="a" column="summ_psd_10" as="summ_psd_10" exclude="1" />
+        <column table="a" column="summ_psd_30" as="summ_psd_30" exclude="1" />
+        <column table="a" column="summ_nds_utvpsd" as="summ_nds_utvpsd" exclude="1" />
+        <column table="a" column="summ_utvpsd" as="summ_utvpsd" exclude="1" />
+        <column table="a" column="mva_psd_30" as="mva_psd_30" exclude="1" />
+        <column table="a" column="mva_30_usr" as="mva_30_usr" exclude="1" />
+        <column table="a" column="kl_km_psd_30" as="kl_km_psd_30" exclude="1" />
+        <column table="a" column="kl_km_30_usr" as="kl_km_30_usr" exclude="1" />
+        <column table="a" column="vl_km_psd_30" as="vl_km_psd_30" exclude="1" />
+        <column table="a" column="vl_km_30_usr" as="vl_km_30_usr" exclude="1" />
+        <column table="a" column="prch_psd_30" as="prch_psd_30" exclude="1" />
+        <column table="a" column="prch_30_usr" as="prch_30_usr" exclude="1" />
+        <column table="a" column="summ_30_mva" as="summ_30_mva" exclude="1" />
+        <column table="a" column="summ_30_kl_km" as="summ_30_kl_km" exclude="1" />
+        <column table="a" column="summ_30_vl_km" as="summ_30_vl_km" exclude="1" />
+        <column table="a" column="summ_30_prch" as="summ_30_prch" exclude="1" />
+        <column table="a" column="summ_utvpsd_tit" as="summ_utvpsd_tit" exclude="1" />
+        <column table="a" column="summ_psd_tit" as="summ_psd_tit" exclude="1" />
+        <column table="a" column="summ_usr_tit" as="summ_usr_tit" exclude="1" />
+        <column table="a" column="summ_psd_10_tit" as="summ_psd_10_tit" exclude="1" />
+        <column table="a" column="summ_psd_30_tit" as="summ_psd_30_tit" exclude="1" />
+        <column table="a" column="summ_usr_10_tit" as="summ_usr_10_tit" exclude="1" />
+        <column table="a" column="summ_usr_30_tit" as="summ_usr_30_tit" exclude="1" />
+        <column table="a" column="summ_k_rasp_psd" as="summ_k_rasp_psd" exclude="1" />
+        <column table="a" column="summ_k_rasp_usr" as="summ_k_rasp_usr" exclude="1" />
+        <column table="a" column="summ_k_rasp" as="summ_k_rasp" exclude="1" />
+        <column table="a" column="summ_nds_usr_tek" as="summ_nds_usr_tek" exclude="1" />
+        <column table="a" column="summ_10_nds_usr_tek" as="summ_10_nds_usr_tek" exclude="1" />
+        <column table="a" column="summ_30_nds_usr_tek" as="summ_30_nds_usr_tek" exclude="1" />
+        <column table="a" column="summ_usr_tek" as="summ_usr_tek" exclude="1" />
+        <column table="a" column="summ_10_usr_tek" as="summ_10_usr_tek" exclude="1" />
+        <column table="a" column="summ_30_usr_tek" as="summ_30_usr_tek" exclude="1" />
+        <column table="a" column="summ_nds_psd_tek" as="summ_nds_psd_tek" exclude="1" />
+        <column table="a" column="summ_nds_psd_10_tek" as="summ_nds_psd_10_tek" exclude="1" />
+        <column table="a" column="summ_nds_psd_30_tek" as="summ_nds_psd_30_tek" exclude="1" />
+        <column table="a" column="summ_psd_tek" as="summ_psd_tek" exclude="1" />
+        <column table="a" column="summ_psd_10_tek" as="summ_psd_10_tek" exclude="1" />
+        <column table="a" column="summ_psd_30_tek" as="summ_psd_30_tek" exclude="1" />
+        <column table="a" column="summ_nds_utvpsd_tek" as="summ_nds_utvpsd_tek" exclude="1" />
+        <column table="a" column="summ_utvpsd_tek" as="summ_utvpsd_tek" exclude="1" />
+        <column table="a" column="mva_psd_30_tek" as="mva_psd_30_tek" exclude="1" />
+        <column table="a" column="mva_30_usr_tek" as="mva_30_usr_tek" exclude="1" />
+        <column table="a" column="kl_km_psd_30_tek" as="kl_km_psd_30_tek" exclude="1" />
+        <column table="a" column="kl_km_30_usr_tek" as="kl_km_30_usr_tek" exclude="1" />
+        <column table="a" column="vl_km_psd_30_tek" as="vl_km_psd_30_tek" exclude="1" />
+        <column table="a" column="vl_km_30_usr_tek" as="vl_km_30_usr_tek" exclude="1" />
+        <column table="a" column="prch_psd_30_tek" as="prch_psd_30_tek" exclude="1" />
+        <column table="a" column="prch_30_usr_tek" as="prch_30_usr_tek" exclude="1" />
+        <column table="a" column="summ_30_mva_tek" as="summ_30_mva_tek" exclude="1" />
+        <column table="a" column="summ_30_kl_km_tek" as="summ_30_kl_km_tek" exclude="1" />
+        <column table="a" column="summ_30_vl_km_tek" as="summ_30_vl_km_tek" exclude="1" />
+        <column table="a" column="summ_30_prch_tek" as="summ_30_prch_tek" exclude="1" />
+        <column table="a" column="summ_utvpsd_tit_tek" as="summ_utvpsd_tit_tek" exclude="1" />
+        <column table="a" column="summ_psd_tit_tek" as="summ_psd_tit_tek" exclude="1" />
+        <column table="a" column="summ_usr_tit_tek" as="summ_usr_tit_tek" exclude="1" />
+        <column table="a" column="summ_psd_10_tit_tek" as="summ_psd_10_tit_tek" exclude="1" />
+        <column table="a" column="summ_psd_30_tit_tek" as="summ_psd_30_tit_tek" exclude="1" />
+        <column table="a" column="summ_usr_10_tit_tek" as="summ_usr_10_tit_tek" exclude="1" />
+        <column table="a" column="summ_usr_30_tit_tek" as="summ_usr_30_tit_tek" exclude="1" />
+        <column table="a" column="summ_k_rasp_psd_tek" as="summ_k_rasp_psd_tek" exclude="1" />
+        <column table="a" column="summ_k_rasp_usr_tek" as="summ_k_rasp_usr_tek" exclude="1" />
+        <column table="a" column="summ_k_rasp_tek" as="summ_k_rasp_tek" exclude="1" />
+        <column table="a" column="summ" as="summ" exclude="1" />
+        <column table="a" column="summ_bn" as="summ_bn" exclude="1" />
+        <column table="a" column="summ_10" as="summ_10" exclude="1" />
+        <column table="a" column="summ_10_bn" as="summ_10_bn" exclude="1" />
+        <column table="a" column="summ_30" as="summ_30" exclude="1" />
+        <column table="a" column="summ_30_bn" as="summ_30_bn" exclude="1" />
+        <column table="a" column="kza" as="kza" exclude="1" />
+        <column table="a" column="dza" as="dza" exclude="1" />
+        <column table="a" column="znzs" as="znzs" exclude="1" />
+        <column table="a" column="zsaldo1" as="zsaldo1" exclude="1" />
+        <column table="a" column="zsaldo" as="zsaldo" exclude="1" />
+        <column table="a" column="dz" as="dz" exclude="1" />
+        <column table="a" column="kz" as="kz" exclude="1" />
+        <column table="a" column="nzs_saldo" as="nzs_saldo" exclude="1" />
+        <column table="a" column="kap_sum_itog" as="kap_sum_itog" exclude="1" />
+        <column table="a" column="kap_sum_nds_itog" as="kap_sum_nds_itog" exclude="1" />
+        <column table="a" column="kap_nds_itog" as="kap_nds_itog" exclude="1" />
+        <column table="a" column="fp_sum_nds_itog" as="fp_sum_nds_itog" exclude="1" />
+        <column table="a" column="fp_nds_itog" as="fp_nds_itog" exclude="1" />
+        <column table="a" column="vvod_sum_itog" as="vvod_sum_itog" exclude="1" />
+        <column table="a" column="saldo" as="saldo" exclude="1" />
+        <column table="a" column="debet" as="debet" exclude="1" />
+        <column table="a" column="kredit" as="kredit" exclude="1" />
+        <column table="a" column="nzs" as="nzs" exclude="1" />
+        <column table="a" column="saldo_itog" as="saldo_itog" exclude="1" />
+        <column table="a" column="nzs_itog" as="nzs_itog" exclude="1" />
+        <column table="a" column="kap_sum_wait_itog" as="kap_sum_wait_itog" exclude="1" />
+        <column table="a" column="kap_sum_nds_wait_itog" as="kap_sum_nds_wait_itog" exclude="1" />
+        <column table="a" column="kap_nds_wait_itog" as="kap_nds_wait_itog" exclude="1" />
+        <column table="a" column="fp_sum_nds_wait_itog" as="fp_sum_nds_wait_itog" exclude="1" />
+        <column table="a" column="fp_nds_wait_itog" as="fp_nds_wait_itog" exclude="1" />
+        <column table="a" column="vvod_sum_wait_itog" as="vvod_sum_wait_itog" exclude="1" />
+        <column table="a" column="saldo_wait" as="saldo_wait" exclude="1" />
+        <column table="a" column="debet_wait" as="debet_wait" exclude="1" />
+        <column table="a" column="kredit_wait" as="kredit_wait" exclude="1" />
+        <column table="a" column="nzs_wait" as="nzs_wait" exclude="1" />
+        <column table="a" column="saldo_wait_itog" as="saldo_wait_itog" exclude="1" />
+        <column table="a" column="nzs_wait_itog" as="nzs_wait_itog" exclude="1" />
+        <column table="a" column="has_plan" as="has_plan" exclude="1" />
+        <column table="a" column="summ_on_ipr" as="summ_on_ipr" exclude="1" />
+        <column table="a" column="summ_10_on_ipr" as="summ_10_on_ipr" exclude="1" />
+        <column table="a" column="summ_30_on_ipr" as="summ_30_on_ipr" exclude="1" />
+        <column table="a" column="summ_k_rasp_on_ipr" as="summ_k_rasp_on_ipr" exclude="1" />
+        <column table="a" column="summ_k_rasp_id" as="summ_k_rasp_id" exclude="1" />
+        <column table="a" column="kap_sum_fact_itog" as="kap_sum_fact_itog" exclude="1" />
+        <column table="a" column="kap_sum_nds_fact_itog" as="kap_sum_nds_fact_itog" exclude="1" />
+        <column table="a" column="kap_nds_fact_itog" as="kap_nds_fact_itog" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact_itog" as="fp_sum_nds_fact_itog" exclude="1" />
+        <column table="a" column="fp_nds_fact_itog" as="fp_nds_fact_itog" exclude="1" />
+        <column table="a" column="vvod_sum_fact_itog" as="vvod_sum_fact_itog" exclude="1" />
+        <column table="a" column="saldo_fact" as="saldo_fact" exclude="1" />
+        <column table="a" column="nzs_fact" as="nzs_fact" exclude="1" />
+        <column table="a" column="saldo_fact_itog" as="saldo_fact_itog" exclude="1" />
+        <column table="a" column="nzs_fact_itog" as="nzs_fact_itog" exclude="1" />
+        <column table="a" column="fp_sum_nds_pos" as="fp_sum_nds_pos" exclude="1" />
+        <column table="a" column="kap_sum_nds_pos" as="kap_sum_nds_pos" exclude="1" />
+        <column table="a" column="kap_sum_pos" as="kap_sum_pos" exclude="1" />
+        <column table="a" column="vvod_sum_pos" as="vvod_sum_pos" exclude="1" />
+        <column table="a" column="kap_sum_nds_pos_itog" as="kap_sum_nds_pos_itog" exclude="1" />
+        <column table="a" column="kap_sum_pos_itog" as="kap_sum_pos_itog" exclude="1" />
+        <column table="a" column="fp_sum_nds_pos_itog" as="fp_sum_nds_pos_itog" exclude="1" />
+        <column table="a" column="vvod_sum_pos_itog" as="vvod_sum_pos_itog" exclude="1" />
+        <column table="a" column="saldo_pos" as="saldo_pos" exclude="1" />
+        <column table="a" column="nzs_pos" as="nzs_pos" exclude="1" />
+        <column table="a" column="saldo_pos_itog1" as="saldo_pos_itog1" exclude="1" />
+        <column table="a" column="nzs_pos_itog1" as="nzs_pos_itog1" exclude="1" />
+        <column table="a" column="saldo_pos_itog" as="saldo_pos_itog" exclude="1" />
+        <column table="a" column="nzs2_itog" as="nzs2_itog" exclude="1" />
+        <column table="a" column="dog_plan_cost" as="dog_plan_cost" exclude="1" />
+        <column table="a" column="dog_plan_cost_nds" as="dog_plan_cost_nds" exclude="1" />
+        <column table="a" column="ipr_fin_doc" as="ipr_fin_doc" exclude="1" />
+        <column table="a" column="eksp_norm_podst" as="eksp_norm_podst" exclude="1" />
+        <column table="a" column="eksp_norm_lin" as="eksp_norm_lin" exclude="1" />
+        <column table="a" column="phis_coltr" as="phis_coltr" exclude="1" />
+        <column table="a" column="phis_numtr" as="phis_numtr" exclude="1" />
+        <column table="a" column="phis_mvatr" as="phis_mvatr" exclude="1" />
+        <column table="a" column="phis_typel" as="phis_typel" exclude="1" />
+        <column table="a" column="phis_numl" as="phis_numl" exclude="1" />
+        <column table="a" column="phis_km_vl" as="phis_km_vl" exclude="1" />
+        <column table="a" column="phis_km_kl" as="phis_km_kl" exclude="1" />
+        <column table="a" column="phis_other" as="phis_other" exclude="1" />
+        <column table="a" column="phis_coltr_itog" as="phis_coltr_itog" exclude="1" />
+        <column table="a" column="phis_numtr_itog" as="phis_numtr_itog" exclude="1" />
+        <column table="a" column="phis_mvatr_itog" as="phis_mvatr_itog" exclude="1" />
+        <column table="a" column="phis_typel_itog" as="phis_typel_itog" exclude="1" />
+        <column table="a" column="phis_numl_itog" as="phis_numl_itog" exclude="1" />
+        <column table="a" column="phis_km_vl_itog" as="phis_km_vl_itog" exclude="1" />
+        <column table="a" column="phis_km_kl_itog" as="phis_km_kl_itog" exclude="1" />
+        <column table="a" column="phis_other_itog" as="phis_other_itog" exclude="1" />
+        <column table="a" column="kap_lim_sum" as="kap_lim_sum" exclude="1" />
+        <column table="a" column="fp_lim_sum_nds" as="fp_lim_sum_nds" exclude="1" />
+        <column table="a" column="vvod_lim_sum" as="vvod_lim_sum" exclude="1" />
+        <column table="a" column="ym_nxt" as="ym_nxt" exclude="1" />
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a" />
+      </from>
+    </query>
+    <query name="blank_1" timestamp="06.04.2016 18:16:08" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test4.xml">
+      <select>
+        <column table="kod_direct" column="kod_direct" group="1" />
+        <column table="kod_direct" column="name_kr" as="name" group="max" />
+        <column table="kod_dop_contr_anl_gr" column="kod_dop_contr_anl_gr" as="name" group="1" />
+        <fact column="is_dop_cont_count" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract" all-rows="1">
+            <link name="kodres" />
+            <link name="kod_direct" />
+          </link>
+          <link name="kido_kod_dop_contr_anl_gr" as="kod_dop_contr_anl_gr" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_dop_contract" column="kodres" />
+                <array>21,22,24,26,20,27,23</array>
+              </call>
+              <call function="is not null">
+                <column table="kod_dop_contr_anl_gr" column="kod_dop_contr_anl_gr" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="blank_2" timestamp="21.11.2016 14:21:12" title="Тест" is-report="1" edit-columns="1" with-behavior="0" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test4.xml">
+      <select>
+        <column table="ipr_titul_ip" column="kod_titul_ip" />
+        <column table="ipr_titul_ip" column="beg_year" />
+        <column table="ipr_titul_ip" column="end_year" />
+      </select>
+      <from>
+        <query name="ipr_titul_ip" />
+      </from>
+    </query>
+    <query name="test8000000" timestamp="12.10.2017 13:37:05" is-report="1" title="Тест8000000" datareader="1" visible="0" with-behavior="0" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test8.xml">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_800000.xml" title="Отчет по исполнителю" del-cols="1" print-proc="2" output-format="xlsb" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="a" column="kod_filial_tit2" title="Тест" />
+      </select>
+      <from>
+        <query name="isv_ad_everyday" as="a" />
+      </from>
+    </query>
+    <query name="test_contr_steps_1" timestamp="21.09.2016 13:45:14" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test_csteps.xml">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_1" />
+        <column table="a" column="kod_titul_ip" as="kod_titul_ip_1" />
+        <column table="a" column="kod_doc" as="kod_doc_1" />
+        <column table="a" column="prev_doc" as="prev_doc_1" />
+      </select>
+      <from>
+        <query name="test_contr_steps" as="a" />
+      </from>
+    </query>
+    <query name="test_detail_gr" timestamp="15.02.2018 16:54:05" title="tttttt" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test_detail.xml">
+      <select>
+        <column table="kod_dop_contract" column="kod_dop_contract" title="ИД" />
+        <column table="kod_dop_contract" column="contr_kind" />
+        <fact column="is_dop_cont_count" as="cnt" group="sum" title="cnt" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract" />
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_dop_contract" column="status" />
+                <const>0</const>
+              </call>
+              <call function="is not null">
+                <column table="kod_dop_contract" column="contr_kind" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="itog" title="Итог">
+          <group>
+            <column table="this" column="contr_kind" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="test_detail22" timestamp="15.02.2018 13:23:51" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test_detail.xml">
+      <select>
+        <column table="a" column="id_slice" title="ИД" />
+        <column table="a" column="dat_copy" />
+        <column table="a" column="dat_copy_time" />
+      </select>
+      <from>
+        <query name="is_ad_all_slice" as="a" />
+      </from>
+      <where exclude="1">
+        <call function="between">
+          <column table="a" column="id_slice" />
+          <const>500</const>
+          <const>505</const>
+        </call>
+      </where>
+    </query>
+    <query name="test_detail_q" timestamp="15.02.2018 16:48:01" title="детализация" is-report="1" visible="0" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test_detail.xml">
+      <print-templates>
+        <excel>
+          <template name="test_detail.xlsx" title="Детализация" print-proc="2" print-xlsx="1" post-process="0" del-cols="1" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="kod_dop_contract" column="kod_dop_contract" title="ИД" />
+        <column table="kod_dop_contract" column="contr_kind" />
+        <column table="kod_dop_contract" column="num_req" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract" all-rows="1" />
+        </qube>
+      </from>
+    </query>
+    <query name="test_period" timestamp="06.10.2016 03:45:20" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test_period.xml">
+      <select>
+        <column table="a" column="yms" />
+        <column table="a" column="ympo" />
+      </select>
+      <from>
+        <query name="vg_period.ym_enum_str_to_ym_ranges_tbl" as="a">
+          <withparams>
+            <call function="()">
+              <query>
+                <select>
+                  <const as="aa">'2015.01,2015.02,2015.04'</const>
+                </select>
+                <from>
+                  <query name="dual" />
+                </from>
+              </query>
+            </call>
+            <const as="aa" exclude="1">'2015.01,2015.02,2015.04'</const>
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="vem_is_ad_all" timestamp="02.11.2017 20:08:06" class="1" file="sql.builder.templates\sql.builder\projects\ipr_test\test\vem_is_ad_all.xml">
+      <select>
+        <column table="a" column="num_ouco" type="string" data-size="20" />
+        <column table="a" column="num_ds" type="string" data-size="40" />
+        <column table="a" column="num_req" type="string" data-size="50" />
+        <column table="a" column="contr_kind" type="string" data-size="10" />
+        <column table="a" column="name_vid_ad" type="string" data-size="200" />
+        <column table="a" column="pr_sum_name" type="string" data-size="250" />
+        <column table="a" column="guess_sum" type="number" />
+        <column table="a" column="sum_rated" type="number" />
+        <column table="a" column="contr_sumf" type="number" />
+        <column table="a" column="contr_sum_m" type="number" />
+        <column table="a" column="contr_sum_e" type="number" />
+        <column table="a" column="cnt_mes" type="number" />
+        <column table="a" column="pr_late_payment" type="number" />
+        <column table="a" column="contr_opl" type="number" />
+        <column table="a" column="contr_opl_d" type="number" />
+        <column table="a" column="contr_opl_i" type="number" />
+        <column table="a" column="opl" type="number" />
+        <column table="a" column="perepl" type="number" />
+        <column table="a" column="vozvrat" type="number" />
+        <column table="a" column="sum_os" type="number" />
+        <column table="a" column="zadol_opl" type="number" />
+        <column table="a" column="zadol_d" type="number" />
+        <column table="a" column="zadol_i" type="number" />
+        <column table="a" column="sum_akts" type="number" />
+        <column table="a" column="proc_opl" type="number" />
+        <column table="a" column="imuch" type="number" />
+        <column table="a" column="dat_first_opl" type="date" />
+        <column table="a" column="dat_opl" type="date" />
+        <column table="a" column="a_customer" type="string" data-size="250" />
+        <column table="a" column="name_all" type="string" data-size="1000" />
+        <column table="a" column="inn" type="string" data-size="15" />
+        <column table="a" column="kpp" type="string" data-size="20" />
+        <column table="a" column="name_zayav" type="string" data-size="250" />
+        <column table="a" column="dt_contract" type="date" />
+        <column table="a" column="srok_uslug" type="date" />
+        <column table="a" column="dat_end" type="date" />
+        <column table="a" column="dat_rastorg" type="date" />
+        <column table="a" column="kod_dop_contract" type="number" />
+        <column table="a" column="dat_ouco" type="date" />
+        <column table="a" column="name_kr" type="string" data-size="25" />
+        <column table="a" column="fl_build" type="number" />
+        <column table="a" column="fl_build_vip" type="number" />
+        <column table="a" column="fl_build_z" type="number" />
+        <column table="a" column="fl_build_z_vip" type="number" />
+        <column table="a" column="sum_pd" type="number" />
+        <column table="a" column="god_tarif" type="number" />
+        <column table="a" column="ind_proekt" type="number" />
+        <column table="a" column="god_ip" type="number" />
+        <column table="a" column="pr_name" type="string" data-size="250" />
+        <column table="a" column="korr_ip" type="number" />
+        <column table="a" column="name_obj" type="string" data-size="60" />
+        <column table="a" column="name_otrasl" type="string" data-size="200" />
+        <column table="a" column="razdel_okved" type="string" data-size="30" />
+        <column table="a" column="name_razdel_okved" type="string" data-size="250" />
+        <column table="a" column="sposob_okved" type="string" data-size="4000" />
+        <column table="a" column="kn_zone" type="number" />
+        <column table="a" column="filial" type="string" data-size="25" />
+        <column table="a" column="name_rs" type="string" data-size="25" />
+        <column table="a" column="cust_addr" type="string" data-size="250" />
+        <column table="a" column="load_point" type="string" data-size="300" />
+        <column table="a" column="group_lp" type="string" data-size="50" />
+        <column table="a" column="load_point1" type="string" data-size="300" />
+        <column table="a" column="group_lp1" type="string" data-size="50" />
+        <column table="a" column="lp_addr" type="string" data-size="250" />
+        <column table="a" column="sum_load" type="number" />
+        <column table="a" column="load_sum1" type="number" />
+        <column table="a" column="load_sum2" type="number" />
+        <column table="a" column="load_sum3" type="number" />
+        <column table="a" column="load123" type="number" />
+        <column table="a" column="load1" type="number" />
+        <column table="a" column="load2" type="number" />
+        <column table="a" column="load3" type="number" />
+        <column table="a" column="load_existed" type="number" />
+        <column table="a" column="load_ex1" type="number" />
+        <column table="a" column="load_ex2" type="number" />
+        <column table="a" column="load_ex3" type="number" />
+        <column table="a" column="supply" type="string" data-size="250" />
+        <column table="a" column="supply1" type="string" data-size="250" />
+        <column table="a" column="vol" type="string" data-size="20" />
+        <column table="a" column="vol1" type="string" data-size="20" />
+        <column table="a" column="dt_request" type="date" />
+        <column table="a" column="exp_num" type="string" data-size="20" />
+        <column table="a" column="exp_dat" type="date" />
+        <column table="a" column="exp_prim" type="string" data-size="2000" />
+        <column table="a" column="name_status" type="string" data-size="50" />
+        <column table="a" column="old_status_name" type="string" data-size="2000" />
+        <column table="a" column="dataizm" type="date" />
+        <column table="a" column="fio" type="string" data-size="250" />
+        <column table="a" column="folder" type="string" data-size="250" />
+        <column table="a" column="folder_date" type="date" />
+        <column table="a" column="name_folder_user" type="string" data-size="50" />
+        <column table="a" column="name_kurators" type="string" data-size="250" />
+        <column table="a" column="name_kurators_req" type="string" data-size="250" />
+        <column table="a" column="num_tu" type="string" data-size="4000" />
+        <column table="a" column="srok_tu" type="date" />
+        <column table="a" column="contr_note" type="string" data-size="4000" />
+        <column table="a" column="prim" type="string" data-size="300" />
+        <column table="a" column="dat_sl_zap" type="date" />
+        <column table="a" column="dat_per_sl_zap" type="date" />
+        <column table="a" column="dat_ks" type="date" />
+        <column table="a" column="CP" type="number" />
+        <column table="a" column="AP" type="number" />
+        <column table="a" column="Uvedom" type="number" />
+        <column table="a" column="Uvedom_r" type="number" />
+        <column table="a" column="reg_req_title" type="string" data-size="45" />
+        <column table="a" column="kn_sert" type="number" />
+        <column table="a" column="vid_atp" type="string" data-size="4000" />
+        <column table="a" column="dt_reg" type="date" />
+        <column table="a" column="dt_delivery" type="date" />
+        <column table="a" column="ind_tar" type="number" />
+        <column table="a" column="fl_work_ps" type="number" />
+        <column table="a" column="fl_work_net" type="number" />
+        <column table="a" column="fl_work_pu" type="number" />
+        <column table="a" column="fl_loss" type="number" />
+        <column table="a" column="name_group" type="string" data-size="50" />
+        <column table="a" column="dat_tz_ks" type="date" />
+        <column table="a" column="dat_ks_11" type="date" />
+        <column table="a" column="dat_act" type="date" />
+        <column table="a" column="dat_vip_rab" type="date" />
+        <column table="a" column="num_vip_rab" type="string" data-size="20" />
+        <column table="a" column="dat_fact_vol" type="date" />
+        <column table="a" column="text_rab" type="string" data-size="13" />
+        <column table="a" column="text_oblig" type="string" data-size="11" />
+        <column table="a" column="analog" type="string" data-size="4000" />
+        <column table="a" column="dat_dop_doc" type="date" />
+        <column table="a" column="num_dop_doc" type="string" data-size="301" />
+        <column table="a" column="num_ad" type="string" data-size="50" />
+        <column table="a" column="pr_num_pref_control" type="number" />
+        <column table="a" column="load_units" type="string" data-size="15" />
+        <column table="a" column="fl_rotate" type="number" />
+        <column table="a" column="fl_rnk_not" type="number" />
+        <column table="a" column="vrem_tp" type="number" />
+        <column table="a" column="quant_ds" type="number" />
+        <column table="a" column="dat_ds" type="date" />
+        <column table="a" column="fl_discount" type="number" />
+        <column table="a" column="titul_ip" type="string" data-size="250" />
+        <column table="a" column="num_aip" type="string" data-size="250" />
+        <column table="a" column="name_kat_zayav" type="string" data-size="250" />
+        <column table="a" column="dat_close_deb_zadol" type="date" />
+        <column table="a" column="otl_usl" type="string" data-size="2000" />
+        <column table="a" column="vid_otl_usl" type="string" data-size="250" />
+        <column table="a" column="srok_otl_usl" type="date" />
+        <column table="a" column="stage" type="number" />
+        <column table="a" column="sso" type="number" />
+        <column table="a" column="dat_status_2" type="date" />
+        <column table="a" column="pr_db" type="number" />
+        <column table="a" column="dat_uv_el_ust" type="date" />
+        <column table="a" column="dat_spis_kz" type="date" />
+        <column table="a" column="um_status_1" type="string" data-size="50" />
+        <column table="a" column="podr_status_1" type="string" data-size="100" />
+        <column table="a" column="vid_ds" type="string" data-size="200" />
+        <column table="a" column="DS_not_rab_LE" type="number" />
+        <column table="a" column="read_to_close" type="number" />
+        <column table="a" column="dat_read_to_close" type="date" />
+        <column table="a" column="got_to_close" type="number" />
+        <column table="a" column="dat_got_to_close" type="date" />
+        <column table="a" column="text_spis" type="string" data-size="500" />
+        <column table="a" column="prior_ad" type="string" data-size="250" />
+        <column table="a" column="pr_ofz" type="number" />
+        <column table="a" column="status_ofz" type="string" data-size="250" />
+        <column table="a" column="name_direct_i" type="string" data-size="100" />
+        <column table="a" column="n_pril" type="string" data-size="50" />
+        <column table="a" column="all_control" type="number" />
+        <column table="a" column="folder_ofz" type="string" data-size="250" />
+        <column table="a" column="name_mo" type="string" data-size="250" />
+        <column table="a" column="name_sp" type="string" data-size="250" />
+        <column table="a" column="name_np" type="string" data-size="250" />
+        <column table="a" column="s_mobr" type="string" data-size="250" />
+        <column table="a" column="mo_name" type="string" data-size="250" />
+        <column table="a" column="s_nasp" type="string" data-size="250" />
+        <column table="a" column="vid_opl_ad" type="string" data-size="3" />
+        <column table="a" column="pr_ad_iskl" type="number" />
+        <column table="a" column="type_req" type="string" data-size="30" />
+        <column table="a" column="type_req1" type="string" data-size="30" />
+        <column table="a" column="titul_ad" type="number" />
+        <column table="a" column="sposob_zayav" type="string" data-size="40" />
+        <column table="a" column="spos_vip" type="string" data-size="10" />
+        <column table="a" column="dat_plan_rab" type="date" />
+        <column table="a" column="org_active" type="string" data-size="250" />
+        <column table="a" column="name_ini_prod" type="string" data-size="50" />
+        <column table="a" column="dt_bus_plan" type="date" />
+        <column table="a" column="cnt_mes_tp" type="date" />
+        <column table="a" column="name_ini_prod_ds" type="string" data-size="50" />
+        <column table="a" column="name_dzo_bus_plan" type="string" data-size="50" />
+      </select>
+      <from>
+        <table name="vem_is_ad_all" as="a" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report form="empty" name="test_detail" timestamp="15.02.2018 18:07:15" visible="0" title="test_detail" mode="excel" nogrid="1" file="sql.builder.templates\sql.builder\projects\ipr_test\test\test_detail.xml">
+      <print-templates>
+        <excel>
+          <template name="test_gr.xlsx" title="test_gr" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_detail_gr" as="a">
+          <events>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="test_detail_q" />
+          </events>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="vr_sprav" timestamp="15.03.2017 13:40:49" title="Справочник" file="sql.builder.templates\sql.builder\projects\ipr_test\forms\ipr\vr_sprav.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <columns>
+            <column table="a" column="title" />
+            <column table="a" column="table_name" />
+            <column table="a" column="key_name" />
+            <column table="a" column="parent_key" />
+            <column table="a" column="cnct_table" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="vr_sprav" as="a" />
+      </from>
+    </form>
+    <form name="vr_struct_editor" timestamp="07.12.2017 01:14:21" with-behavior="0" title="Редактор структуры ALPHA" file="sql.builder.templates\sql.builder\projects\ipr_test\forms\ipr\vr_sprav_ipr1_test.xml">
+      <params />
+      <expressions>
+        <call function="if" type="string" as="vid1" group="list">
+          <call function="=" dontpushpred="1">
+            <column table="ipr_kod_sprav" column="kod_sprav" />
+            <const>1</const>
+          </call>
+          <fact column="vr_tree_pl_sprav_vid" />
+        </call>
+        <call function="if" type="string" as="vid2" group="list">
+          <call function="=" dontpushpred="1">
+            <column table="ipr_kod_sprav" column="kod_sprav" />
+            <const>2</const>
+          </call>
+          <fact column="vr_tree_pl_sprav_vid" />
+        </call>
+        <call function="if" type="string" as="pr_set1" group="list">
+          <call function="=" dontpushpred="1">
+            <column table="ipr_kod_sprav" column="kod_sprav" />
+            <const>1</const>
+          </call>
+          <fact column="vr_tree_sprav_cnt" />
+        </call>
+        <call function="if" type="string" as="pr_set2" group="list">
+          <call function="=" dontpushpred="1">
+            <column table="ipr_kod_sprav" column="kod_sprav" />
+            <const>2</const>
+          </call>
+          <fact column="vr_tree_sprav_cnt" />
+        </call>
+      </expressions>
+      <content>
+        <usefield field="ipr_kod_tree_struct" name="v_kod_tree_struct" show-checkbox="0" title="Тип структуры">
+          <buttons>
+            <uicommand title="Выбор" type="Ellipsis" action-type="dynamic-form-for-select" call="vr_tree_struct" />
+          </buttons>
+        </usefield>
+        <fact table="vr_tree_struct" column="vr_tss_pr_ips_razdel_ip" parname="vr_tss_pr_ips_razdel_ip" column-visible="0" />
+        <fact table="vr_tree_struct" column="vr_tss_pr_ips_klass_titul" parname="vr_tss_pr_ips_klass_titul" column-visible="0" />
+        <fact table="vr_tree_struct" column="vr_tss_pr_ips_krit_minenergo" parname="vr_tss_pr_ips_krit_minenergo" column-visible="0" />
+        <fieldgroup visible="v_kod_tree_struct" noborder="1">
+          <fieldgroup title="Обновление" column-visible="0">
+            <column table="vr_tree_struct" column="date_mod" />
+            <column table="ipr_izmen_last" column="izm_date" exclude="1" />
+            <fact table="vr_tree_struct" column="ipr_izmen_last_date" />
+            <column table="vr_tree_struct" column="date_upd" />
+            <uicommand title="Обновить" width-fixed="1" />
+          </fieldgroup>
+          <splitcontainer>
+            <fieldgroup title="Структура">
+              <grid table="vr_tree" show-toolbar="1" order-field-name="ord" parent-field-name="kod_parent">
+                <toolbar exclude="1">
+                  <uicommand name="vg_tree.update_tree_abbr">
+                    <useparam name="v_kod_tree_struct" />
+                  </uicommand>
+                </toolbar>
+                <columns>
+                  <column table="vr_tree" column="row_color" column-visible="0" parname="row_color" />
+                  <fact table="vr_tree" column="ipr_tree_razdel_color" column-visible="0" parname="razdel_color" />
+                  <column table="vr_tree" column="kod_tree" column-visible="0" parname="kod_tree" />
+                  <column table="vr_tree" column="kod_parent" />
+                  <column table="vr_tree" column="kod_tree_struct" title="Структура" column-visible="0" default="v_kod_tree_struct" />
+                  <column table="vr_tree" column="ord" column-visible="0" />
+                  <column table="vr_tree" column="abbr" column-editable="0" />
+                  <column table="vr_tree" column="name" title="Название">
+                    <buttons exclude="1">
+                      <uicommand action-type="dynamic-form" call="vr_sprav_ipr2_test_tree" modal="1">
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </column>
+                  <call function="if" type="string" as="color_vid1" table="vr_tree" title="Цвет1" parname="color_vid1">
+                    <call function="is null">
+                      <fact column="pr_set1" table="vr_tree" />
+                    </call>
+                    <use-color color="silver" />
+                  </call>
+                  <call function="if" type="string" as="color_vid2" table="vr_tree" title="Цвет2" parname="color_vid2">
+                    <call function="is null">
+                      <fact column="pr_set2" table="vr_tree" />
+                    </call>
+                    <use-color color="silver" />
+                  </call>
+                  <column table="vr_tree" column="is_editable_refs" parname="is_editable_refs" column-visible="0" />
+                  <column table="vr_tree" column="is_editable_cond1" parname="is_editable_cond1" column-visible="0" />
+                  <column table="vr_tree" column="is_editable_cond2" parname="is_editable_cond2" column-visible="0" />
+                  <fact table="vr_tree" column="vid1" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" font-color="color_vid1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_data_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>1</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vid2" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" font-color="color_vid2">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_data_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>2</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vid_self1" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" font-color="razdel_color" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>1</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vid_self2" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" font-color="razdel_color" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>2</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vr_tree_pl_sprav_vid_razdel" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" font-color="razdel_color" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>1</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vr_tree_pl_sprav_vid_kl_tit" title="Принадлежность к важн. объекта, программам" visible="vr_tss_pr_ips_razdel_ip" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>2</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vr_tree_pl_sprav_vid_kr_me" visible="vr_tss_pr_ips_razdel_ip" title="Критерий минэнерго" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <const>3</const>
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vr_tree_sprav_vid" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vr_tree_pl_sprav_vid" title="Раздел ИПР" visible="vr_tss_pr_ips_razdel_ip" font-color="razdel_color" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_razdel_ip_select" modal="1" visible="is_editable_refs" side="Right">
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <fact table="vr_tree" column="vr_sprav_klass_titul_vid" visible="vr_tss_pr_ips_klass_titul" title="Принадлежность к важн. объекта, программам" exclude="1">
+                    <buttons>
+                      <uicommand action-type="dynamic-form" call="vr_sprav_klass_titul_select" modal="1" visible="is_editable_refs" side="Right">
+                        <useparam name="kod_tree" />
+                      </uicommand>
+                    </buttons>
+                  </fact>
+                  <multireference table="vr_tree" link="vr_tree_krit_minenergo" column="kod_krit_minenergo" visible="vr_tss_pr_ips_krit_minenergo" editable="is_editable_refs" exclude="1" />
+                  <column table="vr_tree" column="detail" editable="is_editable_cond2" />
+                  <column table="vr_tree" column="dont_show_child" editable="is_editable_cond2" />
+                  <column table="vr_tree" column="exclude_row" editable="is_editable_cond1" />
+                  <column table="vr_tree" column="is_auto" parname="is_auto" />
+                  <column table="vr_tree" column="is_active" />
+                </columns>
+                <events>
+                  <useaction event-name="save" action-type="custom">
+                    <useaction name="vg_tree.update_tree_abbr">
+                      <useparam name="v_kod_tree_struct" />
+                    </useaction>
+                    <useaction action-type="refresh-column" object="vr_tree" column="abbr" exclude="1" />
+                    <useaction action-type="refresh-column" object="vr_tree" column="row_color" exclude="1" />
+                    <useaction action-type="refresh-table" object="vr_tree" />
+                    <useaction action-type="refresh-column" object="vr_tree_struct" column="date_mod" />
+                    <useaction action-type="refresh-column" object="vr_tree_struct" column="date_upd" />
+                  </useaction>
+                </events>
+              </grid>
+            </fieldgroup>
+            <fieldgroup title="Титулы для выбранного узла" expanded="0">
+              <grid table="vr_tree_ipr">
+                <columns>
+                  <column table="kod_doc_osn" column="full_name" title="Версия ИПР" />
+                  <column table="kod_titul_ip" column="tit_num_new" />
+                  <column table="kod_titul_ip" column="full_name" title="Наименование титула" as="full_name_tit" />
+                </columns>
+              </grid>
+            </fieldgroup>
+          </splitcontainer>
+        </fieldgroup>
+      </content>
+      <from>
+        <query name="vr_tree_struct" auto-refresh="1">
+          <elink name="vr_tree" color="row_color">
+            <elink name="vr_tree_ipr" column-editable="0" only-visible-refresh="1">
+              <link name="kod_ipr">
+                <link name="kod_titul_ip" />
+                <link name="kod_doc_osn" />
+              </link>
+            </elink>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="vr_tree_struct" column="kod_tree_struct" />
+              <useparam name="v_kod_tree_struct" />
+            </call>
+          </where>
+        </query>
+        <query name="ipr_izmen_last" exclude="1" />
+        <query name="vr_tree" auto-refresh="1" exclude="1">
+          <where>
+            <call function="=">
+              <column table="vr_tree" column="kod_tree_struct" />
+              <useparam name="v_kod_tree_struct" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="vr_sprav_data_select" timestamp="10.06.2019 12:12:49" with-behavior="0" show-toolbar="1" form-size="973;613" title="Выбор раздела ИПР" file="sql.builder.templates\sql.builder\projects\ipr_test\forms\ipr\vr_sprav_ipr1_test.xml">
+      <params>
+        <param name="kod_sprav" type="number">
+          <const>1</const>
+        </param>
+        <param name="kod_tree" type="number">
+          <const>15942</const>
+        </param>
+      </params>
+      <toolbar>
+        <uicommand action-type="add-selected" title="Добавить выделенные" />
+        <uicommand action-type="remove-selected" title="Убрать выдленные" />
+      </toolbar>
+      <content>
+        <splitcontainer is-vertical="1">
+          <fieldgroup title="Доступные">
+            <grid table="a" parent-field-name="kod_parent">
+              <columns>
+                <column table="a" column="dummy" type="number" controlType="UICheck" title="Выбор" column-editable="1" as="check1" />
+                <column table="a" column="name" column-editable="0" column-width="449" />
+                <column table="a" column="kod_parent" column-visible="0" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title="Выбранные">
+            <grid table="b">
+              <columns>
+                <column table="b" column="kod_sprav_data" as="kod" column-visible="0" />
+                <column table="c" column="name" />
+                <column table="b" column="with_childs" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="vr_sprav_data" multi-select-column="check1" multi-select-target="b" as="a">
+          <where>
+            <call function="=">
+              <column table="a" column="kod_sprav" />
+              <useparam name="kod_sprav" />
+            </call>
+          </where>
+        </query>
+        <query name="vr_tree" as="m">
+          <elink name="vr_tree_sprav" column="kod" as="b">
+            <link name="kod_sprav_data" as="c" />
+            <where>
+              <call function="=">
+                <column table="c" column="kod_sprav" />
+                <useparam name="kod_sprav" />
+              </call>
+            </where>
+          </elink>
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="m" column="kod_tree" />
+                <useparam name="kod_tree" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="vr_rep_34397_razdel_select" timestamp="03.08.2017 19:30:58" with-behavior="0" show-toolbar="1" form-size="1148;715" title="Выбор раздела ИПР" file="sql.builder.templates\sql.builder\projects\ipr_test\forms\ipr\vr_sprav_ipr1_test.xml">
+      <params>
+        <param name="kod_tree" type="number">
+          <const>5</const>
+        </param>
+      </params>
+      <toolbar>
+        <uicommand action-type="add-selected" title="Добавить выделенные" />
+        <uicommand action-type="remove-selected" title="Убрать выдленные" />
+      </toolbar>
+      <content>
+        <splitcontainer is-vertical="1">
+          <fieldgroup title="Доступные">
+            <grid table="a" parent-field-name="kod_parent">
+              <columns>
+                <column table="a" column="dummy" type="number" controlType="UICheck" title="Выбор" column-editable="1" as="check1" />
+                <column table="a" column="abbr" column-editable="0" column-width="90" />
+                <column table="a" column="name" column-editable="0" column-width="449" />
+                <column table="a" column="kod_parent" column-visible="0" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title="Выбранные">
+            <grid table="b">
+              <columns>
+                <column table="b" column="kod_razdel" column-visible="0" as="kod" />
+                <column table="c" column="abbr" />
+                <column table="c" column="name" column-width="292" />
+                <column table="b" column="with_childs" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="ips_razdel_ip" multi-select-column="check1" multi-select-target="b" as="a" />
+        <query name="vr_rep_34397_col" as="m">
+          <elink name="vr_rep_34397_col_razdel" column="kod" as="b">
+            <link name="kod_razdel" as="c" />
+          </elink>
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="m" column="kod_rep_34397_col" />
+                <useparam name="kod_tree" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="vr_tree_struct" timestamp="04.04.2017 12:24:12" title="Тип структуры" file="sql.builder.templates\sql.builder\projects\ipr_test\forms\ipr\vr_tree_struct.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Тип структуры">
+            <grid table="vr_tree_struct" show-toolbar="1">
+              <toolbar>
+                <uicommand column-visible="1" button-type="grid-choice" />
+              </toolbar>
+              <columns>
+                <column table="vr_tree_struct" column="name" column-width="258" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title="Связанные справочники">
+            <grid table="vr_tree_struct_sprav" show-toolbar="1" order-field-name="ord">
+              <columns>
+                <column table="vr_tree_struct_sprav" column="kod_sprav" />
+                <column table="vr_tree_struct_sprav" column="ord" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="vr_tree_struct">
+          <elink name="vr_tree_struct_sprav" />
+        </query>
+      </from>
+    </form>
+    <form name="form_simple_test" timestamp="20.03.2017 17:21:19" title="Тест" file="sql.builder.templates\sql.builder\projects\ipr_test\test\form_simple_test.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <columns>
+            <column table="a" column="abbr_num" />
+            <column table="a" column="name" />
+            <column table="a" column="is_tttttt" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="ips_klass_titul" as="a" />
+      </from>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name">
+    <action name="vg_tree.update_tree_abbr" title="Обновление нумерации в дереве структуры" action-type="call-plsql" file="sql.builder.templates\sql.builder\projects\ipr_test\forms\ipr\vr_sprav_ipr1_test.xml">
+      <params>
+        <param name="kod_tree_struct" type="number" />
+      </params>
+      <text>
+        begin
+        update vr_tree_struct set date_mod=sysdate where kod_tree_struct=:kod_tree_struct;
+        commit;
+        vg_tree.UPDATE_TREE_ABBR(:kod_tree_struct);
+        end;
+      </text>
+    </action>
+  </actions>
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

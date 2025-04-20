@@ -1,0 +1,412 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:24:15.8052047+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="49813" timestamp="03.10.2018 15:27:36" is-report="1" title="Отчет о правах пользователей" visible="0" order="puser,area_nmae,nomer" file="sql.builder.templates\sql.builder\projects\49813\all\49813-rep.xml" haskeys="1">
+      <columns>
+        <column name="r_n1" />
+        <band title="Пользователь">
+          <column name="nnn" />
+          <column name="puser" />
+          <band title="КИДО">
+            <column name="name" />
+            <column name="dolzhn" />
+            <column name="otdel" />
+            <column name="akt_o" />
+          </band>
+          <band title="ИС ППТЭ">
+            <column name="fio" />
+            <column name="dolzh" />
+            <column name="dep_name" />
+            <column name="akt_n" />
+          </band>
+        </band>
+        <band title="Права">
+          <column name="sys_name" />
+          <column name="area_nmae" />
+          <band title="Пункт">
+            <column name="nomer" />
+            <column name="menu_name" />
+          </band>
+          <column name="rname" />
+        </band>
+      </columns>
+      <select>
+        <call function="rownum" as="r_n1" key="1" />
+        <call function="dense_rank" title="№" as="nnn" agg="" format="N0">
+          <call function="order by 2">
+            <column table="this" column="puser" />
+          </call>
+        </call>
+        <column table="p" column="puser" title="Имя пользователя" as="puser" />
+        <column table="o" column="name" title="ФИО" as="name" />
+        <column table="o" column="dolzhn" as="dolzhn" />
+        <column table="o" column="otdel" title="Подразделение" as="otdel" />
+        <call function="decode" as="akt_o" title="Действующий" type="string">
+          <column table="o" column="pr_active" />
+          <const>1</const>
+          <const>'Да'</const>
+          <const>0</const>
+          <const>'Нет'</const>
+        </call>
+        <column table="n" column="fio" as="fio" />
+        <column table="n" column="dolzh" as="dolzh" />
+        <column table="n" column="dep_name" title="Подразделение" as="dep_name" />
+        <call function="decode" as="akt_n" type="string" title="Действующий">
+          <column table="n" column="pr_active" />
+          <const>1</const>
+          <const>'Да'</const>
+          <const>0</const>
+          <const>'Нет'</const>
+        </call>
+        <column table="a" column="sys_name" as="sys_name" />
+        <column table="a" column="area_nmae" as="area_nmae" />
+        <column table="a" column="nomer" title="Номер" agg="" as="nomer" />
+        <column table="a" column="menu_name" title="Наименование" as="menu_name" />
+        <column table="a" column="rname" title="Доступ" as="rname" />
+      </select>
+      <from>
+        <query name="vv_all_puser" as="p">
+          <elink name="vv_users_kido" as="o" table="vv_users_kido" child="vv_users_kido" field="puser" parent="vv_all_puser" back="vv_users_kido" />
+          <elink name="vv_users_kido_net" as="n" table="vv_users_kido_net" child="vv_users_kido_net" field="puser" parent="vv_all_puser" back="vv_users_kido_net" />
+          <elink name="vv_user_rights" as="a" table="vv_user_rights" child="vv_user_rights" field="puser" parent="vv_all_puser" back="vv_user_rights" />
+        </query>
+      </from>
+      <order>
+        <column column="puser" />
+        <column column="area_nmae" />
+        <column column="nomer" />
+      </order>
+    </query>
+    <query name="49813-gr" timestamp="02.10.2018 00:55:22" is-report="1" title="Отчет о правах пользователей" visible="0" dx-export="1" file="sql.builder.templates\sql.builder\projects\49813\all\49813-rep.xml">
+      <select>
+        <column table="a" column="puser" as="puser" key="0" />
+        <column table="a" column="puser" as="puser1" group="max" title="Атрибут пользователя" key="0" />
+        <column table="a" column="area_nmae" title="-" as="area_nmae" key="0" />
+        <column table="a" column="kod_menu" as="npp" title="-" key="0" />
+        <column table="a" column="menu_name" title="-" as="menu_name" key="0" />
+        <column table="a" column="rname" group="max" title="Право" as="rname" key="0" />
+      </select>
+      <from>
+        <query name="vv_user_rights" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="area_nmae" />
+            <call function="array">
+              <const>'ИС Альфа Присоединение'</const>
+              <const>'КИДО'</const>
+            </call>
+          </call>
+          <call function="gt">
+            <column table="a" column="kod_rights" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <on-rows>
+          <grset as="us">
+            <group>
+              <column table="this" column="puser" />
+            </group>
+          </grset>
+        </on-rows>
+        <on-columns>
+          <grset as="pr" order="area_nmae,npp,menu_name">
+            <group>
+              <column table="a" column="area_nmae" />
+              <column table="this" column="npp" />
+              <column table="this" column="menu_name" />
+            </group>
+            <facts>
+              <column column="rname" />
+            </facts>
+          </grset>
+        </on-columns>
+      </grouping>
+    </query>
+    <query name="49813-user" timestamp="03.10.2018 14:53:44" is-report="1" title="Отчет о правах пользователей" visible="0" order="puser" file="sql.builder.templates\sql.builder\projects\49813\all\49813-rep.xml" haskeys="1">
+      <columns>
+        <column name="puser" />
+        <band title="КИДО">
+          <column name="name" />
+          <column name="dolzhn" />
+          <column name="otdel" />
+          <column name="akt_o" />
+        </band>
+        <band title="ИС ППТЭ">
+          <column name="fio" />
+          <column name="dolzh" />
+          <column name="dep_name" />
+          <column name="akt_n" />
+        </band>
+      </columns>
+      <select>
+        <column table="p" column="puser" group="1" key="1" title="Имя пользователя" as="puser" />
+        <column table="o" column="name" title="ФИО" group="max" as="name" />
+        <column table="o" column="dolzhn" group="max" as="dolzhn" />
+        <column table="o" column="otdel" title="Подразделение" group="max" as="otdel" />
+        <call function="decode" as="akt_o" title="Действующий" type="string" group="max">
+          <column table="o" column="pr_active" />
+          <const>1</const>
+          <const>'Да'</const>
+          <const>0</const>
+          <const>'Нет'</const>
+        </call>
+        <column table="n" column="fio" group="max" as="fio" />
+        <column table="n" column="dolzh" group="max" as="dolzh" />
+        <column table="n" column="dep_name" title="Подразделение" group="max" as="dep_name" />
+        <call function="decode" as="akt_n" type="string" title="Действующий" group="max">
+          <column table="n" column="pr_active" />
+          <const>1</const>
+          <const>'Да'</const>
+          <const>0</const>
+          <const>'Нет'</const>
+        </call>
+      </select>
+      <from>
+        <query name="vv_all_puser" as="p">
+          <elink name="vv_users_kido" as="o" table="vv_users_kido" child="vv_users_kido" field="puser" parent="vv_all_puser" back="vv_users_kido" />
+          <elink name="vv_users_kido_net" as="n" table="vv_users_kido_net" child="vv_users_kido_net" field="puser" parent="vv_all_puser" back="vv_users_kido_net" />
+          <elink name="vv_user_rights" as="a" table="vv_user_rights" child="vv_user_rights" field="puser" parent="vv_all_puser" back="vv_user_rights" />
+        </query>
+      </from>
+      <order>
+        <column column="puser" />
+      </order>
+    </query>
+    <query name="vr_is_rights_flags" class="1" timestamp="02.10.2018 16:58:37" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vr_is_rights_flags.xml" haskeys="1">
+      <select>
+        <column table="a" column="char_num" type="number" column-mandatory="1" title="Номер права в КИДО" as="char_num" key="1" fixed="1" />
+        <column table="a" column="flag_name" type="string" column-mandatory="1" title="Название права" as="flag_name" key="0" />
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" />
+      </select>
+      <from>
+        <table name="vr_is_rights_flags" as="a" />
+      </from>
+    </query>
+    <query name="vv_users_kido" class="1" timestamp="03.10.2018 14:46:01" materialize="1" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_users_kido.xml" haskeys="1">
+      <select>
+        <column table="a" column="puser" type="string" column-mandatory="1" title="Пользователь" as="puser" key="1" fixed="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Фамилия И.О." as="name" key="0" />
+        <column table="a" column="fam" type="string" title="Фамилия" as="fam" key="0" />
+        <column table="a" column="im" type="string" title="Имя" as="im" key="0" />
+        <column table="a" column="otch" type="string" title="Отчество" as="otch" key="0" />
+        <column table="a" column="telef" type="string" title="Телефон" as="telef" key="0" />
+        <column table="a" column="otdel" type="string" title="Отдел" as="otdel" key="0" />
+        <column table="a" column="dat_vvod" type="date" title="" as="dat_vvod" key="0" />
+        <column table="a" column="kod_person" type="number" as="kod_person" key="0" />
+        <column table="a" column="kod_emp" type="number" title="Код сотрудника" as="kod_emp" key="0" />
+        <column table="a" column="dat_udal" type="date" title="Дата удаления" as="dat_udal" key="0" />
+        <column table="a" column="dolzhn" type="string" title="Должность" as="dolzhn" key="0" />
+        <column table="a" column="email" type="string" title="email" as="email" key="0" />
+        <column table="a" column="pr_active" type="number" title="Активный" as="pr_active" key="0" />
+      </select>
+      <from>
+        <table name="vv_users_kido" as="a" view="1" />
+        <query name="vv_all_puser" as="puser" join="left outer" dname="vv_users_kido">
+          <call function="=">
+            <column table="puser" column="puser" />
+            <column table="a" column="puser" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vv_users_kido_net" class="1" timestamp="03.10.2018 14:46:12" materialize="1" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_users_kido_net.xml" haskeys="1">
+      <select>
+        <column table="a" column="puser" type="string" column-mandatory="1" title="Пользователь" as="puser" key="1" fixed="1" />
+        <column table="a" column="fio" type="string" title="ФИО" as="fio" key="0" />
+        <column table="a" column="dolzh" type="string" title="Должность" as="dolzh" key="0" />
+        <column table="a" column="phone_number" type="string" title="Телефон" as="phone_number" key="0" />
+        <column table="a" column="dep_name" type="string" title="Объект, на котором работает" as="dep_name" key="0" />
+        <column table="a" column="num_request" type="string" title="Номер заявки" as="num_request" key="0" />
+        <column table="a" column="date_request" type="date" title="Дата заявки" as="date_request" key="0" />
+        <column table="a" column="group_name" type="string" title="Группа" as="group_name" key="0" />
+        <column table="a" column="kod_emp" type="number" title="Код сотрудника" as="kod_emp" key="0" />
+        <column table="a" column="kod_usergroup" type="number" title="Код группы" as="kod_usergroup" key="0" />
+        <column table="a" column="pr_active" type="number" title="Активный" as="pr_active" key="0" />
+        <column table="a" column="exists_in_db" type="number" title="Наличие пользователя в Oracle" as="exists_in_db" key="0" />
+        <column table="a" column="scheme_codes" type="string" title="Инф. системы, в которых доступен аккаунт" as="scheme_codes" key="0" />
+      </select>
+      <from>
+        <table name="vv_users_kido_net" as="a" view="1" />
+        <query name="vv_all_puser" as="puser" join="left outer" dname="vv_users_kido_net">
+          <call function="=">
+            <column table="puser" column="puser" />
+            <column table="a" column="puser" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vv_user_rights" class="1" timestamp="03.10.2018 14:46:28" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_user_rights.xml" haskeys="1">
+      <select>
+        <call function="rownum" as="r_n" key="1" fixed="1" />
+        <column table="a" column="puser" type="string" title="Имя пользователя" as="puser" key="0" />
+        <column table="a" column="kod_area" type="number" as="kod_area" key="0" />
+        <column table="a" column="kod_menu" type="number" as="kod_menu" key="0" />
+        <column table="a" column="nomer" type="number" format="N0" as="nomer" key="0" />
+        <column table="a" column="kod_rights" type="number" as="kod_rights" key="0" />
+        <column table="a" column="menu_name" type="string" title="Пункт" as="menu_name" key="0" />
+        <column table="a" column="area_nmae" type="string" title="Область" as="area_nmae" key="0" />
+        <column table="a" column="sys_name" type="string" title="Информационная система" as="sys_name" key="0" />
+        <call function="decode" type="string" as="rname" key="0">
+          <column table="this" column="kod_rights" />
+          <const>1</const>
+          <const>'чтение'</const>
+          <const>2</const>
+          <const>'запись'</const>
+          <const>3</const>
+          <const>'X'</const>
+        </call>
+      </select>
+      <from>
+        <table name="vv_user_rights" as="a" view="1" />
+        <query name="vv_all_puser" as="puser" join="left outer" dname="vv_user_rights">
+          <call function="=">
+            <column table="puser" column="puser" />
+            <column table="a" column="puser" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vv_all_puser" class="1" timestamp="03.10.2018 14:16:55" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_user_rights.xml" haskeys="1">
+      <select>
+        <column table="a" column="puser" type="string" as="puser" key="1" fixed="1" />
+        <column table="a" column="name" type="string" title="Имя пользователя" as="name" key="0" />
+      </select>
+      <from>
+        <table name="vv_all_puser" as="a" view="1" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id">
+    <view name="vv_users_kido" class="1" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_users_kido.xml">
+      select
+      a.puser,
+      a.name,
+      --a.num_z,
+      a.fam,
+      a.im,
+      a.otch,
+      a.telef,
+      --a.podr,
+      --b.kod_insp,
+      --b.kod_sec,
+      substr(decode (g.kod_parent, null, null, (select sd.name_kr from is_spr_direct sd where sd.kod_direct = g.kod_parent) || ' ' ) || g.name_kr, 0,250) as otdel,
+      --decode (a.podr, 1, 'ТГК-1', s.name_kr),
+      --decode(gk.kod_parent, null, gk.name_kr, gk.name),
+      --c.name_kr,
+      --d.name_kr,
+      ----
+      --b.dostup,
+      --b.save_gkpz,
+      --b.user_inet,
+      b.dat_vvod,
+      b.kod_person,
+      p.kod_emp,
+      nvl(b.dat_udal,p.dat_udal ) as dat_udal,
+      e.name as dolzhn,
+      p.e_mail as email,
+      case when (nvl(b.dat_udal,p.dat_udal ) is null   and du.lock_date is null and du.USERNAME is not null) then 1 else 0 end as pr_active
+      from PLAN.k_user a, is_spr_direct g, is_rights b , is_person p, is_spr_dolg e--, is_spr_direct c, is_spr_direct s, is_spr_direct d, is_spr_direct gk
+      , dba_users du
+      WHERE b.puser(+)=a.puser
+      --and a.podr =  s.kod_direct(+)
+      and b.kod_insp = g.kod_direct(+)
+      --and b.kod_sec = c.kod_direct(+)
+      --and b.dostup = d.kod_direct (+)
+      --and b.save_gkpz = gk.kod_direct(+)
+      AND a.puser = du.username (+)
+      and b.kod_person = p.kod_person (+)
+      and p.kod_spr_dolg = e.kod_spr_dolg(+)
+    </view>
+    <view name="vv_users_kido_net" class="1" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_users_kido_net.xml">
+      SELECT 	u.puser,
+      e.fio,                  -- Имя сотрудника
+      nvl(nd.name, e.namedolzh) as dolzh,   -- Должность
+      e.tel as phone_number,  -- Телефон
+      o.name as dep_name,     -- Объект, на котором работает
+      u.num_z as num_request, -- Номер заявки
+      u.dat_z as date_request,-- Дата заявки
+      gu.name group_name,     -- Группа
+      u.kod_emp,              -- Код сотрудника
+      u.kod_usergroup,        -- Код группы
+      case when (nvl(u.pr_active,1) = 1 and du.lock_date is null and du.USERNAME is not null) then 1 else 0 end as pr_active, -- Активный или удаленный
+      (case when du.username is not null then 1 else 0 end)    as exists_in_db,        -- Наличие пользователя в Oracle
+      su.scheme_codes        -- Инф. системы, в которых доступен аккаунт
+      FROM ks_user u, kr_employee e, ks_usergroup gu, ks_namedolzh nd, kr_org o, dba_users du,
+      (
+      select puser,
+      stragg(to_char(kod_scheme)) as scheme_codes
+      from rs_scheme_users
+      group by puser
+      ) su
+      WHERE u.kod_emp = e.kod_emp(+)
+      AND u.kod_usergroup = gu.kod_usergroup(+)
+      AND e.kod_namedolzh = nd.kod_namedolzh (+)
+      AND e.kodp = o.kodp (+)
+      AND u.puser = du.username (+)
+      AND u.puser = su.puser (+)
+    </view>
+    <view name="vv_user_rights" class="1" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_user_rights.xml">
+      select * from (
+      SELECT A.PUSER, -1 AS KOD_AREA, B.CHAR_NUM AS KOD_MENU,B.CHAR_NUM nomer, TO_NUMBER(SUBSTR(RPAD(A.FLAGS,250,'0'),B.CHAR_NUM,1))*3 AS KOD_RIGHTS, C.FLAG_NAME AS MENU_NAME,null AS AREA_NMAE, 'КИДО' AS sys_name
+      FROM IS_RIGHTS A
+      CROSS JOIN (SELECT LEVEL CHAR_NUM FROM DUAL CONNECT BY LEVEL &lt;= 250) B
+      INNER JOIN VR_IS_RIGHTS_FLAGS C ON B.CHAR_NUM = C.CHAR_NUM
+      UNION ALL
+      SELECT A.PUSER, B.KOD_AREA, B.KOD_MENU,C.NOMER , B.KOD_RIGHTS, C.MENU AS MENU_NAME, D.NAME AS AREA_NAME, s.name as sys_name
+      FROM KS_USER A
+      INNER JOIN RR_USERMENU B ON A.PUSER = B.PUSER
+      INNER JOIN RK_MENU C ON B.KOD_MENU = C.KOD_MENU
+      INNER JOIN RK_AREA D ON B.KOD_AREA = D.KOD_AREA
+      INNER JOIN rs_scheme_areas sa on sa.KOD_AREA=d.KOD_AREA
+      INNER JOIN rk_adm_scheme  s on s.KOD_SCHEME=sa.KOD_SCHEME
+      ) where kod_rights&gt;0 and sys_name in ('ИС ППТЭ','КИДО')
+    </view>
+    <view name="vv_all_puser" class="1" file="sql.builder.templates\sql.builder\projects\49813\scheme\original\vv_user_rights.xml">
+      select puser , puser as name from(
+      select distinct puser from k_user
+      union
+      select distinct puser from ks_user
+      )
+    </view>
+  </views>
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name" />
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

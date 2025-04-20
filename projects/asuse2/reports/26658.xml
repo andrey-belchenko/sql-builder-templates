@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="26658" with-behavior="0" timestamp="21.11.2016 14:26:47">
+      <content>
+        <field name="date" controlType="UIDate" title="Дата" valuequery="cur-date"></field>
+        <field name="dep" controlType="UIList" title="Отделения">
+          <listquery>
+            <query name="kr_dep"></query>
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="26658" title="Задолженность на дату" form="26658" visible="0">
+      <params>
+        <param name="date" />
+        <param name="dep" />
+      </params>
+      <customers>
+        <customer id="101" />
+        <customer id="10" />
+      </customers>
+      <queries>
+        <query name="26658" as="a" title="1">
+          <withparams>
+            <useparam name="date" />
+            <useparam name="dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="26658">
+      <params>
+        <param name="date" />
+        <param name="dep" />
+      </params>
+      <select>
+        <call function="rownum" as="num" title="№" />
+        <column table="a" column="payer_name" />
+        <column table="a" column="ndog" />
+        <column table="a" column="ostatok_0_beg" />
+        <column table="a" column="ostatok_2_beg" />
+        <call function="+" as="ostatok_sum" title="Задолженность без переплаты, руб.">
+          <column table="this" column="ostatok_0_beg" />
+          <column table="this" column="ostatok_2_beg" />
+        </call>
+        <call function="-" as="kredit_per">
+          <const>0</const>
+          <column table="a" column="kredit_per_beg" />
+        </call>
+        <call function="+" as="ostatok_sum_per" title="Задолженность c переплатой, руб.">
+          <column table="this" column="ostatok_sum" />
+          <column table="this" column="kredit_per" />
+        </call>
+        <call function="round" as="perc" title="% соотношение">
+          <call function="/">
+            <call function="*">
+              <column table="a" column="ostatok_beg" />
+              <const>0.7</const>
+            </call>
+            <column table="a" column="ostatok_0_beg" />
+          </call>
+          <const>2</const>
+        </call>
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <useparam name="date" />
+            <useparam name="date" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="not 0">
+            <column table="a" column="ostatok_0_beg" />
+            <column table="a" column="ostatok_2_beg" />
+            <column table="this" column="kredit_per" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

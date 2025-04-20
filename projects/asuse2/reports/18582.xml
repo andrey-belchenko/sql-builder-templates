@@ -1,0 +1,831 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="18582-100" timestamp="23.11.2016 16:07:14">
+      <content>
+        <field name="ym" controlType="UICombo" title="Период" type="number" column-mandatory="1">
+          <listquery>
+            <query name="n_calc_dist" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max" />
+          </defaultquery>
+        </field>
+        <field name="tar2" controlType="UICombo" title="Одноставочный тариф на услуги по передаче" type="number" column-mandatory="1">
+          <listquery>
+            <query name="18582-tar2" />
+          </listquery>
+        </field>
+        <field name="tar2m" controlType="UICombo" title="Двухставочный тариф на услуги по передаче" type="number" column-mandatory="1">
+          <listquery>
+            <query name="18582-tar2m" />
+          </listquery>
+        </field>
+        <field name="gtp" controlType="UICombo" title="ГТП" type="number" column-mandatory="1">
+          <listquery>
+            <query name="18582-gtp" />
+          </listquery>
+        </field>
+        <field name="tar16" controlType="UIList" title="Сбытовая надбавка" type="number" column-mandatory="1">
+          <listquery>
+            <query name="18582-tar16" />
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="18582-95A" form="period" title="Форма 95А. Почасовые объемы потребления электрической энергии, необходимые для расчета средневзвешенной нерегулируемой цены" folder="rks_sr" timestamp="17.07.2018 15:26:50">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <params>
+        <param name="ym" type="number" />
+      </params>
+      <queries>
+        <query name="18582-95A" as="a">
+          <withparams>
+            <useparam name="ym" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="18582-96" form="period" title="Форма 96. Объемы потребления мощности, необходимые для расчета средневзвешенной нерегулируемой цены электрической энергии (мощности) для потребителей, производящих расчет по первой ценовой категории" folder="rks_sr">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <params>
+        <param name="ym" type="number" />
+      </params>
+      <queries>
+        <query name="18582-96" as="a">
+          <columns>
+            <column name="dep_name" title="Отделение" />
+            <column name="v1" title="Объем фактического пикового потребления гарантирующего поставщика на оптовом рынке, МВт" />
+            <column name="v2" title="Величина мощности, соответствующей покупке электрической энергии гарантирующим поставщиком у производителей электрической энергии (мощности) на розничных рынках, МВт" />
+            <band title="Величина мощности, оплачиваемой потребителями (покупателями), осуществляющими расчеты по следующим ценовым категориям, МВт">
+              <column name="cust_m2" title="по 2-й ценовой категории" />
+              <column name="cust_m3" title="по 3-й ценовой категории" />
+              <column name="cust_m4" title="по 4-й ценовой категории" />
+              <column name="cust_m5" title="по 5-й ценовой категории" />
+              <column name="cust_m6" title="по 6-й ценовой категории" />
+            </band>
+            <column name="cust_25" title="Объем потребления мощности населением и приравненными к нему категориями потребителей,  равный установленным значениям для соответствующего гарантирующего поставщика в утвержденном сводном прогнозном балансе производства и поставок электрической энергии (мощности) в рамках ЕЭС России по субъектам РФ, МВт" />
+            <band title="Объем фактического потребления , оплачиваемой потребителями (покупателями), осуществляющими расчеты по следующим ценовым категориям, МВт">
+              <column name="cust_e2" title="по 2-й ценовой категории" />
+              <column name="cust_e3" title="по 3-й ценовой категории" />
+              <column name="cust_e4" title="по 4-й ценовой категории" />
+              <column name="cust_e5" title="по 5-й ценовой категории" />
+              <column name="cust_e6" title="по 6-й ценовой категории" />
+            </band>
+          </columns>
+          <withparams>
+            <useparam name="ym" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="18582-100" form="18582-100" title="Форма 100. Почасовые ставки предельных уровней нерегулируемых цен по третьей - шестой ценовой категории" folder="rks_sr" timestamp="17.07.2018 16:33:13">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <params>
+        <param name="ym" />
+        <param name="gtp" />
+        <param name="tar16" />
+        <param name="tar2" />
+        <param name="tar2m" />
+      </params>
+      <queries>
+        <query name="18582-100-gr1" as="a" title="gr">
+          <columns>
+            <column table="a" name="day" format="F0" agg="no" />
+            <column table="a" name="hour" format="F0" agg="no" />
+            <column table="a" name="gr_name" format="F0" agg="no" />
+            <band title="Ставка за электрическую энергию предельного уровня нерегулируемых цен, применяемая к фактическому поставленному потребителю (покупателю) почасовому объему покупки электрической энергии, руб./МВт∙ч">
+              <band table="b" column="rate_k3" title="3-я ценовая категория" />
+              <band table="b" column="rate_k4" title="4-я ценовая категория" />
+              <band table="b" column="rate_k5" title="5-я ценовая категория" />
+              <band table="b" column="rate_k6" title="6-я ценовая категория" />
+            </band>
+            <band title="Ставки предельных уровней нерегулируемой цены для 5–6-й ценовой категории, руб./МВт∙ч">
+              <column table="a" name="rate_up" title="Ставка за электрическую энергию предельного уровня нерегулируемой цены, применяемая к величине превышения фактического почасового объема покупки электрической энергии над соответствующим плановым почасовым объемом потребителя (покупателя), руб./МВт∙ч" />
+              <column table="a" name="rate_down" title="Ставка за электрическую энергию предельного уровня нерегулируемой цены, применяемая к величине превышения планового почасового объема покупки электрической энергии над соответствующим фактическим почасовым объемом потребителя (покупателя), руб./МВт∙ч" />
+            </band>
+            <!--<band table="b" column="rate1_2" title="Тариф на услуги по передаче для одноставочных"  />
+            <band table="b" column="rate1m_2" title="Тариф на услуги по передаче для двухставочниых за э/э"  />
+            <band table="b" column="rate2m_2" title="Тариф на услуги по передаче для двухставочниых за мощность"  />
+            <column table="a" name="rate_noplan_v2"/>-->
+          </columns>
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="gtp" />
+            <useparam name="tar16" pth="0" />
+            <useparam name="tar2" />
+            <useparam name="tar2m" />
+          </withparams>
+          <query name="18582-100-gr2" as="b" title="по ун">
+            <withparams>
+              <useparam name="ym" />
+              <useparam name="gtp" />
+              <useparam name="tar16" pth="0" />
+              <useparam name="tar2" />
+              <useparam name="tar2m" />
+            </withparams>
+            <transpose>
+              <dimension>
+                <column column="voltage" title="voltage_abbr" />
+              </dimension>
+              <values>
+                <column column="rate_k3" />
+                <column column="rate_k4" />
+                <column column="rate_k5" />
+                <column column="rate_k6" />
+                <column column="rate1_2" />
+                <column column="rate1m_2" />
+                <column column="rate2m_2" />
+              </values>
+            </transpose>
+            <call function="and">
+              <call function="=">
+                <column table="a" column="day" />
+                <column table="b" column="day" />
+              </call>
+              <call function="=">
+                <column table="a" column="hour" />
+                <column table="b" column="hour" />
+              </call>
+              <call function="=">
+                <column table="a" column="gr" />
+                <column table="b" column="gr" />
+              </call>
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+    <report name="18582-100-i" form="18582-100" title="Исходные данные" folder="rks_f100" timestamp="17.07.2018 16:33:25">
+      <customers />
+      <params>
+        <param name="ym" />
+        <param name="gtp" />
+        <param name="tar16" />
+        <param name="tar2" />
+        <param name="tar2m" />
+      </params>
+      <queries>
+        <query name="18582-100" as="a">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="gtp" />
+            <useparam name="tar16" pth="0" />
+            <useparam name="tar2" />
+            <useparam name="tar2m" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <parts>
+    <part id="18582-96-m">
+      <params>
+        <param name="cat" />
+      </params>
+      <call function="if" as="cust_m[:cat]" group="sum" type="number">
+        <call function="and">
+          <call function="=">
+            <column table="a" column="category" />
+            <useparam name="cat" />
+          </call>
+          <call function="=">
+            <column table="a" column="vid_t" />
+            <const>72</const>
+          </call>
+        </call>
+        <column table="a" column="cust" />
+      </call>
+    </part>
+    <part id="18582-96-e">
+      <params>
+        <param name="cat" />
+      </params>
+      <call function="if" as="cust_e[:cat]" group="sum" type="number">
+        <call function="and">
+          <call function="=">
+            <column table="a" column="category" />
+            <useparam name="cat" />
+          </call>
+          <call function="in">
+            <column table="a" column="vid_t" />
+            <array>77,78,79</array>
+          </call>
+        </call>
+        <column table="a" column="cust" />
+      </call>
+    </part>
+  </parts>
+  <queries>
+    <query name="18582-95A" order="day,hour" timestamp="18.01.2019 16:13:56">
+      <params>
+        <param name="ym" type="number" />
+      </params>
+      <select>
+        <call function="day" as="day" group="1" format="F0" title="Дата в формате 'DD'">
+          <column table="a" column="dat_out" />
+        </call>
+        <call function="hour" as="hour" group="1" format="F0" title="Час (мск) в формате 'HH'">
+          <column table="a" column="dat_out" />
+        </call>
+        <call function="/" as="out" group="sum" title="Суммарный объем потребления электрической энергии в расчетном периоде потребителями (покупателями), осуществляющими расчеты по 3-6-й ценовым категориям, МВт∙ч">
+          <column table="a" column="out" />
+          <const>1000</const>
+        </call>
+        <call function="()" as="in_" title="Фактический объем покупки электрической энергии гарантирующим поставщиком у производителей электрической энергии (мощности) на розничных рынках, МВт∙ч" type="number">
+          <const>null</const>
+        </call>
+      </select>
+      <from>
+        <query name="nr_account_hpriem" as="a">
+          <link name="kod_account_priem" as="b">
+            <link name="kod_account" as="c">
+              <link name="kod_dog" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="c" column="vid_t" />
+            <call function="array">
+              <const>78</const>
+              <const>79</const>
+            </call>
+          </call>
+          <call function="=">
+            <column table="c" column="ym" />
+            <useparam name="ym" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="18582-96">
+      <params>
+        <param name="ym" type="array">
+          <const>2014.02</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_dog" column="dep" group="1" />
+        <column table="dep" column="name" as="dep_name" group="max" />
+        <const as="v1" type="number">null</const>
+        <const as="v2" type="number">null</const>
+        <usepart part="18582-96-m">
+          <const>2</const>
+        </usepart>
+        <usepart part="18582-96-m">
+          <const>3</const>
+        </usepart>
+        <usepart part="18582-96-m">
+          <const>4</const>
+        </usepart>
+        <usepart part="18582-96-m">
+          <const>5</const>
+        </usepart>
+        <usepart part="18582-96-m">
+          <const>6</const>
+        </usepart>
+        <call function="if" as="cust_25" type="number" group="sum">
+          <call function="=">
+            <column table="a" column="vid_t" />
+            <const>25</const>
+          </call>
+          <column table="a" column="cust" />
+        </call>
+        <usepart part="18582-96-e">
+          <const>2</const>
+        </usepart>
+        <usepart part="18582-96-e">
+          <const>3</const>
+        </usepart>
+        <usepart part="18582-96-e">
+          <const>4</const>
+        </usepart>
+        <usepart part="18582-96-e">
+          <const>5</const>
+        </usepart>
+        <usepart part="18582-96-e">
+          <const>6</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+          <link name="kod_dog">
+            <link name="dep" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="ym" />
+          <useparam name="ym" />
+        </call>
+      </where>
+    </query>
+    <query name="18582-100-gr1" order="gr,day,hour">
+      <params>
+        <param name="ym" type="number" />
+        <param name="gtp" type="number" />
+        <param name="tar16" type="number" />
+        <param name="tar2" type="number" />
+        <param name="tar2m" type="number" />
+      </params>
+      <select>
+        <column table="a" column="day" group="1" />
+        <column table="a" column="hour" group="1" />
+        <column table="a" column="gr" group="1" />
+        <column table="a" column="gr_name" group="max" />
+        <column table="a" column="rate_up" group="max" />
+        <column table="a" column="rate_down" group="max" />
+        <column table="a" column="rate_noplan_v2" group="max" />
+      </select>
+      <from>
+        <query name="18582-100" as="a">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="gtp" />
+            <useparam name="tar16" />
+            <useparam name="tar2" />
+            <useparam name="tar2m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="18582-100-gr2" order="gr,day,hour,kod_sort desc">
+      <params>
+        <param name="ym" type="number" />
+        <param name="gtp" type="number" />
+        <param name="tar16" type="number" />
+        <param name="tar2" type="number" />
+        <param name="tar2m" type="number" />
+      </params>
+      <select>
+        <column table="a" column="day" group="1" />
+        <column table="a" column="hour" group="1" />
+        <column table="a" column="gr" group="1" />
+        <column table="a" column="voltage" group="1" />
+        <column table="a" column="voltage_abbr" group="max" />
+        <column table="a" column="kod_sort" group="max" />
+        <column table="a" column="rate_k3" group="max" />
+        <column table="a" column="rate_k4" group="max" />
+        <column table="a" column="rate_k5" group="max" />
+        <column table="a" column="rate_k6" group="max" />
+        <column table="a" column="rate1_2" group="max" />
+        <column table="a" column="rate1m_2" group="max" />
+        <column table="a" column="rate2m_2" group="max" />
+      </select>
+      <from>
+        <query name="18582-100" as="a">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="gtp" />
+            <useparam name="tar16" />
+            <useparam name="tar2" />
+            <useparam name="tar2m" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="18582-100" timestamp="20.04.2018 16:22:40">
+      <params>
+        <param name="ym" type="number" />
+        <param name="gtp" type="number" />
+        <param name="tar16" type="number" />
+        <param name="tar2" type="number" />
+        <param name="tar2m" type="number" />
+      </params>
+      <select>
+        <call function="day" as="day" title="Дата в формате 'DD'">
+          <column table="a" column="date_hour" />
+        </call>
+        <call function="hour" as="hour" title="Час в формате 'HH'">
+          <column table="a" column="date_hour" />
+        </call>
+        <column table="b" column="tarif" as="gr" />
+        <column table="b" column="npp" as="gr_name" title="Группа потребителей" />
+        <column table="b" column="rate1" as="rate1_16" title="Сбытовая надбавка" />
+        <column table="v" column="voltage" />
+        <column table="v" column="abbr" as="voltage_abbr" />
+        <column table="v" column="kod_sort" />
+        <column table="v" column="rate1" as="rate1_2" />
+        <column table="v" column="rate1m" as="rate1m_2" />
+        <column table="v" column="rate2m" as="rate2m_2" />
+        <column table="a" column="rate_free" />
+        <column table="a" column="rate_noplan_v2" />
+        <call function="*" as="rate_up">
+          <column table="a" column="rate_up" />
+          <const>1000</const>
+        </call>
+        <call function="*" as="rate_down">
+          <column table="a" column="rate_down" />
+          <const>1000</const>
+        </call>
+        <column table="r" column="rsv_nebalans" />
+        <column table="r" column="br_nebalans" />
+        <column table="r" column="rate_cfr" />
+        <usepart part="18582-formula" as="rate_k3" title="Цена ээ 3 кат.  руб./МВт∙ч">
+          <column table="a" column="rate_noplan_v2" />
+          <column table="v" column="rate1" />
+        </usepart>
+        <usepart part="18582-formula" as="rate_k4" title="Цена ээ 4 кат.  руб./МВт∙ч">
+          <column table="a" column="rate_noplan_v2" />
+          <column table="v" column="rate1m" />
+        </usepart>
+        <usepart part="18582-formula" as="rate_k5" title="Цена ээ 5 кат.  руб./МВт∙ч">
+          <column table="a" column="rate_free" />
+          <column table="v" column="rate1" />
+        </usepart>
+        <usepart part="18582-formula" as="rate_k6" title="Цена ээ 6 кат.  руб./МВт∙ч">
+          <column table="a" column="rate_free" />
+          <column table="v" column="rate1m" />
+        </usepart>
+      </select>
+      <from>
+        <query name="ks_tar_free_hours" as="a" />
+        <query name="ks_tarif" as="b" join="cross">
+          <withparams>
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+          </withparams>
+        </query>
+        <query name="18582-100-voltage" as="v" join="cross">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="tar2" />
+            <useparam name="tar2m" />
+          </withparams>
+        </query>
+        <query name="18582-100-gtp-rates" as="r" join="cross">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="gtp" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_gtp" />
+            <useparam name="gtp" />
+          </call>
+          <call function="=">
+            <call function="date to ym">
+              <column table="a" column="date_hour" />
+            </call>
+            <useparam name="ym" />
+          </call>
+          <call function="in">
+            <column table="b" column="tarif" />
+            <useparam name="tar16" />
+          </call>
+          <call function="=1" exclude="1">
+            <column column="gr_name" table="this" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="18582-100-gtp-rates">
+      <params>
+        <param name="ym" type="number">
+          <const>2014.04</const>
+        </param>
+        <param name="gtp" type="number">
+          <const>100000012</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ks_tar_free_rate_gtp" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_gtp" />
+            <useparam name="gtp" />
+          </call>
+          <call function="=">
+            <column table="a" column="ym" />
+            <useparam name="ym" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="18582-100-voltage" order="kod_sort desc">
+      <params>
+        <param name="ym" type="number">
+          <const>2014.01</const>
+        </param>
+        <param name="tar2" type="number">
+          <const>18645</const>
+        </param>
+        <param name="tar2m" type="number">
+          <const>18664</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="voltage" />
+        <column table="a" column="abbr" />
+        <column table="a" column="kod_sort" />
+        <column table="t1" column="rate1" dgroup="max" title="Цена за услуги по передаче 3,5 категории руб/квтч" />
+        <column table="t2" column="rate1" as="rate1m" dgroup="max" title="Цена за услуги по передаче 4,6 категории руб/квтч" />
+        <column table="t2" column="rate2" as="rate2m" dgroup="max" />
+      </select>
+      <from>
+        <query name="hk_voltage" as="a">
+          <dlink name="ks_tarif" as="t1">
+            <link name="tarif_parent" as="t1p" />
+            <withparams>
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+            </withparams>
+            <where>
+              <call function="=">
+                <column table="t1p" column="tarif" />
+                <useparam name="tar2" />
+              </call>
+            </where>
+          </dlink>
+          <dlink name="ks_tarif" as="t2">
+            <link name="tarif_parent" as="t2p" />
+            <withparams>
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+            </withparams>
+            <where>
+              <call function="=">
+                <column table="t2p" column="tarif" />
+                <useparam name="tar2m" />
+              </call>
+            </where>
+          </dlink>
+        </query>
+      </from>
+      <where>
+        <call function="lt">
+          <column table="a" column="voltage" />
+          <const>5</const>
+        </call>
+      </where>
+    </query>
+    <query name="18582-tar16">
+      <params>
+        <param name="ym" type="number">
+          <const>2014.01</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="tarif" />
+        <column table="a" column="npp" />
+        <column table="a" column="sname" />
+        <column table="b" column="abbr" />
+      </select>
+      <from>
+        <query name="ks_tarif" as="a">
+          <withparams>
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+          </withparams>
+          <link name="tip_tarif_sost" as="b" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="tip_tarif_sost" />
+            <call function="array">
+              <const>5</const>
+              <const>16</const>
+            </call>
+          </call>
+          <call function="is not null">
+            <column table="a" column="rate1" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="18582-tar2">
+      <params>
+        <param name="ym" type="number">
+          <const>2014.01</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="tarif" />
+        <column table="a" column="npp" />
+        <column table="a" column="sname" />
+      </select>
+      <from>
+        <query name="ks_tarif" as="a">
+          <dlink name="ks_tarif_child" as="tc">
+            <withparams>
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+            </withparams>
+          </dlink>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="tip_tarif_sost" />
+            <call function="array">
+              <const>2</const>
+            </call>
+          </call>
+          <call function="is not null">
+            <column table="tc" column="rate1" dgroup="max" />
+          </call>
+          <call function="is null">
+            <column table="tc" column="rate2" dgroup="max" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="18582-tar2m">
+      <params>
+        <param name="ym" type="number">
+          <const>2014.01</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="tarif" />
+        <column table="a" column="npp" />
+        <column table="a" column="sname" />
+      </select>
+      <from>
+        <query name="ks_tarif" as="a">
+          <dlink name="ks_tarif_child" as="tc">
+            <withparams>
+              <call function="ym begin time">
+                <useparam name="ym" />
+              </call>
+            </withparams>
+          </dlink>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="tip_tarif_sost" />
+            <call function="array">
+              <const>2</const>
+            </call>
+          </call>
+          <call function="is not null">
+            <column table="tc" column="rate2" dgroup="max" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="18582-gtp" order="name">
+      <params>
+        <param name="ym" type="number">
+          <const>2014.08</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_gtp" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="hs_gtp" as="a">
+          <dlink name="ks_tar_free_hours" as="b">
+            <where>
+              <call function="between">
+                <column table="b" column="date_hour" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+                <call function="ym end time">
+                  <useparam name="ym" />
+                </call>
+              </call>
+            </where>
+          </dlink>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="b" column="date_hour" dgroup="max" />
+        </call>
+      </where>
+    </query>
+    <!--query name="18582-100-test" timestamp="20.04.2018 16:20:48">
+      <params>
+        <param name="tar16" type="array">
+          <call function="array">
+            <const>18636</const>
+            <const>18638</const>
+            <const>18639</const>
+            <const>18656</const>
+          </call>
+        </param>
+        <param name="ym" type="number">
+          <const>2018.03</const>
+        </param>
+        <param name="tar2" type="number">
+          <const>18645</const>
+        </param>
+        <param name="tar2m" type="number">
+          <const>18664</const>
+        </param>
+        <param name="gtp" type="number">
+          <const>100000013</const>
+        </param>
+      </params>
+      <select>
+        <call function="day" as="day" title="Дата в формате 'DD'">
+          <column table="a" column="date_hour" />
+        </call>
+        <call function="hour" as="hour" title="Час в формате 'HH'">
+          <column table="a" column="date_hour" />
+        </call>
+        <column table="a" column="rate_free" />
+        <call as="rate_up" function="*">
+          <column column="rate_up" table="a" />
+          <const>1000</const>
+        </call>
+        <call as="rate_down" function="*">
+          <column column="rate_down" table="a" />
+          <const>1000</const>
+        </call>
+      </select>
+      <from>
+        <query name="ks_tar_free_hours" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_gtp" />
+            <useparam name="gtp" />
+          </call>
+          <call function="=">
+            <call function="date to ym">
+              <column table="a" column="date_hour" />
+            </call>
+            <useparam name="ym" />
+          </call>
+        </call>
+      </where>
+    </query-->
+  </queries>
+  <parts>
+    <part id="18582-formula">
+      <params>
+        <param name="sv" />
+        <param name="usl" />
+      </params>
+      <call function="*">
+        <call function="+nvl">
+          <useparam name="sv" />
+          <useparam name="usl" />
+          <column table="r" column="rate_cfr" />
+          <usepart part="18582-formula-sbn">
+            <useparam name="sv" />
+          </usepart>
+        </call>
+        <const>1000</const>
+      </call>
+    </part>
+    <part id="18582-formula-sbn">
+      <params>
+        <param name="sv" />
+      </params>
+      <call function="case">
+        <call function="when">
+          <call function="=">
+            <column table="b" column="tip_tarif_sost" />
+            <const>16</const>
+          </call>
+          <call function="/">
+            <call function="*">
+              <column table="b" column="rate1" />
+              <useparam name="sv" />
+            </call>
+            <const>100</const>
+          </call>
+        </call>
+        <call function="else">
+          <column table="b" column="rate1" />
+        </call>
+      </call>
+    </part>
+  </parts>
+</root>

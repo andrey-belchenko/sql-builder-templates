@@ -1,0 +1,446 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="sr_facras_ext" class="1" extend="sr_facras" timestamp="22.04.2025 19:38:00">
+      <select>
+        <usepart part="vid_t_teplo" as="vid_t_teplo">
+          <column table="a" column="vid_t" />
+          <column table="a" column="tarif" />
+        </usepart>
+        <column table="nachisl_nal" column="nal" />
+        <column table="kod_ras_text" column="voltage" title="Уровень напряжения" />
+        <column table="kod_ras_text" column="kod_f46" />
+        <column table="kod_sf" column="rym" as="ym_vozn2" dimension="ym_vozn2" />
+        <!--cust для тепла по видам товаров-->
+        <call function="if" as="cust_teplo" title="Начислено, Гкал - отопление" type="number" fact="sr_facras_cust_teplo" agg="sum">
+          <call function="=">
+            <column table="vid_t_teplo" column="vid_t_gr" />
+            <const>1</const>
+          </call>
+          <column table="a" column="cust" />
+          <const>0</const>
+        </call>
+        <call function="if" as="cust_gvs" title="Начислено, Гкал- ГВС" type="number">
+          <call function="=">
+            <column table="vid_t_teplo" column="vid_t_teplo" />
+            <const>2.1</const>
+          </call>
+          <column table="a" column="cust" />
+          <const>0</const>
+        </call>
+        <call function="if" as="cust_teplo_kub" title="Начислено, куб.м.- ГВС" type="number">
+          <call function="in">
+            <column table="vid_t_teplo" column="vid_t_teplo" />
+            <array>2.2,2.3</array>
+          </call>
+          <column table="a" column="cust" />
+          <const>0</const>
+        </call>
+        <call function="if" as="cust_teplo_kub_u" title="Утечка, куб.м.- ГВС" type="number">
+          <call function="in">
+            <!--<column table="vid_t_teplo" column="vid_t_gr"></column>-->
+            <!--<const>3</const>-->
+            <column table="vid_t_teplo" column="vid_t_teplo" />
+            <array>3.1</array>
+          </call>
+          <column table="a" column="cust" />
+          <const>0</const>
+        </call>
+        <call function="if" as="cust_teplo_c" title="Горячая вода (компонент холодная вода)" type="number">
+          <call function="in">
+            <!--<column table="vid_t_teplo" column="vid_t_gr"></column>-->
+            <!--<const>3</const>-->
+            <column table="vid_t_teplo" column="vid_t_teplo" />
+            <array>5.1</array>
+          </call>
+          <column table="a" column="cust" />
+          <const>0</const>
+        </call>
+        <call function="if" as="cust_teplo_hv" title="Горячая вода" type="number">
+          <call function="in">
+            <!--<column table="vid_t_teplo" column="vid_t_gr"></column>-->
+            <!--<const>3</const>-->
+            <column table="vid_t_teplo" column="vid_t_teplo" />
+            <array>5.2</array>
+          </call>
+          <column table="a" column="cust" />
+          <const>0</const>
+        </call>
+        <call function="if" type="number" as="ym_vozn" dimension="ym_vozn" exclude="1">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>0</const>
+          </call>
+          <column table="this" column="rym" />
+          <column table="kod_sf" column="ym_vozn" />
+          <call function="nvl" exclude="1">
+            <column table="kod_sf" column="sf_old_ym" />
+            <column table="kod_sf" column="ym" />
+          </call>
+        </call>
+        <column table="vid_t" column="full_name" as="vid_t_full_name" fact="sr_facras_vid_t_full_name" agg="max" />
+        <column table="vid_t_gr" column="name" as="vid_t_gr_name" fact="vid_t_teplo_gr_name" agg="max" />
+        <!--выбрасывается измерение для нового варианта куба-->
+      </select>
+      <from>
+        <query name="sk_nachisl_teplo" as="vid_t_teplo" join="left outer" dimension="1">
+          <link name="vid_t_gr" />
+          <call function="=">
+            <column table="vid_t_teplo" column="vid_t_teplo" />
+            <column table="this" column="vid_t_teplo" />
+          </call>
+        </query>
+        <query name="sr_facras_text" as="kod_ras_text" join="left outer" dimension="1">
+          <call function="=">
+            <column table="kod_ras_text" column="kod_ras" />
+            <column table="this" column="kod_ras" />
+          </call>
+        </query>
+        <query name="hk_voltage" dimension="1" join="left outer" as="hk_voltage1">
+          <call function="=">
+            <column table="this" column="voltage" />
+            <column table="hk_voltage" column="voltage" />
+          </call>
+        </query>
+        <query name="ks_46" is-private-dimension="1" is-final-dimension="1" dimension="1" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_f46" />
+            <column table="ks_46" column="kod_f46" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="not in">
+          <column table="kod_sf" column="vid_sf" />
+          <array>2,9</array>
+        </call>
+      </where>
+      <links>
+        <slink name="sr_facras_nal" as="nachisl_nal" />
+        <link name="kod_sf" as="kod_sf1">
+          <dimlink name="kod_folders_kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="qube_sf_graf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_ministry" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_cls" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="sk_vid_sf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_istfin" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dep" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_podr" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dogpodr" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_okved" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_fs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_active" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_vdog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodb" is-private-dimension="1" is-final-dimension="1" dimension="1" title="Банк плательщика" />
+          <dimlink name="kodbpol" title="Банк получателя" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_otrasl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <link name="vid_real" dimension="1" exclude="1" />
+          <dimlink name="kod_dog" dimension="1" />
+          <dimlink name="vr_pret_dolg_sf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_pret" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="vid_real" dimension="1" />
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="dat_dolg" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="dat_dolg_out" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink dimension="1" is-final-dimension="1" is-private-dimension="1" name="kod_deb" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_other" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="dat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="dat_recalc" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym_vozn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_graf_for_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym_iav" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="sr_recalc" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="sr_recalc" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="vid_recalc" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp_arb_upr" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_dp_isp_arb_upr" dimension="1" is-final-dimension="1" />
+          <dimlink name="dat_mor" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_facras_astr" inherit="sr_facras" class="1" timestamp="22.04.2025 23:46:18">
+      <select>
+        <column table="this" column="kod_ras" as="kod_ras_astr" key-dimension="kod_ras_astr" />
+        <column table="this" column="nachisl" as="nachisl_astr" fact="fin_ul_nach_astr" agg="sum" title="Начислено астрент" />
+        <column table="kod_sf_astr" column="dat_ur" as="dat" dimension="dat" />
+      </select>
+      <from>
+        <query name="sr_facvip_astr" as="kod_sf_astr" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_astr" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_sf_astr" as="kod_sf_astr1">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_other" dimension="1" is-final-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="dat_ur" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp_arb_upr" dimension="1" is-final-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_facras_undo_av" class="1" timestamp="12.09.2017 03:12:52" inherit="sr_facras">
+      <select>
+        <call function="0-" as="undo_av_nach" fact="undo_av_nach" agg="sum">
+          <column table="a" column="nachisl" />
+        </call>
+        <column table="kod_sf" column="dat_ezad_norm" dimension="dat_dolg_norm" exclude="1" />
+        <call as="dat_ezad_norm" function="if" type="date" dimension="dat_dolg_norm">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="ym end time">
+            <call function="ym add month">
+              <column table="a" column="rym" />
+              <const>1</const>
+            </call>
+          </call>
+        </call>
+        <call function="nvl" as="dat_ezad" type="date" dimension="dat_dolg">
+          <column table="kod_sf" column="dat_ezad" />
+          <column table="this" column="dat_ezad_norm" />
+        </call>
+        <column table="kod_sf" column="dat_ezad" dimension="dat_dolg" exclude="1" />
+        <column table="this" column="dat_ezad" dimension="dat_dolg_uved_kaz_el" as="dat_ezad_uved_kaz_el" exclude="1" />
+        <call function="to_date" as="dat_ezad_uved_kaz_el" dimension="dat_dolg_uved_kaz_el">
+          <call function="||">
+            <const>'18.'</const>
+            <call function="ym to char">
+              <call function="ym add month">
+                <column table="a" column="rym" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <const>'DD.YYYY.MM'</const>
+        </call>
+        <call function="if" type="number" as="ym_vozn" dimension="ym_vozn">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>0</const>
+          </call>
+          <column table="this" column="rym" />
+          <call function="nvl">
+            <column table="kod_sf" column="sf_old_ym" />
+            <column table="kod_sf" column="ym" />
+          </call>
+        </call>
+        <column table="this" column="ym_vozn2" dimension="ym_vozn2" />
+      </select>
+      <from>
+        <query name="sr_facras" as="kod_ras" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="is not null" exclude="1">
+            <column table="kod_sf" column="dat_ezad" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_undo_av" inherit="sr_opl" class="1" timestamp="02.11.2022 18:04:04">
+      <select>
+        <call function="0-" as="undo_av_opl" fact="undo_av_opl" agg="sum">
+          <column table="this" column="oplf" />
+        </call>
+        <call function="latest" as="dat_ezad_norm" dimension="dat_dolg_norm">
+          <column table="this" column="dat_uch" />
+          <column table="kod_sf" column="dat_ezad_norm" />
+        </call>
+        <call function="latest" as="dat_ezad" dimension="dat_dolg">
+          <column table="this" column="dat_uch" />
+          <column table="kod_sf" column="dat_ezad" />
+        </call>
+        <column table="kod_sf" column="ym_vozn" dimension="ym_vozn" />
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>2</array>
+          </call>
+          <call function="ge" exclude="1">
+            <column table="kod_sf" column="dat_ezad" />
+            <column table="a" column="dat_opl" />
+          </call>
+          <call function="is not null" exclude="1">
+            <column table="kod_sf" column="dat_ezad" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_facras_rsrv_nal_45" inherit="sr_facras" class="1" timestamp="22.12.2016 01:29:51">
+      <select>
+        <column table="kod_sf" column="dat_res_nal_45" dimension="dat" />
+        <call function="/" as="nachisl_res" fact="sr_facras_rsrv_nal_45_nach" agg="sum">
+          <column table="a" column="nachisl" />
+          <const>2</const>
+        </call>
+      </select>
+      <from>
+        <query name="sr_facras" as="kod_ras" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_sf" as="kod_sf1">
+          <link name="kod_sf_main" />
+        </link>
+      </links>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_facras_rsrv_nal_90" inherit="sr_facras" class="1" timestamp="22.12.2016 01:29:16">
+      <select>
+        <column table="kod_sf" column="dat_res_nal_90" dimension="dat" />
+        <call function="/" as="nachisl_res" fact="sr_facras_rsrv_nal_90_nach" agg="sum">
+          <column table="a" column="nachisl" />
+          <const>2</const>
+        </call>
+      </select>
+      <from>
+        <query name="sr_facras" as="kod_ras" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_facras_rsrv_buh" inherit="sr_facras" class="1" timestamp="22.12.2016 03:30:00">
+      <select>
+        <column table="kod_sf" column="dat_res_buh" dimension="dat" />
+        <column table="a" column="nachisl" as="nachisl_res" agg="sum" fact="sr_facras_rsrv_buh_nach" />
+      </select>
+      <from>
+        <query name="sr_facras" as="kod_ras" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_ras" />
+            <column table="kod_ras" column="kod_ras" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_dolg_av" inherit="sr_opl" class="1" timestamp="31.01.2017 18:04:51">
+      <select>
+        <column table="this" column="oplf" fact="sr_opl_opl_dolg_av" agg="sum" />
+        <call function="if" as="dat_dolg_norm" dimension="dat_dolg_norm">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="latest" as="dat_dolg_norm" dimension="dat_dolg_norm">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_dolg_norm" />
+          </call>
+          <column table="this" column="dat_uch" />
+        </call>
+        <column table="kod_sf" column="ym_vozn" dimension="ym_vozn" />
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="kod_sf" column="vid_real" />
+            <array>0,2</array>
+          </call>
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>0,1,2</array>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

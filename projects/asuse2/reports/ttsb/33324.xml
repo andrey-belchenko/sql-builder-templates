@@ -1,0 +1,817 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="33324-10-params" timestamp="27.10.2016 15:36:42">
+      <param name="dep" type="array" />
+      <param name="dat_s" />
+      <param name="dat_po" />
+      <param name="kodbpol" />
+      <param name="id_fs" />
+      <param name="alg" />
+    </part>
+    <part id="33324-10-withparams" timestamp="04.10.2016 00:01:32">
+      <useparam name="dep" />
+      <useparam name="dat_s" />
+      <useparam name="dat_po" />
+      <useparam name="kodbpol" />
+      <useparam name="id_fs" />
+      <useparam name="alg" />
+    </part>
+  </parts>
+  <forms>
+    <form name="33324-10">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <content>
+        <usefield field="cmn_date_cur" name="dat_s" title="Дата оплаты с" />
+        <usefield field="cmn_date_cur" name="dat_po" title="Дата оплаты по" />
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_bankpol" />
+        <usefield field="cmn_list" name="id_fs" title="Вид оплат" type="number">
+          <listquery>
+            <query name="33324-fs" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_list" type="number" name="alg" title="Наличные/Карта">
+          <listquery>
+            <query name="33324-alg" />
+          </listquery>
+          <defaultquery>
+            <query name="33324-alg-1" />
+          </defaultquery>
+        </usefield>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="33324-10" timestamp="28.12.2016 14:41:33" form="33324-10" title="Реестр поступивших оплат наличными в разрезе видов реализации" folder="opl_kassa" nogrid="1" visible="1" with-behavior="0">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <params>
+        <usepart part="33324-10-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="33324-10.xml" title="Реестр поступивших оплат наличными в разрезе видов реализации" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="33324-10" as="a" title="a">
+          <withparams>
+            <usepart part="33324-10-withparams" />
+          </withparams>
+        </query>
+        <query name="33324-10-itog" as="b" title="b">
+          <withparams>
+            <usepart part="33324-10-withparams" />
+          </withparams>
+          <!--<call function="=">
+              <column table="a" column="key" />
+              <column table="b" column="key" />
+            </call>-->
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="33324-8" timestamp="21.12.2016 14:06:01" is-report="1" title="Реестр оплаты наличными" folder="opl_kassa" visible="1" with-behavior="0">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <content>
+        <usefield field="cmn_date_cur" name="dat" />
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_bankpol" />
+        <usefield field="cmn_list" type="number" name="alg" title="Наличные/Карта">
+          <listquery>
+            <query name="33324-alg" />
+          </listquery>
+          <defaultquery>
+            <query name="33324-alg-1" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" group="1" />
+        <column table="kod_dog" column="dep" group="1" />
+        <call function="nvl" type="string" title="Наименование абонента" group="max" as="pname" exclude="1">
+          <column table="kod_link" column="pname" />
+          <column table="kodp" column="name" as="pname" />
+        </call>
+        <column table="kodp" column="name" as="pname" group="max" />
+        <column table="kr_dopdoc" column="numer" title="Доверенность" dgroup="max" group="max" />
+        <column table="kr_dopdoc" column="dat_doc" title="Дата доверенности" dgroup="max" group="max" />
+        <column table="kod_dog" column="ndog" group="max" />
+        <column table="kodp" column="inn" group="max" />
+        <fact column="opl" title="Всего оплат по договору" group="sum">
+          <if>
+            <call function="le">
+              <column table="kod_opl" column="dat_opl" />
+              <useparam name="dat" />
+            </call>
+          </if>
+        </fact>
+        <fact column="opl" as="opl_day" title="Оплат на дату" group="sum">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="dat_opl" />
+              <useparam name="dat" />
+            </call>
+          </if>
+        </fact>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kodp" />
+            <dlink name="kr_dopdoc">
+              <where>
+                <call function="=">
+                  <column table="kr_dopdoc" column="kod_tipdoc" />
+                  <const>-15</const>
+                </call>
+              </where>
+            </dlink>
+          </link>
+          <link name="kod_opl">
+            <link name="kod_vidopl" />
+          </link>
+          <link name="kod_link">
+            <link name="kod_vidopl" exclude="1" />
+          </link>
+          <where>
+            <call function="=" optional="1">
+              <column table="kod_dog" column="dep" />
+              <useparam name="dep" />
+            </call>
+            <call function="in">
+              <column table="kod_vidopl" column="alg" />
+              <array>1,2</array>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_vidopl" column="alg" />
+              <useparam name="alg" />
+            </call>
+            <call function="=" exclude="1">
+              <column table="kr_dopdoc" column="kod_tipdoc" />
+              <const>-15</const>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_link" column="kodbpol" />
+              <useparam name="kodbpol" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="33324-9" is-report="1" title="Реестр поступивших оплат наличными" folder="opl_kassa" nogrid="1" visible="1" with-behavior="0" timestamp="06.05.2025 18:37:08">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="33324-9.xml" title="Реестр поступивших оплат наличными" print-proc="2" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="cmn_date_cur" name="dat_s" title="Дата оплаты с" />
+        <usefield field="cmn_date_cur" name="dat_po" title="Дата оплаты по" />
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_bankpol" />
+        <usefield field="cmn_list" type="number" name="alg" title="Наличные/Карта">
+          <listquery>
+            <query name="33324-alg" />
+          </listquery>
+          <defaultquery>
+            <query name="33324-alg-1" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" group="1" exclude="1" />
+        <column table="kod_dog" column="dep" group="1" exclude="1" />
+        <column table="kod_opl" column="kod_opl" />
+        <call function="date to char" group="max" as="dats">
+          <useparam name="dat_s" />
+        </call>
+        <call function="date to char" group="max" as="datpo">
+          <useparam name="dat_po" />
+        </call>
+        <call function="nvl" type="string" title="Наименование абонента" group="max" as="pname" exclude="1">
+          <column table="kod_link" column="pname" />
+          <column table="kodp" column="name" as="pname" />
+        </call>
+        <column table="kod_dog" column="ndog" />
+        <column table="kodp" column="name" as="pname" />
+        <column table="kod_opl" column="dat_opl" />
+        <fact column="opl" title="Всего оплат по договору" group="sum" table="main" />
+        <column table="kod_opl" column="num_opl" />
+        <column table="kod_link" column="remark" exclude="1" comment="33324(26)" />
+        <call function="||" title="Назначение платежа" as="remark">
+          <call function="ym to char">
+            <column table="kod_link" column="ym_vyp" />
+          </call>
+          <const>' '</const>
+          <column table="kod_link" column="remark" />
+        </call>
+        <fact table="dl" column="dual_count" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="main">
+            <where>
+              <call function="=" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="in">
+                <column table="kod_vidopl" column="alg" />
+                <array>1,2</array>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_vidopl" column="alg" />
+                <useparam name="alg" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kr_dopdoc" column="kod_tipdoc" />
+                <const>-15</const>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_link" column="kodbpol" />
+                <useparam name="kodbpol" />
+              </call>
+              <call function="between">
+                <column table="kod_opl" column="dat_opl" />
+                <useparam name="dat_s" />
+                <useparam name="dat_po" />
+              </call>
+              <call function="lt">
+                <column table="kod_opl" column="kod_type_opl" />
+                <const name="dep" type="number">3</const>
+              </call>
+            </where>
+            <link name="kod_dog" exclude="1">
+              <link name="kodp" exclude="1" />
+              <dlink name="kr_dopdoc" exclude="1">
+                <where>
+                  <call function="=">
+                    <column table="kr_dopdoc" column="kod_tipdoc" />
+                    <const>-15</const>
+                  </call>
+                </where>
+              </dlink>
+            </link>
+            <link name="kod_link" exclude="1">
+              <link name="kod_vidopl" exclude="1" />
+            </link>
+            <link name="kod_opl">
+              <link name="kod_link" />
+              <link name="kod_dog">
+                <link name="kodp" />
+              </link>
+              <link name="kod_vidopl" />
+            </link>
+          </dimset>
+          <dimset as="dl">
+            <link name="dual" as="dl" />
+          </dimset>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="opl">
+            <group>
+              <sourcelink table="kod_opl" />
+            </group>
+            <where>
+              <call function="is not null">
+                <column table="this" column="kod_opl" />
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="33324-10" with-behavior="0" timestamp="06.05.2025 18:55:40">
+      <params>
+        <usepart part="33324-10-params" />
+      </params>
+      <select>
+        <const as="key" group="max" type="number">1</const>
+        <column table="kod_dog" column="kod_dog" group="1" exclude="1" />
+        <column table="kod_dog" column="dep" group="1" exclude="1" />
+        <column table="kod_opl" column="kod_opl" />
+        <call function="date to char" group="max" as="dats">
+          <useparam name="dat_s" />
+        </call>
+        <call function="date to char" group="max" as="datpo">
+          <useparam name="dat_po" />
+        </call>
+        <call function="nvl" type="string" title="Наименование абонента" group="max" as="pname" exclude="1">
+          <column table="kod_link" column="pname" />
+          <column table="kodp" column="name" as="pname" />
+        </call>
+        <column table="kod_dog" column="ndog" />
+        <column table="kodp" column="name" as="pname" />
+        <column table="kod_opl" column="num_opl" />
+        <column table="kod_opl" column="dat_opl" />
+        <column table="kod_vidopl" column="name" />
+        <!--<fact column="opl" title="за т/э" as="opl2" group="sumnvl" table="main">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="vid_real" />
+              <const>2</const>
+            </call>
+          </if>
+        </fact>
+        <fact column="opl" title="аванс" as="opl0" group="sumnvl" table="main">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="vid_real" />
+              <const>0</const>
+            </call>
+          </if>
+        </fact>
+        <fact column="opl" title="Госпошлина" as="opl9" group="sumnvl" table="main">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="vid_real" />
+              <const>9</const>
+            </call>
+          </if>
+        </fact>
+        <fact column="opl" title="Проценты" as="opl7" group="sumnvl" table="main">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="vid_real" />
+              <const>7</const>
+            </call>
+          </if>
+        </fact>
+        <fact column="opl" title="Прочая реализация" as="opl3" group="sumnvl" table="main" comment="33324(26)" exclude="1">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="vid_real" />
+              <const>3</const>
+            </call>
+          </if>
+        </fact>
+        <fact column="opl" title="за возобновление подачи т/э" as="opl6" group="sumnvl" table="main">
+          <if>
+            <call function="=">
+              <column table="kod_opl" column="vid_real" />
+              <const>6</const>
+            </call>
+          </if>
+        </fact>-->
+        <fact column="opl" title="Всего оплат по договору" group="sum" table="main" />
+        <fact column="opl" title="Всего оплат по договору" group="sum" table="main" as="opl_by_vidreal" dimname="vr">
+          <pivot title=" по видам реализации">
+            <call function="=">
+              <column table="kod_opl" column="vid_real" group="" />
+              <column table="dim" column="vid_real" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="vid_real" />
+                <column table="a" column="name" />
+              </select>
+              <from>
+                <query name="33324-vr" as="a">
+                  <withparams>
+                    <useparam name="dep" />
+                    <useparam name="dat_s" />
+                    <useparam name="dat_po" />
+                    <useparam name="kodbpol" />
+                    <useparam name="id_fs" />
+                    <useparam name="alg" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </pivot>
+        </fact>
+        <column table="kod_opl" column="ym" />
+        <fact table="dl" column="dual_count" group="sum" />
+        <column table="kod_link" column="num_delo" title="Номер дела" />
+        <fact column="ur_mat_num_delo" group="max" as="num_delo" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="main">
+            <link name="kod_dog" exclude="1">
+              <link name="kodp" exclude="1" />
+              <dlink name="kr_dopdoc" exclude="1">
+                <where>
+                  <call function="=">
+                    <column table="kr_dopdoc" column="kod_tipdoc" />
+                    <const>-15</const>
+                  </call>
+                </where>
+              </dlink>
+            </link>
+            <link name="kod_opl">
+              <link name="kod_link" />
+              <link name="kod_dog">
+                <link name="kodp">
+                  <link name="kod_fs" />
+                </link>
+              </link>
+              <link name="kod_vidopl" />
+            </link>
+            <link name="kod_link" exclude="1">
+              <link name="kod_vidopl" exclude="1" />
+            </link>
+            <where>
+              <call function="=" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="in">
+                <column table="kod_vidopl" column="alg" />
+                <array>1,2</array>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_vidopl" column="alg" />
+                <useparam name="alg" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_link" column="kodbpol" />
+                <useparam name="kodbpol" />
+              </call>
+              <call function="between">
+                <column table="kod_opl" column="dat_opl" />
+                <useparam name="dat_s" />
+                <useparam name="dat_po" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_fs" column="ur_lico" />
+                <useparam name="id_fs" />
+              </call>
+              <call function="lt">
+                <column table="kod_opl" column="kod_type_opl" />
+                <const name="dep" type="number">3</const>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="dl">
+            <link name="dual" as="dl" />
+          </dimset>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="opl">
+            <group>
+              <sourcelink table="kod_opl" />
+            </group>
+            <where>
+              <call function="is not null">
+                <column table="this" column="kod_opl" />
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="33324-10-itog" timestamp="28.12.2016 14:41:33" with-behavior="0" order="sname">
+      <params>
+        <usepart part="33324-10-params" />
+      </params>
+      <select>
+        <const as="key" group="max" type="number">1</const>
+        <column table="vid_real" column="vid_real" group="1" />
+        <column table="vid_real" column="sname" title="Вид реализации" group="vid_real" />
+        <fact column="opl" title="Оплата" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="vid_real" />
+          <link name="kod_opl">
+            <link name="kod_link" />
+            <link name="kod_dog">
+              <link name="kodp">
+                <link name="kod_fs" />
+              </link>
+            </link>
+            <link name="kod_vidopl" />
+          </link>
+          <where>
+            <call function="=" optional="1">
+              <column table="kod_dog" column="dep" />
+              <useparam name="dep" />
+            </call>
+            <call function="in">
+              <column table="kod_vidopl" column="alg" />
+              <array>1,2</array>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_vidopl" column="alg" />
+              <useparam name="alg" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_link" column="kodbpol" />
+              <useparam name="kodbpol" />
+            </call>
+            <call function="between">
+              <column table="kod_opl" column="dat_opl" />
+              <useparam name="dat_s" />
+              <useparam name="dat_po" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_fs" column="ur_lico" />
+              <useparam name="id_fs" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="33324-11" timestamp="30.11.2021 16:02:48" is-report="1" title="Оборотно-сальдовая ведомость по наличным за период" folder="opl_kassa" nogrid="1" visible="1" with-behavior="0">
+      <expressions>
+        <call function="over" group="sum" as="fin_ul_ob_kassa_dat_beg">
+          <call function="sum">
+            <fact column="fin_ul_ob_kassa" />
+          </call>
+          <call function="order by range * -1">
+            <column table="dat" column="val" as="dat_val" />
+          </call>
+        </call>
+        <call function="over" group="sum" as="fin_ul_ob_kassa_dat">
+          <call function="sum">
+            <fact column="fin_ul_ob_kassa" />
+          </call>
+          <call function="order by 2">
+            <column table="dat" column="val" as="dat_val" />
+          </call>
+        </call>
+      </expressions>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="33324-11.xml" title="Оборотно-сальдовая ведомость по наличным за период" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_ym" />
+        <usefield field="asuse_dep_single" />
+      </content>
+      <params>
+        <param name="ym">
+          <const>2021.10</const>
+        </param>
+        <param name="dep">
+          <const>102276621</const>
+        </param>
+      </params>
+      <select>
+        <column table="dat" column="val" as="dat_val" title="Дата" />
+        <call function="()" as="ym" group="max">
+          <useparam name="ym" />
+        </call>
+        <column table="kod_dep" column="name" group="max" />
+        <fact column="fin_ul_ob_kassa_dat_beg" title="Оборот по кассе на начало" group="sum" table="saldo" />
+        <call function="keep last" as="saldo_beg">
+          <column column="fin_ul_ob_kassa_dat_beg" table="this" group="max" />
+          <column table="this" column="dat_val" />
+        </call>
+        <fact column="sr_opl_opl_kassa_cash" title="Всего оплат по договору" group="sum" table="opl" as="sr_opl_opl_kassa" type="number" />
+        <!--<call function="if" as="opl_kassa2" group="sum" type="number">
+          <call function="=">
+            <column table="kod_opl" column="vid_real" />
+            <const>2</const>
+          </call>
+          <fact column="sr_opl_opl_kassa_cash" table="opl" />
+        </call>
+        <call function="if" as="opl_kassa9" group="sum" type="number">
+          <call function="=">
+            <column table="kod_opl" column="vid_real" />
+            <const>9</const>
+          </call>
+          <fact column="sr_opl_opl_kassa_cash" table="opl" />
+        </call>
+        <call function="if" as="opl_kassa7" group="sum" type="number">
+          <call function="=">
+            <column table="kod_opl" column="vid_real" />
+            <const>7</const>
+          </call>
+          <fact column="sr_opl_opl_kassa_cash" table="opl" />
+        </call>
+        <call function="if" as="opl_kassa0" group="sum" type="number">
+          <call function="=">
+            <column table="kod_opl" column="vid_real" />
+            <const>0</const>
+          </call>
+          <fact column="sr_opl_opl_kassa_cash" table="opl" />
+        </call>
+        <call function="if" as="opl_kassa6" group="sum" type="number">
+          <call function="=">
+            <column table="kod_opl" column="vid_real" />
+            <const>6</const>
+          </call>
+          <fact column="sr_opl_opl_kassa_cash" table="opl" />
+        </call>-->
+        <fact column="sr_opl_opl_kassa_cash" title="Всего оплат по договору" group="sum" table="opl" as="opl_by_vidreal" dimname="vr">
+          <pivot title=" по видам реализации">
+            <call function="=">
+              <column table="kod_opl" column="vid_real" group="" />
+              <column table="dim" column="vid_real" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="vid_real" />
+                <column table="a" column="name" />
+              </select>
+              <from>
+                <query name="33324-vr" as="a">
+                  <withparams>
+                    <useparam name="dep" />
+                    <call function="ym begin time">
+                      <useparam name="ym" />
+                    </call>
+                    <call function="ym end time">
+                      <useparam name="ym" />
+                    </call>
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </pivot>
+        </fact>
+        <fact column="sr_inkasso_sum" title="инкассировано" group="sum" table="saldo" />
+        <fact column="fin_ul_ob_kassa" group="sum" table="saldo" />
+        <fact column="fin_ul_ob_kassa_dat" title="Оборот по кассе на конец" group="sum" table="saldo" />
+        <call function="keep last" as="saldo_end">
+          <column column="fin_ul_ob_kassa_dat" table="this" group="max" />
+          <column table="this" column="dat_val" />
+        </call>
+        <fact column="vv_day_count" table="day" />
+        <fact table="saldo" column="sr_inkasso_num" group="max" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="dep">
+            <link name="kod_dep" all-rows="1" />
+            <where>
+              <call function="=" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="opl">
+            <link name="kod_dep" />
+            <link name="kod_opl" />
+            <link name="dat" />
+            <where>
+              <call function="le" optional="1">
+                <column table="dat" column="val" as="dat_val" />
+                <call function="ym end time">
+                  <useparam name="ym" />
+                </call>
+              </call>
+              <call function="=" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="saldo">
+            <link name="kod_dep" />
+            <link name="dat" />
+            <where>
+              <call function="le" optional="1">
+                <column table="dat" column="val" as="dat_val" />
+                <call function="ym end time">
+                  <useparam name="ym" />
+                </call>
+              </call>
+              <call function="=" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="day">
+            <link name="dat" />
+            <where>
+              <call function="le" optional="1">
+                <column table="dat" column="val" as="dat_val" />
+                <call function="ym end time">
+                  <useparam name="ym" />
+                </call>
+              </call>
+              <call function="ge" optional="1">
+                <column table="dat" column="val" as="dat_val" />
+                <call function="ym begin time">
+                  <useparam name="ym" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+        </qube>
+      </from>
+      <where>
+        <call function="or">
+          <call function="ge" optional="1">
+            <column table="this" column="dat_val" as="dat_val" title="Дата" thissrc="dat_val" />
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+          </call>
+          <call function="is null">
+            <column table="this" column="dat_val" as="dat_val" title="Дата" thissrc="dat_val" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="opl">
+            <group>
+              <sourcelink table="dat" />
+            </group>
+            <where>
+              <call function="is not null">
+                <column table="this" column="dat_val" as="dat_val" title="Дата" thissrc="dat_val" />
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="33324-fs">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string" title="Вид">'по юридическим лицам'</const>
+      <const>0</const>
+      <const>'по физическим лицам'</const>
+    </query>
+    <query name="33324-alg" timestamp="21.12.2016 14:06:57">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string" title="Вид">'Наличные'</const>
+      <const>2</const>
+      <const>'Карта'</const>
+    </query>
+    <query name="33324-alg-1" timestamp="21.12.2016 13:54:48">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string" title="Вид">'Наличные'</const>
+    </query>
+    <query name="33324-vr" order="name">
+      <params>
+        <param name="dep" />
+        <param name="dat_s" />
+        <param name="dat_po" />
+        <param name="kodbpol" />
+        <param name="id_fs" />
+        <param name="alg" />
+      </params>
+      <select>
+        <column table="a" column="vid_real" group="1" />
+        <column table="vid_real" column="sname" as="name" group="max" />
+      </select>
+      <from>
+        <query name="sr_opl_kassa" as="a">
+          <link name="vid_real" />
+          <link name="kod_link" />
+          <link name="kod_dog">
+            <link name="kodp">
+              <link name="kod_fs" />
+            </link>
+          </link>
+          <link name="kod_vidopl" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="kod_dog" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="a" column="dat_opl" />
+            <useparam name="dat_s" />
+          </call>
+          <call function="le" optional="1">
+            <column table="a" column="dat_opl" />
+            <useparam name="dat_po" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_vidopl" column="alg" />
+            <useparam name="alg" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_link" column="kodbpol" />
+            <useparam name="kodbpol" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_fs" column="ur_lico" />
+            <useparam name="id_fs" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

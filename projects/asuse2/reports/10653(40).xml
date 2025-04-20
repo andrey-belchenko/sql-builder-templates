@@ -1,0 +1,151 @@
+<root>
+  <parts>
+    <part id="10653(40)-group-columns">
+      <call function="||" as="kod_gr" group="7">
+        <column table="this" column="category" group=""/>
+        <const>','</const>
+        <column table="this" column="voltage" group=""/>
+        <const>','</const>
+        <column table="this" column="kodinterval" group=""/>
+      </call>
+      <call function="||" as="gr_name" title="Категория" group="kod_gr">
+        <!--<call function="case">
+          <call function="when">
+            <call function="!=">
+              <column table="this" column="category" group=""/>
+              <const>0</const>
+            </call>
+            <call function="||">
+              <column table="this" column="category_name" group=""/>
+              <const>', '</const>
+            </call>
+          </call>
+        </call>-->
+        <call function="||">
+          <column table="this" column="category_name" group=""/>
+          <const>', '</const>
+        </call>
+        <column table="this" column="voltage_abbr" group=""/>
+        <call function="case">
+          <call function="when">
+            <call function="!=">
+              <column table="this" column="kodinterval" group=""/>
+              <const>24</const>
+            </call>
+            <call function="||">
+              <const>', '</const>
+              <column table="this" column="interval_name" group=""/>
+            </call>
+          </call>
+        </call>
+      </call>
+    </part>
+  </parts>
+  <reports>
+    <report name="10653(40)-new" title="Приложение № 6. Начисление   абонированных юридических потребителей с разбивкой на составляющие цены" form="10653" folder="bu" visible="1" mode="tree" kod-menu="12209">
+      <params>
+        <usepart part="10653-params"/>
+      </params>
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="10653(40)-6.xml" title="Приложение № 6" print-proc="2"/>
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="10653(40)-new" as="a"  node-id="growid" parent-node-id="parent_growid">
+          <usepart part="10653-withparams"/>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+
+
+    <query name="10653(40)-new">
+      <params>
+        <usepart part="10653-params"/>
+      </params>
+      <select>
+        <call function="date to char" as="dat1">
+          <call function="ym begin time">
+            <call function="nvlu">
+              <useparam name="ym1"/>
+              <const>null</const>
+            </call>
+          </call>
+        </call>
+        <call function="date to char" as="dat2">
+          <call function="ym end time">
+            <call function="nvlu">
+              <useparam name="ym2"/>
+              <const>null</const>
+            </call>
+          </call>
+        </call>
+        <column table="a" column="dep" />
+        <column table="a" column="dep_name"/>
+        <column table="a" column="kod_bu_org" />
+        <column table="a" column="akt_bu_org_name" />
+        <column table="a" column="kod_m" />
+        <column table="a" column="obj_adr_m_name"  />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="a" column="kod_bu_akt" />
+        <column table="a" column="akt_num" />
+        <column table="a" column="akt_dat" />
+        <column table="a" column="kod_gr" />
+        <column table="a" column="gr_name" />
+        <column table="a" column="date_isp" />
+        <column table="a" column="obj_tar" />
+        <column table="a" column="obj_tar_name"  />
+        <column table="a" column="kod_account" />
+        <column table="a" column="ym" />
+        <column table="a" column="tarif" />
+        <column table="a" column="tar_npp" />
+        <column table="a" column="acc_nach_bn_pl_dbu" />
+        <column table="a" column="acc_nach_pl_dbu" />
+        <column table="a" column="acc_nach_bn_sost_pl_dbu" />
+        <column table="a" column="acc_nach_sost_pl_dbu" />
+        <column table="a" column="acc_cust_pl_dbu_e3" />
+        <column table="a" column="acc_cust_pl_dbu_e4" />
+        <column table="a" column="acc_nach_bn_sost_pl_dbu_s1" />
+        <column table="a" column="acc_nach_sost_pl_dbu_s1" />
+        <column table="a" column="acc_nach_bn_sost_pl_dbu_s2" />
+        <column table="a" column="acc_nach_sost_pl_dbu_s2" />
+        <column table="a" column="acc_nach_bn_sost_pl_dbu_s10" />
+        <column table="a" column="acc_nach_sost_pl_dbu_s10" />
+        <column table="a" column="acc_nach_bn_sost_pl_dbu_s16" />
+        <column table="a" column="acc_nach_sost_pl_dbu_s16" />
+        <column table="a" column="acc_nach_bn_pl_dbu_t22" />
+        <column table="a" column="acc_nach_pl_dbu_t22" />
+        <column table="a" column="acc_nach_bn_pl_dbu_t72" />
+        <column table="a" column="acc_nach_pl_dbu_t72" />
+      </select>
+      <from>
+        <query name="10653-common" as="a">
+          <usepart part="10653-cond"/>
+          <grsets>
+            <grset level="" title="Всего" as="a">
+              <grset level="2" title="Организация составившая акт" as="a1">
+                <grset level="11" title="Тарифная группа" as="a2">
+                  <grset level="7" title="Категория" as="a3">
+                    <grset level="3" title="Населенный пункт" as="a4">
+                      <grset level="5,1,4,12,8,13" title="Строка начисления" as="a5">
+                      </grset>
+                    </grset>
+                  </grset>
+                </grset>
+              </grset>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+
+  </queries>
+  
+  
+</root>

@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_pretenz" title="Претензия" class="1" timestamp="04.09.2023 15:44:29">
+      <select>
+        <column table="a" column="kod_pretenz" type="number" key-dimension="kod_pretenz" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_subject" type="number" column-mandatory="1" />
+        <column table="a" column="kod_state" type="number" column-mandatory="1" />
+        <column table="a" column="num_reg" type="string" title="Номер претензии" entity="pretenzion" />
+        <column table="a" column="num_otv" type="string" title="" />
+        <column table="a" column="dat_do" type="date" title="Оплатить до" column-mandatory="1" new-val="dat_do_new_val" default="dat_do_new_val" />
+        <column table="a" column="dat_otv" type="date" title="Дата получения ответа" />
+        <column table="a" column="reply" type="string" title="Содержание ответа" />
+        <column table="a" column="prim" type="string" title="Примечание" controlType="UITextEx" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="dat_doc" type="date" title="Дата претензии" column-mandatory="1" column-default="today" is-fact="1" agg="min" fact="ur_pretenz_dat_doc" />
+        <column table="a" column="dat_srok" type="date" title="Срок ответа" new-val="dat_otv_new_val" default="dat_otv_new_val" />
+        <column table="a" column="vsego_v" type="number" title="" exclude="1" />
+        <column table="a" column="osn_v" type="number" title="" exclude="1" />
+        <column table="a" column="peny_v" type="number" title="" exclude="1" />
+        <column table="a" column="shtraf_v" type="number" title="" exclude="1" />
+        <column table="a" column="kod_vid_pretenz" type="number" comment="вид претензии" />
+        <column table="a" column="proc" type="number" title="Проценты за пользование чужими денежными средствами" comment="проценты за польз ден. средствами, вводимые юристами ( ст. 395 гк рф)" />
+        <column table="a" column="kodp" type="number" title="" />
+        <column table="a" column="ogr" type="number" title="Расходы за введение ограничения режима энергопотребления" fact="ur_pretenz_ogr" comment="расходы за введение ограничения режима электропотребления" agg="sum" />
+        <column table="a" column="tep_el" type="number" title="" comment="1-электр,2-тепло" />
+        <column table="a" column="type_potr" type="number" title="" comment="1-юр,2-физ" />
+        <column table="a" column="vvod" type="number" title="" comment="0-из бд,1-вручную ввод суммы" />
+        <column table="a" column="kod_emp" type="number" comment="код сотрудника" exclude="1" />
+        <column table="a" column="kod_vi" type="number" comment="1- исходящие, 2- входящие" />
+        <column table="a" column="dep" type="number" title="" comment="код подразделения" />
+        <column table="a" column="dat_finish" type="date" title="" />
+        <column table="a" column="opl_proc" type="number" title="Оплачено: проценты за пользование чужими денежными средствами" />
+        <column table="a" column="opl_ogr" type="number" fact="ur_pretenz_opl_ogr" title="Оплачено: расходы за введение ограничения режима энергопотребления" agg="sum" />
+        <column table="a" column="dat_arh" type="date" title="Дата архивации" comment="Дата архивации" />
+        <column table="a" column="kod_pret" type="number" />
+        <column table="a" column="num_sz" title="№ с/з о пост. мат." type="string" data-size="300" />
+        <column table="a" column="vvod_sum_osn" type="number" is-fact="1" agg="sum" />
+        <column table="a" column="vvod_sum_peni" type="number" is-fact="1" agg="sum" />
+        <column table="a" column="vvod_per_s" type="number" />
+        <column table="a" column="vvod_per_po" type="number" />
+        <column table="a" column="vvod_opl_peni" type="number" is-fact="1" agg="sum" />
+        <column table="a" column="vvod_opl_osn" type="number" is-fact="1" agg="sum" />
+        <column column="kod_emp" comment="юрист" table="a" title="Исполнитель ПИО" type="number" agg="min">
+          <listquery>
+            <query name="kr_employee_urists_singl_dep">
+              <withparams>
+                <column table="this" column="dep_pio" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <call column="fio" table="kod_emp" comment="для вывода в ur_mat" function="if" is-fact="1" fact="ur_pretenz_last_pio_fio" agg="max" as="last_pio_fio" type="string">
+          <call function="=">
+            <column table="this" column="kod_pretenz" />
+            <column table="this" column="last_kod_pretenz" />
+          </call>
+          <column table="kod_emp" column="fio" />
+        </call>
+        <call column="fio" table="kod_emp" comment="для 54503" function="if" is-fact="1" fact="ur_pretenz_last_pio_kod_emp" agg="max" as="last_pio_kod_emp" type="string">
+          <call function="=">
+            <column table="this" column="kod_pretenz" />
+            <column table="this" column="last_kod_pretenz" />
+          </call>
+          <column table="kod_emp" column="kod_emp" />
+        </call>
+        <call column="fio" table="kod_emp" comment="для вывода в ur_mat" function="if" is-fact="1" fact="ur_pretenz_pio_date" agg="max" as="last_pio_date" type="string">
+          <call function="=">
+            <column table="this" column="kod_pretenz" />
+            <column table="this" column="last_kod_pretenz" />
+          </call>
+          <column table="a" column="pio_date" />
+        </call>
+        <column table="kod_emp_last" column="fio" as="last_pio_fio" is-fact="1" agg="max" fact="ur_pretenz_last_pio_fio" exclude="1" />
+        <column table="a" column="pio_date" type="date" agg="min" is-fact="1" fact="ur_pretenz_pio_date_direct" />
+        <call function="over" as="last_kod_pretenz" type="number">
+          <call function="max">
+            <column table="a" column="kod_pretenz" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_mat" />
+          </call>
+        </call>
+        <column table="a" column="kod_mat" type="number">
+          <listquery>
+            <query name="ur_mat_in_folder_list">
+              <withparams>
+                <column table="this" column="kod_folders" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <call function="if" as="pr_priv" title="Скопирована из модуля &quot;Претензии&quot;" controlType="UICheck" type="number">
+          <call function="is not null">
+            <column table="this" column="kod_pret" />
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="kod_folders" column="kod_podr" />
+        <const type="number" as="cnt" fact="ur_pretenz_count_old" agg="sum">1</const>
+        <column table="ur_dogplat" column="kod_dog" dgroup="max" />
+        <call function="true if null" as="is_active" title="Статус претензии">
+          <column table="this" column="dat_arh" dgroup="max" />
+        </call>
+        <query as="srok_opl" part-id="ur_pretenz-srok-cols">
+          <select>
+            <column table="uk_srok" column="kol_day" />
+          </select>
+          <from>
+            <query name="uk_srok" />
+          </from>
+          <where>
+            <call function="=">
+              <column table="uk_srok" column="kod_srok" />
+              <const>2</const>
+            </call>
+          </where>
+        </query>
+        <query as="srok_otv" part-id="ur_pretenz-srok-cols">
+          <select>
+            <column table="uk_srok" column="kol_day" />
+          </select>
+          <from>
+            <query name="uk_srok" />
+          </from>
+          <where>
+            <call function="=">
+              <column table="uk_srok" column="kod_srok" />
+              <const>3</const>
+            </call>
+          </where>
+        </query>
+        <call function="date add days" as="dat_do_new_val" part-id="ur_pretenz-srok-cols">
+          <column table="this" column="dat_doc" />
+          <column table="this" column="srok_opl" />
+        </call>
+        <call function="date add days" as="dat_otv_new_val" part-id="ur_pretenz-srok-cols">
+          <column table="this" column="dat_doc" />
+          <column table="this" column="srok_otv" />
+        </call>
+        <call function="if" as="right_common" type="number">
+          <call function="=">
+            <call function="user_rights_kod_menu">
+              <const>16078</const>
+            </call>
+            <const>2</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="right_pio" type="number">
+          <call function="=">
+            <call function="user_rights_kod_menu">
+              <const>16077</const>
+            </call>
+            <const>2</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <const type="number" as="dep_pio" comment="Управление АО «Татэнергосбыт»" exclude="1">1219</const>
+        <call function="if" type="number" as="dep_pio">
+          <call function="=">
+            <column table="rs_esys" column="kod_esys" />
+            <const>1</const>
+          </call>
+          <const comment="Управление АО «Татэнергосбыт»">1219</const>
+          <column table="kod_folders" column="kod_podr" />
+        </call>        
+      </select>
+      <from>
+        <table name="ur_pretenz" as="a" />
+        <query name="ur_folders" as="kod_folders" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="us_state" as="kod_state" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_state" />
+            <column table="kod_state" column="kod_state" />
+          </call>
+        </query>
+        <query name="us_subject" as="kod_subject" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_subject" />
+            <column table="kod_subject" column="kod_subject" />
+          </call>
+        </query>
+        <query name="us_vid_pretenz" as="kod_vid_pretenz" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vid_pretenz" />
+            <column table="kod_vid_pretenz" column="kod_vid_pretenz" />
+          </call>
+        </query>
+        <query name="kr_pret" as="kod_pret" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_pret" />
+            <column table="kod_pret" column="kod_pret" />
+          </call>
+        </query>
+        <query name="kr_employee" as="kod_emp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_emp" />
+            <column table="kod_emp" column="kod_emp" />
+          </call>
+        </query>
+        <query name="kr_employee" as="kod_emp_last" join="left outer" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_emp_last" />
+            <column table="kod_emp_last" column="kod_emp" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ur_mat" as="kod_mat" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1" ConstrDelOption="set null">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat" column="kod_mat" />
+          </call>
+        </query>
+        <query name="rs_esys" join="cross" as="rs_esys" />
+      </from>
+      <links>
+        <dlink name="ur_dogplat" dimension="kod_dogplat">
+          <dimlink name="kod_dog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_sf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+        <link name="kod_folders" dimension="1">
+          <dimlink name="kod_mat" is-private-dimension="1" is-final-dimension="1" dimension="1" exclude="1" />
+        </link>
+      </links>
+      <actions>
+        <action action-type="dynamic-form" call="ur_dogplat_hand" name="form_ur_dogplat_hand" exclude="1" />
+        <action action-type="dynamic-form" call="ur_dogplat_select" name="form_ur_dogplat_select" title="Выбор долговых документов" exclude="1" />
+        <action action-type="dynamic-form" name="form_ur_dogplat_doc_view" call="ur_dogplat_doc_view" />
+      </actions>
+    </query>
+  </queries>
+</root>

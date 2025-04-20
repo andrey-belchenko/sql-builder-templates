@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="dolg_info" timestamp="16.11.2016 13:31:34" use-repository="1" comment="изменил измерение dat_dolg_uved_kaz_el для оплат sr_opl_sf, теперь выражения с этим измрением некорректны">
+      <params>
+        <param name="p_kod_dog_array_id" type="string">
+          <const>'dog1'</const>
+        </param>
+        <param name="p_date" type="date">
+          <const>to_date('30.09.2016','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="if" type="number" group="sum" as="opl_per">
+          <call function="between">
+            <column table="dat" column="val" />
+            <call function="ym begin time">
+              <call function="date to ym">
+                <useparam name="p_date" />
+              </call>
+            </call>
+            <useparam name="p_date" />
+          </call>
+          <fact column="opl" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_kred_av_old">
+          <call function="le">
+            <column table="kod_sf" column="dat_ezad" />
+            <useparam name="p_date" />
+          </call>
+          <fact column="fin_ul_ob_kr_av" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_kred_av_tek">
+          <call function="gt">
+            <call function="nvl">
+              <column table="kod_sf" column="dat_ezad" />
+              <call function="doomsday" />
+            </call>
+            <useparam name="p_date" />
+          </call>
+          <fact column="fin_ul_ob_kr_av" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_osn_pr">
+          <call function="le">
+            <column table="dat_dolg_uved_kaz_el" column="val" />
+            <useparam name="p_date" />
+          </call>
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_osn_pr_per">
+          <call function="=">
+            <call function="ym add month">
+              <column table="kod_sf" column="ym" />
+              <const>1</const>
+            </call>
+            <call function="date to ym">
+              <useparam name="p_date" />
+            </call>
+          </call>
+          <fact column="dolg_deb_osn_pr" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr">
+          <call function="le">
+            <column table="dat_dolg_uved_kaz_el" column="val" />
+            <useparam name="p_date" />
+          </call>
+          <fact column="fin_ul_ob_av" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr_tek">
+          <call function="=">
+            <column table="kod_sf" column="rym" />
+            <call function="date to ym">
+              <useparam name="p_date" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_av" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr_tek_10">
+          <call function="lt">
+            <call function="date to ym">
+              <call function="date add days">
+                <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+                <const>-10</const>
+              </call>
+            </call>
+            <call function="date to ym">
+              <useparam name="p_date" />
+            </call>
+          </call>
+          <fact column="dolg_deb_av_pr_tek" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr_tek_25">
+          <call function="and">
+            <call function="ge">
+              <call function="date to ym">
+                <call function="date add days">
+                  <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+                  <const>-10</const>
+                </call>
+              </call>
+              <call function="date to ym">
+                <useparam name="p_date" />
+              </call>
+            </call>
+            <call function="lt">
+              <call function="date to ym">
+                <call function="date add days">
+                  <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+                  <const>-25</const>
+                </call>
+              </call>
+              <call function="date to ym">
+                <useparam name="p_date" />
+              </call>
+            </call>
+          </call>
+          <fact column="dolg_deb_av_pr_tek" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog_fin" column="kod_dog" />
+        <column table="kod_sf" column="kod_sf" exclude="1" />
+        <column table="kod_sf" column="ym" exclude="1" />
+        <fact column="fin_ul_ob_osn" as="dolg_deb_osn" title="Деб. задолженость по основной реализации" />
+        <fact column="fin_ul_ob_av" as="dolg_deb_av" table="av" title="Деб. задолженость по авансам" />
+        <fact column="fin_ul_ob_kr_os" as="dolg_kred_osn" title="Кред. задолженность  по переплатам" />
+        <fact column="dolg_kred_av_old" title="Кред. задолженность по авансам период действия которых закончился" />
+        <fact column="dolg_kred_av_tek" title="Кред. задолженность по авансам период действия которых НЕ закончился" />
+        <fact column="opl_per" title="Оплачено с 1 числа месяца до заданной даты" />
+        <fact column="dolg_deb_osn_pr" title="Деб. задолженость по основной реализации (просроченная)" />
+        <fact column="dolg_deb_osn_pr_per" title="Деб. задолженость по основной реализации (просроченная) за прошлый от заданной даты месяц " />
+        <fact column="dolg_deb_av_pr" table="av" title="Деб. задолженость по авансам (просроченная)" />
+        <fact column="dolg_deb_av_pr_tek_10" table="av" title="Деб. задолженость по авансам выставленным под тек. месяц (просроченная) с датой наступления задолженности до 10 числа " />
+        <fact column="dolg_deb_av_pr_tek_25" table="av" title="Деб. задолженость по авансам выставленным под тек. месяц (просроченная) с датой наступления задолженности с 11 до 25 числа " />
+      </select>
+      <from>
+        <qube>
+          <dimset as="av">
+            <link name="kod_sf" only-for-cond="1" />
+            <where>
+              <call function="gt">
+                <call function="nvl">
+                  <column table="kod_sf" column="dat_ezad" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="p_date" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="tt" exclude="1">
+            <link name="kod_sf" />
+          </dimset>
+          <link name="kod_dog">
+            <link name="kod_dog_fin" />
+          </link>
+          <link name="dat" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date" />
+              </call>
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <query>
+                  <select>
+                    <column table="a" column="val" />
+                  </select>
+                  <from>
+                    <query name="vr_number_array" as="a" />
+                  </from>
+                  <where>
+                    <call function="=">
+                      <column table="a" column="array_id" />
+                      <useparam name="p_kod_dog_array_id" />
+                    </call>
+                  </where>
+                </query>
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_dog" column="kod_dog" />
+                <const>2708</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

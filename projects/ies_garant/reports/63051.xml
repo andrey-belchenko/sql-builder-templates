@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="63051" is-report="1" title="Сведения по объемам потребления электрической энергии на территории МО" nogrid="1" order="a.name_mo,a.name_dist,o.okved" timestamp="05.07.2023 09:43:48">
+      <print-templates>
+        <excel>
+          <template name="63051.xlsx" title="Сведения по объемам потребления электрической энергии на территории МО" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+        <fieldgroup title="Период">
+          <usefield field="462359_ym" title="с" name="p_ym_beg" mandatory="1" />
+          <usefield field="462359_ym" title="по" name="p_ym_end" mandatory="1" />
+        </fieldgroup>
+        <usefield field="asuse_adr_m_subject_dep" />
+      </content>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_ies.fill_table_63051_new(:p_ym_beg, :p_ym_end);
+end;
+      </text>
+      </procedure>
+      <select>
+        <column table="a" column="kodp" />
+        <column table="a" column="name_mo" />
+        <column table="a" column="name_dist" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="kod_okved" />
+        <column table="o" column="okved" />
+        <column table="o" column="name" />
+        <column table="d" column="adress_region" />
+        <column table="a" column="cust_pu" group="sum" mp="-3" />
+        <column table="a" column="cust_r" group="sum" mp="-3" />
+      </select>
+      <from>
+        <query name="sqlb_rep_63051_tbl" as="a" />
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ks_okved" as="o" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_okved" />
+            <column table="o" column="kod_okved" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="this" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset as="rd">
+            <group>
+              <column table="a" column="name_mo" />
+              <column table="a" column="name_dist" />
+              <column table="o" column="okved" />
+              <column table="o" column="name" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--forms>
+    <form name="test_colgrouping" timestamp="21.09.2017 11:57:35">
+      <fieldgroup title="Тест несворачиваемости">
+        <usefield field="asuse_vid_real" />
+      </fieldgroup>
+    </form>
+  </forms>
+  <reports>
+    <report name="test_colgrouping" form="test_colgrouping" title="Тест группировки в колонках" visible="0" datareader="0" use-temp="0" timestamp="04.04.2018 13:46:45">
+      <params>
+        <param name="vid_real" type="array" />
+      </params>
+      <customers>
+        <customer id="16" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_colgrouping.xlsx" title="Тест группировки в колонках" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_colgrouping_g" as="a" title="data">
+          <withparams>
+            <useparam name="vid_real" />
+          </withparams>
+          <dimquery table="vdr" dimension="g3" />
+        </query>
+        <query name="test_colgrouping_vid_real" as="vdr" title="dims">
+          <withparams>
+            <useparam name="vid_real" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="test_colgrouping_print" form="test_colgrouping" title="Тест группировки в колонках" visible="0" datareader="0" use-temp="0" timestamp="04.04.2018 15:51:36">
+      <params>
+        <param name="vid_real" type="array" />
+      </params>
+      <customers>
+        <customer id="16" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_colgrouping_auto.xlsx" title="Тест группировки в колонках" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_colgrouping_g" as="a" title="data">
+          <withparams>
+            <useparam name="vid_real" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="test_colgrouping" timestamp="09.01.2017 20:49:07" grouplevel="no">
+      <select>
+        <column table="a" column="kod_ist" group="2" />
+        <column table="a" column="name" group="kod_ist" />
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="ndog" group="kod_dog" />
+        <column table="a" column="ym" group="3" />
+        <column table="a" column="god" group="4" />
+        <column table="a" column="vid_real" group="5" />
+        <column table="a" column="vid_real_name" group="vid_real" />
+        <column table="a" column="sr_facras_nachisl" group="sum" exclude="1" />
+        <column table="a" column="sr_opl_opl_sf" group="sum" as="opl" />
+        <column table="a" column="opl_itog" group="sum" />
+      </select>
+      <from>
+        <query name="test_colgrouping_1" as="a" />
+      </from>
+    </query>
+    <query name="test_colgrouping_g" timestamp="05.01.2017 02:19:11">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="test_colgrouping" as="a">
+          <grsets>
+            <on-rows>
+              <grset level="2" as="g1" title="Источник финансирования">
+                <grset level="1" as="g2" title="Договор"></grset>
+              </grset>
+            </on-rows>
+            <on-columns>
+              <grset level="5" as="g3" title="Вид реализации" order="vid_real"></grset>
+            </on-columns>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="test_colgrouping_1" timestamp="10.01.2017 14:49:24">
+      <select>
+        <column table="kod_ist" column="kod_ist" />
+        <column table="kod_ist" column="name" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+        <column table="ym" column="val" as="ym" />
+        <column table="vid_real" column="vid_real" />
+        <column table="vid_real" column="name" as="vid_real_name" />
+        <call function="year" as="god">
+          <call function="ym begin time">
+            <column table="ym" column="val" as="ym" />
+          </call>
+        </call>
+        <fact column="sr_facras_nachisl" exclude="1" />
+        <fact column="sr_opl_opl_sf" />
+        <call function="over" as="dolg" exclude="1">
+          <call function="sum">
+            <fact column="fin_ul_ob" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+            <column table="this" column="kod_ist" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="opl_itog">
+          <call function="sum">
+            <fact column="sr_opl_opl_sf" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+            <column table="this" column="kod_ist" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_ist" />
+          </link>
+          <link name="ym" />
+          <link name="vid_real" />
+          <where>
+            <call function="=" exclude="1">
+              <column table="vid_real" column="vid_real" />
+              <const>2</const>
+            </call>
+            <call function="in">
+              <column table="kod_dog" column="ndog" />
+              <array>'89091','80950'</array>
+            </call>
+            <call function="=">
+              <call function="year" as="god">
+                <call function="ym begin time">
+                  <column table="ym" column="val" as="ym" />
+                </call>
+              </call>
+              <const>2014</const>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="test_colgrouping_vid_real" timestamp="10.01.2017 20:20:34">
+      <params>
+        <param name="vvr" type="array" />
+      </params>
+      <select>
+        <column table="a" column="vid_real" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="sk_vid_real" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="vid_real" />
+            <useparam name="vvr" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries-->
+</root>

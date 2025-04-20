@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="462353" timestamp="04.08.2022 13:42:13" is-report="1" title="4.6.2.3.5.3. Объем э/энергии и мощности по 4–6  ценовой категории" nogrid="1" order="name_price_cat,ndog">
+      <print-templates>
+        <excel>
+          <template name="462353.xlsx" print-proc="2" print-xlsx="1" title="Объем энергии и мощности по 4–6  ценовой категории" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="462359_ym" name="p_ym" title="Период" column-mandatory="1" />
+        <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+        <usefield field="asuse_adr_m_subject_dep" />
+        <usefield field="asuse_pwrcompany" />
+      </content>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_ies.fill_table_462353(:p_ym);
+end;
+      </text>
+      </procedure>
+      <select>
+        <column table="a" column="ndog" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="payer_name" />
+        <column table="a" column="name_price_cat" />
+        <column table="a" column="kodp_fsk_poteri_attp" type="number" />
+        <column table="a" column="name_fsk_poteri_attp" as="name_fsk" />
+        <column table="a" column="kvth01" />
+        <column table="a" column="kvth02" />
+        <column type="number" table="a" column="kvth03" />
+        <column table="a" column="kvth04" />
+        <column table="a" column="kvth05" />
+        <column table="a" column="kvth06" />
+        <column table="a" column="kvt01" />
+        <column table="a" column="kvt02" />
+        <column table="a" column="kvt03" />
+        <column table="a" column="kvt04" />
+        <column table="a" column="kvt05" />
+        <column table="a" column="kvt06" />
+        <column table="d" column="adress_region" />
+      </select>
+      <from>
+        <query name="sqlb_rep_462359_tbl" as="a" />
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="this" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp_fsk_poteri_attp" />
+            <useparam name="kodp_pwrcompany" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <fields>
+    <field id="asuse_pwrcompany" controlType="UIList" title="ТСО" name="kodp_pwrcompany" type="number" timestamp="21.10.2022 13:12:37">
+      <listquery>
+        <query name="pwrcompany_list" exclude="1" />
+        <query name="pwrcompanylist_2" />
+      </listquery>
+    </field>
+  </fields>
+</root>

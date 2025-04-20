@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="SHABL7_RS_PRIS" with-behavior="0" timestamp="21.11.2016 14:27:56">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <usefield field="ipr_dog_type_prizn_ls" name="n_prizn" mandatory="1" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="SHABL7_RS_PRIS" folder="kido" visible="1" form="SHABL7_RS_PRIS" title="Шаблон 7 Расч.счета">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="SHABLON7_RS_PRIS.xml" title="Приложение 7 Шаблон представления сведений по расчетным счетам" print-proc="2" />
+        </excel>
+      </print-templates>
+      <params>
+        <param name="n_prizn" type="number" />
+      </params>
+      <procedure>
+        begin
+        is_prn_shab.p_rep_shabl_rs(:n_prizn);
+        end;
+      </procedure>
+      <queries>
+        <query name="ISV_REP_SHABL7_PRIS" as="a" />
+      </queries>
+    </report>
+    <report form="empty" name="SHABL7_RS_0" title="Шаблон 7 Расч.счета (доходные договоры)" nogrid="1" folder="kido" visible="0" timestamp="26.02.2016 23:41:35">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="SHABLON7_RS_PRIS.xml" title="Приложение 7 Шаблон представления сведений по расчетным счетам (доходные договоры)" print-proc="2" />
+        </excel>
+      </print-templates>
+      <procedure>
+        begin
+        IS_PRN_SHAB.p_rep_shabl_rs (0);
+        end;
+      </procedure>
+      <queries>
+        <query name="ISV_REP_SHABL7" as="a" />
+      </queries>
+    </report>
+    <report form="empty" name="SHABL7_RS_1" title="Шаблон 7 Расч.счета (расходные договоры)" nogrid="1" folder="kido" visible="0" timestamp="26.02.2016 23:42:48">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="SHABLON7_RS_PRIS.xml" title="Приложение 7 Шаблон представления сведений по расчетным счетам (расходные договоры)" print-proc="2" />
+        </excel>
+      </print-templates>
+      <procedure>
+        begin
+        IS_PRN_SHAB.p_rep_shabl_rs (1);
+        end;
+      </procedure>
+      <queries>
+        <query name="ISV_REP_SHABL7" as="a" />
+      </queries>
+    </report>
+    <report form="empty" name="SHABL7_RS_2" title="Шаблон 7 Расч.счета (присоединение)" nogrid="1" folder="kido" visible="0" timestamp="26.02.2016 23:42:46">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="SHABLON7_RS_PRIS.xml" title="Приложение 7 Шаблон представления сведений по расчетным счетам (присоединение)" print-proc="2" />
+        </excel>
+      </print-templates>
+      <procedure>
+        begin
+        IS_PRN_SHAB.p_rep_shabl_rs (2);
+        end;
+      </procedure>
+      <queries>
+        <query name="ISV_REP_SHABL7" as="a" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="ISV_REP_SHABL7_PRIS">
+      <select>
+        <call function="rownum" as="idn" />
+        <column table="a" column="id" type="string" title="Идентификатор"></column>
+        <column table="a" column="kod_org" type="string" title="Код организации"></column>
+        <column table="a" column="bic" type="string" title="БИК банка"></column>
+        <column table="a" column="rs" type="string" title="Расчетный счет"></column>
+        <column table="a" column="text_prizn" type="string" title=""></column>
+      </select>
+      <from>
+        <table name="isv_rep_shabl7_pris" as="a" view="1"></table>
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="isv_rep_shabl7_pris">
+      select         s2      as id
+      ,s3      as kod_org
+      ,s4      as bic
+      ,s5      as rs
+      ,s30     as text_prizn
+      from is_rab
+      where polzov = user and s1= 'для ЕК: шаблон 7 расчетные счета'
+      order by s3, s5
+    </view>
+  </views>
+</root>

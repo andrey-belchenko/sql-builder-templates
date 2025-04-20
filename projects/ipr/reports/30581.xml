@@ -1,0 +1,1312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="30581-qry-podr">
+      <query order="name_direct">
+        <select>
+          <column table="a" column="kod_direct" />
+          <column table="a" column="name_kr_direct" as="name_direct" />
+        </select>
+        <from>
+          <query name="25499-ipr_direct" as="a" />
+        </from>
+        <where>
+          <usepart part="30581-cond-podr" />
+        </where>
+      </query>
+    </part>
+    <part id="30581-cond-podr">
+      <call function="and">
+        <call function="true" />
+        <call function="in" optional="1">
+          <column table="a" column="kod_direct" />
+          <useparam name="kod_direct" />
+        </call>
+      </call>
+    </part>
+    <part id="30581-pivot-podr-year">
+      <params>
+        <param name="dat" />
+      </params>
+      <pivot>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <useparam name="datef" />
+            </call>
+            <call function="year">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <call function="=">
+            <column table="dim" column="kod_direct" />
+            <column table="this" column="kod_podr" />
+          </call>
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>1</const>
+          </call>
+        </call>
+        <query>
+          <select>
+            <column table="a" column="*" />
+          </select>
+          <from>
+            <usepart part="30581-qry-podr" as="a" />
+          </from>
+        </query>
+      </pivot>
+    </part>
+    <part id="30581-pivot-podr">
+      <pivot>
+        <call function="and">
+          <call function="=">
+            <column table="dim" column="kod_direct" />
+            <column table="this" column="kod_podr" />
+          </call>
+        </call>
+        <query>
+          <select>
+            <column table="a" column="*" />
+          </select>
+          <from>
+            <usepart part="30581-qry-podr" as="a" />
+          </from>
+        </query>
+      </pivot>
+    </part>
+    <part id="30581-pivot-podr-kv">
+      <params>
+        <param name="dat" />
+      </params>
+      <pivot>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <useparam name="datef" />
+            </call>
+            <call function="year">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <call function="le">
+            <call function="date to kv">
+              <useparam name="dat" />
+            </call>
+            <column table="dim" column="id" />
+          </call>
+          <call function="=">
+            <column table="dim" column="kod_direct" />
+            <column table="this" column="kod_podr" />
+          </call>
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>1</const>
+          </call>
+        </call>
+        <query>
+          <select>
+            <call function="||" as="kod">
+              <column table="a" column="kod_direct" />
+              <const>'_'</const>
+              <column table="kv" column="id" />
+            </call>
+            <call function="||" as="title">
+              <column table="a" column="name_direct" />
+              <const>' '</const>
+              <column table="kv" column="name" />
+            </call>
+            <column table="a" column="kod_direct" />
+            <column table="kv" column="id" />
+          </select>
+          <from>
+            <usepart part="30581-qry-podr" as="a" />
+            <query name="spr_time_kv" as="kv" join="cross" />
+          </from>
+        </query>
+      </pivot>
+    </part>
+    <part id="30581-pivot-kv">
+      <params>
+        <param name="dat" />
+      </params>
+      <pivot>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <useparam name="datef" />
+            </call>
+            <call function="year">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <call function="le">
+            <call function="date to kv">
+              <useparam name="dat" />
+            </call>
+            <column table="dim" column="id" />
+          </call>
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>1</const>
+          </call>
+        </call>
+        <query>
+          <select>
+            <column table="kv" column="*" />
+          </select>
+          <from>
+            <query name="spr_time_kv" as="kv" />
+          </from>
+        </query>
+      </pivot>
+    </part>
+    <part id="30581-if-year">
+      <params>
+        <param name="dat" />
+      </params>
+      <if>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <useparam name="datef" />
+            </call>
+            <call function="year">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>1</const>
+          </call>
+        </call>
+      </if>
+    </part>
+    <part id="30581-if-period">
+      <params>
+        <param name="dat" />
+      </params>
+      <if>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <useparam name="datef" />
+            </call>
+            <call function="year">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <call function="le">
+            <useparam name="dat" />
+            <useparam name="datef" />
+          </call>
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>1</const>
+          </call>
+        </call>
+      </if>
+    </part>
+    <part id="30581-params" timestamp="17.04.2017 18:30:32">
+      <param name="date">
+        <const>to_date('31.03.2017','DD.MM.YYYY')</const>
+      </param>
+      <param name="datef">
+        <const>to_date('31.03.2017','DD.MM.YYYY')</const>
+      </param>
+      <param name="kod_doc">
+        <const>242796</const>
+      </param>
+      <param name="kod_direct" />
+      <param name="kod_dirisp">
+        <const>2</const>
+      </param>
+      <param name="pr_svod" />
+      <param name="kod_doc_kontr">
+        <const>(242476)</const>
+      </param>
+      <param name="pr_detail">
+        <const>1</const>
+      </param>
+      <param name="kod_titul_ip">
+        <const>15555</const>
+      </param>
+      <param name="kod_name_tmp">
+        <const>2</const>
+      </param>
+      <param name="pr_gorobl" />
+      <param name="kod_klass_titul" />
+      <param name="kod_ofz" />
+    </part>
+    <part id="30581-withparams" timestamp="21.10.2016 18:29:04">
+      <withparams>
+        <useparam name="date" />
+        <useparam name="datef" />
+        <useparam name="kod_doc" />
+        <useparam name="kod_direct" />
+        <useparam name="kod_dirisp" />
+        <useparam name="pr_svod" />
+        <useparam name="kod_doc_kontr" />
+        <useparam name="pr_detail" />
+        <useparam name="kod_titul_ip" />
+        <useparam name="kod_name_tmp" />
+        <useparam name="pr_gorobl" />
+        <useparam name="kod_klass_titul" />
+        <useparam name="kod_ofz" />
+      </withparams>
+    </part>
+    <part id="30581-params-typed" timestamp="28.03.2017 13:16:26">
+      <param name="date" type="date">
+        <const>sysdate</const>
+      </param>
+      <param name="datef" type="date">
+        <const>sysdate</const>
+      </param>
+      <param name="kod_doc" type="number">
+        <const>43383</const>
+      </param>
+      <param name="kod_direct" type="array" />
+      <param name="kod_dirisp" type="number">
+        <const>2</const>
+      </param>
+      <param name="pr_svod" type="number" />
+      <param name="kod_doc_kontr" type="array" />
+      <param name="pr_detail" type="number">
+        <const>1</const>
+      </param>
+      <param name="kod_titul_ip" type="array">
+        <const>7655</const>
+      </param>
+      <param name="kod_name_tmp" type="number" />
+      <param name="pr_gorobl" type="number" />
+      <param name="kod_klass_titul" type="array" />
+      <param name="kod_ofz" type="array" />
+    </part>
+  </parts>
+  <forms>
+    <form name="30581" timestamp="13.06.2018 14:32:10" with-behavior="0">
+      <content>
+        <field name="kod_doc" type="number" controlType="UICombo" title="Год ИПР/Документ" mandatory="1">
+          <listquery>
+            <query name="25499-ipr_doc_main_list" />
+          </listquery>
+        </field>
+        <field name="kod_direct" type="number" controlType="UIList" title="Подразделение">
+          <listquery>
+            <query name="25499-ipr_direct" />
+          </listquery>
+        </field>
+        <field name="kod_dirisp" type="number" controlType="UICombo" title="Заказчик/Исполнитель" mandatory="1">
+          <listquery>
+            <query name="is_spr_dirisp2" />
+          </listquery>
+          <defaultquery>
+            <query name="is_spr_dirisp_isp" />
+          </defaultquery>
+        </field>
+        <!--<field name="pr_last" controlType="UICheck" title="Последний документ" checked="1">
+        </field>-->
+        <field name="kod_doc_kontr" type="number" controlType="UIList" title="Документ-основание (если не задан, берется последний)">
+          <listquery>
+            <query name="ipr_doc_kontr_list" />
+          </listquery>
+        </field>
+        <field name="date" type="date" controlType="UIDate" title="Документ-основание на дату" mandatory="1">
+          <defaultquery>
+            <query name="30581-date-def" />
+          </defaultquery>
+        </field>
+        <field name="datef" type="date" controlType="UIDate" title="Фактические данные на дату" mandatory="1">
+          <defaultquery>
+            <query name="30581-date-def" />
+          </defaultquery>
+        </field>
+        <field name="pr_svod" type="number" controlType="UICheck" title="Сводно по ЛЭ" />
+        <field name="pr_detail" type="number" controlType="UICheck" title="С детализацией по титулам" />
+        <field name="kod_titul_ip" type="number" controlType="UIList" title="Титул" parent-field-name="kod_parent_node" val-field-name="kod_titul_ip" expand-all="1">
+          <buttons>
+            <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+            <menu title="save/load" side="Right">
+              <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+              <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+            </menu>
+          </buttons>
+          <listquery>
+            <query name="30581_tituls_list">
+              <withparams exclude="1">
+                <useparam name="kod_doc" />
+                <useparam name="kod_direct" />
+                <useparam name="kod_dirisp" />
+              </withparams>
+            </query>
+          </listquery>
+        </field>
+        <field name="kod_name_tmp" type="number" controlType="UICombo" title="Наименование контрольных этапов" mandatory="1">
+          <listquery>
+            <query name="is_spr_name_template" />
+          </listquery>
+          <defaultquery>
+            <query name="is_spr_name_template_1" />
+          </defaultquery>
+        </field>
+        <field name="pr_gorobl" type="number" controlType="UICheck" title="Город/область" />
+        <field name="kod_klass_titul" type="number" controlType="UIList" title="Принадлежность к важн. объектам, программам" parent-field-name="kod_parent" expand-all="1" auto-check="1">
+          <listquery>
+            <query name="ips_klass_titul_tree" />
+          </listquery>
+          <defaultquery>
+            <query name="ips_klass_titul_tree_def" />
+          </defaultquery>
+        </field>
+        <usefield field="ipr_kod_ofz" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="30581" title="Отчет по контрольным этапам" form="30581" folder="invpro" nogrid="1" timestamp="04.08.2017 18:26:56">
+      <params>
+        <usepart part="30581-params" />
+      </params>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="30581.xlsx" title="Отчет по контрольным этапам" print-proc="2" headmarker="1" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="30581" as="a">
+          <usepart part="30581-withparams" />
+        </query>
+        <query name="30581_user_name" as="b" />
+      </queries>
+    </report>
+    <report name="30581-passport" title="Отчет по контрольным этапам" form="30581" folder="invpro" nogrid="1" timestamp="13.08.2018 12:44:15" visible="0">
+      <params>
+        <usepart part="30581-params-typed" />
+      </params>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="30581 - passport.xml" title="Отчет по контрольным этапам" print-proc="2" headmarker="1" post-process="0" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="30581-passport" as="a">
+          <usepart part="30581-withparams" />
+        </query>
+        <query name="30581_user_name" as="b" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="ips_klass_titul_tree_def">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ips_klass_titul_tree" as="a" />
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_klass" />
+          <const>83</const>
+        </call>
+      </where>
+    </query>
+    <query name="30581_tituls_list">
+      <params>
+        <param name="kod_doc" type="number">
+          <const>43383</const>
+        </param>
+        <param name="kod_direct" type="number"></param>
+        <param name="kod_dirisp" type="number">
+          <const></const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="26630_tituls" as="a">
+          <withparams>
+            <useparam name="kod_doc" />
+            <undefined></undefined>
+            <useparam name="kod_direct" />
+            <undefined></undefined>
+            <const>1</const>
+            <useparam name="kod_dirisp" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="30581">
+      <params>
+        <usepart part="30581-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="30581-dat" as="a">
+          <usepart part="30581-withparams" />
+          <grsets>
+            <grset as="itog" level="" title="Итог">
+              <where>
+                <call function="=">
+                  <call function="nvlu">
+                    <useparam name="pr_svod" />
+                    <const>0</const>
+                  </call>
+                  <const>1</const>
+                </call>
+              </where>
+            </grset>
+            <grset as="podr" level="1,4" title="Подразделение">
+              <where>
+                <call function="is not null">
+                  <column table="a" column="kod_contr_steps_val" />
+                </call>
+              </where>
+              <grset as="tit" level="2" title="Титул"></grset>
+            </grset>
+            <grset as="podr1" level="1,4" title="Подразделение(при наличии контр. этапов)">
+              <where>
+                <call function="is not null">
+                  <column table="a" column="kod_contr_steps_val" />
+                </call>
+                <call function="=">
+                  <call function="nvlu">
+                    <useparam name="pr_detail" />
+                    <const>0</const>
+                  </call>
+                  <const>1</const>
+                </call>
+              </where>
+              <grset as="tit1" level="2" title="Титул(при наличии контр. этапов)">
+                <grset as="ki1" level="3" title="Контрольный этап" order="step_ord"></grset>
+              </grset>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="30581-date-def">
+      <params>
+        <param name="kod_doc_kontr" type="array"></param>
+      </params>
+      <select>
+        <call function="nvl" type="date" as="date1">
+          <query>
+            <select>
+              <call function="max" as="doc_date">
+                <column table="a" column="doc_date" />
+              </call>
+            </select>
+            <from>
+              <query name="ipr_doc" as="a" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column table="a" column="kod_doc" />
+                  <useparam name="kod_doc_kontr" />
+                </call>
+              </call>
+            </where>
+          </query>
+          <const>sysdate</const>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="b" />
+      </from>
+    </query>
+    <query name="30581_user_name">
+      <select>
+        <call function="||" as="name_user" type="string">
+          <column table="kod_spr_dolg" column="name" />
+          <const>' '</const>
+          <column table="a" column="name" />
+        </call>
+      </select>
+      <from>
+        <query name="k_user" as="a">
+          <slink name="is_rights">
+            <link name="kod_person">
+              <link name="kod_spr_dolg" />
+            </link>
+          </slink>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="puser" />
+            <const>user</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--<query name="30581-dat-test">
+      <select>
+        <column table="a" column="kod_contr_steps_val"/>
+        <column table="a" column="bp_date"/>
+        <column table="a" column="count_plan_year"/>
+        
+      </select>
+      <from>
+        <query name="30581-dat" as="a" grouplevel="11">
+
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>43962</const>
+        </call>
+      </where>
+    </query>-->
+    <query name="30581-dat" grouplevel="no" timestamp="30.07.2018 17:42:43">
+      <params>
+        <usepart part="30581-params" />
+      </params>
+      <select>
+        <call function="date to char" as="sdate" group="max" title="Дата">
+          <useparam name="date" />
+        </call>
+        <call function="year" as="year" group="max" title="Год">
+          <useparam name="date" />
+        </call>
+        <call function="date to kv" as="kv" group="max" title="Квартал">
+          <useparam name="date" />
+        </call>
+        <call function="if" as="name_dir" type="string" group="max">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="is_person_isp" column="fio" dgroup="max" />
+          <column table="is_person_dir" column="fio" dgroup="max" />
+        </call>
+        <call function="if" as="kod_podr" group="1">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="kod_ispolnit" column="kod_direct" />
+          <column table="kod_direct" column="kod_direct" />
+        </call>
+        <!--<column table="kod_direct" column="kod_direct" as="kod_podr" group="1"/>-->
+        <call function="if" as="podr_name" group="kod_podr">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="kod_ispolnit" column="name" />
+          <column table="kod_direct" column="name" />
+        </call>
+        <!--<column table="kod_direct" column="name" as="podr_name" group="kod_podr"/>-->
+        <call function="if" as="podr_name_kr" group="kod_podr">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="kod_ispolnit" column="name_kr" />
+          <column table="kod_direct" column="name_kr" />
+        </call>
+        <call function="if" as="go_grp" group="4" title="Группа">
+          <call function="=">
+            <call function="nvlu">
+              <useparam name="pr_gorobl" />
+              <const>0</const>
+            </call>
+            <const>0</const>
+          </call>
+          <const>'СПб и ЛО'</const>
+          <column table="kod_subject" column="abbr" />
+        </call>
+        <call function="||" as="podr_name_kr_go" group="kod_podr" title="Подразделение по областям">
+          <column table="this" column="podr_name_kr" />
+          <const>' '</const>
+          <column table="this" column="go_grp" />
+        </call>
+        <!--<column table="kod_direct" column="name_kr" as="podr_name_kr" group="kod_podr"/>-->
+        <column table="a" column="kod_titul_ip" group="2" />
+        <column table="kod_titul_ip" column="tit_num_new" group="kod_titul_ip" />
+        <column table="kod_titul_ip" column="name" as="tit_name" group="kod_titul_ip" />
+        <column table="a" column="kod_contr_steps_val" type="number" group="3" />
+        <!--<column table="a" column="kod_ipr" group="kod_contr_steps_val"/>-->
+        <call function="if" as="pr_g" type="number" group="kod_contr_steps_val">
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>0</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="ipr_contr_steps_val_ord" column="step_ord" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_ord" column="ord2" group="kod_contr_steps_val" />
+        <call function="case" as="abbr" group="kod_contr_steps_val" type="string">
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>1</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="abbr" />
+          </call>
+          <call function="else">
+            <const>''</const>
+          </call>
+        </call>
+        <call function="case" as="name" group="kod_contr_steps_val" type="string">
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>1</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="name" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>2</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="num_cognos" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>3</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="name_rosseti" />
+          </call>
+        </call>
+        <column table="kod_contr_steps_val" column="need" group="kod_contr_steps_val" />
+        <column table="kod_contr_steps_val" column="wfact_date_beg" group="kod_contr_steps_val" as="bw_date" />
+        <column table="kod_contr_steps_val" column="wfact_date_end" group="kod_contr_steps_val" as="ew_date" />
+        <column table="kod_contr_steps_val" column="comments" group="kod_contr_steps_val" />
+        <column table="kod_contr_steps_val" column="comments_fill" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="plan_date_beg" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="plan_date_end" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="fact_date_beg" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="fact_date_end" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="bp_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="ep_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="bf_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="ef_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="ef_date_uch" group="kod_contr_steps_val">
+          <if>
+            <call function="le">
+              <column table="ipr_contr_steps_val_dt" column="ef_date_uch" />
+              <useparam name="datef" />
+            </call>
+          </if>
+        </column>
+        <column table="ipr_contr_steps_val_dt_prev" column="bp_date" as="bp_date_prev" group="kod_contr_steps_val" title="ПН" />
+        <column table="ipr_contr_steps_val_dt_prev" column="ep_date" as="ep_date_prev" group="kod_contr_steps_val" title="ПК" />
+        <column table="ipr_contr_steps_val_dt_prev" column="bf_date" as="bf_date_prev" group="kod_contr_steps_val" title="ФН" />
+        <column table="ipr_contr_steps_val_dt_prev" column="ef_date" as="ef_date_prev" group="kod_contr_steps_val" title="ФК" />
+        <column table="kod_contr_steps_val_prev" column="comments" group="kod_contr_steps_val" title="Коммент" as="comments_prev" />
+        <column table="a" column="ipr_fin_steps" as="count_plan_year" title="К-во план за год" group="sum">
+          <usepart part="30581-if-year">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_year" title="К-во факт за год" group="sum">
+          <usepart part="30581-if-year">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_period" title="К-во план за период" group="sum">
+          <usepart part="30581-if-period">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_period" title="К-во факт за период" group="sum">
+          <usepart part="30581-if-period">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <!--<column table="a" column="ipr_fin_ipr" group="sum" />-->
+        <!--<column table="a" column="ipr_fin_ipr" as="count_ipr_podr" dimname="podr" title="К-во проектов по подразделениям" group="sum">
+          <usepart part="30581-pivot-podr"/>
+        </column>-->
+        <column table="a" column="kod_ipr" as="count_ipr_podr" dimname="podr" title="К-во проектов по подразделениям" group="count_dist">
+          <usepart part="30581-pivot-podr" />
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_kv" dimname="kv_plan" title="К-во план по кварталам" group="sum">
+          <usepart part="30581-pivot-kv">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_kv" dimname="kv_fact" title="К-во факт по кварталам" group="sum">
+          <usepart part="30581-pivot-kv">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_podr" dimname="podr_plan" title="К-во план по подразделениям" group="sum">
+          <usepart part="30581-pivot-podr-year">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_podr" dimname="podr_fact" title="К-во факт по подразделениям" group="sum">
+          <usepart part="30581-pivot-podr-year">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_podr_kv" dimname="podr_kv_plan" title="К-во план по подразделениям и кварталам" group="sum">
+          <usepart part="30581-pivot-podr-kv">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_podr_kv" dimname="podr_kv_fact" title="К-во факт по подразделениям и кварталам" group="sum">
+          <usepart part="30581-pivot-podr-kv">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <link name="kod_contr_steps_val">
+            <link name="kod_doc" as="kod_doc_steps" />
+            <link name="kod_template_contr_steps_val" />
+            <link name="ipr_contr_steps_val_ord" hint="materialize" />
+            <link name="ipr_contr_steps_val_dt" />
+            <link name="kod_contr_steps_val_prev">
+              <link name="ipr_contr_steps_val_dt" as="ipr_contr_steps_val_dt_prev" />
+            </link>
+          </link>
+          <link name="kod_ipr">
+            <link name="kod_main_titul">
+              <link name="kod_subject" />
+            </link>
+          </link>
+          <link name="kod_titul_ip">
+            <link name="kod_direct">
+              <dlink name="is_person" as="is_person_dir">
+                <where>
+                  <call function="and">
+                    <call function="=">
+                      <column table="is_person_dir" column="kod_spr_dolg" />
+                      <const comment="44295 было 0">54</const>
+                    </call>
+                    <call function="is null">
+                      <column table="is_person_dir" column="dat_udal" />
+                    </call>
+                  </call>
+                </where>
+              </dlink>
+            </link>
+            <link name="kod_ispolnit">
+              <dlink name="is_person" as="is_person_isp">
+                <where>
+                  <call function="and">
+                    <call function="=">
+                      <column table="is_person_isp" column="kod_spr_dolg" />
+                      <const comment="44295 было 0">54</const>
+                    </call>
+                    <call function="is null">
+                      <column table="is_person_isp" column="dat_udal" />
+                    </call>
+                  </call>
+                </where>
+              </dlink>
+            </link>
+          </link>
+          <!--<extendwhere target-query="ipr_contr_steps_val">
+            <call function="=">
+              <table
+            </call>
+          </extendwhere>-->
+          <extendwhere>
+            <call function="and">
+              <call function="=">
+                <column table="kod_ipr" column="kod_doc_osn" />
+                <useparam name="kod_doc" />
+              </call>
+              <call function="between" optional="1" selective="1" comment="если это условие применялось только к контр. этапам то теперь оно лишнее, dat  в конт. э. заменил   на dat_doc_steps ">
+                <column table="*" column="dat" />
+                <call function="year begin time">
+                  <call function="year">
+                    <useparam name="date" />
+                  </call>
+                </call>
+                <useparam name="date" />
+              </call>
+              <call function="le" optional="1" selective="1">
+                <column table="*" column="dat_doc_steps" />
+                <useparam name="date" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_ipr" column="kod_titul_ip" />
+                <useparam name="kod_titul_ip" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_main_ipr_ipr_data1" column="kod_klass" />
+                <useparam name="kod_klass_titul" />
+              </call>
+            </call>
+            <call function="or" optional="1">
+              <call function="and">
+                <call function="in">
+                  <column table="kod_titul_ip1" column="kod_ispolnit" />
+                  <useparam name="kod_direct" />
+                </call>
+                <call function="=">
+                  <const>3</const>
+                  <useparam name="kod_dirisp" />
+                </call>
+              </call>
+              <call function="and">
+                <call function="in">
+                  <column table="kod_titul_ip1" column="kod_direct" />
+                  <useparam name="kod_direct" />
+                </call>
+                <call function="=">
+                  <const>2</const>
+                  <useparam name="kod_dirisp" />
+                </call>
+              </call>
+            </call>
+            <call function="!=nvl" optional="1" exclude="1">
+              <column table="kod_titul_ip1" column="is_head_tit" />
+              <const>1</const>
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <!--если документ не задан берем последний, иначе заданный документ-->
+        <call function="and">
+          <call function="true" />
+          <call function="or">
+            <call function="and">
+              <call function="=">
+                <!--nvl, чтобы попадали строки из ipr_fin_ipr,  они не привязаны к документам-->
+                <call function="nvl">
+                  <column table="a" column="pr_steps_last" />
+                  <const>1</const>
+                </call>
+                <const>1</const>
+              </call>
+              <call function="in" optional="1">
+                <const>-1</const>
+                <useparam name="kod_doc_kontr" />
+              </call>
+            </call>
+            <call function="or">
+              <call function="false" />
+              <call optional="1" function="in">
+                <column table="kod_contr_steps_val" column="kod_doc" />
+                <useparam name="kod_doc_kontr" />
+              </call>
+            </call>
+          </call>
+          <call function="not in">
+            <column table="this" column="name" />
+            <array>'нет','нет соответствия'</array>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="30581-passport" timestamp="15.05.2018 13:39:51">
+      <params>
+        <usepart part="30581-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="30581-dat-passport" as="a">
+          <usepart part="30581-withparams" />
+          <grsets>
+            <grset as="itog" level="" title="Итог">
+              <where>
+                <call function="=">
+                  <call function="nvlu">
+                    <useparam name="pr_svod" />
+                    <const>0</const>
+                  </call>
+                  <const>1</const>
+                </call>
+              </where>
+            </grset>
+            <grset as="podr" level="1,4" title="Подразделение">
+              <where>
+                <call function="is not null">
+                  <column table="a" column="kod_contr_steps_val" />
+                </call>
+              </where>
+              <grset as="tit" level="2" title="Титул" />
+            </grset>
+            <grset as="podr1" level="1,4" title="Подразделение(при наличии контр. этапов)">
+              <where>
+                <call function="is not null">
+                  <column table="a" column="kod_contr_steps_val" />
+                </call>
+                <call function="=">
+                  <call function="nvlu">
+                    <useparam name="pr_detail" />
+                    <const>0</const>
+                  </call>
+                  <const>1</const>
+                </call>
+              </where>
+              <grset as="tit1" level="2" title="Титул(при наличии контр. этапов)">
+                <grset as="ki1" level="3" title="Контрольный этап" order="step_ord" />
+              </grset>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="30581-dat-passport" grouplevel="no" timestamp="30.07.2018 17:43:35">
+      <params>
+        <usepart part="30581-params" />
+      </params>
+      <select>
+        <call function="date to char" as="sdate" group="max" title="Дата" exclude="1">
+          <useparam name="date" />
+        </call>
+        <call function="year" as="year" group="max" title="Год">
+          <useparam name="date" />
+        </call>
+        <call function="date to kv" as="kv" group="max" title="Квартал" exclude="1">
+          <useparam name="date" />
+        </call>
+        <call function="if" as="name_dir" type="string" group="max">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="is_person_isp" column="fio" dgroup="max" />
+          <column table="is_person_dir" column="fio" dgroup="max" />
+        </call>
+        <call function="if" as="kod_podr" group="1">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="kod_ispolnit" column="kod_direct" />
+          <column table="kod_direct" column="kod_direct" />
+        </call>
+        <!--<column table="kod_direct" column="kod_direct" as="kod_podr" group="1"/>-->
+        <call function="if" as="podr_name" group="kod_podr" exclude="1">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="kod_ispolnit" column="name" />
+          <column table="kod_direct" column="name" />
+        </call>
+        <call function="if" as="go_grp" group="4" title="Группа">
+          <call function="=">
+            <call function="nvlu">
+              <useparam name="pr_gorobl" />
+              <const>0</const>
+            </call>
+            <const>0</const>
+          </call>
+          <const>'СПб и ЛО'</const>
+          <column table="kod_subject" column="abbr" />
+        </call>
+        <!--<column table="kod_direct" column="name" as="podr_name" group="kod_podr"/>-->
+        <call function="if" as="podr_name_kr" group="kod_podr" exclude="1">
+          <call function="=">
+            <useparam name="kod_dirisp" />
+            <const>3</const>
+          </call>
+          <column table="kod_ispolnit" column="name_kr" />
+          <column table="kod_direct" column="name_kr" />
+        </call>
+        <call function="||" as="podr_name_kr_go" group="kod_podr" title="Подразделение по областям" exclude="1">
+          <column table="this" column="podr_name_kr" />
+          <const>' '</const>
+          <column table="this" column="go_grp" />
+        </call>
+        <!--<column table="kod_direct" column="name_kr" as="podr_name_kr" group="kod_podr"/>-->
+        <column table="a" column="kod_titul_ip" group="2" />
+        <column table="kod_titul_ip" column="tit_num_new" group="kod_titul_ip" exclude="1" />
+        <column table="kod_titul_ip" column="name" as="tit_name" group="kod_titul_ip" />
+        <column table="a" column="kod_contr_steps_val" type="number" group="3" />
+        <!--<column table="a" column="kod_ipr" group="kod_contr_steps_val"/>-->
+        <call function="if" as="pr_g" type="number" group="kod_contr_steps_val">
+          <call function="=">
+            <column table="ipr_contr_steps_val_ord" column="last_level" />
+            <const>0</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="ipr_contr_steps_val_ord" column="step_ord" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_ord" column="ord2" group="kod_contr_steps_val" />
+        <call function="case" as="abbr" group="kod_contr_steps_val" type="string">
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>1</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="abbr" />
+          </call>
+          <call function="else">
+            <const>''</const>
+          </call>
+        </call>
+        <call function="case" as="name" group="kod_contr_steps_val" type="string">
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>1</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="name" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>2</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="num_cognos" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <useparam name="kod_name_tmp" />
+              <const>3</const>
+            </call>
+            <column table="kod_template_contr_steps_val" column="name_rosseti" />
+          </call>
+        </call>
+        <column table="kod_contr_steps_val" column="need" group="kod_contr_steps_val" />
+        <column table="kod_contr_steps_val" column="wfact_date_beg" group="kod_contr_steps_val" as="bw_date" />
+        <column table="kod_contr_steps_val" column="wfact_date_end" group="kod_contr_steps_val" as="ew_date" />
+        <column table="kod_contr_steps_val" column="comments" group="kod_contr_steps_val" />
+        <column table="kod_contr_steps_val" column="comments_fill" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="plan_date_beg" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="plan_date_end" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="fact_date_beg" group="kod_contr_steps_val" />
+        <column table="kod_template_contr_steps_val" column="fact_date_end" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="bp_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="ep_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="bf_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="ef_date" group="kod_contr_steps_val" />
+        <column table="ipr_contr_steps_val_dt" column="ef_date_uch" group="kod_contr_steps_val">
+          <if>
+            <call function="le">
+              <column table="ipr_contr_steps_val_dt" column="ef_date_uch" />
+              <useparam name="datef" />
+            </call>
+          </if>
+        </column>
+        <column table="ipr_contr_steps_val_dt_prev" column="bp_date" as="bp_date_prev" group="kod_contr_steps_val" title="ПН" />
+        <column table="ipr_contr_steps_val_dt_prev" column="ep_date" as="ep_date_prev" group="kod_contr_steps_val" title="ПК" />
+        <column table="ipr_contr_steps_val_dt_prev" column="bf_date" as="bf_date_prev" group="kod_contr_steps_val" title="ФН" />
+        <column table="ipr_contr_steps_val_dt_prev" column="ef_date" as="ef_date_prev" group="kod_contr_steps_val" title="ФК" />
+        <column table="kod_contr_steps_val_prev" column="comments" group="kod_contr_steps_val" title="Коммент" as="comments_prev" />
+        <column table="a" column="ipr_fin_steps" as="count_plan_year" title="К-во план за год" group="sum">
+          <usepart part="30581-if-year">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_year" title="К-во факт за год" group="sum">
+          <usepart part="30581-if-year">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_period" title="К-во план за период" group="sum" exclude="1">
+          <usepart part="30581-if-period">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_period" title="К-во факт за период" group="sum" exclude="1">
+          <usepart part="30581-if-period">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <!--<column table="a" column="ipr_fin_ipr" group="sum" />-->
+        <!--<column table="a" column="ipr_fin_ipr" as="count_ipr_podr" dimname="podr" title="К-во проектов по подразделениям" group="sum">
+          <usepart part="30581-pivot-podr"/>
+        </column>-->
+        <column table="a" column="kod_ipr" as="count_ipr_podr" dimname="podr" title="К-во проектов по подразделениям" group="count_dist" exclude="1">
+          <usepart part="30581-pivot-podr" />
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_kv" dimname="kv_plan" title="К-во план по кварталам" group="sum">
+          <usepart part="30581-pivot-kv">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_kv" dimname="kv_fact" title="К-во факт по кварталам" group="sum">
+          <usepart part="30581-pivot-kv">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_podr" dimname="podr_plan" title="К-во план по подразделениям" group="sum" exclude="1">
+          <usepart part="30581-pivot-podr-year">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_podr" dimname="podr_fact" title="К-во факт по подразделениям" group="sum" exclude="1">
+          <usepart part="30581-pivot-podr-year">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_plan_podr_kv" dimname="podr_kv_plan" title="К-во план по подразделениям и кварталам" group="sum" exclude="1">
+          <usepart part="30581-pivot-podr-kv">
+            <column table="this" column="ep_date" group="" />
+          </usepart>
+        </column>
+        <column table="a" column="ipr_fin_steps" as="count_fact_podr_kv" dimname="podr_kv_fact" title="К-во факт по подразделениям и кварталам" group="sum" exclude="1">
+          <usepart part="30581-pivot-podr-kv">
+            <column table="this" column="ef_date_uch" group="" />
+          </usepart>
+        </column>
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <link name="kod_contr_steps_val">
+            <link name="kod_doc" as="kod_doc_steps" />
+            <link name="kod_template_contr_steps_val" />
+            <link name="ipr_contr_steps_val_ord" hint="materialize" />
+            <link name="ipr_contr_steps_val_dt" />
+            <link name="kod_contr_steps_val_prev">
+              <link name="ipr_contr_steps_val_dt" as="ipr_contr_steps_val_dt_prev" />
+            </link>
+          </link>
+          <link name="kod_ipr">
+            <link name="kod_main_titul">
+              <link name="kod_subject" />
+            </link>
+          </link>
+          <link name="kod_titul_ip">
+            <link name="kod_direct">
+              <dlink name="is_person" as="is_person_dir">
+                <where>
+                  <call function="and">
+                    <call function="=">
+                      <column table="is_person_dir" column="kod_spr_dolg" />
+                      <const comment="44295 было 0">54</const>
+                    </call>
+                    <call function="is null">
+                      <column table="is_person_dir" column="dat_udal" />
+                    </call>
+                  </call>
+                </where>
+              </dlink>
+            </link>
+            <link name="kod_ispolnit">
+              <dlink name="is_person" as="is_person_isp">
+                <where>
+                  <call function="and">
+                    <call function="=">
+                      <column table="is_person_isp" column="kod_spr_dolg" />
+                      <const comment="44295 было 0">54</const>
+                    </call>
+                    <call function="is null">
+                      <column table="is_person_isp" column="dat_udal" />
+                    </call>
+                  </call>
+                </where>
+              </dlink>
+            </link>
+          </link>
+          <!--<extendwhere target-query="ipr_contr_steps_val">
+            <call function="=">
+              <table
+            </call>
+          </extendwhere>-->
+          <extendwhere>
+            <call function="and">
+              <call function="=">
+                <column table="kod_ipr" column="kod_doc_osn" />
+                <useparam name="kod_doc" />
+              </call>
+              <call function="between" optional="1" selective="1" comment="если это условие применялось только к контр. этапам то теперь оно лишнее, dat  в конт. э. заменил   на dat_doc_steps ">
+                <column table="*" column="dat" />
+                <call function="year begin time">
+                  <call function="year">
+                    <useparam name="date" />
+                  </call>
+                </call>
+                <useparam name="date" />
+              </call>
+              <call function="le" optional="1" selective="1">
+                <column table="*" column="dat_doc_steps" />
+                <useparam name="date" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_ipr" column="kod_titul_ip" />
+                <useparam name="kod_titul_ip" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_main_ipr_ipr_data1" column="kod_klass" />
+                <useparam name="kod_klass_titul" />
+              </call>
+            </call>
+            <call function="or" optional="1">
+              <call function="and">
+                <call function="in">
+                  <column table="kod_titul_ip1" column="kod_ispolnit" />
+                  <useparam name="kod_direct" />
+                </call>
+                <call function="=">
+                  <const>3</const>
+                  <useparam name="kod_dirisp" />
+                </call>
+              </call>
+              <call function="and">
+                <call function="in">
+                  <column table="kod_titul_ip1" column="kod_direct" />
+                  <useparam name="kod_direct" />
+                </call>
+                <call function="=">
+                  <const>2</const>
+                  <useparam name="kod_dirisp" />
+                </call>
+              </call>
+            </call>
+            <call function="!=nvl" optional="1" exclude="1">
+              <column table="kod_titul_ip1" column="is_head_tit" />
+              <const>1</const>
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <!--если документ не задан берем последний, иначе заданный документ-->
+        <call function="and">
+          <call function="true" />
+          <call function="or">
+            <call function="and">
+              <call function="=">
+                <!--nvl, чтобы попадали строки из ipr_fin_ipr,  они не привязаны к документам-->
+                <call function="nvl">
+                  <column table="a" column="pr_steps_last" />
+                  <const>1</const>
+                </call>
+                <const>1</const>
+              </call>
+              <call function="in" optional="1">
+                <const>-1</const>
+                <useparam name="kod_doc_kontr" />
+              </call>
+            </call>
+            <call function="or">
+              <call function="false" />
+              <call optional="1" function="in">
+                <column table="kod_contr_steps_val" column="kod_doc" />
+                <useparam name="kod_doc_kontr" />
+              </call>
+            </call>
+          </call>
+          <call function="not in">
+            <column table="this" column="name" />
+            <array>'нет','нет соответствия'</array>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

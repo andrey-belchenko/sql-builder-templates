@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="sqlbuilder">
+  <queries>
+    <query name="vr_tree_klass_titul" class="1" timestamp="21.03.2017 19:12:10">
+      <select>
+        <column table="a" column="kod_sprav" type="number" />
+        <column table="a" column="kod_tree" type="number" />
+        <column table="a" column="kod_klass" type="number" />
+        <column table="a" column="with_childs" type="number" controlType="UICheck" title="Вместе с дочерними" />
+      </select>
+      <from>
+        <table name="vr_tree_klass_titul" as="a" />
+        <query name="ips_klass_titul" as="kod_klass" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_klass" />
+            <column table="kod_klass" column="kod_klass" />
+          </call>
+        </query>
+        <query name="vr_tree" as="kod_tree" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_tree" />
+            <column table="kod_tree" column="kod_tree" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vr_tree_klass_titul_ext" class="1" timestamp="21.03.2017 19:14:57" extend="vr_tree_klass_titul">
+      <select>
+        <call function="||" as="vid" fact="vr_sprav_klass_titul_vid" agg="list">
+          <column table="kod_klass" column="vid" />
+          <call function="if">
+            <call function="=1">
+              <column table="this" column="with_childs" />
+            </call>
+            <const>'*'</const>
+          </call>
+        </call>
+      </select>
+    </query>
+  </queries>
+</root>

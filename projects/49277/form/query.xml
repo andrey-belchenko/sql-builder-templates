@@ -1,0 +1,215 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vb_nastr_pwrc_list_1" timestamp="21.02.2021 01:45:05" class="1">
+      <params>
+        <param name="kod_fl" type="number" />
+        <param name="kod_nastr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="ПС" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_list_def" as="a" auto-refresh="1" column-editable="0">
+          <withparams>
+            <useparam name="kod_fl" />
+          </withparams>
+        </query>
+        <query name="vb_rb_default_pwrc" as="pwrc_id" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_id" />
+              <column table="pwrc_id" column="pwrc_id" />
+            </call>
+            <call function="=">
+              <column table="a" column="bal_id" />
+              <column table="pwrc_id" column="kod_fl" />
+            </call>
+            <call function="=">
+              <column table="pwrc_id" column="kod_kol_gr_nastr" />
+              <useparam name="kod_nastr" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is null">
+          <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+        </call>
+      </where>
+    </query>
+    <query name="vb_rb_default_pwrc_list" class="1" timestamp="21.02.2021 01:58:41" order="name, pwrcn">
+      <params>
+        <param name="kod_fl" type="array" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcn" type="string" title="ПС" />
+        <column table="a" column="bal_id" />
+        <column table="kod_fl" column="name" />
+      </select>
+      <from>
+        <query name="vr_rb_pwrc" as="a" auto-refresh="1" column-editable="0">
+          <link name="kod_fl" />
+        </query>
+        <query name="vb_rb_default_pwrc" as="def_pwrc" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_id" />
+              <column table="def_pwrc" column="pwrc_id" />
+            </call>
+            <call function="=">
+              <column table="a" column="bal_id" />
+              <column table="def_pwrc" column="kod_fl" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="def_pwrc" column="pwrc_id" />
+          </call>
+          <call function="in">
+            <column table="a" column="bal_id" />
+            <useparam name="kod_fl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vb_rb_default_pwrc_add" timestamp="25.02.2019 17:07:28" update-target="vb_rb_default_pwrc">
+      <params>
+        <param name="pwrc_id" type="number" />
+        <param name="bal_id" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="kod_fl">
+          <useparam name="bal_id" />
+        </call>
+        <call function="()" type="number" as="pwrc_id">
+          <useparam name="pwrc_id" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vb_rb_default_fdr_list" class="1" timestamp="21.02.2021 04:52:20" order="name, pwrcname, pwrc_fdrname">
+      <params>
+        <param name="kod_fl" type="array" />
+      </params>
+      <select>
+        <call function="||-" as="pwrc_kod_id_fdrid" key="1">
+          <column table="def_pwrc" column="kod_id" />
+          <column table="a" column="pwrc_fdrid" type="number" column-mandatory="1" />
+        </call>
+        <column table="a" column="pwrc_fdrid" type="number" column-mandatory="1" />
+        <column table="a" column="pwrc_fdrname" title="Фидер" />
+        <column table="a" column="pwrc_id" />
+        <column table="a" column="pwrcname" type="string" title="ПС" />
+        <column table="def_pwrc" column="kod_fl" />
+        <column table="a" column="pwrc_fdr_explname" title="Экспл.отв." />
+        <column table="kod_fl" column="name" />
+        <column table="def_pwrc" column="kod_id" />
+      </select>
+      <from>
+        <query name="vr_rb_fider" as="a" auto-refresh="1" column-editable="0" />
+        <query name="vb_rb_default_pwrc" as="def_pwrc" join="left outer">
+          <link name="kod_fl" />
+          <call function="=">
+            <column table="a" column="pwrc_id" />
+            <column table="def_pwrc" column="pwrc_id" />
+          </call>
+        </query>
+        <query name="vb_rb_default_fdr" as="def_fdr" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_fdrid" />
+              <column table="def_fdr" column="pwrc_fdrid" />
+            </call>
+            <call function="=">
+              <column table="def_pwrc" column="kod_id" />
+              <column table="def_fdr" column="kod_id_pwrc" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="def_fdr" column="pwrc_fdrid" />
+          </call>
+          <call function="in">
+            <column table="kod_fl" column="kod_fl" />
+            <useparam name="kod_fl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vb_rb_default_fdr_add" timestamp="25.02.2019 20:19:14" update-target="vb_rb_default_fdr">
+      <params>
+        <param name="pwrc_fdrid" type="number" />
+        <param name="pwrc_id" type="number" />
+        <param type="number" name="kod_id_pwrc" />
+      </params>
+      <select>
+        <call function="()" type="number" as="pwrc_id">
+          <useparam name="pwrc_id" />
+        </call>
+        <call function="()" type="number" as="pwrc_fdrid">
+          <useparam name="pwrc_fdrid" />
+        </call>
+        <call function="()" type="number" as="kod_id_pwrc">
+          <useparam name="kod_id_pwrc" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vb_rb_default_pwrc_list_from_HV_EOPWRC" class="1" timestamp="21.02.2021 04:59:33" order="name, pwrcname">
+      <params>
+        <param name="kod_fl" type="array" />
+      </params>
+      <select>
+        <call function="||-" key="1" as="bal_id_pwrc_id">
+          <column table="a" column="bal_id" />
+          <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        </call>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="ПС" />
+        <column table="a" column="bal_id" />
+        <column table="kod_fl" column="name" />
+      </select>
+      <from>
+        <query name="hv_eopwrc" as="a" auto-refresh="1" column-editable="0">
+          <link name="kod_fl" />
+        </query>
+        <query name="vb_rb_default_pwrc" as="def_pwrc" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_id" />
+              <column table="def_pwrc" column="pwrc_id" />
+            </call>
+            <call function="=">
+              <column table="a" column="bal_id" />
+              <column table="def_pwrc" column="kod_fl" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="def_pwrc" column="pwrc_id" />
+          </call>
+          <call function="in">
+            <column table="a" column="bal_id" />
+            <useparam name="kod_fl" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

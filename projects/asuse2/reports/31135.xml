@@ -1,0 +1,362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="31135-params">
+      <param name="ym" />
+      <param name="dep" />
+      <param name="iku" />
+    </part>
+    <part id="31135-withparams">
+      <withparams>
+        <useparam name="ym" />
+        <useparam name="dep" />
+        <useparam name="iku" />
+      </withparams>
+    </part>
+  </parts>
+  <forms>
+    <form name="31135" with-behavior="0" timestamp="21.11.2016 14:27:04">
+      <content>
+        <usefield field="asuse_ym" />
+        <usefield field="asuse_dep" />
+        <field name="iku" controlType="UIList" title="Перечень ИКУ">
+          <listquery>
+            <query name="31135-spr-iku"></query>
+          </listquery>
+          <defaultquery>
+            <query name="31135-spr-iku" />
+          </defaultquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="31135" title="Перечень ИКУ в разрезе флиалов, просроченная задолженность которых превысила потребление за период" ins-by-loop="1" form="31135" folder="dolg">
+      <params>
+        <usepart part="31135-params" />
+      </params>
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="31135.xml" title="Перечень ИКУ в разрезе филиалов (xlsx)" del-cols="1" print-proc="2" />
+          <template name="31135.xml" title="Перечень ИКУ в разрезе филиалов (pdf)" del-cols="1" print-proc="2" output-format="pdf" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="31135" as="a">
+          <usepart part="31135-withparams" />
+        </query>
+        <query name="form:31135" as="p" title="Параметры" />
+        <query name="31135-title" as="b">
+          <withparams>
+            <useparam name="ym" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="31135-title">
+      <params>
+        <param name="ym" />
+      </params>
+      <select>
+        <call function="date to char" as="dat_per" type="string">
+          <call function="date add days">
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <call function="date to char" as="dat_year" type="string">
+          <call function="date add days">
+            <call function="ym end time">
+              <call function="ym add month">
+                <call function="date to ym">
+                  <call function="year begin time">
+                    <call function="year">
+                      <call function="ym begin time">
+                        <useparam name="ym" />
+                      </call>
+                    </call>
+                  </call>
+                </call>
+                <const>-1</const>
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="31135-spr-iku">
+      <select>
+        <column table="a" column="kod_gr_potr_nas" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="p_gr_potr_nas" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="pr_iku_rso" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="31135">
+      <params>
+        <usepart part="31135-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="31135-dat" as="a">
+          <usepart part="31135-withparams" />
+        </query>
+      </from>
+    </query>
+    <query name="31135-dat">
+      <params>
+        <usepart part="31135-params" />
+      </params>
+      <select>
+        <!--<column table="b" column="dat_end" as="dat_year"/>
+        <column table="a" column="dat_end" as="dat_per"/>-->
+        <column table="a" column="kod_dog" />
+        <column table="b" column="kod_dog" as="kod_dog1" />
+        <column table="a" column="payer_name" />
+        <column table="a" column="ndog" />
+        <column table="b" column="dolg_end_per" as="dolg_beg_year" />
+        <column table="b" column="sverx_end_per" as="sverx_beg_year" />
+        <column table="a" column="dolg_end_per" />
+        <column table="a" column="sverx_end_per" />
+        <column table="a" column="name_uch" />
+        <column table="a" column="dep_name" />
+        <column table="a" column="nachisl_2_per" />
+      </select>
+      <from>
+        <query name="31135-dat-ym" as="a" grouplevel="1">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="dep" />
+            <useparam name="iku" />
+          </withparams>
+        </query>
+        <query name="31135-dat-ym" as="b" grouplevel="1" join="left outer">
+          <withparams>
+            <call function="ym add month">
+              <call function="date to ym">
+                <call function="year begin time">
+                  <call function="year">
+                    <call function="ym begin time">
+                      <useparam name="ym" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+              <const>-1</const>
+            </call>
+            <useparam name="dep" />
+            <useparam name="iku" />
+          </withparams>
+          <call function="=">
+            <column table="b" column="kod_dog" />
+            <column table="a" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="or">
+            <call function="and">
+              <call function="like">
+                <column table="a" column="ndog" />
+                <const>'%-51%'</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="sverx_end_per" />
+                <const>0</const>
+              </call>
+            </call>
+            <call function="and">
+              <call function="not like">
+                <column table="a" column="ndog" />
+                <const>'%-51%'</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="sverx_end_per" />
+                <const>0</const>
+              </call>
+              <call function="=nvl">
+                <column table="this" column="nachisl_2_per" />
+                <const>0</const>
+              </call>
+            </call>
+            <call function="and">
+              <call function="not like">
+                <column table="a" column="ndog" />
+                <const>'%-51%'</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="sverx_end_per" />
+                <column table="this" column="nachisl_2_per" />
+              </call>
+              <call function="gt">
+                <column table="this" column="nachisl_2_per" />
+                <const>0</const>
+              </call>
+            </call>
+            <!--<call function="and">
+              <call function="like">
+                <column table="a" column="ndog"/>
+                <const>'%-51%'</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="sverx_end_per"/>
+                <column table="this" column="nachisl_2_per"/>
+              </call>
+            </call>
+            <call function="and">
+              <call function="not like">
+                <column table="a" column="ndog"/>
+                <const>'%-51%'</const>
+              </call>
+              <call function="gt">
+                <column table="this" column="sverx_end_per"/>
+                <const>0</const>
+              </call>
+            </call>-->
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="31135-dat-ym">
+      <params>
+        <usepart part="31135-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <call function="date add days" as="dat_end" group="max">
+          <call function="ym end time">
+            <useparam name="ym" />
+          </call>
+          <const>1</const>
+        </call>
+        <column table="a" column="payer_name" group="max" />
+        <column table="a" column="ndog" group="max" />
+        <call function="-nvl" as="dolg_beg_per" title="Задолженность на начало периода">
+          <column table="a" column="ostatok_beg" group="sum" />
+          <column table="a" column="kredit_beg" group="sum" />
+        </call>
+        <column table="a" column="nachisl_2" as="+_per" title="Начислено осн.реал в период" group="sum" type="number" nvl="0" />
+        <column table="a" column="nachisl_0" as="+_per" title="Начислено авансов в период" group="sum" type="number" />
+        <column table="a" column="opl_nach" as="+_per" title="Оплачено в период" group="sum" />
+        <column table="a" column="ostatok_end" as="+_per" title="Дебет на конец периода" group="sum" />
+        <column table="a" column="kredit_end" as="+_per" title="Кредит на конец периода" group="sum" />
+        <call function="-nvl" as="dolg_end_per" title="Задолженность на конец периода">
+          <column table="a" column="ostatok_end" group="sum" />
+          <column table="a" column="kredit_end" group="sum" />
+        </call>
+        <call function="if" as="sverx_end_per" title="Просроченная задолженность на конец периода" type="number">
+          <call function="gt">
+            <call function="-nvl">
+              <call function="+nvl">
+                <column table="this" column="dolg_beg_per" />
+                <column table="a" column="nachisl_0" group="sum" />
+              </call>
+              <column table="a" column="opl_nach" group="sum" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="if">
+            <call function="lt">
+              <call function="-nvl">
+                <call function="+nvl">
+                  <column table="this" column="dolg_beg_per" />
+                  <column table="a" column="nachisl_0" group="sum" />
+                </call>
+                <column table="a" column="opl_nach" group="sum" />
+                <column table="a" column="kredit_end" group="sum" />
+              </call>
+              <const>0</const>
+            </call>
+            <const>0</const>
+            <call function="if">
+              <call function="gt">
+                <call function="-nvl">
+                  <call function="+nvl">
+                    <column table="this" column="dolg_beg_per" />
+                    <column table="a" column="nachisl_0" group="sum" />
+                  </call>
+                  <column table="a" column="opl_nach" group="sum" />
+                </call>
+                <column table="a" column="ostatok_end" group="sum" />
+              </call>
+              <column table="a" column="ostatok_end" group="sum" />
+              <call function="-nvl">
+                <call function="+nvl">
+                  <column table="this" column="dolg_beg_per" />
+                  <column table="a" column="nachisl_0" group="sum" />
+                </call>
+                <column table="a" column="opl_nach" group="sum" />
+              </call>
+            </call>
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="name_uch" group="max" />
+        <column table="a" column="dep_name" group="max" />
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <undefined />
+            <array>2</array>
+          </withparams>
+          <extendwhere>
+            <call function="and">
+              <call function="true" />
+              <call function="in" optional="1">
+                <column table="dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="kod_gr_potr_nas" />
+                <useparam name="iku" />
+              </call>
+            </call>
+          </extendwhere>
+        </query>
+        <!--<query name="rr_refprop_dog_103" as="kod_iku" join="left outer">
+          <call function="=">
+            <column table="kod_iku" column="kod_dog"/>
+            <column table="a" column="kod_dog"/>
+          </call>
+        </query>-->
+      </from>
+      <!--<where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="kod_iku" column="kod_refcode"/>
+            <useparam name="iku"/>
+          </call>
+        </call>
+      </where>-->
+    </query>
+  </queries>
+</root>

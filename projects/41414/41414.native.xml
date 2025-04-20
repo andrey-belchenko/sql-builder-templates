@@ -1,0 +1,826 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:32.118643+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="41414-0" timestamp="21.11.2018 15:13:04" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <params>
+        <usepart part="41414-pars" />
+      </params>
+      <expressions>
+        <call function="-nvl" group="sum" as="graf_ob">
+          <fact column="ur_graf_opl_sum" />
+          <fact column="cube_41414_gf_ft_opl" />
+        </call>
+        <call function="-nvl" group="sum" as="ob" exclude="1">
+          <fact column="cube_41414_ngf_nach" as="nach" />
+          <fact column="cube_41414_ngf_opl" as="opl" />
+          <fact column="cube_41414_ngf_opl_pr" as="opl_pr" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_graf" column="kod_graf" />
+        <column table="kod_dep" column="kodp" as="dep" />
+        <column table="kod_dog" column="name" as="dog_name" />
+        <column table="kodp" column="name" as="p_name" />
+        <column table="kod_dep" column="name" as="dep_name" />
+        <call function="nvl" type="string" as="num_delo">
+          <column table="kod_mat" column="num_delo" />
+          <column table="kod_mat_i" column="num_delo" />
+        </call>
+        <column table="kod_graf" column="sum_graf" />
+        <column table="kod_graf" column="proc_opl_potr" />
+        <column table="kod_graf" column="prim" />
+        <call function="||" as="period">
+          <call function="ym to char">
+            <column table="kod_graf" column="ym_p_min" />
+          </call>
+          <const>'-'</const>
+          <call function="ym to char">
+            <column table="kod_graf" column="ym_p_max" />
+          </call>
+        </call>
+        <call function="||" as="doc_type_name">
+          <column table="kod_graf" column="doc_type_name" />
+          <call function="if">
+            <call function="is not null">
+              <column table="kod_sogl" column="dat_doc" />
+            </call>
+            <call function="||">
+              <const>'  от '</const>
+              <call function="date to char">
+                <column table="kod_sogl" column="dat_doc" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <fact column="graf_ob" />
+        <column table="ym" column="val" as="ym" />
+        <fact column="ur_graf_opl_sum" as="graf_nach" exclude="1" />
+        <fact column="cube_41414_gf_ft_opl" as="graf_opl" exclude="1" />
+        <call function="over" as="graf_nach_itog">
+          <call function="sum">
+            <column table="this" column="graf_nach" />
+          </call>
+          <call function="partition by">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <call function="order by rows * 0">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="graf_opl_itog">
+          <call function="sum">
+            <column table="this" column="graf_opl" />
+          </call>
+          <call function="partition by">
+            <column table="kod_graf" column="kod_graf" />
+          </call>
+          <call function="order by rows * 0">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="if" as="garf_isp" type="string" exclude="1">
+          <call function="gt">
+            <call function="-nvl">
+              <column table="this" column="graf_nach_itog" />
+              <column table="this" column="graf_opl_itog" />
+            </call>
+            <const>0</const>
+          </call>
+          <const>'не исполнено'</const>
+          <const>'исполнено'</const>
+        </call>
+        <call function="-nvl" as="graf_ost_itog" exclude="1">
+          <column table="this" column="sum_graf" />
+          <column table="this" column="graf_opl_itog" />
+        </call>
+        <fact column="cube_41414_ngf_nach" as="nach" exclude="1" />
+        <fact column="cube_41414_ngf_opl" as="opl" exclude="1" />
+        <call function="case" as="tek_isp" type="string" exclude="1">
+          <call function="when">
+            <call function="is null">
+              <column table="kod_graf" column="proc_opl_potr" />
+            </call>
+            <const>null</const>
+          </call>
+          <call function="when">
+            <call function="ge">
+              <call function="/nvl">
+                <column table="this" column="opl" />
+                <column table="this" column="nach" />
+              </call>
+              <call function="/nvl">
+                <column table="kod_graf" column="proc_opl_potr" />
+                <const>100</const>
+              </call>
+            </call>
+            <const>'исполнено'</const>
+          </call>
+          <call function="else">
+            <const>'не исполнено'</const>
+          </call>
+        </call>
+        <fact column="cube_41414_ngf_opl_pr" as="opl_pr" exclude="1" />
+        <column table="kod_graf" column="dat_finish" />
+        <column table="kod_graf_status" column="name" as="status_name" />
+        <call function="||-" as="graf_period">
+          <call function="ym to char">
+            <column column="ym_min" table="kod_graf" />
+          </call>
+          <call function="ym to char">
+            <column column="ym_max" table="kod_graf" />
+          </call>
+        </call>
+        <call function="nvl" as="dat_finish_nvl">
+          <column table="kod_graf" column="dat_finish" />
+          <call function="doomsday" />
+        </call>
+        <call function="if" as="graf_nach" comment="тут хорошо бы по дате сравнивать">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <column table="dat" column="val" exclude="1" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <fact column="ur_graf_opl_sum" />
+        </call>
+        <call function="if" as="graf_opl" comment="тут хорошо бы по дате сравнивать">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <column table="dat" column="val" exclude="1" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <fact column="cube_41414_gf_ft_opl" />
+        </call>
+        <call function="if" as="garf_isp" comment="тут нужны уже сгруппированные по месяцам значения">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <call function="if" type="string">
+            <call function="gt">
+              <call function="-nvl">
+                <column table="this" column="graf_nach_itog" />
+                <column table="this" column="graf_opl_itog" />
+              </call>
+              <const>0</const>
+            </call>
+            <const>'не исполнено'</const>
+            <const>'исполнено'</const>
+          </call>
+        </call>
+        <call function="if" as="graf_ost_itog" comment="тут нужны уже сгруппированные по месяцам значения">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="sum_graf" />
+            <column table="this" column="graf_opl_itog" />
+          </call>
+        </call>
+        <call function="if" as="nach">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <fact column="cube_41414_ngf_nach" />
+        </call>
+        <call function="if" as="opl_tek">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <fact column="cube_41414_ngf_opl_tek" />
+        </call>
+        <call function="if" as="opl">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <fact column="cube_41414_ngf_opl" />
+        </call>
+        <call function="if" as="tek_isp">
+          <call function="ge">
+            <column table="this" column="dat_finish_nvl" />
+            <call function="ym begin time">
+              <column table="ym" column="val" />
+            </call>
+          </call>
+          <call function="case" type="string">
+            <call function="when">
+              <call function="is null">
+                <column table="kod_graf" column="proc_opl_potr" />
+              </call>
+              <const>null</const>
+            </call>
+            <call function="when">
+              <call function="ge">
+                <call function="/nvl">
+                  <column table="this" column="opl_tek" />
+                  <column table="this" column="nach" />
+                </call>
+                <call function="/nvl">
+                  <column table="kod_graf" column="proc_opl_potr" />
+                  <const>100</const>
+                </call>
+              </call>
+              <const>'исполнено'</const>
+            </call>
+            <call function="else">
+              <const>'не исполнено'</const>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kodp" />
+            <link name="dep" exclude="1" />
+          </link>
+          <link name="kod_graf">
+            <link name="kod_hist_mat">
+              <link name="kod_mat" />
+            </link>
+            <link name="kod_isp">
+              <link name="kod_hist_mat" as="kod_hist_mat_i">
+                <link name="kod_mat" as="kod_mat_i" />
+              </link>
+            </link>
+            <link name="kod_sogl" />
+            <link name="kod_graf_status" />
+          </link>
+          <link name="ym" />
+          <link name="dat" />
+          <link name="kod_dep" />
+          <where>
+            <call function="le" dont-push="1">
+              <column table="dat" column="val" />
+              <useparam name="p_dat2" />
+            </call>
+            <call function="is not null" dont-push="1" exclude="1">
+              <column table="kod_graf" column="kod_hist_mat" />
+            </call>
+            <call function="in" optional="1" dont-push="1">
+              <column table="kod_dep" column="kodp" />
+              <useparam name="p_dep" />
+            </call>
+            <call function="gt">
+              <call function="nvl">
+                <column table="kod_graf" column="dat_finish" />
+                <call function="doomsday" />
+              </call>
+              <useparam name="p_dat1" />
+            </call>
+            <call function="le" dont-push="1">
+              <call function="nvl">
+                <column table="kod_graf" column="ym_min" />
+                <const function="doomsday">0</const>
+              </call>
+              <call function="date to ym">
+                <useparam name="p_dat2" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="cube_41414_gf_ft_opl" timestamp="20.11.2018 13:01:37" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <select>
+        <column table="kod_dog" column="kod_dog" is-private-dimension="kod_dog" is-final-dimension="kod_dog" dimension="kod_dog" />
+        <column table="kod_opl" column="kod_opl" exclude="1" />
+        <column table="kod_graf" column="kod_graf" is-private-dimension="kod_graf" is-final-dimension="kod_graf" dimension="kod_graf" />
+        <column table="kod_dep" column="kodp" is-private-dimension="kod_dep" is-final-dimension="kod_dep" dimension="kod_dep" as="kod_dep" />
+        <column table="ym" column="val" as="ym" is-private-dimension="ym" is-final-dimension="ym" dimension="ym" />
+        <column table="dat" column="val" as="dat" is-private-dimension="dat" is-final-dimension="dat" dimension="dat" />
+        <fact column="sr_opl_opl_sf" as="opl" is-fact="1" agg="sum" fact="cube_41414_gf_ft_opl" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" />
+          <link name="kod_graf" />
+          <link name="ym" />
+          <link name="dat" />
+          <link name="kod_dep" />
+          <link name="kod_opl" />
+          <where>
+            <call function="!=nvl">
+              <column table="kod_opl" column="pr_not_in_graf" />
+              <const type="number">1</const>
+            </call>
+            <call function="is not null" dont-push="1">
+              <column table="kod_graf" column="kod_graf" />
+            </call>
+            <call function="le" dont-push="1">
+              <column table="kod_graf" column="dat_opl_beg_nvl" />
+              <column table="dat" column="val" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="cube_41414_ngf" timestamp="02.11.2018 17:55:32" use-repository="1" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <select>
+        <column table="kod_dog" column="kod_dog" is-private-dimension="kod_dog" is-final-dimension="kod_dog" dimension="kod_dog" />
+        <column table="kod_graf_for_dog" column="kod_graf" is-private-dimension="kod_graf" is-final-dimension="kod_graf" dimension="kod_graf" />
+        <column table="kod_dep" column="kodp" is-private-dimension="kod_dep" is-final-dimension="kod_dep" dimension="kod_dep" as="kod_dep" />
+        <column table="dat" column="val" as="dat" is-private-dimension="dat" is-final-dimension="dat" dimension="dat" />
+        <call function="greatest_num" as="ym" is-private-dimension="ym" is-final-dimension="ym" dimension="ym">
+          <column table="ym" column="val" />
+          <call function="ym add month">
+            <column table="kod_sf" column="ym" />
+            <const>1</const>
+          </call>
+        </call>
+        <fact column="sr_facras_nachisl" as="nach" is-fact="1" agg="sum" fact="cube_41414_ngf_nach" table="sf" />
+        <fact column="sr_opl_opl_sf" as="opl" fact="cube_41414_ngf_opl" agg="sum" table="opl" />
+        <call function="if" as="opl_pr" type="number" fact="cube_41414_ngf_opl_pr" agg="sum">
+          <call function="gt">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <column table="kod_sf" column="ym" />
+              <const>1</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_sf" table="opl" />
+        </call>
+        <call function="if" as="opl_tek" type="number" fact="cube_41414_ngf_opl_tek" agg="sum">
+          <call function="le">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <column table="kod_sf" column="ym" />
+              <const>1</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_sf" table="opl" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_dog" />
+          <link name="kod_graf" comment="cond only" only-for-cond="1" exclude="1" />
+          <link name="qube_sf_graf" only-for-cond="1" as="kod_graf" />
+          <link name="kod_graf_for_dog" />
+          <link name="kod_sf" />
+          <link name="ym" />
+          <link name="dat" />
+          <link name="kod_dep" />
+          <dimset as="sf">
+            <where>
+              <call function="is null" dont-push="1">
+                <column table="kod_graf" column="kod_graf" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="opl">
+            <where>
+              <call function="or" dont-push="1">
+                <call function="is null">
+                  <column table="kod_graf" column="kod_graf" />
+                </call>
+                <call function="and">
+                  <call function="gt">
+                    <column table="kod_graf" column="dat_opl_beg_nvl" />
+                    <column table="dat" column="val" />
+                  </call>
+                  <call function="=">
+                    <column table="kod_graf" column="kod_graf" />
+                    <column table="kod_graf_for_dog" column="kod_graf" />
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <where>
+            <call function="in" dont-push="1">
+              <column table="kod_sf" column="vid_real" />
+              <array>2,3</array>
+            </call>
+            <call function="and" dont-push="1">
+              <call function="between">
+                <column table="kod_sf" column="ym" />
+                <call function="ym add month" comment="чтобы начисления и оплаты учитывались начиная с месяца до начала графика">
+                  <column table="kod_graf_for_dog" column="ym_min" />
+                  <const>-1</const>
+                </call>
+                <call function="ym add month" comment="чтобы начисления и оплаты учитывались начиная с месяца до начала графика">
+                  <column table="kod_graf_for_dog" column="ym_max" />
+                  <const>-1</const>
+                </call>
+              </call>
+            </call>
+            <call function="is not null" dont-push="1">
+              <column table="kod_graf_for_dog" column="proc_opl_potr" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="41414-1" timestamp="29.10.2018 14:30:29" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <params>
+        <usepart part="41414-pars" />
+      </params>
+      <select>
+        <column table="a" column="kod_graf" group="1" />
+        <column table="a" column="dep" group="1" />
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="dog_name" group="max" />
+        <column table="a" column="p_name" group="max" />
+        <column table="a" column="dep_name" group="max" />
+        <column table="a" column="num_delo" group="max" />
+        <column table="a" column="sum_graf" group="max" />
+        <column table="a" column="proc_opl_potr" group="max" />
+        <column table="a" column="prim" group="max" />
+        <column table="a" column="period" group="max" />
+        <column table="a" column="doc_type_name" group="max" />
+        <column table="a" column="graf_ob" group="sum" />
+        <column table="a" column="ym" group="max" />
+        <column table="a" column="graf_nach" group="sum" />
+        <column table="a" column="graf_opl" group="sum" />
+        <column table="a" column="graf_nach_itog" group="max" />
+        <column table="a" column="graf_opl_itog" group="max" />
+        <column table="a" column="graf_ost_itog" group="max" />
+        <column table="a" column="garf_isp" group="max" />
+        <column table="a" column="nach" group="sum" />
+        <call function="if" group="sum" as="nach_t">
+          <call function="le">
+            <column table="a" column="ym" />
+            <call function="date to ym">
+              <useparam name="p_dat2" />
+            </call>
+          </call>
+          <column table="a" column="nach" />
+        </call>
+        <column table="a" column="opl" group="sum" />
+        <call function="if" group="sum" as="opl_t">
+          <call function="le">
+            <column table="a" column="ym" />
+            <call function="date to ym">
+              <useparam name="p_dat2" />
+            </call>
+          </call>
+          <column table="a" column="opl" />
+        </call>
+        <column table="a" column="tek_isp" group="max" />
+        <column table="this" column="graf_nach" as="gr_nach_b_ym" dimname="ym" group="sum">
+          <pivot>
+            <call function="=">
+              <column table="this" column="ym" group="no" />
+              <column table="dim" column="ym" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="ym" />
+                <call function="||" as="name">
+                  <call function="mes-name">
+                    <call function="mes">
+                      <column table="a" column="ym" />
+                    </call>
+                  </call>
+                  <const>' '</const>
+                  <call function="trunc">
+                    <column table="a" column="ym" />
+                  </call>
+                </call>
+              </select>
+              <from>
+                <query name="spr_time_ym" as="a" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="a" column="ym" />
+                  <call function="date to ym">
+                    <useparam name="p_dat1" />
+                  </call>
+                  <call function="date to ym">
+                    <useparam name="p_dat2" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="this" column="graf_opl" as="gr_opl_b_ym" dimname="ym" group="sum" />
+        <column table="this" column="garf_isp" as="gr_isp_b_ym" dimname="ym" group="max" />
+        <column table="this" column="graf_ost_itog" as="gr_ost_b_ym" dimname="ym" group="max" />
+        <column table="this" column="nach" as="tek_nach_b_ym" dimname="ym" group="sum" />
+        <column table="this" column="opl" as="tek_opl_b_ym" dimname="ym" group="sum" />
+        <column table="this" column="tek_isp" as="tek_isp_b_ym" dimname="ym" group="max" />
+        <column table="a" column="dat_finish" group="max" />
+        <column table="a" column="status_name" group="max" />
+        <column table="a" column="graf_period" group="max" />
+      </select>
+      <from>
+        <query name="41414-0" as="a">
+          <withparams>
+            <usepart part="41414-withpars" />
+          </withparams>
+        </query>
+      </from>
+      <grouping exclude="1">
+        <grset as="graf">
+          <group>
+            <column table="this" column="kod_graf" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="41414-2" timestamp="29.10.2018 13:46:10" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <params>
+        <usepart part="41414-pars" />
+      </params>
+      <select>
+        <column table="a" column="kod_graf" />
+        <column table="a" column="dep" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="dog_name" group="max" />
+        <column table="a" column="p_name" group="max" />
+        <column table="a" column="dep_name" group="max" />
+        <column table="a" column="num_delo" group="max" />
+        <column table="a" column="sum_graf" group="sum" />
+        <column table="a" column="proc_opl_potr" group="max" />
+        <column table="a" column="prim" group="max" />
+        <column table="a" column="period" group="max" />
+        <column table="a" column="doc_type_name" group="max" />
+        <column table="a" column="graf_ob" group="sum" />
+        <column table="a" column="graf_nach" group="sum" />
+        <column table="a" column="graf_opl" group="sum" />
+        <column table="a" column="nach" group="sum" />
+        <column table="a" column="nach_t" group="sum" title="Нарастающие начисления" />
+        <column table="a" column="opl" group="sum" />
+        <column group="sum" table="a" column="opl_t" title="Нарастающая оплата" />
+        <column table="a" column="gr_nach_b_ym" group="sum" />
+        <call function="-nvl" as="graf_ost" group="sum">
+          <column table="this" column="sum_graf" />
+          <column table="this" column="graf_opl" />
+        </call>
+        <column table="a" column="gr_opl_b_ym" group="sum" />
+        <column table="a" column="gr_isp_b_ym" group="max" />
+        <column table="a" column="gr_ost_b_ym" group="sum" />
+        <column table="a" column="tek_nach_b_ym" group="sum" />
+        <column table="a" column="tek_opl_b_ym" group="sum" />
+        <column table="a" column="tek_isp_b_ym" group="max" />
+        <column table="a" column="graf_period" group="max" />
+        <column table="a" column="status_name" group="max" />
+        <column table="a" column="dat_finish" group="max" />
+      </select>
+      <from>
+        <query name="41414-1" as="a">
+          <withparams>
+            <usepart part="41414-withpars" />
+          </withparams>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="dep">
+            <group>
+              <column table="this" column="dep" />
+            </group>
+            <grset as="graf">
+              <group>
+                <column table="this" column="kod_graf" />
+                <column table="this" column="kod_dog" />
+              </group>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="41414-validation-p" timestamp="12.09.2018 18:46:23" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <params>
+        <param name="p_dat1" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="p_dat2" type="date">
+          <const>sysdate+10</const>
+        </param>
+      </params>
+      <select>
+        <call function="if" as="err">
+          <call function="gt">
+            <call function="-">
+              <useparam name="p_dat2" />
+              <useparam name="p_dat1" />
+            </call>
+            <const>366</const>
+          </call>
+          <const>'Разница между датами должна быть менее года'</const>
+          <const>''</const>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="cube_41414_ngf_test" timestamp="02.11.2018 17:51:26" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <select>
+        <column table="kod_dog" column="kod_dog" is-private-dimension="kod_dog" is-final-dimension="kod_dog" dimension="kod_dog" exclude="1" />
+        <column table="kod_sf" column="kod_sf" exclude="1" />
+        <column table="kod_graf" column="kod_graf" />
+        <column table="kod_graf_for_dog" column="kod_graf" is-private-dimension="kod_graf" is-final-dimension="kod_graf" dimension="kod_graf" exclude="1" />
+        <column table="kod_dep" column="kodp" is-private-dimension="kod_dep" is-final-dimension="kod_dep" dimension="kod_dep" as="kod_dep" exclude="1" />
+        <column table="dat" column="val" as="dat" is-private-dimension="dat" is-final-dimension="dat" dimension="dat" exclude="1" />
+        <call function="greatest_num" as="ym" is-private-dimension="ym" is-final-dimension="ym" dimension="ym" exclude="1">
+          <column table="ym" column="val" />
+          <call function="ym add month">
+            <column table="kod_sf" column="ym" />
+            <const>1</const>
+          </call>
+        </call>
+        <fact column="sr_facras_nachisl" as="nach" agg="sum" table="sf" exclude="1" />
+        <fact column="sr_opl_opl_sf" as="opl" agg="sum" table="opl" />
+        <call function="if" as="opl_pr" type="number" agg="sum" exclude="1">
+          <call function="gt">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <column table="kod_sf" column="ym" />
+              <const>1</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_sf" table="opl" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_dog" exclude="1" />
+          <link name="kod_graf" comment="cond only" only-for-cond="1" exclude="1" />
+          <link name="qube_sf_graf" as="kod_graf" />
+          <link name="kod_graf_for_dog" exclude="1" />
+          <link name="kod_sf" />
+          <link name="ym" exclude="1" />
+          <link name="dat" exclude="1" />
+          <link name="kod_dep" exclude="1" />
+          <dimset as="sf">
+            <where>
+              <call function="is null" dont-push="1">
+                <column table="kod_graf" column="kod_graf" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="opl">
+            <call function="or" dont-push="1">
+              <call function="is null" dont-push="1">
+                <column table="kod_graf" column="kod_graf" />
+              </call>
+              <call function="and">
+                <call function="gt">
+                  <column table="kod_graf" column="dat_opl_beg_nvl" />
+                  <column table="dat" column="val" />
+                </call>
+                <call function="=">
+                  <column table="kod_graf" column="kod_graf" />
+                  <column table="kod_graf_for_dog" column="kod_graf" />
+                </call>
+              </call>
+            </call>
+            <call function="is null" dont-push="1">
+              <column table="kod_graf" column="kod_graf" />
+            </call>
+          </dimset>
+          <where>
+            <call function="is null" exclude="1">
+              <column table="kod_graf" column="kod_graf" />
+            </call>
+            <call function="or" dont-push="1">
+              <call function="is null" dont-push="1">
+                <column table="kod_graf" column="kod_graf" />
+              </call>
+              <call function="and">
+                <call function="gt">
+                  <column table="kod_graf" column="dat_opl_beg_nvl" />
+                  <column table="dat" column="val" />
+                </call>
+                <call function="=">
+                  <column table="kod_graf" column="kod_graf" />
+                  <column table="kod_graf_for_dog" column="kod_graf" />
+                </call>
+              </call>
+            </call>
+            <call function="in" dont-push="1" exclude="1">
+              <column table="kod_sf" column="vid_real" />
+              <array>2,3</array>
+            </call>
+            <call function="and" dont-push="1" exclude="1">
+              <call function="between">
+                <column table="kod_sf" column="ym" />
+                <call function="ym add month" comment="чтобы начисления и оплаты учитывались начиная с месяца до начала графика">
+                  <column table="kod_graf_for_dog" column="ym_min" />
+                  <const>-1</const>
+                </call>
+                <call function="ym add month" comment="чтобы начисления и оплаты учитывались начиная с месяца до начала графика">
+                  <column table="kod_graf_for_dog" column="ym_max" />
+                  <const>-1</const>
+                </call>
+              </call>
+            </call>
+            <call function="is not null" dont-push="1" exclude="1">
+              <column table="kod_graf_for_dog" column="proc_opl_potr" />
+            </call>
+            <call function="=" dont-push="1" exclude="1">
+              <column table="kod_dog" column="kod_dog" />
+              <const>286284</const>
+            </call>
+            <call function="=" dont-push="1">
+              <column table="kod_sf" column="kod_sf" />
+              <const>2683745</const>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="41414" timestamp="25.09.2018 12:57:18" use-repository="1" use-temp="1" form="41414" title="Информация по исполнению графиков реструктуризации задолженности" nogrid="1" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <print-templates>
+        <excel>
+          <template name="41414.xlsx" title="Информация по исполнению графиков реструктуризации задолженности" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <params>
+        <param name="p_dep" part-id="41414-pars" />
+        <param name="p_dat1" part-id="41414-pars">
+          <const>to_date('01.01.2018','DD.MM.YYYY')</const>
+        </param>
+        <param name="p_dat2" part-id="41414-pars">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <queries>
+        <query name="41414-2" as="a">
+          <withparams>
+            <useparam name="p_dep" part-id="41414-withpars" />
+            <useparam name="p_dat1" part-id="41414-withpars" />
+            <useparam name="p_dat2" part-id="41414-withpars" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="41414" timestamp="12.09.2018 18:47:01" file="sql.builder.templates\sql.builder\projects\41414\query\query.xml">
+      <usefield field="asuse_dep" name="p_dep" />
+      <fieldgroup title="Период">
+        <usefield field="cmn_date" title="C" name="p_dat1" valid="p_dat_delta" column-mandatory="1">
+          <defaultquery>
+            <query name="start_of_year" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_date_cur" title="По" name="p_dat2" column-mandatory="1" valid="p_dat_delta" />
+        <usefield field="cmn_string" name="p_dat_delta" title="Валидация" visible="0">
+          <defaultquery>
+            <query name="41414-validation-p" />
+          </defaultquery>
+        </usefield>
+      </fieldgroup>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_mat" title="Материалы переданные в суд" class="1" delete-validation="qube.ur_dp_exists_vld" timestamp="24.12.2024 04:19:10">
+      <select>
+        <column table="a" column="kod_mat" type="number" key-dimension="kod_mat" fact="ur_mat_kod_mat" agg="max" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_doc" type="number" column-mandatory="1">
+          <listquery>
+            <query name="us_doc_list">
+              <withparams>
+                <column table="this" column="kod_sdp" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <column table="a" column="kod_ssp" type="number" />
+        <column table="a" column="num_reg" type="string" title="Номер иска" vid="1" />
+        <column table="a" column="dat_otv" type="date" title="Дата отправки документов ответчику" />
+        <column table="a" column="kod_ret_isk" type="number" mandatory="dat_otz" />
+        <column table="a" column="num_delo" type="string" title="Номер дела" fact="ur_mat_num_delo" agg="stragg" mandatory="qube.ur_hist_mat_count" />
+        <column table="a" column="dat_prin" type="date" title="Дата принятия документов в суде" mandatory="qube.ur_hist_mat_count" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="num_otz" type="string" title="№ документа возврата" mandatory="dat_otz" />
+        <column table="a" column="dat_otz" type="date" title="Дата возврата" />
+        <column table="a" column="dat_doc" type="date" title="Дата подачи в суд" mandatory="dat_otz" fact="ur_mat_dat_doc_max" agg="max" />
+        <column table="a" column="fio_otz" type="string" title="За чьей подписью возврат" mandatory="dat_otz" />
+        <column table="a" column="kod_subject" type="number" column-mandatory="1" />
+        <column table="a" column="prichina_otz" type="string" title="Основание для возврата" mandatory="dat_otz" />
+        <column table="a" column="sum_gp" type="number" title="Оплачено госпошлины при подаче" is-fact="1" agg="sum" />
+        <column table="a" column="prim" type="string" title="Примечание" controlType="UITextEx" />
+        <column table="a" column="dat_gp" type="date" title="Дата перечисления ГП" />
+        <column table="a" column="kod_sud" type="number" rows-limit="100">
+          <listquery>
+            <query name="us_sud_list" />
+          </listquery>
+        </column>
+        <column table="a" column="num_pp_gp" type="string" title="№ пл. пор. ГП" comment="№ плат пор по гп" />
+        <column table="a" column="kod_parent" type="number" comment="код родительского иска д/аппеляции,кассации,надзор">
+          <listquery>
+            <query name="ur_mat_in_folder_list">
+              <withparams>
+                <column table="this" column="kod_folders" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <column table="a" column="kodp" type="number" />
+        <column table="a" column="ogr" type="number" nvl="0" title="Расходы за введение ограничения режима энергопотребления" comment="расходы за введение ограничения режима электропотребления" is-fact="1" agg="sum" />
+        <column table="a" column="kod_dispute" type="number" />
+        <column table="a" column="type_claim_template" type="number" />
+        <column table="a" column="kod_delo" type="number" />
+        <column table="a" column="tep_el" type="number" comment="1-электр,2-тепло" />
+        <column table="a" column="type_potr" type="number" comment="1-юр,2-физ" />
+        <column table="a" column="vvod" type="number" comment="0-из бд,1-вручную ввод суммы" />
+        <column table="a" column="kod_emp" type="number" comment="Исполнитель ПИО" />
+        <column table="a" column="kod_vi" type="number" comment="1- исходящие, 2- входящие" />
+        <column table="a" column="dep" type="number" comment="код подразделения" />
+        <column table="a" column="dat_finish" type="date" />
+        <column table="a" column="prim_mor_dz" type="string" title="Причина исключения/изменения мораторной задолженности" comment="примечание по мораторной задолженности" />
+        <column table="a" column="osnreal" type="number" comment="основная реализация" is-fact="1" agg="sum" />
+        <column table="a" column="period_zadol_s_vvod" type="number" comment="Период задолженности с (ручной ввод)" is-fact="1" agg="min" />
+        <column table="a" column="period_zadol_po_vvod" type="number" comment="Период задолженности по (ручной ввод)" is-fact="1" agg="max" />
+        <column table="a" column="ur_opl_do_resh_vvod" type="number" comment="Оплата до решения суда (ручной ввод)" is-fact="1" agg="sum" />
+        <column table="a" column="shtraf" type="number" comment="штрафы" />
+        <column table="a" column="peni" type="number" comment="пени" is-fact="1" agg="sum" />
+        <column table="a" column="otvetch_info" type="string" comment="информация об ответчиках" />
+        <column table="a" column="link_delo" type="string" comment="ссылка на дело в интернете" title="Гиперссылка" controlType="UILink" />
+        <column table="a" column="sum_zach_gp" type="number" comment="сумма, зачтенной гп, руб" />
+        <column table="a" column="num_zach_doc" type="string" comment="определение суда/решение налогового органа о зачете госпошлины" />
+        <column table="a" column="dat_zach" type="date" comment="дата документа о зачете" />
+        <column table="a" column="sum_ifns_gp" type="number" comment="сумма гп, погашенной  ифнс" />
+        <column table="a" column="num_ifns_doc" type="string" comment="№ извещ.  ифнс" />
+        <column table="a" column="dat_ifns" type="date" comment="дата извещ ифнс" />
+        <column table="a" column="kod_scan" type="number" comment="ссылка на скан документа" />
+        <column table="a" column="astrent_exists" type="number" comment="ручной признак наличия процентов за несвоевременную оплату по решению (для журналов)" title="Есть астрент (ручн. признак)" controlType="UICheck" />
+        <column table="a" column="dat_post" type="date" title="Дата поступления документов к иску" comment="дата передачи документов от финансистов - юристам (35926)" />
+        <column table="a" column="dat_arh" type="date" title="Дата архивации" comment="Дата архивации" />
+        <column table="a" column="type_rassm" title="Порядок рассмотрения" type="number" />
+        <column table="a" column="pio_date" type="date" comment="Дата поступления материалов в ПИО (для эл. Казани по 65149 и 69413 в SD)" />
+        <column table="a" column="num_zap_post_mat" type="string" comment="№ с/з о поступления материалов в ПИО (для эл. Казани по 65149 в SD)" />
+        <column table="a" column="zayavitel" type="string" comment="Заявитель (для эл. Казани по 72275 в SD)" />
+        <const type="number" as="cnt" fact="ur_mat_count" agg="sum">1</const>
+        <column table="ur_hist_mat_decision" column="kod_hist_mat_last_decision" as="kod_hist_mat_last" dgroup="max" />
+        <column table="ur_dogplat_pp" column="kod_dog" dgroup="max" column-editable="1" exclude="1">
+          <listquery>
+            <query name="kr_dogovor(kodp)">
+              <withparams>
+                <column table="this" column="kodp" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <column table="kod_folders" column="kod_sdp" />
+        <column table="this" column="num_delo" as="num_delo_max" agg="list" fact="ur_mat_num_delo_max" />
+        <call function="case" as="kod_sdp_mat" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="kod_folders" column="kod_sdp" />
+              <const>1</const>
+            </call>
+            <const>6</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="kod_folders" column="kod_sdp" />
+                <const>2</const>
+              </call>
+              <call function="is not null">
+                <column table="a" column="kod_ssp" />
+              </call>
+            </call>
+            <const>13</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="kod_folders" column="kod_sdp" />
+              <const>9</const>
+            </call>
+            <const>15</const>
+          </call>
+        </call>
+        <call function="if" as="mat_reminder1a" title="Напоминание 1" exclude="1">
+          <call function="and">
+            <call function="lt">
+              <column table="a" column="dat_doc" />
+              <call table="a" column="dat_doc" function="add_months">
+                <const type="date">sysdate</const>
+                <const type="number">-1</const>
+              </call>
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="ur_hist_mat" column="kod_hist_mat" dgroup="count" />
+              </call>
+              <const type="number">0</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="mat_reminder2a" title="Напоминание 2" exclude="1">
+          <call function="and">
+            <call function="=" comment="Емцов - добавил условие по 38755">
+              <column table="ur_hist_mat_dec" column="decision2" />
+              <const>1</const>
+            </call>
+            <call function="is null">
+              <column table="ur_hist_mat_dec" column="dat_entry" dgroup="max" />
+            </call>
+            <call function="lt">
+              <column table="ur_hist_mat_dec" column="dat_post" dgroup="max" />
+              <call function="-">
+                <const type="date">sysdate</const>
+                <const type="number">40</const>
+              </call>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="prizn_activ" type="number">
+          <call function="is not null">
+            <column table="a" column="dat_doc" />
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="has_isp_list" type="number" title="Наличие исполнительного листа">
+          <call function="gt">
+            <column table="ur_hist_mat" column="kod_isp_last" dgroup="count" />
+            <const>0</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="true if null" as="is_active" title="Статус исп. листа">
+          <column table="this" column="dat_arh" dgroup="max" />
+        </call>
+        <column table="kod_mat_reminder" column="mat_reminder1" />
+        <column table="kod_mat_reminder" column="mat_reminder2" />
+        <call function="||" as="name" title="Иск" vid="1" is-name="1">
+          <column table="kod_doc" column="abbr" />
+          <const>'  '</const>
+          <column table="a" column="num_delo" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_doc" />
+          </call>
+        </call>
+        <column table="ur_hist_mat_decision" column="dat_post" as="last_dat_post" dgroup="max" />
+        <call function="case" title="Примерный срок рассмотрения" as="date_rassm_approx" type="date" is-fact="1" agg="min">
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <call function="nvl">
+                  <column table="a" column="type_rassm" />
+                  <const type="number">2</const>
+                </call>
+                <const type="number">1</const>
+              </call>
+              <call function="is not null">
+                <column table="a" column="dat_doc" />
+              </call>
+            </call>
+            <call function="date add days" type="date">
+              <call function="add_months">
+                <column table="a" column="dat_doc" />
+                <const type="number">2</const>
+              </call>
+              <const type="date">7</const>
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="a" column="type_rassm" />
+                <const type="number">3</const>
+              </call>
+              <call function="is not null">
+                <column table="a" column="dat_prin" />
+              </call>
+            </call>
+            <call function="date add days">
+              <column table="a" column="dat_prin" />
+              <const type="number">15</const>
+            </call>
+          </call>
+        </call>
+        <call function="if" as="test_validation" exclude="1">
+          <call function="is null">
+            <column table="a" column="dat_gp" />
+          </call>
+          <const>'Типа дату гп заполни, слыш!'</const>
+        </call>
+        <column table="kr_dogovor" column="kod_dog" dgroup="max" column-editable="1">
+          <listquery>
+            <query name="kr_dogovor(kodp)">
+              <withparams>
+                <column table="this" column="kodp" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <call function="true if null" as="is_active" title="Статус иска">
+          <column table="this" column="dat_arh" dgroup="max" />
+        </call>
+        <column table="type_rassm" column="name" is-fact="1" agg="stragg_dist" fact="ur_mat_type_rassm_name" as="type_rassm_name" />
+      </select>
+      <from>
+        <table name="ur_mat" as="a" />
+        <query name="us_sud" as="kod_sud" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sud" />
+            <column table="kod_sud" column="kod_sud" />
+          </call>
+        </query>
+        <query name="ur_mat" as="kod_parent" join="left outer" dname="ur_mat_child">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_mat" />
+          </call>
+        </query>
+        <query name="us_doc" as="kod_doc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="kod_doc" column="kod_doc" />
+          </call>
+        </query>
+        <query name="us_ssp" as="kod_ssp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ssp" />
+            <column table="kod_ssp" column="kod_ssp" />
+          </call>
+        </query>
+        <query name="us_subject" as="kod_subject" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_subject" />
+            <column table="kod_subject" column="kod_subject" />
+          </call>
+        </query>
+        <query name="uk_ret_isk" as="kod_ret_isk" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ret_isk" />
+            <column table="kod_ret_isk" column="kod_ret_isk" />
+          </call>
+        </query>
+        <query name="ur_folders" as="kod_folders" dimension="kod_folders" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="ur_scan_docs" as="kod_scan" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_scan" />
+            <column table="kod_scan" column="kod_scan" />
+          </call>
+        </query>
+        <query name="vr_type_rassm" join="left outer" as="type_rassm">
+          <call function="=">
+            <column table="type_rassm" column="kod_type_rassm" />
+            <column table="a" column="type_rassm" />
+          </call>
+        </query>
+        <query name="ur_hist_mat" as="kod_hist_mat_last" join="left outer" dname="-">
+          <call function="=">
+            <column table="this" column="kod_hist_mat_last" />
+            <column table="kod_hist_mat_last" column="kod_hist_mat" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="prizn_arch_folder" as="is_active" join="left outer">
+          <call function="=">
+            <column table="this" column="is_active" />
+            <column table="is_active" column="kod_prizn_arch_folder" />
+          </call>
+        </query>
+        <query name="uv_mat_reminders" as="kod_mat_reminder" join="left outer" dimension="kod_mat">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat_reminder" column="kod_mat" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_employee" as="kod_emp" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_emp" />
+            <column table="kod_emp" column="kod_emp" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="ur_hist_mat_decision" />
+        <dlink name="ur_dogplat_pp" />
+        <dlink name="ur_hist_mat" dimension="kod_hist_mat" />
+        <dlink name="ur_hist_mat_dec" dimension="kod_hist_mat_dec">
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+        <dlink name="ur_dogplat" dimension="kod_dogplat">
+          <dimlink name="kod_dog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink dimension="1" is-final-dimension="1" is-private-dimension="1" name="kod_deb" />
+          <dimlink name="kod_sf" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_dog" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+        </dlink>
+        <dlink name="sr_penni_astr1">
+          <link name="kod_sf_astr" dimension="1" is-final-dimension="1" />
+        </dlink>
+        <link name="kod_mat_reminder" />
+        <link name="kodp">
+          <dlink name="kr_dogovor" />
+        </link>
+      </links>
+      <actions>
+        <action name="form_ur_dogplat_hand" action-type="dynamic-form" call="ur_dogplat_hand" exclude="1" />
+        <action name="form_ur_dogplat_select" action-type="dynamic-form" call="ur_dogplat_select" exclude="1" />
+        <action name="form_ur_dogplat_select_pd" action-type="dynamic-form" call="ur_dogplat_select_pd" exclude="1" />
+        <action name="form_ur_dogplat_resh_sf" action-type="dynamic-form" call="ur_dogplat_resh_sf" exclude="1" />
+        <action name="form_ur_dogplat_doc_view" action-type="dynamic-form" call="ur_dogplat_doc_view" />
+        <action name="form_ur_dogplat_doc_view_isk" action-type="dynamic-form" call="ur_dogplat_doc_view_isk" />
+        <action name="form_ur_dogplat_doc_view_isk_f10" action-type="dynamic-form" call="ur_dogplat_doc_view_isk_f10" />
+        <action name="form_ur_dogplat_doc_view_prizn" action-type="dynamic-form" call="ur_dogplat_doc_view_prizn" />
+        <action name="form_ur_dogplat_doc_view_prizn_f10" action-type="dynamic-form" call="ur_dogplat_doc_view_prizn_f10" />
+        <action name="form_create_sf" action-type="dynamic-form" call="create_ur_sf" modal="1" title="Счет" width-perc="33" />
+        <action name="form_view_sf" action-type="dynamic-form" call="sr_facvip_ur" modal="1" title="Счет" width-perc="33" />
+        <action name="clu_calc_gp" action-type="client-update" call="ur_mat_calc_gp" title="Рассчитать гос. пошлину" />
+      </actions>
+      <events>
+        <useaction action-type="custom" event-name="object-save">
+          <useaction action-type="execute-update" call="ur_mat_upd_num_reg">
+            <column table="this" column="kod_mat" />
+          </useaction>
+          <useaction name="ur_mat_upd_pretenz">
+            <column table="this" column="kod_mat" />
+            <column table="this" column="kod_folders" />
+          </useaction>
+        </useaction>
+      </events>
+    </query>
+  </queries>
+</root>

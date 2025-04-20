@@ -1,0 +1,1185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="poisk_ul" timestamp="14.06.2017 12:50:26" edit-columns="1" is-report="1" visible="0" use-temp="1" with-behavior="1" can-use-simple-params="1" title="Условия поиска (Юр)">
+      <content can-use-simple-params="1">
+        <tabcontainer />
+      </content>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <additions>
+        <addition name="poisk_ul_abon" />
+        <addition name="poisk_ul_dog" />
+        <addition name="poisk_ul_dog_bank" />
+        <addition name="poisk_ul_dog_docs" />
+        <addition name="poisk_ul_dog_avans" />
+        <addition name="poisk_ul_fin" />
+        <addition name="poisk_ul_numobj_tep" />
+        <addition name="poisk_ul_tu_tep" />
+      </additions>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="kr_payer" column="kodp" title="kodp" />
+        <column table="kr_dogovor" column="kod_dog" title="kod_dog" />
+        <column table="kr_numobj" column="kod_numobj" title="kod_numobj" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_numobj" as="kr_numobj" all-rows="1" />
+          <link name="kod_dog" as="kr_dogovor" all-rows="1" />
+          <link name="kodp" as="kr_payer" all-rows="1" />
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_old" timestamp="27.02.2017 15:00:59" edit-columns="1" is-report="1" title="Поиск ЮЛ Тест" visible="0" use-temp="1" with-behavior="0" can-use-simple-params="1">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <content can-use-simple-params="1">
+        <usefield field="cmn_string" name="nump" type="string" title="Номер абонента" />
+      </content>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="kr_payer" column="kodp" title="kodp" />
+        <column table="kr_dogovor" column="kod_dog" title="kod_dog" />
+        <column table="kr_numobj" column="kod_numobj" title="kod_numobj" />
+      </select>
+      <from>
+        <query name="kr_payer">
+          <elink name="kr_dogovor">
+            <elink name="kr_numobj" />
+          </elink>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="like" optional="1">
+            <column table="kr_payer" column="nump" />
+            <useparam name="nump" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="poisk_ul_test_nulls" is-report="1" title="Условия поска (юр. тепло)" timestamp="27.02.2017 15:01:05" use-temp="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1" />
+      <additions>
+        <addition name="poisk_ul_test" />
+      </additions>
+      <select>
+        <column table="kr_numobj" column="kod_numobj" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_numobj" as="kr_numobj" all-rows="1">
+            <link name="kod_obj">
+              <!--Масков сказал связь 1 к 1, но на деле иногда строки дублируются-->
+              <link name="kodd" as="kodd_obj">
+                <link name="kod_s" as="kod_s_obj">
+                  <link name="kod_m" as="kod_m_obj" />
+                </link>
+              </link>
+            </link>
+          </link>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_test" timestamp="27.02.2017 15:01:11" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1">
+        <usefield field="asuse_kod_emp_dolzh" show-nulls="1" />
+        <usefield field="cmn_date" name="dat_srok" title="Дата срок" />
+        <usefield field="cmn_string" name="rassh1" title="РАсч" />
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" all-rows="1" />
+          <where>
+            <call function="in nnull" optional="1">
+              <column table="kod_dog" column="kod_emp" />
+              <useparam name="kod_emp_dolzh" />
+            </call>
+            <call function="= dnull" optional="1">
+              <column table="kod_dog" column="dat_srok" />
+              <useparam name="dat_srok" />
+            </call>
+            <call function="= snull" optional="1">
+              <column table="kod_dog" column="rassh1" />
+              <useparam name="rassh1" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_abon" timestamp="27.02.2017 15:01:17" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1">
+        <fieldgroup title="Абонент">
+          <usefield field="asuse_prizn_activ_abon" name="abon_prizn_activ" />
+          <fieldgroup title="Код абонента">
+            <usefield field="cmn_string" name="abon_nump" />
+            <fieldgroup title="Диапазон">
+              <usefield field="cmn_string" title="С" name="abon_nump_s" width-perc="50" />
+              <usefield field="cmn_string" title="По" name="abon_nump_po" width-perc="50" />
+            </fieldgroup>
+          </fieldgroup>
+          <usefield field="cmn_string" name="abon_name" title="Наименование" />
+          <usefield field="cmn_string" name="abon_allname" title="Полное наименование" visible="0" />
+          <fieldgroup title="ИНН">
+            <usefield field="cmn_string" name="abon_inn" step="0" show-nulls="1" />
+            <fieldgroup title="Диапазон">
+              <usefield field="cmn_integer_noincrement" title="С" name="abon_inn_s" width-perc="50" />
+              <usefield field="cmn_integer_noincrement" title="По" name="abon_inn_po" width-perc="50" />
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="КПП" visible="0">
+            <usefield field="cmn_string" name="abon_kpp" visible="0" show-nulls="1" />
+            <fieldgroup title="Диапазон" visible="0">
+              <usefield field="cmn_integer_noincrement" title="С" name="abon_kpp_s" width-perc="50" visible="0" />
+              <usefield field="cmn_integer_noincrement" title="По" name="abon_kpp_po" width-perc="50" visible="0" />
+            </fieldgroup>
+          </fieldgroup>
+          <usefield field="cmn_string" name="abon_egrul_cert_num" title="Номер свидетельства о регистрации" visible="0" show-nulls="1" />
+          <usefield field="cmn_list_yesno" title="Является филиалом" name="abon_is_filial" visible="0" />
+          <fieldgroup title="ОКПО" visible="0">
+            <usefield field="cmn_string" name="abon_okpo" visible="0" show-nulls="1" />
+            <fieldgroup title="Диапазон" visible="0">
+              <usefield field="cmn_string" title="С" name="abon_okpo_s" width-perc="50" visible="0" />
+              <usefield field="cmn_string" title="По" name="abon_okpo_po" width-perc="50" visible="0" />
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="ОГРН" visible="0">
+            <usefield field="cmn_string" name="abon_ogrn" visible="0" show-nulls="1" />
+            <fieldgroup title="Диапазон" visible="0">
+              <usefield field="cmn_string" title="С" name="abon_ogrn_s" width-perc="50" visible="0" />
+              <usefield field="cmn_string" title="По" name="abon_ogrn_po" width-perc="50" visible="0" />
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="ОКОГУ" visible="0">
+            <usefield field="cmn_string" name="abon_okogu" visible="0" show-nulls="1" />
+            <fieldgroup title="Диапазон" visible="0">
+              <usefield field="cmn_string" title="С" name="abon_okogu_s" width-perc="50" visible="0" />
+              <usefield field="cmn_string" title="По" name="abon_okogu_po" width-perc="50" visible="0" />
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="ОКАТО" visible="0">
+            <usefield field="cmn_string" name="abon_okato" visible="0" show-nulls="1" />
+            <fieldgroup title="Диапазон" visible="0">
+              <usefield field="cmn_string" title="С" name="abon_okato_s" width-perc="50" visible="0" />
+              <usefield field="cmn_string" title="По" name="abon_okato_po" width-perc="50" visible="0" />
+            </fieldgroup>
+          </fieldgroup>
+          <usefield field="asuse_kod_okved" name="abon_kod_okved" visible="0" />
+          <usefield field="asuse_kod_fs" name="abon_kod_fs" title="ОКОПФ" comment="не ОКФС - после разговора с Кошелевым" visible="0" />
+          <fieldgroup title="Юридический адрес" visible="0">
+            <usefield field="asuse_adr_m" name="kod_adr_m_ur" visible="0" />
+            <usefield field="asuse_k_house_chet" name="kod_chet_ur" visible="0" />
+            <usefield field="asuse_k_strits" name="kod_street_ur" visible="0">
+              <listquery>
+                <query name="k_strits-list">
+                  <withparams>
+                    <useparam name="kod_adr_m_ur" />
+                  </withparams>
+                </query>
+              </listquery>
+            </usefield>
+            <usefield field="asuse_k_house" name="kodd_ur" visible="0">
+              <listquery>
+                <query name="k_house-list">
+                  <withparams>
+                    <useparam name="kod_adr_m_ur" />
+                    <useparam name="kod_street_ur" />
+                    <useparam name="kod_chet_ur" />
+                  </withparams>
+                </query>
+              </listquery>
+            </usefield>
+            <fieldgroup title="Индекс" visible="0">
+              <usefield field="cmn_integer" name="index_ur" visible="0" />
+              <fieldgroup title="Диапазон" visible="0">
+                <usefield field="cmn_integer" title="С" name="index_ur_s" width-perc="50" visible="0" />
+                <usefield field="cmn_integer" title="По" name="index_ur_po" width-perc="50" visible="0" />
+              </fieldgroup>
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="Физический адрес" visible="0">
+            <usefield field="asuse_adr_m" name="kod_adr_m_fiz" visible="0" />
+            <usefield field="asuse_k_house_chet" name="kod_chet_fiz" visible="0" />
+            <usefield field="asuse_k_strits" name="kod_street_fiz" visible="0">
+              <listquery>
+                <query name="k_strits-list">
+                  <withparams>
+                    <useparam name="kod_adr_m_fiz" />
+                  </withparams>
+                </query>
+              </listquery>
+            </usefield>
+            <usefield field="asuse_k_house" name="kodd_fiz" visible="0">
+              <listquery>
+                <query name="k_house-list">
+                  <withparams>
+                    <useparam name="kod_adr_m_fiz" />
+                    <useparam name="kod_street_fiz" />
+                    <useparam name="kod_chet_fiz" />
+                  </withparams>
+                </query>
+              </listquery>
+            </usefield>
+            <fieldgroup title="Индекс" visible="0">
+              <usefield field="cmn_integer" name="index_fiz" visible="0" />
+              <fieldgroup title="Диапазон" visible="0">
+                <usefield field="cmn_integer" title="С" name="index_fiz_s" width-perc="50" visible="0" />
+                <usefield field="cmn_integer" title="По" name="index_fiz_po" width-perc="50" visible="0" />
+              </fieldgroup>
+            </fieldgroup>
+          </fieldgroup>
+          <usefield field="cmn_list_yesno" title="Является резидентом" name="abon_is_resident" visible="0" />
+          <usefield field="asuse_kod_edo" visible="0" />
+          <usefield field="asuse_kod_ecls" name="abon_kod_ecls" title="Отношение к ЭС" visible="0" />
+          <usefield field="asuse_kod_separator" name="abon_kod_separator" visible="0" />
+          <usefield field="asuse_kod_emp_dolzh" title="Должностные лица" name="abon_kod_emp_dolzh" visible="0" />
+          <usefield field="cmn_string" controlType="UIText" name="fio_abon" title="ФИО ответственного абонента" exclude="1" visible="0" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kodp" column="kodp" />
+        <column table="kodp" column="name" />
+      </select>
+      <from>
+        <qube>
+          <link name="kodp" all-rows="1">
+            <link name="kod_d_ur" as="kod_d_ur">
+              <link name="kod_s" as="kod_s_ur">
+                <link name="kod_m" as="kod_m_ur" />
+              </link>
+            </link>
+            <link name="kod_d" as="kod_d_fiz">
+              <link name="kod_s" as="kod_s_fiz">
+                <link name="kod_m" as="kod_m_fiz" />
+              </link>
+            </link>
+            <link name="kodp" as="kodp_org" />
+            <link name="kodp_nsi" />
+          </link>
+          <link name="kod_emp" only-for-cond="1" />
+          <link name="kod_org_edo" only-for-cond="1" />
+          <where>
+            <call function="in" optional="1">
+              <column table="kodp" column="prizn_activ" />
+              <useparam name="abon_prizn_activ" />
+            </call>
+            <call function="like" optional="1">
+              <column table="kodp" column="nump" />
+              <useparam name="abon_nump" />
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <column table="kodp" column="nump" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_nump_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <column table="kodp" column="nump" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_nump_po" />
+              </call>
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="name" />
+              <useparam name="abon_name" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="egrul_cert_num" />
+              <useparam name="abon_egrul_cert_num" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="allname" />
+              <useparam name="abon_allname" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="inn" />
+              <useparam name="abon_inn" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kodp" column="inn" />
+              <useparam name="abon_inn_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kodp" column="inn" />
+              <useparam name="abon_inn_po" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="kpp" />
+              <useparam name="abon_kpp" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kodp" column="kpp" />
+              <useparam name="abon_kpp_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kodp" column="kpp" />
+              <useparam name="abon_kpp_po" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="okpo" />
+              <useparam name="abon_okpo" />
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <column table="kodp" column="okpo" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_okpo_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <column table="kodp" column="okpo" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_okpo_po" />
+              </call>
+            </call>
+            <call function="contains" optional="1" exclude="1">
+              <column table="kr_employee" column="fio" />
+              <useparam name="fio_abon" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp" column="ogrn" />
+              <useparam name="abon_ogrn" />
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <column table="kodp" column="ogrn" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_ogrn_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <column table="kodp" column="ogrn" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_ogrn_po" />
+              </call>
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp" column="kod_okved" />
+              <useparam name="abon_kod_okved" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp" column="kod_fs" />
+              <useparam name="abon_kod_fs" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_m_ur" column="kod_m" />
+              <useparam name="kod_adr_m_ur" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_s_ur" column="kod" />
+              <useparam name="kod_street_ur" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_d_ur" column="kod_chet" />
+              <useparam name="kod_chet_ur" />
+            </call>
+            <call function="or" optional="1">
+              <call function="in">
+                <column table="kod_d_ur" column="kod_r" />
+                <useparam name="kodd_ur" />
+              </call>
+              <call function="in">
+                <column table="kod_d_ur" column="kodd" />
+                <useparam name="kodd_ur" />
+              </call>
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_d_ur" column="ind" />
+              <call function="to_char">
+                <useparam function="||" name="index_ur" />
+              </call>
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <call function="nvl">
+                  <column table="kod_d_ur" column="ind" />
+                  <const>'0'</const>
+                </call>
+              </call>
+              <call function="cut_num">
+                <useparam name="index_ur_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <call function="nvl">
+                  <column table="kod_d_ur" column="ind" />
+                  <const>'0'</const>
+                </call>
+              </call>
+              <call function="cut_num">
+                <useparam name="index_ur_po" />
+              </call>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_m_fiz" column="kod_m" />
+              <useparam name="kod_adr_m_fiz" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_s_fiz" column="kod" />
+              <useparam name="kod_street_fiz" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_d_fiz" column="kod_chet" />
+              <useparam name="kod_chet_fiz" />
+            </call>
+            <call function="or" optional="1">
+              <call function="in">
+                <column table="kod_d_fiz" column="kod_r" />
+                <useparam name="kodd_fiz" />
+              </call>
+              <call function="in">
+                <column table="kod_d_fiz" column="kodd" />
+                <useparam name="kodd_fiz" />
+              </call>
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_d_fiz" column="ind" />
+              <call function="to_char">
+                <useparam function="||" name="index_fiz" />
+              </call>
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <call function="nvl">
+                  <column table="kod_d_fiz" column="ind" />
+                  <const>'0'</const>
+                </call>
+              </call>
+              <call function="cut_num">
+                <useparam name="index_fiz_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <call function="nvl">
+                  <column table="kod_d_fiz" column="ind" />
+                  <const>'0'</const>
+                </call>
+              </call>
+              <call function="cut_num">
+                <useparam name="index_fiz_po" />
+              </call>
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp" column="kod_ecls" />
+              <useparam name="abon_kod_ecls" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp_org" column="kod_separator" />
+              <useparam name="abon_kod_separator" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp_org" column="is_filial" />
+              <useparam name="abon_is_filial" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kodp" column="pr_rezident_rf" />
+              <useparam name="abon_is_resident" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_emp" column="kod_emp" />
+              <useparam name="abon_kod_emp_dolzh" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_org_edo" column="kod_edo" />
+              <useparam name="kod_edo" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp_nsi" column="soato" />
+              <useparam name="abon_okato" />
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <column table="kodp_nsi" column="soato" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_okato_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <column table="kodp_nsi" column="soato" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_okato_po" />
+              </call>
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kodp_nsi" column="soogu" />
+              <useparam name="abon_okogu" />
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <column table="kodp_nsi" column="soogu" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_okogu_s" />
+              </call>
+            </call>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <column table="kodp_nsi" column="soogu" />
+              </call>
+              <call function="cut_num">
+                <useparam name="abon_okogu_po" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_dog" is-report="1" with-behavior="1" can-use-simple-params="1" timestamp="07.05.2020 15:57:49">
+      <content can-use-simple-params="1">
+        <fieldgroup title="Договор">
+          <usefield field="asuse_prizn_activ_dog" title="Статус" />
+          <usefield field="asuse_kod_dog" title="Номер договора" name="dogs" />
+          <usefield field="asuse_tep_el" name="tep_el" />
+          <usefield field="asuse_dep" column-editable="kr_dep_current" editable-invert="1" />
+          <usefield field="asuse_dog_resp" visible="0" />
+          <usefield field="asuse_kod_podr" exclude="1" visible="0" />
+          <!--usefield field="asuse_kod_emp_otv" visible="0" /-->
+          <field name="kod_emp_otv" type="number" name-field-name="fio" controlType="UIList" title="Ответственный сотрудник"  visible="0">
+            <listquery>
+              <query name="kr_employee_otv_2" />
+            </listquery>
+          </field>
+          <fieldgroup title="Дата начала действия">
+            <usefield field="cmn_date" name="dat_dog_s" title="С" width-perc="50" />
+            <usefield field="cmn_date" name="dat_dog_po" title="По" width-perc="50" />
+          </fieldgroup>
+          <fieldgroup title="Дата планируемого окончания" visible="0">
+            <usefield field="cmn_date" name="dat_srok_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_srok_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата прекращения действия">
+            <usefield field="cmn_date" name="dat_fin_s" title="С" width-perc="50" />
+            <usefield field="cmn_date" name="dat_fin_po" title="По" width-perc="50" />
+          </fieldgroup>
+          <fieldgroup title="Дата пролонгации" visible="0">
+            <usefield field="cmn_date" name="dat_prolong_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_prolong_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата подписания абонентом" visible="0">
+            <usefield field="cmn_date" name="dat_sign_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_sign_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата заключения договора" visible="0">
+            <usefield field="cmn_date" name="dat_numdog_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_numdog_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <usefield field="asuse_kod_vdog" visible="0" />
+          <usefield field="asuse_kod_group_cust_parent" title="Группа потребления" visible="0" />
+          <usefield field="asuse_kod_group_cust" title="Подгруппа потребления" visible="0" />
+          <usefield field="asuse_kod_istfin" visible="0" />
+          <usefield field="asuse_kodp_plat" visible="0" />
+          <usefield field="asuse_kodp_gruz" visible="0" />
+          <usefield field="asuse_kod_bzad" visible="0" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" all-rows="1">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust" />
+            </link>
+          </link>
+          <link name="kod_dogpodr" only-for-cond="1" />
+          <link name="kod_dogobj_emp" only-for-cond="1" />
+          <where>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="pr_active" />
+              <useparam name="prizn_activ_dog" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="kod_dog" />
+              <useparam name="dogs" />
+            </call>
+            <call function="in" optional="1" comment="Вид энергии">
+              <column table="kod_dog" column="tep_el" />
+              <useparam name="tep_el" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="dep" />
+              <useparam name="dep" />
+            </call>
+            <call function="in" optional="1" exclude="1">
+              <column table="kod_dog" column="podr" />
+              <useparam name="kod_podr" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dogpodr" column="kodp" />
+              <useparam name="kodp_resp" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dogobj_emp" column="kod_emp" />
+              <useparam name="kod_emp_otv" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="kod_bzad" />
+              <useparam name="kod_bzad" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dog" column="dat_dog" />
+              <useparam name="dat_dog_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dog" column="dat_dog" />
+              <useparam name="dat_dog_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dog" column="dat_srok" />
+              <useparam name="dat_srok_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dog" column="dat_srok" />
+              <useparam name="dat_srok_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dog" column="dat_fin" />
+              <useparam name="dat_fin_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dog" column="dat_fin" />
+              <useparam name="dat_fin_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dog" column="dat_prolong" />
+              <useparam name="dat_prolong_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dog" column="dat_prolong" />
+              <useparam name="dat_prolong_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dog" column="dat_sign" />
+              <useparam name="dat_sign_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dog" column="dat_sign" />
+              <useparam name="dat_sign_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dog" column="dat_numdog" />
+              <useparam name="dat_numdog_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dog" column="dat_numdog" />
+              <useparam name="dat_numdog_po" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="kod_vdog" />
+              <useparam name="kod_vdog" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_group_cust" column="kod_group_cust" />
+              <useparam name="kod_group_cust" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_dog" column="kod_ist" />
+              <useparam name="kod_istfin" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_dog" column="kodp_plat" />
+              <useparam name="kodp_plat" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_dog" column="kodp_gruz" />
+              <useparam name="kodp_gruz" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_dog_bank" timestamp="27.02.2017 15:01:28" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1">
+        <fieldgroup title="Банковские реквизиты" visible="0">
+          <fieldgroup title="Расчётный счёт" visible="0">
+            <usefield field="cmn_string" name="dog_rassh" visible="0" show-nulls="1" />
+            <usefield field="asuse_dog_rassh" title="Выбрать из списка" name="dog_rassh_list" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Лицевой счёт в казначействе" visible="0">
+            <usefield field="cmn_string" name="dog_lic_kazn" visible="0" show-nulls="1" />
+            <usefield field="asuse_dog_lic_kazn" title="Выбрать из списка" name="dog_lic_kazn_list" visible="0" />
+          </fieldgroup>
+          <usefield field="asuse_kodb" title="Банк плательщика" name="dog_kodbpl" visible="0" />
+          <usefield field="asuse_bankpol" visible="0" />
+          <usefield field="asuse_kod_kazn" visible="0" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" all-rows="1" />
+          <where>
+            <call function="in" optional="1">
+              <column table="kod_dog" column="kodbpol" />
+              <useparam name="kodbpol" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_dog" column="kod_kazn" />
+              <useparam name="kod_kazn" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kod_dog" column="rassh1" />
+              <useparam name="dog_rassh" />
+            </call>
+            <call function="in snull" optional="1">
+              <column table="kod_dog" column="rassh1" />
+              <useparam name="dog_rassh_list" />
+            </call>
+            <call function="= nnull" optional="1">
+              <column table="kod_dog" column="kodbpl" />
+              <useparam name="dog_kodbpl" />
+            </call>
+            <call function="like snull" optional="1">
+              <column table="kod_dog" column="lic_kazn" />
+              <useparam name="dog_lic_kazn" />
+            </call>
+            <call function="in snull" optional="1">
+              <column table="kod_dog" column="lic_kazn" />
+              <useparam name="dog_lic_kazn_list" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_dog_docs" timestamp="27.02.2017 15:01:34" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1">
+        <fieldgroup title="Дополнительные документы" visible="0">
+          <usefield field="asuse_kod_tipdoc_dog" visible="0" />
+          <usefield field="cmn_string" title="Номер документа" name="dopdoc_numer" visible="0" />
+          <field field="cmn_list" name="dopdoc_arhiv" title="Статус документа" controlType="UIList" type="number" visible="0">
+            <listquery>
+              <query name="kr_dopdoc_arhiv" />
+            </listquery>
+          </field>
+          <fieldgroup title="Дата документа" visible="0">
+            <usefield field="cmn_date" name="dopdoc_dat_s" title="C" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dopdoc_dat_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата начала действия" visible="0">
+            <usefield field="cmn_date" name="dopdoc_begin_s" title="C" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dopdoc_begin_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата окончания действия" visible="0">
+            <usefield field="cmn_date" name="dopdoc_end_s" title="C" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dopdoc_end_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <usefield controlType="UIList" name="has_doc_bd" title="Наличие эл. копии в БД" field="cmn_list_yesno" visible="0" />
+          <usefield controlType="UIList" name="has_doc_fs" title="Наличие эл. копии в ФС" field="cmn_list_yesno" visible="0" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" all-rows="1" />
+          <link name="kod_dopdoc" only-for-cond="1" />
+          <where>
+            <call function="in" optional="1">
+              <column table="kod_dopdoc" column="arhiv" />
+              <useparam name="dopdoc_arhiv" />
+            </call>
+            <call function="like" optional="1">
+              <column table="kod_dopdoc" column="numer" />
+              <useparam name="dopdoc_numer" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dopdoc" column="kod_tipdoc" />
+              <useparam name="kod_tipdoc_dog" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dopdoc" column="dat_doc" />
+              <useparam name="dopdoc_dat_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dopdoc" column="dat_doc" />
+              <useparam name="dopdoc_dat_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dopdoc" column="dat_s" />
+              <useparam name="dopdoc_begin_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dopdoc" column="dat_s" />
+              <useparam name="dopdoc_begin_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_dopdoc" column="dat_po" />
+              <useparam name="dopdoc_end_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_dopdoc" column="dat_po" />
+              <useparam name="dopdoc_end_po" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dopdoc" column="has_doc_bd" />
+              <useparam name="has_doc_bd" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_dopdoc" column="has_doc_fs" />
+              <useparam name="has_doc_fs" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_dog_avans" timestamp="27.02.2017 15:01:40" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1">
+        <fieldgroup title="Авансы" visible="0">
+          <usefield field="asuse_vid_avans" visible="0" />
+          <usefield field="asuse_kod_zak_avans" visible="0" />
+          <usefield field="cmn_float" title="Процент" name="avans_perc" visible="0" />
+          <usefield field="cmn_integer" title="Число месяца" name="avans_day" visible="0" />
+          <usefield field="asuse_pr_vist_av" visible="0" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" all-rows="1" />
+          <link name="kod_vist_day" only-for-cond="1" />
+          <where>
+            <call function="in" optional="1">
+              <column table="kod_vist_day" column="vid_avans" />
+              <useparam name="vid_avans" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_vist_day" column="pr_vist_av2" />
+              <useparam name="pr_vist_av" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_dog" column="kod_zak_avans" />
+              <useparam name="kod_zak_avans" />
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_vist_day" column="perc" />
+              <useparam name="avans_perc" />
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_vist_day" column="day" />
+              <useparam name="avans_day" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_fin" timestamp="27.02.2017 15:01:46" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content can-use-simple-params="1">
+        <fieldgroup title="Финансы" visible="0">
+          <fieldgroup title="Текущая задолженность" visible="0">
+            <usefield field="cmn_currency" title="С" name="debt_s" width-perc="50" visible="0" />
+            <usefield field="cmn_currency" title="По" name="debt_po" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата последней оплаты" visible="0">
+            <usefield field="cmn_date" title="С" name="date_last_opl_s" width-perc="50" visible="0" />
+            <usefield field="cmn_date" title="По" name="date_last_opl_po" width-perc="50" visible="0" />
+          </fieldgroup>
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" all-rows="1" />
+        </qube>
+      </from>
+      <where>
+        <call function="ge" optional="1">
+          <fact column="sr_opl_dat_opl_max" />
+          <useparam name="date_last_opl_s" />
+        </call>
+        <call function="le" optional="1">
+          <fact column="sr_opl_dat_opl_max" />
+          <useparam name="date_last_opl_po" />
+        </call>
+        <call function="le" optional="1">
+          <fact column="fin_ul_ob_osn" />
+          <useparam name="debt_po" />
+        </call>
+        <call function="ge" optional="1">
+          <fact column="fin_ul_ob_osn" />
+          <useparam name="debt_s" />
+        </call>
+      </where>
+    </query>
+    <query name="poisk_ul_numobj_tep" timestamp="13.06.2017 17:56:43" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content>
+        <fieldgroup title="Объект (тепло)" visible="0">
+          <usefield field="asuse_kod_numobj" title="Выбрать из списка" visible="0" />
+          <usefield field="cmn_integer" name="num_obj" title="Номер объекта" visible="0" />
+          <usefield field="cmn_string" title="Наименование" name="numobj_name" visible="0" />
+          <fieldgroup title="Адрес объекта" visible="0">
+            <usefield field="asuse_adr_m" name="kod_adr_m_obj" visible="0" />
+            <usefield field="asuse_k_house_chet" name="kod_chet_obj" visible="0" />
+            <usefield field="asuse_k_strits" name="kod_street_obj" visible="0">
+              <listquery>
+                <query name="k_strits-list">
+                  <withparams>
+                    <useparam name="kod_adr_m_obj" />
+                  </withparams>
+                </query>
+              </listquery>
+            </usefield>
+            <usefield field="asuse_k_house" name="kod_d_obj" visible="0">
+              <listquery>
+                <query name="k_house-list">
+                  <withparams>
+                    <useparam name="kod_adr_m_obj" />
+                    <useparam name="kod_street_obj" />
+                    <useparam name="kod_chet_obj" />
+                  </withparams>
+                </query>
+              </listquery>
+            </usefield>
+            <fieldgroup title="Индекс" visible="0">
+              <usefield field="cmn_integer" name="index_obj" visible="0" />
+              <fieldgroup title="Диапазон" visible="0">
+                <usefield field="cmn_integer" title="С" name="index_obj_s" width-perc="50" visible="0" />
+                <usefield field="cmn_integer" title="По" name="index_obj_po" width-perc="50" visible="0" />
+              </fieldgroup>
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="Дата создания" exclude="1" visible="0">
+            <usefield field="cmn_date" name="dat_numobj_create_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_numobj_create_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата начала действия" visible="0">
+            <usefield field="cmn_date" name="dat_numobj_create_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_numobj_create_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата окончания действия" visible="0">
+            <usefield field="cmn_date" name="dat_numobj_fin_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="dat_numobj_fin_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <usefield field="asuse_kodnaznteplo" title="Назначение здания" visible="0" />
+          <usefield field="asuse_kod_obj_fs" visible="0" />
+          <usefield field="asuse_kod_f23" visible="0" show-nulls="1" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_numobj" column="kod_numobj" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_numobj" all-rows="1">
+            <link name="kod_obj" all-rows="1">
+              <!--Масков сказал связь 1 к 1, но на деле иногда строки дублируются-->
+              <link name="kodd" as="kod_d_obj">
+                <link name="kod_s" as="kod_s_obj">
+                  <link name="kod_m" as="kod_m_obj" />
+                </link>
+              </link>
+            </link>
+          </link>
+          <where>
+            <call function="le" optional="1">
+              <call function="cut_num">
+                <call function="nvl">
+                  <column table="kod_d_obj" column="ind" />
+                  <const>'0'</const>
+                </call>
+              </call>
+              <call function="cut_num">
+                <useparam name="index_obj_po" />
+              </call>
+            </call>
+            <call function="ge" optional="1">
+              <call function="cut_num">
+                <call function="nvl">
+                  <column table="kod_d_obj" column="ind" />
+                  <const>'0'</const>
+                </call>
+              </call>
+              <call function="cut_num">
+                <useparam name="index_obj_s" />
+              </call>
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_d_obj" column="ind" />
+              <call function="to_char">
+                <useparam function="||" name="index_obj" />
+              </call>
+            </call>
+            <call function="or" optional="1">
+              <call function="in">
+                <column table="kod_d_obj" column="kod_r" />
+                <useparam name="kod_d_obj" />
+              </call>
+              <call function="in">
+                <column table="kod_d_obj" column="kodd" />
+                <useparam name="kod_d_obj" />
+              </call>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_d_obj" column="kod_chet" />
+              <useparam name="kod_chet_obj" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_s_obj" column="kod" />
+              <useparam name="kod_street_obj" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_m_obj" column="kod_m" />
+              <useparam name="kod_adr_m_obj" />
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_numobj" column="num_obj" />
+              <useparam name="num_obj" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_numobj" column="kod_numobj" />
+              <useparam name="kod_numobj" />
+            </call>
+            <call function="like" optional="1">
+              <column table="kod_numobj" column="name" />
+              <useparam name="numobj_name" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_numobj" column="dat_create" />
+              <useparam name="dat_numobj_create_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_numobj" column="dat_create" />
+              <useparam name="dat_numobj_create_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_numobj" column="dat_fin" />
+              <useparam name="dat_numobj_fin_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_numobj" column="dat_fin" />
+              <useparam name="dat_numobj_fin_s" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_numobj" column="kod_obj_fs" />
+              <useparam name="kod_obj_fs" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_obj" column="kodnaznteplo" />
+              <useparam name="kodnaznteplo" />
+            </call>
+            <call function="in nnull" optional="1">
+              <column table="kod_numobj" column="kod_f23" />
+              <useparam name="kod_f23" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="poisk_ul_tu_tep" timestamp="27.02.2017 15:09:22" is-report="1" with-behavior="0" can-use-simple-params="1">
+      <content>
+        <fieldgroup title="Точка учёта (тепло)" visible="0">
+          <usefield field="cmn_string" title="Наименование ТУ" name="tu_name" visible="0" />
+          <usefield field="cmn_string" title="Наименование абон. ввода" name="tu_name_aw" visible="0" />
+          <fieldgroup title="Дата создания ТУ" visible="0">
+            <usefield field="cmn_date" name="point_dat_s_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="point_dat_s_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <fieldgroup title="Дата закрытия ТУ" visible="0">
+            <usefield field="cmn_date" name="point_dat_po_s" title="С" width-perc="50" visible="0" />
+            <usefield field="cmn_date" name="point_dat_po_po" title="По" width-perc="50" visible="0" />
+          </fieldgroup>
+          <usefield field="asuse_tarif_ul" name="kod_tarif_tu" visible="0" auto-check="1" />
+          <usefield field="asuse_kod_vidtn" visible="0" />
+          <usefield field="asuse_kod_tiptn_tep" visible="0" />
+          <field name="schema_kod" controlType="UICustom" assembly="sql.builder" type-name="sql.builder.UI.Common.Other.Custom.UITepSchemaSearch" type="number" title="Элемент схемы" visible="0" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="kod_numobj" column="kod_numobj" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_numobj" all-rows="1">
+            <link name="kod_obj" all-rows="1">
+              <!--Масков сказал связь 1 к 1, но на деле иногда строки дублируются-->
+              <link name="kodd" as="kod_d_obj">
+                <link name="kod_s" as="kod_s_obj">
+                  <link name="kod_m" as="kod_m_obj" />
+                </link>
+              </link>
+            </link>
+          </link>
+          <link name="kod_point_rasx2" only-for-cond="1" />
+          <link name="kod_point2" only-for-cond="1">
+            <link name="kod" />
+          </link>
+          <link name="kod_point_har2" only-for-cond="1" />
+          <where>
+            <call function="in" optional="1">
+              <column table="kod_point_rasx2" column="tarif" />
+              <useparam name="kod_tarif_tu" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_point_har2" column="kod_tiptn" />
+              <useparam name="kod_tiptn" />
+            </call>
+            <call function="like" optional="1">
+              <column table="kod_point2" column="name" />
+              <useparam name="tu_name" />
+            </call>
+            <call function="like" optional="1">
+              <column table="kod" column="name" />
+              <useparam name="tu_name_aw" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_point2" column="kod_tn" />
+              <useparam name="kod_vidtn" />
+            </call>
+            <call function="= nnull" optional="1">
+              <column table="kod" column="kod" />
+              <useparam name="schema_kod" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_point2" column="dat_s" />
+              <useparam name="point_dat_s_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_point2" column="dat_s" />
+              <useparam name="point_dat_s_po" />
+            </call>
+            <call function="ge" optional="1">
+              <column table="kod_point2" column="dat_po" />
+              <useparam name="point_dat_po_s" />
+            </call>
+            <call function="le" optional="1">
+              <column table="kod_point2" column="dat_po" />
+              <useparam name="point_dat_po_po" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

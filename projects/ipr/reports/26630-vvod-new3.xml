@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="26630-vvod-pivot-facts-ym-kv-m6-m9">
+      <column column="vv_pl_bn" />
+      <column column="vv_ft_bn" />
+      <column column="vv_mba_pl" />
+      <column column="vv_mba_ft" />
+      <column column="vv_km_pl" />
+      <column column="vv_km_ft" />
+      <column column="vv_kmkl_pl" />
+      <column column="vv_kmkl_ft" />
+      <column column="vv_kmvl_pl" />
+      <column column="vv_kmvl_ft" />
+      <column column="vv_kmvl1_pl" />
+      <column column="vv_kmvl1_ft" />
+      <column column="vv_kmvl2_pl" />
+      <column column="vv_kmvl2_ft" />
+      <column column="vv_pstp_pl" />
+      <column column="vv_pstp_ft" />
+      <column column="vv_prch_pl" />
+      <column column="vv_prch_ft" />
+      <column column="vv_any_pl" />
+      <column column="vv_any_ft" />
+
+
+      <column column="pr_mba_pl" />
+      <column column="pr_mba_ft" />
+      <column column="pr_km_pl" />
+      <column column="pr_km_ft" />
+      <column column="pr_kmkl_pl" />
+      <column column="pr_kmkl_ft" />
+      <column column="pr_kmvl_pl" />
+      <column column="pr_kmvl_ft" />
+      <column column="pr_kmvl1_pl" />
+      <column column="pr_kmvl1_ft" />
+      <column column="pr_kmvl2_pl" />
+      <column column="pr_kmvl2_ft" />
+      <column column="pr_pstp_pl" />
+      <column column="pr_pstp_ft" />
+      <column column="pr_prch_pl" />
+      <column column="pr_prch_ft" />
+      <column column="pr_any_pl" />
+      <column column="pr_any_ft" />
+    </part>
+    <part id="26630-vvod-pivot-facts-ym_cm">
+      <column column="vv_pl_bn_cm" />
+      <column column="vv_ft_bn_cm" />
+      <column column="vv_mba_pl_cm" />
+      <column column="vv_mba_ft_cm" />
+      <column column="vv_km_pl_cm" />
+      <column column="vv_km_ft_cm" />
+      <column column="vv_kmkl_pl_cm" />
+      <column column="vv_kmkl_ft_cm" />
+      <column column="vv_kmvl_pl_cm" />
+      <column column="vv_kmvl_ft_cm" />
+      <column column="vv_kmvl1_pl_cm" />
+      <column column="vv_kmvl1_ft_cm" />
+      <column column="vv_kmvl2_pl_cm" />
+      <column column="vv_kmvl2_ft_cm" />
+      <column column="vv_pstp_pl_cm" />
+      <column column="vv_pstp_ft_cm" />
+      <column column="vv_prch_pl_cm" />
+      <column column="vv_prch_ft_cm" />
+      <column column="vv_any_pl_cm" />
+      <column column="vv_any_ft_cm" />
+    </part>
+  </parts>
+  <queries>
+    <query name="26630-dat-grsets-vvod-new3" timestamp="24.01.2017 23:42:24">
+      <params>
+        <usepart part="26630-params" />
+      </params>
+      <select>
+
+
+        <call function="if" as="num_pr_sbor" type="number" title="Наличие сборного">
+          <call function="or">
+            <call function="is null">
+              <column table="this" column="tit_num_new_sbor" />
+            </call>
+            <call function="and">
+              <call function="true" />
+              <call function="=" optional="1">
+                <useparam name="pr_sbor" />
+                <const>0</const>
+              </call>
+            </call>
+          </call>
+          <const>0</const>
+          <const>1</const>
+        </call>
+        <usepart part="26630-rownum">
+          <column table="this" column="num_pr_sbor" />
+          <array>'gtst'</array>
+          <array>'ttot'</array>
+          <array>'ttmt'</array>
+          <array>'mtdt'</array>
+        </usepart>
+
+        <!--<call function="+nvl" as="num_ttt" title="Номер дочернего" type="number" client-calc="1">
+          <column table="this" column="num_ttt" row-selector="prev-row" />
+          <const>1</const>
+        </call>-->
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="26630-dat-vvod-new3" as="a">
+          <withparams>
+            <usepart part="26630-withparams" />
+          </withparams>
+          <grsets materialize-type="temp-table">
+            <on-rows>
+              <grset level="7" title="Итого" as="i">
+                <grset level="16" title="Группа план/факт" as="pf_gr">
+                  <grset level="" title="Группа план/факт (вывод)" as="pf_gro">
+                    <where>
+                      <call function="or">
+                        <call function="false"/>
+                        <call function="=1" optional="1">
+                          <useparam name="pr_pf_gr" />
+                        </call>
+                      </call>
+                    </where>
+                  </grset>                  
+                  <grset level="6" title="По титулам" as="igt">
+                    <grset level="" title="По сборному титулу" as="gtst">
+                      <where>
+                        <call function="and">
+                          <call function="is not null">
+                            <column table="a" column="tit_num_new_sbor" />
+                          </call>
+                          <call function="=">
+                            <call function="nvlu">
+                              <useparam name="pr_sbor" />
+                              <const>0</const>
+                            </call>
+                            <const>1</const>
+                          </call>
+                        </call>
+                      </where>
+                    </grset>
+                    <grset level="1" title="По одиночным и головным титулам" as="gttt">
+                      <grset level="" title="По одиночному титулу" as="ttot">
+                        <where>
+                          <call function="=">
+                            <call function="nvl">
+                              <column table="a" column="is_head_tit" />
+                              <const>0</const>
+                            </call>
+                            <const>0</const>
+                          </call>
+                        </where>
+                      </grset>
+                      <grset level="" title="По головному титулу" as="ttmt">
+                        <where>
+                          <call function="=">
+                            <column table="a" column="is_head_tit" />
+                            <const>1</const>
+                          </call>
+                        </where>
+                        <grset level="5" title="По дочерним титулам" as="mtdt">
+                          <where>
+                            <call function="and">
+                              <call function="is not null">
+                                <column table="a" column="kod_child_titul" />
+                              </call>
+                              <call function="=">
+                                <call function="nvlu">
+                                  <useparam name="pr_child" />
+                                  <const>0</const>
+                                </call>
+                                <const>1</const>
+                              </call>
+                            </call>
+                          </where>
+                        </grset>
+                      </grset>
+                    </grset>
+                  </grset>
+                </grset>
+              </grset>
+            </on-rows>
+            <on-columns>
+              <grset level="8" as="ym" title="Период" order="ym_id">
+                <facts>
+                  <usepart part="26630-vvod-pivot-facts-ym-kv-m6-m9" />
+                </facts>
+                <where>
+                  <call function="is not null">
+                    <column table="a" column="ym_id" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="11" as="kv" title="Период" order="kv_id">
+                <facts>
+                  <usepart part="26630-vvod-pivot-facts-ym-kv-m6-m9" />
+                </facts>
+                <where>
+                  <call function="is not null">
+                    <column table="a" column="kv_id" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="12" as="m6" title="Период" order="m6_id">
+                <facts>
+                  <usepart part="26630-vvod-pivot-facts-ym-kv-m6-m9" />
+                </facts>
+                <where>
+                  <call function="is not null">
+                    <column table="a" column="m6_id" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="13" as="m9" title="Период" order="m9_id">
+                <facts>
+                  <usepart part="26630-vvod-pivot-facts-ym-kv-m6-m9" />
+                </facts>
+                <where>
+                  <call function="is not null">
+                    <column table="a" column="m9_id" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="15" as="op" title="Период" order="op_id">
+                <facts>
+                  <usepart part="26630-vvod-pivot-facts-ym-kv-m6-m9" />
+                </facts>
+                <where>
+                  <call function="is not null">
+                    <column table="a" column="op_id" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="8,14" as="ym_cm" title="Период" order="ym_id" intervals="1">
+                <facts>
+                  <usepart part="26630-vvod-pivot-facts-ym_cm" />
+                </facts>
+                <where>
+                  <call function="and">
+                    <call function="is not null">
+                      <column table="a" column="ym_id" />
+                    </call>
+                  </call>
+                </where>
+              </grset>
+            </on-columns>
+          </grsets>
+        </query>
+      </from>
+      <!--<where>
+        <call function="not 0">
+          <column table="a" column="summ_usr" />
+          <column table="a" column="summ_psd" />
+          <column table="a" column="dog_plan_cost" />
+          <column table="a" column="kap_sum_itog_eg" />
+          <column table="a" column="fp_sum_nds_itog_eg" />
+          <column table="a" column="vvod_sum_itog_eg" />
+          <column table="a" column="kap_sum_fact_itog_eg" />
+          <column table="a" column="fp_sum_nds_fact_itog_eg" />
+          <column table="a" column="vvod_sum_fact_itog_eg" />
+        </call>
+      </where>-->
+    </query>
+    <query name="26630-xl-cols1o-test">
+      <params>
+        <usepart part="26630-params" />
+      </params>
+      <select>
+        <column table="a" column="*"/>
+      </select>
+      <from>
+        <query name="26630-xl-cols1o" as="a">
+          <withparams>
+            <usepart part="26630-withparams" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="like">
+            <column table="a" column="title2"/>
+            <const>'I квартал'</const>
+          </call>
+          <call function="like">
+            <column table="a" column="title3"/>
+            <const>'Факт'</const>
+          </call>
+          <call function="in">
+            <column table="a" column="title4"/>
+            <array>'Январь','Февраль'</array>
+          </call>
+        <!--<call function="in">
+            <column table="a" column="title5"/>
+            <array>'Без НДС'</array>
+          </call>-->
+        </call>
+      </where>
+    </query>
+  </queries>
+  <reports>
+   </reports>
+</root>

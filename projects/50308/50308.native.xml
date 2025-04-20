@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:31.2438609+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="50308-dog" timestamp="18.12.2018 15:39:44" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <usepart part="50308-pars" />
+      </params>
+      <select>
+        <column table="kod_dog" column="kod_dog" key="1" />
+        <call function="substr" as="dep_name">
+          <column table="dep" column="name" as="dep_name" />
+          <call function="+">
+            <call function="instr">
+              <column table="dep" column="name" as="dep_name" />
+              <const>'-'</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="-">
+            <call function="length">
+              <column table="dep" column="name" as="dep_name" />
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <column table="dep" column="place" title="Местонахождение" />
+        <call function="date to char" as="sdat" title="На дату">
+          <useparam name="dat" />
+        </call>
+        <call function="trunc" as="god" title="Пероид, год">
+          <useparam name="ym" />
+        </call>
+        <call function="lower" as="mes" title="Период, месяц">
+          <call function="mes-name">
+            <call function="mes">
+              <useparam name="ym" />
+            </call>
+          </call>
+        </call>
+        <column table="dep" column="tel" title="Тел" />
+        <column table="dep" column="fax" title="Факс" />
+        <column table="kodp" column="inn" />
+        <column table="kodp" column="kpp" />
+        <column table="kodbpol" column="rs" />
+        <column table="kodbpol" column="ks" />
+        <column table="kodbpol" column="bic" />
+        <column table="kodb" column="name" as="bname" />
+        <column table="kodb" column="filial" />
+        <column table="kodp" column="name" as="p_name" />
+        <column table="kod_dog" column="ndog" />
+        <call function="date to char" as="ddog" title="Дата">
+          <column table="kod_dog" column="dat_sign" />
+        </call>
+        <column table="kod_d_ur" column="kf_adress_o" as="adr" />
+        <column table="kod_emp" column="fio" as="rasch_fio" title="ФИО Расчетчика" />
+        <column table="kod_emp" column="tel" as="rasch_tel" title="Тел. расчетчика" />
+        <call function="hg_tf_kaz.dolzn_podp_pred_kaz" as="podp_dolzh">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+        <call function="hg_tf_kaz.fio_podp_pred_kaz" as="podp_fio">
+          <column table="kod_dog" column="kod_dog" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dogobj_emp">
+            <link name="kod_emp" />
+            <where>
+              <call function="in">
+                <column table="kod_dogobj_emp" column="kod_dolzhfun" />
+                <array>5</array>
+              </call>
+            </where>
+          </link>
+          <link name="kod_dog" all-rows="1">
+            <link name="kodbpol">
+              <link name="kodb" />
+            </link>
+            <link name="dep" />
+            <link name="kodp">
+              <link name="kod_d_ur" />
+            </link>
+          </link>
+          <where>
+            <call function="=">
+              <column table="kod_dog" column="kod_dog" />
+              <useparam name="kod_dog" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="50308-obj" timestamp="18.12.2018 15:06:00" order="num_obj" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <usepart part="50308-pars" />
+      </params>
+      <select>
+        <column table="kod_numobj" column="kod_numobj" />
+        <column table="kod_numobj" column="num_obj" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_numobj" column="name" />
+        <column table="kodd" column="kf_adress_o" as="adr" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" />
+          <link name="kod_numobj" all-rows="1">
+            <link name="kod_obj">
+              <link name="kodd" />
+            </link>
+          </link>
+          <where>
+            <call function="and">
+              <call function="is null">
+                <column table="kod_numobj" column="kod_parent_sa" />
+              </call>
+              <call function="=">
+                <column table="kod_dog" column="kod_dog" />
+                <useparam name="kod_dog" />
+              </call>
+              <call function="le">
+                <call function="latest nvl">
+                  <call function="ym begin time">
+                    <useparam name="ym" />
+                  </call>
+                  <column table="kod_numobj" column="dat_create" />
+                </call>
+                <call function="earliest">
+                  <call function="ym end time">
+                    <useparam name="ym" />
+                  </call>
+                  <column table="kod_numobj" column="dat_fin" />
+                </call>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="50308-pr" timestamp="18.12.2018 15:06:48" order="npp" materialize="1" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <usepart part="50308-pars" />
+      </params>
+      <select>
+        <column table="kod_priem" column="kod_priem" key="1" />
+        <call function="row_number" as="npp">
+          <call function="partition by">
+            <column table="this" column="kod_numobj" />
+          </call>
+          <call function="order by 2">
+            <column table="kod_priem" column="num_priem" />
+          </call>
+        </call>
+        <column table="kod_numobj_main" column="kod_numobj" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kod_priem" column="readlast" as="val" />
+        <column table="kod_point_pu" column="nom_pu" as="nom" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" />
+          <link name="kod_priem" all-rows="1">
+            <link name="kod_point_ini">
+              <link name="kod_point_en">
+                <link name="kod_point_pu" />
+              </link>
+            </link>
+          </link>
+          <link name="ym" />
+          <link name="kod_numobj">
+            <link name="kod_numobj_main" />
+            <link name="kod_obj">
+              <link name="kodd" />
+            </link>
+          </link>
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_point_en" column="energy" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="ym" column="val" />
+                <useparam name="ym" />
+              </call>
+              <call function="=">
+                <column table="kod_dog" column="kod_dog" />
+                <useparam name="kod_dog" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="50308-pr-i" timestamp="18.12.2018 14:51:14" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <usepart part="50308-pars" />
+      </params>
+      <select>
+        <column table="a" column="kod_numobj" key="1" group="1" as="kod" />
+        <column table="a" column="kod_numobj" group="1" />
+        <column table="a" column="npp" group="max" />
+      </select>
+      <from>
+        <query name="50308-pr" as="a">
+          <withparams>
+            <usepart part="50308-wpars" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="50308-pr-x" timestamp="18.12.2018 15:51:49" order="npp" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <usepart part="50308-pars" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="50308-pr" as="a">
+          <withparams>
+            <usepart part="50308-wpars" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="50308-dolg" timestamp="18.12.2018 18:00:26" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <usepart part="50308-pars" />
+      </params>
+      <select>
+        <fact column="fin_ul_ob_not_av" as="dolg" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" />
+          <link name="dat" />
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_dog" column="kod_dog" />
+                <useparam name="kod_dog" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="dat" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="50308-vld" timestamp="18.12.2018 18:03:06" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <param name="dolg" type="number" />
+      </params>
+      <select>
+        <call function="if" type="string" as="val">
+          <call function="=">
+            <call function="nvl">
+              <useparam name="dolg" />
+              <const>0</const>
+            </call>
+            <const>0</const>
+          </call>
+          <const>null</const>
+          <const>'По договору есть задолженность'</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name">
+    <function name="hg_tf_kaz.fio_podp_pred_kaz" type="string" class="1" timestamp="17.12.2018 23:24:49" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      hg_tf_kaz.fio_podp_pred_kaz(
+      <par><val /></par>
+      )
+    </function>
+    <function name="hg_tf_kaz.dolzn_podp_pred_kaz" type="string" class="1" timestamp="17.12.2018 23:24:49" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      hg_tf_kaz.dolzn_podp_pred_kaz(
+      <par><val /></par>
+      )
+    </function>
+  </functions>
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="50308" timestamp="19.12.2018 21:59:01" form="50308" title=" Справка об отсутствии задолженности" nogrid="1" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <params>
+        <param name="kod_dog" type="number" part-id="50308-pars">
+          <const>277972</const>
+        </param>
+        <param name="ym" type="number" part-id="50308-pars">
+          <const>2018.04</const>
+        </param>
+        <param name="dat" type="date" part-id="50308-pars">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <print-templates>
+        <word>
+          <template name="50308.docx" title="Справка об отсутствии задолженности" />
+        </word>
+      </print-templates>
+      <queries>
+        <query name="50308-dog" as="d">
+          <withparams>
+            <useparam name="kod_dog" part-id="50308-wpars" />
+            <useparam name="ym" part-id="50308-wpars" />
+            <useparam name="dat" part-id="50308-wpars" />
+          </withparams>
+          <query name="50308-obj" as="o">
+            <withparams>
+              <usepart part="50308-wpars" />
+            </withparams>
+            <call function="=">
+              <column table="d" column="kod_dog" />
+              <column table="o" column="kod_dog" />
+            </call>
+            <query name="50308-pr-i" as="pi">
+              <query name="50308-pr-x" as="p">
+                <withparams>
+                  <usepart part="50308-wpars" />
+                </withparams>
+                <call function="=">
+                  <column table="pi" column="kod" />
+                  <column table="p" column="kod_numobj" />
+                </call>
+              </query>
+              <withparams>
+                <usepart part="50308-wpars" />
+              </withparams>
+              <call function="=">
+                <column table="o" column="kod_numobj" />
+                <column table="pi" column="kod_numobj" />
+              </call>
+            </query>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="50308" timestamp="19.12.2018 18:01:46" file="sql.builder.templates\sql.builder\projects\50308\qry\qry.xml">
+      <usefield field="asuse_ym" column-mandatory="1" />
+      <usefield field="asuse_kodp_cmb" />
+      <usefield field="asuse_kod_dog_fin_cmb" column-mandatory="1" />
+      <usefield field="cmn_date_cur" name="dat" title="Дата" column-mandatory="1" />
+      <usefield field="cmn_currency" name="dolg" title="Долг" column-editable="0" valid="vld">
+        <defaultquery>
+          <query name="50308-dolg" />
+        </defaultquery>
+      </usefield>
+      <usefield field="cmn_string" name="vld" column-visible="0">
+        <defaultquery>
+          <query name="50308-vld" />
+        </defaultquery>
+      </usefield>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

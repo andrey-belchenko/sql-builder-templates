@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_pret" title="Претензии в папке" security-id="asuse_ur_pir_pretenz" with-behavior="0" timestamp="23.04.2025 21:10:20">
+      <params>
+        <param name="kod_folders" type="number">
+          <const>7723</const>
+        </param>
+      </params>
+      <content>
+        <grid table="ur_pret" show-toolbar="1">
+          <toolbar>
+            <uicommand action-type="dynamic-form" call="pret_dolg_sf_view" modal="1" is-ret="0" editable="kod_pret_dolg_dog" title="Суммы по претензии">
+              <useparam name="kod_pret_dolg_dog" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column table="ur_pret" column="kod_ur_pret" column-visible="0" editable="0" parname="cur_kod_pret" />
+            <column table="ur_pret" column="kod_mat" title="Иск" column-width="221" invisible-in-column-chooser="1" />
+            <column table="kod_pret" column="dat_form" exclude="1" />
+            <column table="ur_pret" column="kod_pret" title="Дата формирования претензии" column-width="130" invisible-in-column-chooser="1" />
+            <column table="ur_pret" column="pr_imp" title="ПК &quot;Юрист&quot;" column-width="120" invisible-in-column-chooser="1" column-visible="rs_esys_is_23" column-mandatory="rs_esys_is_23" column-default="ur_pret_pr_imp_default" />
+            <column table="kod_dog" column="ndog" />
+            <column table="kod_pret_dolg_dog" column="dat_calc_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_osn_real" />
+            <column table="kod_pret_dolg_dog" column="dolg_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_gp" />
+            <column table="kod_pret_dolg_dog" column="dolg_sud_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_astr" />
+            <column table="kod_pret_dolg_dog" column="dolg_othr" />
+            <column table="kod_pret" column="sposob_name" />
+            <column table="kod_pret" column="dat_send" />
+            <column table="kod_pret" column="status_name" />
+            <column table="kod_pret" column="dat_arx" />
+            <column table="kod_emp" column="fio" title="Исполнитель" />
+            <column table="kod_pret" column="v_sud_string" />
+            <call function="decode" type="string" as="v_sud" title="Признак передачи в суд" exclude="1">
+              <column table="kod_pret" column="v_sud" />
+              <const type="number">1</const>
+              <const type="string">Да</const>
+              <const type="number">0</const>
+              <const type="string">Нет</const>
+            </call>
+            <column table="kod_pret" column="DAT_PRD_UR" title="Дата передачи в работу юристам" />
+            <column table="kod_pret" column="STATUS_UR_STRING" title="Юридический статус" />
+            <call function="decode" type="string" as="STATUS_UR" title="Юридический статус" exclude="1">
+              <column table="kod_pret" column="STATUS_UR" />
+              <const>1</const>
+              <const type="string">Передано</const>
+              <const>2</const>
+              <const type="string">Принято</const>
+              <const>3</const>
+              <const type="string">Отклонено</const>
+            </call>
+            <column table="kod_pret" column="DAT_IZM_STATUS_UR" title="Дата изменения юр. статуса" />
+            <column table="kod_pret" column="kod_pret_dolg_dog" parname="kod_pret_dolg_dog" invisible-in-column-chooser="1" />
+          </columns>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <elink name="ur_pret">
+            <link name="kod_pret">
+              <link name="kod_dog" />
+              <link name="kod_emp" />
+              <link name="kod_pret_dolg_dog" />
+            </link>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="ur_folders_pret_10" title="Претензии в папке" security-id="asuse_ur_pir_pretenz" with-behavior="0" timestamp="28.12.2023 14:15:00">
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">1004446525</const>
+        </param>
+      </params>
+      <toolbar>
+        <usefield field="cmn_check" title="Не показывать архивные" name="no_arh" checked="1" exclude="1" />
+      </toolbar>
+      <content>
+        <column table="ur_folders" column="kodp" column-visible="0" parname="ur_folders_kodp" exclude="1" />
+        <column table="ur_folders" column="vvod" column-visible="0" parname="is_vvod" exclude="1" />
+        <column table="ur_folders" column="not_vvod" column-visible="0" parname="is_not_vvod" exclude="1" />
+        <usefield field="cmn_check" title="Не показывать архивные" name="no_arh" checked="1" exclude="1" />
+        <grid table="ur_pret" show-toolbar="1">
+          <toolbar>
+            <uicommand object="ur_pretenz" name="form_ur_dogplat_hand" button-type="select-money" editable="item_is_not_new" modal="1" visible="is_vvod" exclude="1">
+              <const>4</const>
+            </uicommand>
+            <uicommand object="ur_pretenz" name="form_ur_dogplat_doc_view" button-type="select-money" editable="item_is_not_new" modal="1" visible="is_not_vvod" exclude="1">
+              <const>4</const>
+              <useparam name="ur_folders_kodp" />
+            </uicommand>
+            <uicommand name="upech_doc" editable="item_is_not_new" exclude="1">
+              <useparam name="cur_kod_pretenz" />
+              <const>4</const>
+              <useparam name="kod_folders" />
+            </uicommand>
+            <usefield field="cmn_check" title="Не показывать архивные" name="no_arh" checked="1" exclude="1" />
+            <uicommand action-type="dynamic-form" call="ur_folders_pret_10_details" modal="1" editable="p_kod_pret_dolg_dog">
+              <useparam name="p_kod_pret_dolg_dog" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column table="ur_pret" column="kod_pret" exclude="1" />
+            <column table="ur_pret" column="kod_podr" as="kod_podr" column-visible="0" />
+            <column table="kod_pret_dolg_dog" column="kod_pret_dolg_dog" parname="p_kod_pret_dolg_dog" column-visible="0" />
+            <column table="ur_pret" column="kod_mat" title="Иск" column-width="221" />
+            <column table="kod_pret" column="dat_form" exclude="1" />
+            <column table="ur_pret" column="kod_pret" title="Дата формирования претензии" column-width="130" />
+            <column table="kod_dog" column="ndog" />
+            <column table="kod_pret_dolg_dog" column="dat_calc_peni" exclude="1" />
+            <column table="kod_pret_dolg_dog" column="dolg_osn_real" />
+            <column table="kod_pret_dolg_dog" column="total_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_peni" exclude="1" />
+            <fact column="peni_period_str" table="ur_pret" title="Период пени" column-visible="1" />
+            <column table="kod_pret_dolg_dog" column="dolg_gp" exclude="1" />
+            <column table="kod_pret_dolg_dog" column="dolg_sud_peni" exclude="1" />
+            <column table="kod_pret_dolg_dog" column="dolg_astr" exclude="1" />
+            <column table="kod_pret_dolg_dog" column="dolg_othr" exclude="1" />
+            <column table="kod_pret" column="sposob_name" exclude="1" />
+            <column table="kod_pret" column="dat_send" />
+            <column table="ur_pret" column="kod_emp" />
+            <column table="ur_pret" column="num_sz" />
+            <column table="ur_pret" column="pio_date" title="Дата поступления материалов в ПИО" />
+            <column table="kod_pret" column="status_name" exclude="1" />
+            <column table="kod_pret" column="dat_arx" exclude="1" />
+            <column table="kod_emp" column="fio" title="Исполнитель" exclude="1" />
+          </columns>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <elink name="ur_pret">
+            <link name="kod_pret">
+              <link name="kod_dog" />
+              <link name="kod_emp" />
+              <link name="kod_pret_dolg_dog" />
+            </link>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="ur_folders_pret_route" title="Претензии в папке (с маршрутом)" timestamp="26.11.2019 22:36:15" security-id="asuse_ur_pir_pretenz" with-behavior="0">
+      <params>
+        <param name="kod_folders" type="number">
+          <const>1004446525</const>
+        </param>
+      </params>
+      <content>
+        <usefield field="cmn_string" name="ret_errmsg" title="ret_errmsg" checked="1" show-checkbox="0" width-perc="50" visible="0" />
+        <usefield field="cmn_integer" name="ret_status" title="ret_status" checked="1" show-checkbox="0" width-perc="50" visible="0" />
+        <grid table="ur_pret" show-toolbar="1">
+          <toolbar>
+            <uicommand name="ur_folders_open_route">
+              <const>'pret'</const>
+              <useparam name="cur_kod_pret" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column table="ur_pret" column="kod_ur_pret" column-visible="0" editable="0" parname="cur_kod_pret" />
+            <column table="ur_pret" column="kod_mat" title="Иск" column-width="221" />
+            <column table="ur_pret" column="kod_pret" title="Дата формирования претензии" column-width="130" />
+            <column table="kod_dog" column="ndog" />
+            <column table="kod_pret_dolg_dog" column="dat_calc_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_osn_real" />
+            <column table="kod_pret_dolg_dog" column="dolg_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_gp" />
+            <column table="kod_pret_dolg_dog" column="dolg_sud_peni" />
+            <column table="kod_pret_dolg_dog" column="dolg_astr" />
+            <column table="kod_pret_dolg_dog" column="dolg_othr" />
+            <column table="kod_pret" column="sposob_name" />
+            <column table="kod_pret" column="dat_send" />
+            <column table="kod_pret" column="status_name" />
+            <column table="kod_pret" column="dat_arx" />
+            <column table="kod_emp" column="fio" title="Исполнитель" />
+          </columns>
+          <events>
+            <useaction event-name="row-save" action-type="custom" action-rows="all">
+              <useaction name="arbitrage_route_on_save">
+                <useparam name="cur_kod_pret" />
+                <const>'pret'</const>
+                <useparam name="ret_status" />
+                <useparam name="ret_errmsg" />
+              </useaction>
+              <useaction name="arbitrage_show_errmsg">
+                <useparam name="ret_status" />
+                <useparam name="ret_errmsg" />
+              </useaction>
+            </useaction>
+          </events>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <elink name="ur_pret">
+            <link name="kod_pret">
+              <link name="kod_dog" />
+              <link name="kod_emp" />
+              <link name="kod_pret_dolg_dog" />
+            </link>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

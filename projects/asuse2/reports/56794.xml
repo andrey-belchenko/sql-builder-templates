@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="56794_form" title="Отчёт в сетевую организацию" as="56794_form" timestamp="01.07.2020 12:25:03">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <content>
+        <usefield field="asuse_ym" />
+      </content>
+    </form>
+    <form name="58213_form" title="Сведения о показаниях приборов учета" as="58213_form" timestamp="20.01.2021 05:14:44">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <content>
+        <usefield field="asuse_ym" />
+        <field name="p_kod_gtp" title="ГТП" controlType="UIList" type="number">
+          <listquery>
+            <query name="hs_gtp" />
+          </listquery>
+        </field>
+        <field name="p_name_net_org" title="Наименование сетевой организации" controlType="UIList" type="string">
+          <listquery>
+            <query name="58213_name_net_org_list" />
+          </listquery>
+        </field>
+        <field name="p_kp_esn" title="КП/Эсн" controlType="UIList" type="string">
+          <listquery>
+            <query name="58213_kp_esn_list" />
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="56794_report" as="56794_report" title="Отчёт в сетевую организацию" timestamp="22.12.2020 03:51:34" form="56794_form">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <params>
+        <param type="number" name="ym" as="ym" />
+      </params>
+      <procedure>
+        begin
+        sqlb_56794_fill_table(:ym);
+        end;
+</procedure>
+      <queries>
+        <query name="56794_main_v2" as="a" />
+      </queries>
+    </report>
+    <report name="58213_report" as="58213_report" title="Сведения о показаниях приборов учета" timestamp="20.01.2021 05:33:12" form="58213_form">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <params>
+        <param type="number" name="ym" as="ym" />
+        <param type="array" name="p_kod_gtp" as="p_kod_gtp" />
+        <param type="array" name="p_name_net_org" as="p_name_net_org" />
+        <param type="array" name="p_kp_esn" as="p_kp_esn" />
+      </params>
+      <procedure>
+		  begin
+		  sqlb_58213_fill_table(:ym);
+		  end;
+	  </procedure>
+      <queries>
+        <query name="58213_main_v2_with_pars" as="a">
+          <withparams>
+            <useparam name="p_kod_gtp" />
+            <useparam name="p_name_net_org" />
+            <useparam name="p_kp_esn" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="56794_main_group" timestamp="22.07.2020 14:46:58">
+      <select>
+        <column table="a" column="name" type="string" data-size="50" title="ГТП" group="1" />
+        <column table="a" column="kod_fias" type="string" data-size="50" title="Код ФИАС" group="1" />
+        <column table="a" column="city" type="string" data-size="150" title="Город" group="1" />
+        <column table="a" column="street" type="string" data-size="80" title="Улица" group="1" />
+        <column table="a" column="house_num" type="string" data-size="30" title="Номер дома" group="1" />
+        <column table="a" column="korp_num" type="string" data-size="6" title="Корпус" group="1" />
+        <column table="a" column="pom_kv" type="string" data-size="6" title="Пом/кв" group="1" />
+        <column table="a" column="remark" type="string" data-size="240" title="Примечание" group="1" />
+        <column table="a" column="num_obj" type="number" title="Номер объекта" format="N0" group="1" />
+        <column table="a" column="object_name" type="string" data-size="500" title="Наименование объекта" group="1" />
+        <column table="a" column="nomer_tu" type="number" title="Номер ТУ" format="N0" group="1" />
+        <column table="a" column="name_tu" type="string" data-size="500" title="Наименование ТУ" group="1" />
+        <column table="a" column="ym" type="number" title="Расч. период" group="1" />
+        <column table="a" column="cust" type="number" title="Объем, кВтч" format="N0" group="sum" />
+        <column table="a" column="pr_gkh_name" type="string" data-size="50" title="Тип объекта" group="1" />
+        <column table="a" column="pr_mkd" type="string" data-size="10" title="МКД/ЖД" group="1" />
+        <column table="a" column="pr_mkd_num" type="number" title="МКД/ЖД (1/0)" format="N0" group="1" />
+        <column table="a" column="pr_odpu" type="string" data-size="10" title="ОДПУ" group="1" />
+        <column table="a" column="pr_odpu_num" type="number" title="ОДПУ (1/0)" format="N0" group="1" />
+        <column table="a" column="kod_point" type="number" group="1" />
+        <column table="a" column="kod_city" type="number" title="Код НП" format="N0" group="1" />
+        <column table="a" column="kod_street" type="number" title="Код улицы" format="N0" group="1" />
+        <column table="a" column="kod_house" type="number" title="Код дома" format="N0" group="1" />
+      </select>
+      <from>
+        <query name="sqlb_56794" as="a" />
+      </from>
+    </query>
+    <query name="56794_main_v2" timestamp="22.12.2020 03:57:35">
+      <select>
+        <call function="rownum" as="vsqlb_56794_id" key="1" />
+        <column table="a" column="name" type="string" data-size="50" title="ГТП" />
+        <column table="a" column="kod_fias" type="string" data-size="50" title="Код ФИАС" />
+        <column table="a" column="city" type="string" data-size="150" title="Город" />
+        <column table="a" column="street" type="string" data-size="80" title="Улица" />
+        <column table="a" column="house_num" type="string" data-size="30" title="Номер дома" />
+        <column table="a" column="korp_num" type="string" data-size="6" title="Корпус" />
+        <column table="a" column="pom_kv" type="string" data-size="6" title="Пом/кв" />
+        <column table="a" column="remark" type="string" data-size="240" title="Примечание" />
+        <column table="a" column="num_obj" type="number" title="Номер объекта" format="N0" />
+        <column table="a" column="object_name" type="string" data-size="500" title="Наименование объекта" />
+        <column table="a" column="nomer_tu" type="number" title="Номер ТУ" format="N0" />
+        <column table="a" column="name_tu" type="string" data-size="500" title="Наименование ТУ" />
+        <column table="a" column="ym" type="number" title="Расч. период" />
+        <column table="a" column="cust" type="number" title="Объем, кВтч" format="N0" />
+        <column table="a" column="pr_gkh_name" type="string" data-size="50" title="Тип объекта" />
+        <column table="a" column="pr_mkd" type="string" data-size="10" title="МКД/ЖД" />
+        <column table="a" column="pr_mkd_num" type="number" title="МКД/ЖД (1/0)" format="N0" />
+        <column table="a" column="pr_odpu" type="string" data-size="10" title="ОДПУ" />
+        <column table="a" column="pr_odpu_num" type="number" title="ОДПУ (1/0)" format="N0" />
+        <column table="a" column="kod_point" type="number" />
+        <column table="a" column="kod_city" type="number" title="Код НП" format="N0" />
+        <column table="a" column="kod_street" type="number" title="Код улицы" format="N0" />
+        <column table="a" column="kod_house" type="number" title="Код дома" format="N0" />
+        <column table="a" column="kod_net_org" type="number" format="N0" />
+        <column table="a" column="name_net_org" type="string" title="Услуга по передаче э/э урегулирована c" />
+      </select>
+      <from>
+        <table name="vsqlb_56794" as="a" />
+      </from>
+    </query>
+    <query name="58213_main_v2" timestamp="30.03.2021 10:51:29">
+      <select>
+        <call function="rownum" as="vsqlb_58213_id" key="1" />
+        <column table="a" column="name_ro" type="string" data-size="240" title="Наименование РО" />
+        <column table="a" column="ndog" type="string" data-size="50" title="Номер договора" />
+        <column table="a" column="num_obj" type="number" title="Номер объекта" format="N0" />
+        <column table="a" column="num_pp" type="number" title="№ п/п" format="N0" />
+        <column table="a" column="potr_name" type="string" data-size="200" title="Наименование потребителя" />
+        <column table="a" column="object_name" type="string" data-size="150" title="Наименование объекта" />
+        <column table="a" column="nom_pu" type="string" data-size="20" title="№ прибора учета" />
+        <column table="a" column="pu_readlast" type="number" title="Показания прибора учета" />
+        <column table="a" column="gtp_name" type="string" data-size="200" title="ГТП" />
+        <column table="a" column="esn_kp" type="string" title="Признак договора(КП/Эсн)" data-size="10" />
+        <column table="a" column="name_net_org" type="string" data-size="200" title="Наименование сетевой организации" />
+        <column table="a" column="gp_eso" type="string" data-size="10" title="ГП/ЭСО" />
+        <column table="a" column="pr_tr" type="number" title="Признак транзита" format="N0" />
+        <column table="a" column="kod_gtp" type="number" format="N0" />
+      </select>
+      <from>
+        <table name="vsqlb_58213" as="a" />
+      </from>
+    </query>
+    <query name="58213_name_net_org_list" timestamp="20.01.2021 05:26:40">
+      <select>
+        <column table="a" column="name" type="string" data-size="50" as="name_id" key="1" />
+        <column table="a" column="name" type="string" data-size="50" title="Наименование сетевой организации" />
+      </select>
+      <from>
+        <query name="kv_usl_el" as="a" />
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="a" column="kodp_usl" />
+        </call>
+      </where>
+    </query>
+    <query name="58213_kp_esn_list" timestamp="20.01.2021 05:14:20">
+      <select>
+        <call function="if" key="1" as="name_id" type="string">
+          <call function="=">
+            <call function="level" />
+            <const>1</const>
+          </call>
+          <const>'Эсн'</const>
+          <const>'КП'</const>
+        </call>
+        <call function="if" as="name" title="КП/Эсн" type="string">
+          <call function="=">
+            <call function="level" />
+            <const>1</const>
+          </call>
+          <const>'Эсн'</const>
+          <const>'КП'</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+      <connect>
+        <call function="lt">
+          <call function="level" />
+          <const>3</const>
+        </call>
+      </connect>
+    </query>
+    <query name="58213_main_v2_with_pars" timestamp="30.03.2021 10:51:45">
+      <params>
+        <param type="array" name="p_kod_gtp" as="p_kod_gtp" />
+        <param type="array" name="p_name_net_org" as="p_name_net_org" />
+        <param type="array" name="p_kp_esn" as="p_kp_esn" />
+      </params>
+      <select>
+        <column table="a" column="vsqlb_58213_id" type="string" data-size="240" />
+        <column table="a" column="name_ro" type="string" data-size="240" title="Наименование РО" />
+        <column table="a" column="ndog" type="string" data-size="50" title="Номер договора" />
+        <column table="a" column="num_obj" type="number" title="Номер объекта" format="N0" />
+        <column table="a" column="num_pp" type="number" title="№ п/п" format="N0" />
+        <column table="a" column="potr_name" type="string" data-size="200" title="Наименование потребителя" />
+        <column table="a" column="object_name" type="string" data-size="150" title="Наименование объекта" />
+        <column table="a" column="nom_pu" type="string" data-size="20" title="№ прибора учета" />
+        <column table="a" column="pu_readlast" type="number" title="Показания прибора учета" />
+        <column table="a" column="gtp_name" type="string" data-size="200" title="ГТП" />
+        <column table="a" column="esn_kp" type="string" title="Признак договора(КП/Эсн)" data-size="10" />
+        <column table="a" column="name_net_org" type="string" data-size="200" title="Наименование сетевой организации" />
+        <column table="a" column="gp_eso" type="string" data-size="10" title="ГП/ЭСО" />
+        <column table="a" column="pr_tr" type="number" title="Признак транзита" format="N0" />
+        <column table="a" column="kod_gtp" type="number" format="N0" />
+      </select>
+      <from>
+        <query name="58213_main_v2" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="kod_gtp" />
+            <useparam name="p_kod_gtp" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="name_net_org" />
+            <useparam name="p_name_net_org" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="esn_kp" />
+            <useparam name="p_kp_esn" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

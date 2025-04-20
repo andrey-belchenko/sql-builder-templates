@@ -1,0 +1,1188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="sr_opl_ext" class="1" extend="sr_opl" timestamp="09.03.2023 18:55:26">
+      <select>
+        <call function="if" as="opl_kred">
+          <call function="in">
+            <column table="a" column="kod_type_opl" />
+            <array>1,2</array>
+          </call>
+          <column table="a" column="opl" />
+        </call>
+        <call function="if" as="dat_oper" type="date" title="Дата операции" dimension="dat" exclude="1">
+          <call function="or">
+            <call function="not in">
+              <column table="a" column="kod_type_opl" />
+              <array>0,1,2</array>
+            </call>
+            <call function="lt">
+              <call function="date to ym">
+                <column table="a" column="dat_opl" />
+              </call>
+              <column table="a" column="ym" />
+            </call>
+          </call>
+          <call function="ym end time">
+            <column table="a" column="ym" />
+          </call>
+          <column table="a" column="dat_opl" />
+        </call>
+        <column table="this" column="dat_uch" as="dat_oper" dimension="dat" />
+        <column table="a" column="dat_graf" as="dat_oper_graf" dimension="dat_graf" />
+        <call function="date to ym" as="ym_bank" type="number">
+          <column table="a" column="dat_opl" />
+        </call>
+        <call function="+nvl" as="oplf" fact="opl" agg="sum" title="Оплачено">
+          <column table="a" column="opl" />
+          <column table="a" column="opls" />
+        </call>
+        <call function="if" as="opl_sf_out_spis">
+          <call function="is null">
+            <column table="this" column="pr_spis_tt" />
+          </call>
+          <column table="this" column="oplf" />
+        </call>
+        <call function="if" as="opl_sf_spis">
+          <call function="=">
+            <column table="this" column="pr_spis_tt" />
+            <const>1</const>
+          </call>
+          <column table="this" column="oplf" />
+        </call>
+        <call function="-nvl" as="oplf_nonal" fact="opl_nonal" agg="sum" title="Оплачено без налога">
+          <column table="this" column="oplf" />
+          <column table="this" column="nal" />
+        </call>
+        <column table="kod_parent" column="ym" as="parent_ym" />
+        <column table="storno_tek" column="oplf" dgroup="sum" as="storno_tek" title="Сумма оплаты (руб.)" />
+        <call function="if" as="opl_sled">
+          <call function="in">
+            <column table="a" column="kod_type_opl" />
+            <array>1,2</array>
+          </call>
+          <call function="+nvl">
+            <column table="this" column="opl" />
+            <column table="this" column="storno_tek" />
+          </call>
+        </call>
+        <call function="case" as="kod_type_opl2" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_type_opl" />
+              <array>0</array>
+            </call>
+            <const>0</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kod_type_opl" />
+                <array>3,4</array>
+              </call>
+              <call function="=">
+                <column table="a" column="ym" />
+                <column table="this" column="parent_ym" />
+              </call>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kod_type_opl" />
+                <array>3,4</array>
+              </call>
+              <call function="gt">
+                <column table="a" column="ym" />
+                <column table="this" column="parent_ym" />
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <column table="sr_opl_nal" column="nal" title="Налоги, руб." />
+        <call function="nvl" as="dat_dog_edit" title="Дата редакции договора" class-title="Договор">
+          <column table="kod_opl_text" column="datdog_pl" />
+          <column table="kod_sf_text" column="datdog_pl" />
+        </call>
+        <column table="sr_recalc_opl" column="kod_recalc" />
+        <!--если переброска на другой договор то оставляем дочерний kod_opl-->
+        <call function="if" as="kod_opl_recalc" type="number" exclude="1">
+          <call function="=">
+            <column table="sr_recalc_opl" column="kod_dog" />
+            <column table="a" column="kod_dog" />
+          </call>
+          <call function="nvl" as="kod_opl_recalc" type="number">
+            <column table="sr_recalc_opl" column="kod_opl" />
+            <column table="a" column="kod_opl" />
+          </call>
+          <column table="a" column="kod_opl" />
+        </call>
+        <column table="kod_sf" column="dat_bzad" as="sf_dat_bzad" />
+        <column as="dat_ur" table="a" column="dat_opl" dimension="dat_ur" />
+        <column as="dat_ur_ent" table="a" column="dat_opl" dimension="dat_ur_ent" />
+        <column table="this" column="ym" as="ym_graf" dimension="ym_graf" />
+        <call function="if" as="ym_main" type="number" exclude="1">
+          <call function="and">
+            <call function="in">
+              <column table="this" column="kod_type_opl" />
+              <array>1,2</array>
+            </call>
+            <call function="not in">
+              <column table="kod_parent_recalc" column="kod_type_opl" />
+              <array>1,2</array>
+            </call>
+          </call>
+          <column table="this" column="ym" />
+          <call function="nvl" type="number">
+            <column table="kod_parent_recalc" column="ym" />
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="nvl" type="number" as="ym_root">
+          <column table="kod_opl_root" column="ym" />
+          <column table="this" column="ym" />
+        </call>
+        <call function="nvl" type="number" as="kod_opl_recalc_root">
+          <column table="kod_opl_root" column="kod_opl" />
+          <column table="this" column="kod_opl" />
+        </call>
+        <column as="dat_opl_max" table="a" column="dat_opl" fact="sr_opl_dat_opl_max" agg="max" />
+        <call function="if" type="number" as="vid_real_no_av" dimension="vid_real_no_av">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <const>2</const>
+          <column table="a" column="vid_real" />
+        </call>
+        <call function="if" as="pr_spis_tt" type="number">
+          <call function="or">
+            <call function="like">
+              <column table="kod_vidopl" column="abbr" />
+              <const>'SPS%'</const>
+            </call>
+            <call function="like">
+              <column table="kodbpol" column="rs" />
+              <const>'%Списание деб%'</const>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <column table="kod_sf_text" column="pr_edo" />
+        <column table="kod_sf_text" column="name_edo_pok" />
+        <call function="nvl" as="kod_opl_main">
+          <column table="a" column="kod_parent" />
+          <column table="a" column="kod_opl" />
+        </call>
+        <!--<call function="nvl" as="kod_opl_recalc" type="number">
+          <column table="kod_recalc" column="kod_opl"/>
+          <column table="a" column="kod_opl"/>
+        </call>-->
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_parent_kred" dname="storno" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_parent" />
+              <column table="kod_parent_kred" column="kod_opl" />
+            </call>
+            <call function="in">
+              <column table="a" column="kod_type_opl" />
+              <array>5,6</array>
+            </call>
+          </call>
+        </query>
+        <query name="sr_recalc_opl" as="sr_recalc_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="sr_recalc_opl" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_opl_recalc_tree_info" as="sr_opl_recalc_tree_info" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="sr_opl_recalc_tree_info" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_recalc" as="kod_recalc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_recalc" />
+            <column table="kod_recalc" column="kod_recalc" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_opl_main" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl_main" />
+            <column table="kod_opl_main" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_opl_recalc_root" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_opl_recalc_root" />
+            <column table="kod_opl_recalc_root" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_parent" as="kod_parent1" />
+        <link name="kod_link" as="kod_link1">
+          <link name="kodbpol" />
+        </link>
+        <link name="kod_opl_text" as="kod_opl_text1" />
+        <link name="kod_sf" as="kod_sf1">
+          <dimlink name="kod_dogplat" exclude="1" />
+          <link name="kod_sf_text" />
+          <link name="kod_deb" as="kod_deb1" exclude="1">
+            <dlink name="ur_dogplat" as="ur_dogplat1" dimension="kod_dogplat">
+              <link name="kod_mat" dimension="1" as="kod_mat1" exclude="1">
+                <dlink name="ur_hist_mat_dec" dimension="1" as="ur_hist_mat_dec1">
+                  <link name="kod_hist_mat" dimension="1" as="kod_hist_mat1">
+                    <dlink name="ur_isp" dimension="1" as="ur_isp1" />
+                  </link>
+                </dlink>
+              </link>
+            </dlink>
+          </link>
+          <dlink name="ur_dogplat" dimension="kod_dogplat" exclude="1">
+            <link name="kod_mat" dimension="1" exclude="1">
+              <dlink name="ur_hist_mat_dec" dimension="1">
+                <link name="kod_hist_mat" dimension="1">
+                  <dlink name="ur_isp" dimension="1" />
+                </link>
+              </dlink>
+            </link>
+          </dlink>
+        </link>
+        <slink name="sr_opl_nal" as="sr_opl_nal" />
+        <dlink name="storno" as="storno_tek" pushpred="1">
+          <where>
+            <call function="=">
+              <column table="a" column="ym" />
+              <column table="storno_tek" column="ym" />
+            </call>
+          </where>
+        </dlink>
+        <link name="sr_opl_recalc_tree_info" as="sr_opl_recalc_tree_info1">
+          <link name="kod_opl_root" />
+        </link>
+        <slink name="sr_recalc_opl" exclude="1">
+          <link name="kod_recalc" />
+        </slink>
+        <link name="kod_dog" as="kod_dog1">
+          <link name="kod_dep" dimension="1" />
+          <link name="kodp" dimension="1" />
+        </link>
+        <dlink name="sr_recalc_opl" as="sr_recalc_opl2">
+          <link name="kod_recalc" as="kod_recalc2">
+            <link name="vid_recalc" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          </link>
+        </dlink>
+      </links>
+    </query>
+    <query name="sr_opl_sf" class="1" inherit="sr_opl" timestamp="22.04.2025 19:38:41">
+      <select>
+        <column as="opl_sf" table="this" column="oplf" fact="sr_opl_opl_sf" agg="sum" title="Оплата начислений" />
+        <column as="opl_sf_out_spis" table="this" column="opl_sf_out_spis" fact="sr_opl_opl_sf_out_spis" agg="sum" title="Оплата начислений" />
+        <column as="opl_sf_spis" table="this" column="opl_sf_spis" fact="sr_opl_opl_sf_spis" agg="sum" title="Оплата начислений" />
+        <column table="this" column="num_opl" as="num_opl_d" is-private-dimension="asuse_num" is-final-dimension="asuse_num" dimension="asuse_num" />
+        <column table="kod_sf" column="ym_vozn" dimension="ym_vozn" />
+        <column table="kod_sf" column="rym" dimension="ym_vozn2" as="ym_vozn2" />
+        <call function="if" as="dat_oper_dolg" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg" exclude="1">
+          <call function="gt">
+            <column table="kod_sf" column="dat_bzad" />
+            <column table="this" column="dat_oper" />
+          </call>
+          <column table="kod_sf" column="dat_bzad" />
+          <column table="this" column="dat_oper" />
+        </call>
+        <call function="latest" as="dat_oper_dolg" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg">
+          <column table="kod_sf" column="dat_bzad" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" as="dat_oper_dolg_out" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg_out" is-private-dimension="dat_dolg_out" is-final-dimension="dat_dolg_out">
+          <call function="is not null">
+            <column table="kod_sf" column="dat_ezad" />
+          </call>
+          <call function="latest">
+            <column table="kod_sf" column="dat_ezad" />
+            <column table="this" column="dat_uch" />
+          </call>
+        </call>
+        <call function="latest" as="dat_res_half" type="date" title="Дата операции оплаты задолженности" dimension="dat_res_half" exclude="1">
+          <column table="kod_sf" column="dat_res_half" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="latest" as="dat_res_full" type="date" title="Дата операции оплаты задолженности" dimension="dat_res_full" exclude="1">
+          <column table="kod_sf" column="dat_res_full" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <column table="this" column="dat_oper" as="dat_norm" dimension="dat_dolg_norm" />
+        <column table="kod_sf" column="dat_dolg_norm" as="dat_norm_sf" />
+        <column table="this" column="dat_uch" dimension="dat_dolg_uved_kaz_el" />
+        <call function="latest" as="dat_dolg_norm" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg_norm" exclude="1">
+          <column table="kod_sf" column="dat_dolg_norm" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" as="dat_oper_dolg_uved_kaz_el" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg_uved_kaz_el" exclude="1">
+          <call function="gt">
+            <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+            <column table="this" column="dat_uch" />
+          </call>
+          <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" as="dat_oper_dolg_norm" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg_norm" exclude="1">
+          <call function="gt">
+            <column table="kod_sf" column="dat_dolg_norm" />
+            <column table="this" column="dat_oper" />
+          </call>
+          <column table="kod_sf" column="dat_dolg_norm" />
+          <column table="this" column="dat_oper" />
+        </call>
+        <column table="this" column="dat_oper" as="dat" dimension="dat" />
+        <column table="this" column="dat_oper" as="dat_recalc" dimension="dat_recalc" is-private-dimension="dat_recalc" is-final-dimension="dat_recalc" />
+        <column table="this" column="dat_oper" as="dat_opl_max" fact="sr_opl_sf_dat_max" agg="max" />
+        <column table="kod_sf" column="vid_real_no_av" dimension="vid_real_no_av" as="vid_real_no_av1" />
+        <column table="this" column="pr_spis_tt" is-private-dimension="pr_spis_tt" is-final-dimension="pr_spis_tt" dimension="pr_spis_tt" />
+        <column table="kod_parent" column="ym" as="parent_ym" />
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sk_type_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="sk_type_opl" column="kod_type_opl" />
+            <column table="this" column="kod_type_opl" />
+          </call>
+        </query>
+        <query name="ss_vidopl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="kod_vidopl" column="kod_vidopl" />
+            <column table="this" column="kod_vidopl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="this" column="kod_type_opl" />
+          <array>0,2,3,4</array>
+        </call>
+      </where>
+      <links>
+        <link name="kod_sf" as="kod_sf1">
+          <dimlink name="qube_sf_graf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_folders_kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="sk_vid_sf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodb" is-private-dimension="1" is-final-dimension="1" dimension="1" title="Банк плательщика" />
+          <dimlink name="kodbpol" title="Банк получателя" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_ministry" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_active" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_podr" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_istfin" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_vdog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_cls" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_fs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_okved" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_otrasl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dogplat" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="vr_pret_dolg_sf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_pret" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_mat" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_kazn" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_isp_other" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="vid_real" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" />
+          <dimlink name="kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dep" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_graf" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_sogl" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_pretenz" dimension="1" is-final-dimension="1" />
+          <dimlink dimension="1" is-final-dimension="1" is-private-dimension="1" name="kod_deb" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_other" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_stage_bk" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_graf_for_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp_arb_upr" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_dp_isp_arb_upr" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_graf_opl" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+        </link>
+        <link name="kod_opl" as="kod_opl1">
+          <dimlink name="ym" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="dat_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_type_opl" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_opl_kred" class="1" inherit="sr_opl" timestamp="04.07.2021 18:37:51">
+      <select>
+        <call function="if" type="date" as="dat_norm" dimension="dat_dolg_norm" title="Дата возникновения кред задолженности" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_type_opl" />
+            <const>2</const>
+          </call>
+          <call function="latest">
+            <call function="ym end time">
+              <column table="kod_sf" column="rym" />
+            </call>
+            <column table="a" column="dat_opl" />
+          </call>
+          <column table="a" column="dat_opl" />
+        </call>
+        <column as="opl_kred" table="this" column="oplf" fact="sr_opl_opl_kred" agg="sum" title="Оплата (кредит)" />
+        <column table="this" column="ym_root" dimension="ym_vozn" as="ym_vozn" />
+        <column table="this" column="ym_root" dimension="ym_vozn2" as="ym_vozn2" />
+        <column table="this" column="dat_oper" as="dat_norm" dimension="dat_dolg_norm" />
+        <column table="this" column="dat_oper" as="dat_dolg" dimension="dat_dolg" />
+        <call function="if" type="number" as="vid_real_no_av" dimension="vid_real_no_av">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <const>2</const>
+          <column table="a" column="vid_real" />
+        </call>
+        <call function="if" type="date" as="dat_dolg_uved_kaz_el" dimension="dat_dolg_uved_kaz_el">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="latest">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_ezad_uved_kaz_el" />
+            <call function="nvl" exclude="1">
+              <column table="kod_sf" column="dat_ezad" />
+              <call function="doomsday" />
+            </call>
+          </call>
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" type="date" as="dat_kred" title="когда авансы становятся кредитом" dimension="dat_kred">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="latest">
+            <column table="this" column="dat_uch" />
+            <call function="nvl">
+              <column table="kod_sf" column="dat_ezad" />
+              <call function="doomsday" />
+            </call>
+          </call>
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" type="number" as="kod_sf_kred" dimension="kod_sf" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>0</const>
+          </call>
+          <column table="this" column="kod_sf" />
+        </call>
+        <const type="number" as="cnt" fact="sr_opl_kred_count" agg="sum">1</const>
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer" dimension="kod_dog" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ss_vidopl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="kod_vidopl" column="kod_vidopl" />
+            <column table="this" column="kod_vidopl" />
+          </call>
+        </query>
+        <query name="sk_type_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="sk_type_opl" column="kod_type_opl" />
+            <column table="this" column="kod_type_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="this" column="kod_type_opl" />
+          <array>1,2</array>
+        </call>
+      </where>
+      <links>
+        <link name="kod_dog">
+          <dimlink name="kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_podr" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dep" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_cls" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_okved" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_istfin" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_vdog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_active" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_fs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_ministry" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodbpol" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_otrasl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+        <link name="kod_opl">
+          <dimlink name="ym" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="dat" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="vid_real" dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_opl_stor" class="1" inherit="sr_opl" timestamp="25.07.2018 18:42:01">
+      <select>
+        <column as="opl_stor" table="this" column="oplf" fact="sr_opl_opl_stor" agg="sum" title="Оплата (сторно)" />
+        <call function="if" type="date" as="dat_norm" title="Дата погашения  кред задолженности" dimension="dat_dolg_norm" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_type_opl" />
+            <const>6</const>
+          </call>
+          <call function="latest">
+            <column table="kod_opl_kred" column="dat_norm" />
+            <column table="this" column="dat_oper" />
+          </call>
+          <column table="this" column="dat_oper" />
+        </call>
+        <column table="this" column="dat_oper" dimension="dat" as="dat_oper1" />
+        <column table="this" column="ym" dimension="ym" />
+        <column table="kod_opl_kred" column="ym_root" dimension="ym_vozn" as="ym_vozn" />
+        <column table="kod_opl_kred" column="ym_root" dimension="ym_vozn2" as="ym_vozn2" />
+        <column table="this" column="dat_oper" as="dat_norm" dimension="dat_dolg_norm" />
+        <column table="this" column="dat_oper" as="dat_dolg" dimension="dat_dolg" />
+        <call function="latest" dimension="dat_dolg_uved_kaz_el" as="dat_dolg_uved_kaz_el">
+          <column table="a" column="dat_uch" />
+          <column table="kod_opl_kred" column="dat_dolg_uved_kaz_el" />
+        </call>
+        <call function="latest" as="dat_kred" dimension="dat_kred">
+          <column table="a" column="dat_uch" />
+          <column table="kod_opl_kred" column="dat_kred" />
+        </call>
+        <column table="kod_opl_kred" column="kod_sf_kred" dimension="kod_sf" is-final-dimension="1" is-private-dimension="1" />
+        <column table="kod_opl_kred" column="vid_real_no_av" dimension="vid_real_no_av" is-final-dimension="1" is-private-dimension="1" as="vid_real_no_av1" />
+      </select>
+      <from>
+        <query name="sr_opl_kred" as="kod_opl_kred" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_opl_kred" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="this" column="kod_type_opl" />
+          <array>5,6</array>
+        </call>
+      </where>
+      <links>
+        <link name="kod_opl_kred">
+          <dimlink name="kod_dog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_podr" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dep" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_cls" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_okved" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_istfin" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_vdog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_active" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_fs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_ministry" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodbpol" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_otrasl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_vidopl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_type_opl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_opl_kassa" class="1" inherit="sr_opl" timestamp="11.08.2017 13:31:48">
+      <select>
+        <column as="opl_kassa" table="this" column="oplf" fact="sr_opl_opl_kassa" agg="sum" title="Оплата в кассу" />
+        <call as="opl_kassa_cash" function="if" fact="sr_opl_opl_kassa_cash" agg="sum">
+          <call function="=">
+            <column table="kod_vidopl" column="alg" />
+            <const>1</const>
+          </call>
+          <column table="this" column="opl_kassa" />
+        </call>
+        <call as="opl_kassa_card" function="if" fact="sr_opl_opl_kassa_card" agg="sum">
+          <call function="=">
+            <column table="kod_vidopl" column="alg" />
+            <const>2</const>
+          </call>
+          <column table="this" column="opl_kassa" />
+        </call>
+        <column table="this" column="dat_opl" dimension="dat" />
+        <column table="this" column="ym" dimension="ym" />
+      </select>
+      <from>
+        <query name="sr_opl_kassa" as="kod_opl_kassa" join="left outer" dimension="1" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_opl_kassa" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+        <query name="ss_vidopl" as="kod_vidopl" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_vidopl" />
+            <column table="kod_vidopl" column="kod_vidopl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="kod_vidopl" column="alg" />
+            <array>1,2</array>
+          </call>
+          <call function="is null" comment="33324(48)">
+            <column table="sr_recalc_opl" column="kod_recalc" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl(date)" inherit="sr_opl">
+      <params>
+        <param name="date" type="date" />
+      </params>
+      <select>
+        <column table="storno" column="oplf" as="storno" dgroup="sum" title="Сторно аванса/переплаты (руб.)" />
+        <call function="+nvl" as="ostatok_kred" title="Кредиторская задолженность(руб.)">
+          <column table="this" column="opl_kred" />
+          <column table="this" column="storno" />
+        </call>
+      </select>
+      <links>
+        <dlink name="storno"></dlink>
+      </links>
+      <where>
+        <call function="le">
+          <column table="a" column="ym" />
+          <call function="date to ym">
+            <useparam name="date" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="tsr_opl_izv" class="1" inherit="tsr_opl" timestamp="04.02.2016 16:49:58">
+      <select>
+        <column as="opl_izv" table="this" column="opl" fact="tsr_opl_opl_izv" agg="sum" title="Оплата начислений" />
+        <call function="if" as="dat_oper_dolg" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg">
+          <call function="gt">
+            <column table="kod_izv" column="dat_bzad" />
+            <column table="this" column="dat_oper" />
+          </call>
+          <column table="kod_izv" column="dat_bzad" />
+          <column table="this" column="dat_oper" />
+        </call>
+      </select>
+      <from>
+        <query name="tsr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="this" column="kod_type_opl" />
+          <array>0,3,4</array>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_astr" inherit="sr_opl" class="1" timestamp="22.04.2025 23:50:24">
+      <select>
+        <column table="this" column="oplf" as="opl_astr" fact="fin_ul_opl_astr" agg="sum" title="Оплачено астрент" />
+        <column table="this" dimension="dat_ur" column="dat_ur" />
+        <column table="this" dimension="dat_ur_ent" column="dat_ur" as="dat_ur_ent" />
+        <column table="this" column="pr_spis_tt" is-private-dimension="pr_spis_tt" is-final-dimension="pr_spis_tt" dimension="pr_spis_tt" />
+        <column table="this" column="dat_opl" as="dat" dimension="dat" />
+      </select>
+      <from>
+        <query name="sr_facvip_astr" as="kod_sf_astr" join="left outer" dimension="kod_sf_astr">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_astr" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_sf_astr" as="kod_sf_astr1">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_arb_upr" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_other" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_opl_kred_ur" class="1" inherit="sr_opl" timestamp="22.04.2025 23:51:57">
+      <select>
+        <column as="opl_kred_ur" table="this" column="oplf" fact="sr_opl_kred_ur" agg="sum" title="Оплата (кредит)" />
+        <const as="kod_mat_isp" dimension="kod_mat_isp" exclude="1">null</const>
+        <column table="this" column="dat_ur" dimension="dat_ur" />
+        <column table="this" column="dat_ur" dimension="dat_ur_ent" as="dat_ur_ent" />
+        <column table="this" column="pr_spis_tt" is-private-dimension="pr_spis_tt" is-final-dimension="pr_spis_tt" dimension="pr_spis_tt" />
+        <column table="this" column="dat_opl" as="dat" dimension="dat" />
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_link" as="kod_link1">
+          <link name="kod_mat" dimension="1">
+            <dlink name="ur_hist_mat" dimension="1" exclude="1">
+              <dlink name="ur_isp" dimension="1">
+                <dlink name="ur_folders_isp" dimension="1">
+                  <dlink name="ur_inkasso_isp" dimension="1" comment="лишнее ? в исполнительном не нужно анализировать переплаты" />
+                  <dlink name="ur_mat_isp" dimension="1" comment="лишнее в исполнительном не нужно анализировать переплаты" />
+                  <dlink name="ur_kazn_isp" dimension="1" comment="лишнее в исполнительном не нужно анализировать переплаты" />
+                </dlink>
+              </dlink>
+            </dlink>
+          </link>
+          <link name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1">
+            <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+            <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+            <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+            <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+            <dimlink name="kod_inkasso" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_isp_arb_upr" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_kazn" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_isp_other" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_hist_mat_dec" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_folders" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_folders_isp" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_dogplat" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+            <dimlink name="kod_hist_mat" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          </link>
+        </link>
+        <link name="kod_opl" as="kod_opl1">
+          <dimlink name="vid_real" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>1,2,5,6</array>
+          </call>
+          <call function="is not null">
+            <column table="kod_link" column="kod_mat" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_bnk" class="1" inherit="sr_opl" timestamp="11.01.2018 08:55:52">
+      <select>
+        <column as="opl_bnk" table="this" column="oplf" fact="sr_opl_opl_bnk" agg="sum" title="Оплата (поступление на счет)" />
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="this" column="kod_type_opl" />
+          <array>0,1,2</array>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_sf_stor" class="1" inherit="sr_opl" timestamp="12.09.2017 02:36:39">
+      <select>
+        <column as="opl_sf" table="this" column="oplf" fact="sr_opl_opl_sf_stor" agg="sum" title="Оплата начислений" />
+        <column table="kod_sf" column="ym_vozn" dimension="ym_vozn" />
+        <column table="kod_sf" column="rym" dimension="ym_vozn2" as="ym_vozn2" />
+        <call function="latest" as="dat_oper_dolg" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg">
+          <column table="kod_sf" column="dat_bzad" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <column table="this" column="dat_oper" as="dat_norm" dimension="dat_dolg_norm" />
+        <call function="latest" as="dat_dolg_uved_kaz_el" type="date" title="Дата операции оплаты задолженности" dimension="dat_dolg_uved_kaz_el" exclude="1">
+          <call function="nvl">
+            <column table="kod_sf" column="dat_ezad" />
+            <call function="doomsday" />
+          </call>
+          <column table="this" column="dat_uch" />
+        </call>
+        <column table="this" column="dat_oper" as="dat_dolg_uved_kaz_el" dimension="dat_dolg_uved_kaz_el" />
+        <column table="this" column="dat_oper" as="dat" dimension="dat" />
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>6</array>
+          </call>
+          <call function="in">
+            <column table="this" column="vid_real" />
+            <array>0</array>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_rsrv_nal_45" class="1" inherit="sr_opl" timestamp="22.12.2016 05:03:21">
+      <select>
+        <call function="latest" as="dat_res" type="date" dimension="dat">
+          <column table="kod_sf" column="dat_res_nal_45" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" type="number" as="nachisl_rsrv" fact="sr_opl_rsrv_nal_45_nach" agg="sum">
+          <call function="le">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_nal_45" />
+          </call>
+          <call function="/">
+            <call function="0-">
+              <column table="this" column="opl" />
+            </call>
+            <const>2</const>
+          </call>
+        </call>
+        <call function="if" type="number" as="opl_rsrv" fact="sr_opl_rsrv_nal_45_opl" agg="sum">
+          <call function="gt">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_nal_45" />
+          </call>
+          <call function="/">
+            <column table="this" column="opl" />
+            <const>2</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>0,3,4</array>
+          </call>
+          <call function="in">
+            <column table="this" column="vid_real" />
+            <array>2</array>
+          </call>
+          <call function="le">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_nal_90" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_rsrv_nal_90" class="1" inherit="sr_opl" timestamp="22.12.2016 05:02:29">
+      <select>
+        <call function="latest" as="dat_res" type="date" dimension="dat">
+          <column table="kod_sf" column="dat_res_nal_90" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" type="number" as="nachisl_rsrv" fact="sr_opl_rsrv_nal_90_nach" agg="sum">
+          <call function="le">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_nal_90" />
+          </call>
+          <call function="if" type="number" exclude="1">
+            <call function="le">
+              <column table="this" column="dat_uch" />
+              <column table="kod_sf" column="dat_res_nal_45" />
+            </call>
+            <call function="/">
+              <call function="0-">
+                <column table="this" column="opl" />
+              </call>
+              <const>2</const>
+            </call>
+            <call function="0-">
+              <column table="this" column="opl" />
+            </call>
+          </call>
+          <call function="/">
+            <call function="0-">
+              <column table="this" column="opl" />
+            </call>
+            <const>2</const>
+          </call>
+        </call>
+        <call function="if" type="number" as="opl_rsrv" fact="sr_opl_rsrv_nal_90_opl" agg="sum">
+          <call function="gt">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_nal_90" />
+          </call>
+          <column table="this" column="opl" />
+        </call>
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>0,3,4</array>
+          </call>
+          <call function="in">
+            <column table="this" column="vid_real" />
+            <array>2</array>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_rsrv_buh" class="1" inherit="sr_opl" timestamp="22.12.2016 03:30:34">
+      <select>
+        <call function="latest" as="dat_res" type="date" dimension="dat">
+          <column table="kod_sf" column="dat_res_buh" />
+          <column table="this" column="dat_uch" />
+        </call>
+        <call function="if" type="number" as="nachisl_rsrv" fact="sr_opl_rsrv_buh_nach" agg="sum">
+          <call function="le">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_buh" />
+          </call>
+          <call function="0-">
+            <column table="this" column="opl" />
+          </call>
+        </call>
+        <call function="if" type="number" as="opl_rsrv" fact="sr_opl_rsrv_buh_opl" agg="sum">
+          <call function="gt">
+            <column table="this" column="dat_uch" />
+            <column table="kod_sf" column="dat_res_buh" />
+          </call>
+          <column table="this" column="opl" />
+        </call>
+      </select>
+      <from>
+        <query name="sr_opl" as="kod_opl" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="this" column="kod_type_opl" />
+            <array>0,3,4</array>
+          </call>
+          <call function="in">
+            <column table="this" column="vid_real" />
+            <array>2</array>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_sf_dp" timestamp="20.11.2017 19:41:16" class="1" order="dat_opl, num_opl">
+      <params>
+        <param name="kod_dogplat" type="number">
+          <const>1000000908</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_opl_sf" column="kod_opl" />
+        <column table="kod_opl_sf" column="num_opl" column-editable="0" />
+        <fact column="sr_opl_opl_sf" title="Оплачено с налогом, руб." as="opl" />
+        <column table="kod_opl_sf" column="dat_opl" column-editable="0" />
+        <column table="vid_real" column="sname" title="Вид реализации" column-editable="0" as="vid_real_name" />
+        <column table="kod_vidopl" column="full_name" title="Вид оплаты" column-editable="0" as="vid_opl_name" />
+        <column table="kod_type_opl" column="name" title="Тип оплаты" column-editable="0" as="type_opl_name" />
+        <call function="-nvl" title="Оплачено без налога, руб." as="opl_nonal" comment="тормозит - убрал" exclude="1">
+          <fact column="sr_opl_opl_sf" title="Оплачено с налогом, руб." />
+          <fact column="sr_opl_sf_nal" nvl="0" title="Оплачено налогов, руб." />
+        </call>
+        <fact column="sr_opl_sf_nal" nvl="0" title="Оплачено налогов, руб." as="nal" comment="тормозит - убрал" exclude="1" />
+        <column table="kod_link" column="remark" title="Примечания к банк. оплате" column-editable="0" as="prim_bank" />
+        <column table="sr_opl_text" column="prim" dgroup="max" title="Примечания к разносу оплаты" column-editable="0" as="prim_raznos" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_opl_sf">
+            <link name="kod_opl">
+              <link name="vid_real" />
+              <link name="kod_vidopl" />
+              <link name="kod_type_opl" />
+              <link name="kod_link" />
+              <dlink name="sr_opl_text" />
+            </link>
+          </link>
+          <link name="kod_dogplat" only-for-cond="1" />
+          <link name="kod_opl_sf_nal" exclude="1" />
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_dogplat" column="kod_dogplat" />
+                <useparam name="kod_dogplat" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kod_opl_sf" column="kod_opl" />
+                <const>38569092</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="sr_opl_sf_isp" timestamp="23.06.2021 04:12:27" class="1" order="dat_opl, num_opl">
+      <params>
+        <param name="kod_isp" type="number">
+          <const>85</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_opl" column="kod_opl" />
+        <column table="kod_isp" column="num_reg" />
+        <column table="kodp" column="nump" />
+        <column table="kod_dog" column="ndog" />
+        <call function="ym to char" as="sym" title="Период оплаты">
+          <column table="kod_opl" column="ym" />
+        </call>
+        <column table="kod_opl" column="dat_opl" />
+        <column table="kod_opl" column="num_opl" column-editable="0" title="Номер документа оплаты" />
+        <call function="decode" as="type_opl" type="string" title="Тип оплаты">
+          <column table="kod_type_opl" column="kod_type_opl" />
+          <const>0</const>
+          <const>'Разнесено на плат.док-ты'</const>
+          <column table="kod_type_opl" column="name" />
+        </call>
+        <column table="vid_real" column="name" as="vid_real" />
+        <fact column="ur_opl_posl_il" title="Оплата, руб." as="opl" />
+        <column table="kod_sf" column="nom_sf" title="Номер документа на оплату" as="num_sf" />
+        <column table="kod_sf" column="dat_sf" title="Дата документа на оплату" />
+        <column table="kod_sf" column="nachisl" title="Начисления, руб." />
+        <call function="ym to char" as="sf_sym" title="Период начисления">
+          <column table="kod_sf" column="ym" />
+        </call>
+        <column table="kodbps" column="name" title="Банк получателя" as="kodbpol_name" />
+        <column table="kodbpol" column="rs" title="Р/сч" />
+        <column table="kod_link" column="pname" title="Информация о плательщике" controlType="UITextEx" />
+        <column table="kodb" column="name" as="kodb_name" title="Банк плательщика" />
+        <column table="kod_link" column="remark" title="Примечание 1" controlType="UITextEx" />
+        <column table="kod_link" column="prim" title="Примечание 2" controlType="UITextEx" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_opl">
+            <link name="kod_sf" />
+            <link name="vid_real" />
+            <link name="kod_vidopl" />
+            <link name="kod_type_opl" />
+            <link name="kod_link">
+              <link name="kodbpol">
+                <link name="kodb" as="kodbps" />
+              </link>
+              <link name="kodb" />
+            </link>
+            <link name="vid_real" />
+          </link>
+          <link name="kod_isp" />
+          <link name="kod_dog" />
+          <link name="kodp" />
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_isp" column="kod_isp" />
+                <useparam name="kod_isp" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="!=nvl">
+          <column table="this" column="opl" />
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

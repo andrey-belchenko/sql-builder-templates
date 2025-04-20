@@ -1,0 +1,1063 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-07-10T22:21:11.603131+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="s_idim_sel_list" title="Измерение" timestamp="04.11.2017 20:58:02" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\extension\s_idim.xml">
+      <select>
+        <column table="a" column="idim_id" />
+        <fact column="s_idim_info" />
+      </select>
+      <from>
+        <qube>
+          <link name="s_idim" as="a" />
+        </qube>
+      </from>
+    </query>
+    <query name="s_idim_link_tree1" timestamp="05.11.2017 02:54:32" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\extension\s_idim_link.xml">
+      <select>
+        <call function="level" as="lvl" />
+        <call function="rownum" as="rwn" />
+        <call function="connect_by_root" as="kod">
+          <column table="cld_id" column="idim_id" />
+        </call>
+        <column table="prnt_id" column="name" as="prnt_name" exclude="1" />
+        <column table="cld_id" column="name" as="name" />
+      </select>
+      <from>
+        <query name="s_idim" as="cld_id">
+          <elink name="s_idim_link_prnt">
+            <link name="prnt_id" />
+          </elink>
+        </query>
+      </from>
+      <where>
+        <call function="is null">
+          <column table="prnt_id" column="name" />
+        </call>
+      </where>
+      <connect>
+        <call function="and">
+          <call function="=">
+            <column table="prnt_id" column="idim_id" />
+            <column table="cld_id" column="idim_id" prior="1" />
+          </call>
+        </call>
+      </connect>
+    </query>
+    <query name="s_idim_link_tree2" timestamp="05.11.2017 02:08:36" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\extension\s_idim_link.xml">
+      <select>
+        <column table="a" column="kod" />
+        <column table="a" column="rwn" />
+        <column table="a" column="lvl" />
+        <call function="over" as="prev_lvl" type="number">
+          <call function="lag">
+            <column table="this" column="lvl" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="rwn" />
+          </call>
+        </call>
+        <call function="over" as="nxt_lvl" type="number">
+          <call function="lead">
+            <column table="this" column="lvl" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="rwn" />
+          </call>
+        </call>
+        <call function="if" as="sep" type="string">
+          <call function="and">
+            <call function="le">
+              <column table="this" column="lvl" />
+              <column table="this" column="prev_lvl" />
+            </call>
+            <call function="gt">
+              <column table="this" column="lvl" />
+              <const>1</const>
+            </call>
+          </call>
+          <const>';'</const>
+        </call>
+        <call function="if" as="pth1" type="string">
+          <call function="gt">
+            <column table="this" column="lvl" />
+            <column table="this" column="prev_lvl" />
+          </call>
+          <const>'['</const>
+        </call>
+        <call function="if" as="pth2" type="string">
+          <call function="gt">
+            <column table="this" column="lvl" />
+            <call function="nvl">
+              <column table="this" column="nxt_lvl" />
+              <const>1</const>
+            </call>
+          </call>
+          <call function="lpad">
+            <const>']'</const>
+            <call function="-">
+              <column table="this" column="lvl" />
+              <call function="nvl">
+                <column table="this" column="nxt_lvl" />
+                <const>1</const>
+              </call>
+            </call>
+            <const>']'</const>
+          </call>
+        </call>
+        <call as="full_name" function="||">
+          <column table="this" column="sep" />
+          <column table="this" column="pth1" />
+          <column table="a" column="name" />
+          <column table="this" column="pth2" />
+        </call>
+      </select>
+      <from>
+        <query name="s_idim_link_tree1" as="a" />
+      </from>
+    </query>
+    <query name="s_idim_link_tree3" timestamp="05.11.2017 02:48:38" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\extension\s_idim_link.xml">
+      <select>
+        <column table="a" column="kod" group="1" />
+        <call function="replace" as="full_name">
+          <call function="reorder_string">
+            <call function="||" group="stragg">
+              <column table="a" column="full_name" />
+              <const>'|'</const>
+              <call function="lpad">
+                <column table="a" column="rwn" />
+                <const>8</const>
+              </call>
+            </call>
+          </call>
+          <const>','</const>
+          <const>''</const>
+        </call>
+      </select>
+      <from>
+        <query name="s_idim_link_tree2" as="a" />
+      </from>
+    </query>
+    <query name="d001" title="Филиал" timestamp="02.11.2017 16:35:05" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\d001.xml">
+      <select>
+        <column table="a" column="d001" type="number" key="1" />
+        <column table="a" column="name" title="Филиал" type="string" data-size="300" />
+      </select>
+      <from>
+        <table name="d001" as="a" />
+      </from>
+    </query>
+    <query name="s_dim" title="Измерение" timestamp="04.11.2017 12:15:07" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_dim.xml">
+      <select>
+        <column table="a" column="dim_id" type="number" key="1" />
+        <column table="a" type="string" data-size="300" column="kod" title="Код" is-name="1" vid="1" is-fact="1" agg="stragg" />
+        <column table="a" column="name" title="Наименование" type="string" data-size="300" vid="1" />
+        <column table="a" column="prnt_id" type="number" title="Родитель" />
+      </select>
+      <from>
+        <table name="s_dim" as="a" />
+        <query name="s_dim" as="prnt_id" join="left outer">
+          <call function="=">
+            <column table="a" column="prnt_id" />
+            <column table="prnt_id" column="dim_id" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="s_rep_dim" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_rep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="s_msr" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="s_rep_msr" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+      </links>
+      <actions>
+        <action action-type="dynamic-form" call="s_dim" name="form_s_dim" />
+      </actions>
+    </query>
+    <query name="s_dim_val" timestamp="04.11.2017 02:18:18" class="1" title="Значения измерения" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_dim_val.xml">
+      <select>
+        <column table="a" column="s_dim_val_id" type="number" key="1" />
+        <column table="a" type="string" column="sval" title="Значение" vid="1" is-name="1" data-size="300" />
+        <column table="a" column="dim_id" type="number" />
+      </select>
+      <from>
+        <table name="s_dim_val" as="a" />
+        <query name="s_dim" as="dim_id" join="left outer">
+          <call function="=">
+            <column table="a" column="dim_id" />
+            <column table="dim_id" column="dim_id" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="dim_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+      </links>
+    </query>
+    <query name="s_idim" title="Измерение" timestamp="06.11.2017 23:51:24" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim.xml">
+      <select>
+        <column table="a" column="idim_id" type="number" key="1" />
+        <column table="a" type="string" data-size="300" column="kod" title="Код" />
+        <call function="()" as="ord" type="number" format="F0">
+          <column table="this" column="idim_id" title="№" format="F0" />
+        </call>
+        <column table="a" column="name" title="Наименование" type="string" data-size="300" is-fact="1" agg="max" is-name="1" vid="1" column-mandatory="1" />
+        <column table="dim_tree_inf" column="full_name" title="Информация" />
+        <column table="a" type="number" column="idim_type_id" column-mandatory="1" />
+        <column table="idim_type_id" column="name" as="type_name" vid="1" />
+        <column table="s_idim_link_spr" column="idim_spr_id" />
+        <column table="s_idim_link_subspr" column="idim_spr_id" as="idim_spr_fs_id" />
+        <call as="spr_name" title="Справочник" function="coalesce">
+          <call function="if">
+            <call function="=">
+              <column table="this" column="idim_type_id" />
+              <const>4</const>
+            </call>
+            <column table="this" column="name" />
+          </call>
+          <column table="idim_spr_id" column="name" />
+          <column table="idim_spr_fs_id" column="name" />
+        </call>
+      </select>
+      <from>
+        <table name="s_idim" as="a" />
+        <query name="s_idim_link_tree3_v" as="dim_tree_inf" join="left outer">
+          <call function="=">
+            <column table="this" column="idim_id" />
+            <column table="dim_tree_inf" column="kod" />
+          </call>
+        </query>
+        <query name="s_idim_type" as="idim_type_id" join="left outer">
+          <call function="=">
+            <column table="this" column="idim_type_id" />
+            <column table="idim_type_id" column="idim_type_id" />
+          </call>
+        </query>
+        <query name="s_idim_link_spr" as="s_idim_link_spr" join="left outer">
+          <call function="=">
+            <column table="this" column="idim_id" />
+            <column table="s_idim_link_spr" column="idim_id" />
+          </call>
+        </query>
+        <query name="s_idim_spr" as="idim_spr_id" join="left outer">
+          <call function="=">
+            <column table="this" column="idim_spr_id" />
+            <column table="idim_spr_id" column="idim_id" />
+          </call>
+        </query>
+        <query name="s_idim_link_subspr" as="s_idim_link_subspr" join="left outer">
+          <call function="=">
+            <column table="this" column="idim_id" />
+            <column table="s_idim_link_subspr" column="idim_id" />
+          </call>
+        </query>
+        <query name="s_idim_spr" as="idim_spr_fs_id" join="left outer">
+          <call function="=">
+            <column table="this" column="idim_spr_fs_id" />
+            <column table="idim_spr_fs_id" column="idim_id" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="s_rep_part_idim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+      </links>
+    </query>
+    <query name="s_idim_link" timestamp="05.11.2017 17:01:55" class="1" title="Связь измерений" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link.xml">
+      <select>
+        <column table="a" column="idim_link_id" type="number" key="1" />
+        <column table="a" column="prnt_id" type="number" />
+        <column table="a" column="cld_id" type="number">
+          <listquery exclude="1">
+            <query name="s_idim_sel_list" />
+          </listquery>
+        </column>
+      </select>
+      <from>
+        <table name="s_idim_link" as="a" />
+        <query name="s_idim" as="prnt_id" join="left outer" dname="s_idim_link_cld" dtitle="Связь измерений (дочерние)" title="Родительское" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="a" column="prnt_id" />
+            <column table="prnt_id" column="idim_id" />
+          </call>
+        </query>
+        <query name="s_idim" as="cld_id" join="left outer" dname="s_idim_link_prnt" dtitle="Связь измерений(родительские)" title="Дочернее">
+          <call function="=">
+            <column table="a" column="cld_id" />
+            <column table="cld_id" column="idim_id" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="s_idim_link_cld" timestamp="04.11.2017 21:20:41" class="1" inherit="s_idim_link" title="Дочерние измерения" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link.xml">
+      <select>
+        <column table="cld_id" column="name" is-fact="1" agg="stragg" title="Дочерние" />
+      </select>
+      <from />
+      <links>
+        <link name="prnt_id" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_rep_part_idim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="s_idim_link_prnt" timestamp="05.11.2017 18:55:25" class="1" inherit="s_idim_link" title="Дочерние измерения" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link.xml">
+      <select>
+        <column table="prnt_id" column="name" is-fact="1" agg="stragg" title="Дочерние" />
+      </select>
+      <from />
+      <links>
+        <link name="cld_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+      </links>
+    </query>
+    <query name="s_idim_spr" timestamp="06.11.2017 02:26:43" class="1" inherit="s_idim" title="Справочник" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link.xml">
+      <select />
+      <from />
+      <where>
+        <call function="=">
+          <column table="this" column="idim_type_id" />
+          <const>4</const>
+        </call>
+      </where>
+    </query>
+    <query name="s_idim_link_spr" timestamp="06.11.2017 02:40:49" class="1" title="Связь справочник-значение" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link.xml">
+      <select>
+        <column table="cld_id" column="idim_id" />
+        <column table="prnt_id" column="idim_id" as="idim_spr_id" />
+      </select>
+      <from>
+        <query name="s_idim_link" as="a">
+          <link name="cld_id" />
+          <link name="prnt_id" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="prnt_id" column="idim_type_id" />
+            <const>4</const>
+          </call>
+          <call function="=">
+            <column table="cld_id" column="idim_type_id" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="s_idim_link_subspr" timestamp="06.11.2017 02:51:25" class="1" title="Связь справочник-подсправочник" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link.xml">
+      <select>
+        <column table="a" column="idim_id" group="1" />
+        <call function="distinct" as="cnt_spr" group="count">
+          <call function="nvl0">
+            <column table="cld_id" column="idim_spr_id" />
+          </call>
+        </call>
+        <call function="nvl0" as="idim_spr_id" group="max">
+          <column table="cld_id" column="idim_spr_id" />
+        </call>
+      </select>
+      <from>
+        <query as="a" name="s_idim">
+          <elink name="s_idim_link_cld">
+            <link name="cld_id" />
+          </elink>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="idim_type_id" />
+            <const>3</const>
+          </call>
+        </call>
+      </where>
+      <having>
+        <call function="and">
+          <call function="=1">
+            <column table="this" column="cnt_spr" />
+          </call>
+          <call function="!=0">
+            <column table="this" column="idim_spr_id" />
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="ss_idim_link_tree3_v" class="1" timestamp="13.11.2017 10:20:18" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_link_tree3_v.xml">
+      <select>
+        <call function="rowid" as="s_idim_link_tree3_v_id" key="1" />
+        <column table="a" column="kod" type="number" title="" />
+        <column table="a" column="full_name" type="string" title="" />
+      </select>
+      <from>
+        <table name="s_idim_link_tree3_v" as="a" />
+      </from>
+    </query>
+    <query name="s_idim_type" timestamp="05.11.2017 17:10:41" class="1" title="Тип показателя" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_idim_type.xml">
+      <select>
+        <column table="a" column="idim_type_id" type="number" key="1" />
+        <column table="a" column="name" title="Тип показателя" type="string" data-size="300" vid="1" />
+      </select>
+      <from>
+        <table name="s_idim_type" as="a" />
+      </from>
+    </query>
+    <query name="s_msr" title="Мера" timestamp="03.11.2017 20:37:52" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_msr.xml">
+      <select>
+        <column table="a" column="msr_id" type="number" key="1" />
+        <column table="a" type="string" data-size="300" column="kod" title="Код" is-name="1" vid="1" is-fact="1" agg="stragg" />
+        <column table="a" column="name" title="Наименование" type="string" data-size="300" vid="1" />
+        <column table="a" column="planfact_id" type="number" vid="1" />
+        <column table="a" column="vpc_id" type="number" vid="1" />
+        <column table="a" type="number" column="is_expr" title="Является выражением" controlType="UICheck" />
+      </select>
+      <from>
+        <table name="s_msr" as="a" />
+        <query name="s_planfact" as="planfact_id" join="left outer">
+          <call function="=">
+            <column table="a" column="planfact_id" />
+            <column table="planfact_id" column="planfact_id" />
+          </call>
+        </query>
+        <query name="s_vpc" as="vpc_id" join="left outer">
+          <call function="=">
+            <column table="a" column="vpc_id" />
+            <column table="vpc_id" column="vpc_id" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="s_rep_msr" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_rep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="s_rep_dim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="s_dim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="s_planfact" title="План/Факт/Дельта" timestamp="03.11.2017 18:15:33" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_planfact.xml">
+      <select>
+        <column table="a" column="planfact_id" type="number" key="1" />
+        <column table="a" column="name" title="План/Факт/Дельта" type="string" data-size="300" vid="1" />
+      </select>
+      <from>
+        <table name="s_planfact" as="a" />
+      </from>
+    </query>
+    <query name="s_rep" timestamp="04.11.2017 00:50:43" class="1" title="Отчет" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_rep.xml">
+      <select>
+        <column table="a" column="rep_id" type="number" key="1" />
+        <column table="a" type="string" data-size="300" column="kod" title="Код" agg="stragg" is-fact="1" is-name="1" vid="1" />
+        <column table="a" column="name" title="Наименование" type="string" data-size="300" vid="1" />
+        <column table="a" title="Пример из ТЗ" type="string" data-size="300" column="exmpl_pth" controlType="UILink" />
+      </select>
+      <from>
+        <table name="s_rep" as="a" />
+      </from>
+      <links>
+        <dlink name="s_rep_dim" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_dim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+        <dlink name="s_rep_msr" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_msr" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="s_rep_dim" title="Отчет-Измерение" timestamp="03.11.2017 20:50:39" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_rep_dim.xml">
+      <select>
+        <column table="a" column="rep_dim_id" type="number" key="1" />
+        <column table="a" column="rep_id" type="number" vid="1" is-name="1" />
+        <column table="a" column="dim_id" type="number" vid="1" is-name="1" />
+      </select>
+      <from>
+        <table name="s_rep_dim" as="a" />
+        <query name="s_rep" as="rep_id" join="left outer">
+          <call function="=">
+            <column table="a" column="rep_id" />
+            <column table="rep_id" column="rep_id" />
+          </call>
+        </query>
+        <query name="s_dim" as="dim_id" join="left outer">
+          <call function="=">
+            <column table="a" column="dim_id" />
+            <column table="dim_id" column="dim_id" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="dim_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        <link name="rep_id" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_msr" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="s_rep_msr" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="s_rep_part" timestamp="04.11.2017 19:29:51" class="1" title="Часть отчета" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_rep_dim.xml">
+      <select>
+        <column table="a" column="rep_part_id" type="number" key="1" />
+        <column table="a" column="rep_id" type="number" vid="1" is-name="1" />
+        <column table="a" column="name" type="string" vid="1" is-name="1" data-size="300" title="Часть" />
+      </select>
+      <from>
+        <table name="s_rep_part" as="a" />
+        <query name="s_rep" as="rep_id" join="left outer">
+          <call function="=">
+            <column table="a" column="rep_id" />
+            <column table="rep_id" column="rep_id" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="s_rep_part_idim" title="Часть отчета-Измерение" timestamp="04.11.2017 20:58:56" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_rep_dim.xml">
+      <select>
+        <column table="a" column="rep_part_idim_id" type="number" key="1" />
+        <column table="a" column="rep_part_id" type="number" vid="1" is-name="1" />
+        <column table="a" column="idim_id" type="number" vid="1" is-name="1">
+          <listquery>
+            <query name="s_idim_sel_list" />
+          </listquery>
+        </column>
+      </select>
+      <from>
+        <table name="s_rep_part_idim" as="a" />
+        <query name="s_rep_part" as="rep_part_id" join="left outer">
+          <call function="=">
+            <column table="a" column="rep_part_id" />
+            <column table="rep_part_id" column="rep_part_id" />
+          </call>
+        </query>
+        <query name="s_idim" as="idim_id" join="left outer">
+          <call function="=">
+            <column table="a" column="idim_id" />
+            <column table="idim_id" column="idim_id" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="s_rep_msr" title="Отчет-Мера" timestamp="03.11.2017 20:37:40" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_rep_msr.xml">
+      <select>
+        <column table="a" column="rep_msr_id" type="number" key="1" />
+        <column table="a" column="rep_id" type="number" vid="1" is-name="1" />
+        <column table="a" column="msr_id" type="number" vid="1" is-name="1" />
+      </select>
+      <from>
+        <table name="s_rep_msr" as="a" />
+        <query name="s_rep" as="rep_id" join="left outer">
+          <call function="=">
+            <column table="a" column="rep_id" />
+            <column table="rep_id" column="rep_id" />
+          </call>
+        </query>
+        <query name="s_msr" as="msr_id" join="left outer">
+          <call function="=">
+            <column table="a" column="msr_id" />
+            <column table="msr_id" column="msr_id" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="msr_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        <link name="rep_id" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="s_rep_dim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="s_dim" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="s_vpc" title="Объем/Цена/Стоимость" timestamp="03.11.2017 18:24:03" class="1" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\s_vpc.xml">
+      <select>
+        <column table="a" column="vpc_id" type="number" key="1" />
+        <column table="a" column="name" title="Объем/Цена/Стоимость" type="string" data-size="300" vid="1" />
+      </select>
+      <from>
+        <table name="s_vpc" as="a" />
+      </from>
+    </query>
+    <query name="xs_voborud" class="1" title="Вид оборудования" timestamp="14.07.2017 21:36:57" file="sql.builder.templates\sql.builder\projects\mpep\scheme\original\xs_voborud.xml">
+      <select>
+        <column table="a" column="xv_kod_ob" type="number" />
+        <column table="a" column="xv_n_ob" type="string" title="" is-name="1" />
+        <column table="a" column="xv_ob1" type="number" title="" comment="код принадл.оборудов.к осн типу " />
+        <column table="a" column="xv_ob2" type="number" title="" comment="принадл.ко 2-му подтипу" />
+        <column table="a" column="xv_ob3" type="number" title="" comment="принадл.к 3-му подтипу" />
+        <column table="a" column="see_ochered" type="number" title="" />
+        <column table="a" column="name_table" type="string" title="" />
+      </select>
+      <from>
+        <table name="xs_voborud" as="a" />
+      </from>
+    </query>
+    <query name="s_dim_msr" title="Измерение-Мера" timestamp="03.11.2017 21:10:10" class="1" file="sql.builder.templates\sql.builder\projects\mpep\sproj\s_dim_msr.xml">
+      <select>
+        <call function="||-" as="dim_msr" key="1">
+          <column table="s_msr" column="msr_id" type="number" />
+          <column table="s_dim" column="dim_id" type="number" />
+        </call>
+        <column table="s_msr" column="msr_id" type="number" />
+        <column table="s_dim" column="dim_id" type="number" />
+      </select>
+      <from>
+        <qube>
+          <link name="s_msr" />
+          <link name="s_dim" all-rows="1" />
+        </qube>
+        <query name="s_dim" as="dim_id" join="left outer">
+          <call function="=">
+            <column table="this" column="dim_id" />
+            <column table="dim_id" column="dim_id" />
+          </call>
+        </query>
+        <query name="s_msr" as="msr_id" join="left outer">
+          <call function="=">
+            <column table="this" column="msr_id" />
+            <column table="msr_id" column="msr_id" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name">
+    <form name="d001" title="Филиалы" timestamp="02.11.2017 16:35:05" file="sql.builder.templates\sql.builder\projects\mpep\forms\d001.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <columns>
+            <column table="a" column="name" column-width="280" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="d001" as="a" />
+      </from>
+    </form>
+    <form name="s_dim" title="Измерение" timestamp="04.11.2017 13:57:51" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_dim.xml">
+      <params>
+        <param name="p_dim_id" type="number" />
+      </params>
+      <content>
+        <column table="a" column="prnt_id" column-width="280" />
+        <column table="a" column="kod" column-width="280" />
+        <column table="a" column="name" column-width="280" />
+        <fieldgroup noborder="1" part-id="frm-s_dim-content">
+          <fieldgroup uncollapsible="1" title="Значения">
+            <grid table="v" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="v" column="sval" column-width="280" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </fieldgroup>
+      </content>
+      <from>
+        <query name="s_dim" as="a">
+          <where>
+            <call function="=">
+              <column table="a" column="dim_id" />
+              <useparam name="p_dim_id" />
+            </call>
+          </where>
+          <elink name="s_dim_val" as="v" />
+        </query>
+      </from>
+    </form>
+    <form name="s_dim_list" title="Измерения" timestamp="04.11.2017 13:59:12" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_dim.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Измерения">
+            <grid table="a" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="a" column="dim_id" column-width="280" column-visible="0" parname="v_dim_id" />
+                <column table="a" column="prnt_id" column-width="280" />
+                <column table="a" column="kod" column-width="280" />
+                <column table="a" column="name" column-width="280" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <usepart part="frm-s_dim-content" />
+          <fieldgroup title="Значения" exclude="1">
+            <tabcontainer>
+              <fieldgroup title="Претензии" as="pretenz">
+                <useform object="a" name="form_s_dim" />
+              </fieldgroup>
+            </tabcontainer>
+            <grid table="v" show-toolbar="1" exclude="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="v" column="sval" column-width="280" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="s_dim" as="a">
+          <elink name="s_dim_val" as="v" />
+        </query>
+      </from>
+    </form>
+    <form name="s_dim_msr" timestamp="02.11.2017 19:39:25" title="Связь измерений и фактов" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_dim_msr.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+            <uicommand button-type="grid-save" column-visible="0" />
+          </toolbar>
+          <columns>
+            <column table="a" column="dim_id" column-width="280" />
+            <column table="dim_id" column="name" as="dim_name" />
+            <column table="a" column="msr_id" column-width="280" />
+            <column table="msr_id" column="name" as="msr_name" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="s_dim_msr" as="a" column-editable="0">
+          <link name="dim_id" />
+          <link name="msr_id" />
+        </query>
+      </from>
+    </form>
+    <form name="s_idim" title="Измерение" timestamp="07.11.2017 21:01:44" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_idim.xml">
+      <params>
+        <param name="p_dim_id" type="number" />
+      </params>
+      <content>
+        <column table="a" column="prnt_id" column-width="280" />
+        <column table="a" column="ord" column-width="280" column-visible="1" />
+        <column table="a" column="name" column-width="280" />
+        <column table="a" column="kod" column-width="280" exclude="1" />
+        <fieldgroup noborder="1">
+          <fieldgroup uncollapsible="1" title="Дочерние" part-id="frm-s_idim-content">
+            <grid table="v" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+                <uicommand button-type="grid-copy-to-cb" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="v" column="cld_id" column-width="280" />
+                <column table="cld_id" column="type_name" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </fieldgroup>
+      </content>
+      <from>
+        <query name="s_idim" as="a">
+          <where>
+            <call function="=">
+              <column table="a" column="dim_id" />
+              <useparam name="p_dim_id" />
+            </call>
+          </where>
+          <elink name="s_idim_link_cld" as="v">
+            <link name="cld_id" />
+          </elink>
+        </query>
+      </from>
+    </form>
+    <form name="s_idim_list" title="Измерения(i)" timestamp="08.11.2017 02:26:44" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_idim.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Измерения">
+            <grid table="a" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+                <uicommand button-type="grid-copy-to-cb" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="a" column="ord" column-width="56" column-visible="0" />
+                <column table="a" column="name" column-width="309" />
+                <column table="a" column="idim_type_id" column-width="188" />
+                <column table="a" column="spr_name" column-width="188" />
+                <fact table="a" column="s_idim_link_cld_name" column-width="267" title="Дочерние" />
+                <fact table="a" column="s_idim_link_prnt_name" column-width="267" title="Родительские" />
+                <column table="a" column="full_name" column-width="253" exclude="1" />
+                <column table="a" column="kod" column-width="280" exclude="1" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <usepart part="frm-s_idim-content" />
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="s_idim" as="a" order="ord">
+          <elink name="s_idim_link_cld" as="v">
+            <link name="cld_id" />
+          </elink>
+        </query>
+      </from>
+    </form>
+    <form name="s_msr" timestamp="03.11.2017 21:14:23" title="Факты" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_msr.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Факты" uncollapsible="1">
+            <grid table="a" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="a" column="kod" column-width="280" />
+                <column table="a" column="name" column-width="280" />
+                <column table="a" column="planfact_id" column-width="178" />
+                <column table="a" column="vpc_id" column-width="194" />
+                <column table="a" column="is_expr" />
+                <fact column="s_rep_kod" title="Отчеты" table="a" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup noborder="1">
+            <splitcontainer is-vertical="1">
+              <fieldgroup uncollapsible="1" title="Отчеты">
+                <grid table="r" show-toolbar="1">
+                  <toolbar>
+                    <uicommand button-type="grid-paste" column-visible="1" />
+                  </toolbar>
+                  <columns>
+                    <column table="r" column="rep_id" column-width="280" />
+                    <column table="rep_id" column="name" column-width="280" />
+                  </columns>
+                </grid>
+              </fieldgroup>
+              <fieldgroup title="Измерения" uncollapsible="1" exclude="1">
+                <grid table="d" show-toolbar="1">
+                  <toolbar>
+                    <uicommand button-type="grid-paste" column-visible="1" />
+                  </toolbar>
+                  <columns>
+                    <column table="d" column="dim_id" column-width="280" />
+                    <column table="dim_id" column="name" column-width="280" />
+                  </columns>
+                </grid>
+              </fieldgroup>
+            </splitcontainer>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="s_msr" as="a">
+          <elink name="s_rep_msr" as="r">
+            <link name="rep_id" />
+          </elink>
+          <elink name="s_dim_msr" as="d" exclude="1">
+            <link name="dim_id" />
+          </elink>
+        </query>
+      </from>
+    </form>
+    <form name="s_planfact" timestamp="03.11.2017 18:19:54" title="План/Факт/Дельта" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_planfact.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand button-type="grid-paste" column-visible="1" />
+          </toolbar>
+          <columns>
+            <column table="a" column="name" column-width="280" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="s_planfact" as="a" />
+      </from>
+    </form>
+    <form name="s_rep" title="Отчеты" timestamp="05.11.2017 02:14:41" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_rep.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Отчеты" uncollapsible="1">
+            <grid table="a" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="a" column="kod" column-width="280" />
+                <column table="a" column="name" column-width="280" />
+                <fact table="a" column="s_dim_kod" title="Измерения" />
+                <fact table="a" column="s_msr_kod" title="Факты" />
+                <column table="a" column="exmpl_pth" column-width="280" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup noborder="1" part-id="frm-s_rep-content">
+            <tabcontainer>
+              <fieldgroup title="2-й вариант">
+                <splitcontainer is-vertical="1">
+                  <fieldgroup title="Части" uncollapsible="1">
+                    <grid table="p" show-toolbar="1">
+                      <toolbar>
+                        <uicommand button-type="grid-paste" column-visible="1" />
+                      </toolbar>
+                      <columns>
+                        <column table="p" column="name" column-width="280" />
+                      </columns>
+                    </grid>
+                  </fieldgroup>
+                  <fieldgroup title="Измерения" uncollapsible="1">
+                    <grid table="id" show-toolbar="1">
+                      <toolbar>
+                        <uicommand button-type="grid-paste" column-visible="1" />
+                      </toolbar>
+                      <columns>
+                        <column table="id" column="idim_id" column-width="280" />
+                        <fact column="s_idim_info" table="id" parname="idim_info" column-visible="0" exclude="1" />
+                      </columns>
+                    </grid>
+                  </fieldgroup>
+                </splitcontainer>
+              </fieldgroup>
+              <fieldgroup title="1-й вариант">
+                <splitcontainer is-vertical="1">
+                  <fieldgroup title="Измерения" uncollapsible="1">
+                    <grid table="d" show-toolbar="1">
+                      <toolbar>
+                        <uicommand button-type="grid-paste" column-visible="1" />
+                      </toolbar>
+                      <columns>
+                        <column table="d" column="dim_id" column-width="280" />
+                        <column table="dim_id" column="name" column-width="280" />
+                      </columns>
+                    </grid>
+                  </fieldgroup>
+                  <fieldgroup title="Факты" uncollapsible="1">
+                    <grid table="m" show-toolbar="1">
+                      <toolbar>
+                        <uicommand button-type="grid-paste" column-visible="1" />
+                      </toolbar>
+                      <columns>
+                        <column table="m" column="msr_id" column-width="280" />
+                        <column table="msr_id" column="name" column-width="280" />
+                        <column table="msr_id" column="planfact_id" column-width="280" />
+                        <column table="msr_id" column="vpc_id" column-width="280" />
+                      </columns>
+                    </grid>
+                  </fieldgroup>
+                </splitcontainer>
+              </fieldgroup>
+            </tabcontainer>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="s_rep" as="a">
+          <elink name="s_rep_dim" as="d" part-id="frm-s_rep-src">
+            <link name="dim_id" />
+          </elink>
+          <elink name="s_rep_msr" as="m" part-id="frm-s_rep-src">
+            <link name="msr_id" />
+          </elink>
+          <elink name="s_rep_part" as="p" part-id="frm-s_rep-src">
+            <elink name="s_rep_part_idim" as="id" />
+          </elink>
+        </query>
+      </from>
+    </form>
+    <form name="s_rep_list" title="Отчеты" timestamp="04.11.2017 22:35:49" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_rep.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Отчеты" uncollapsible="1">
+            <grid table="a" show-toolbar="1">
+              <toolbar>
+                <uicommand button-type="grid-paste" column-visible="1" />
+              </toolbar>
+              <columns>
+                <column table="a" column="kod" column-width="280" />
+                <column table="a" column="name" column-width="280" />
+                <fact table="a" column="s_dim_kod" title="Измерения" />
+                <fact table="a" column="s_msr_kod" title="Факты" />
+                <column table="a" column="exmpl_pth" column-width="280" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup noborder="1">
+            <usepart part="frm-s_rep-content" />
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="s_rep" as="a">
+          <usepart part="frm-s_rep-src" />
+          <elink name="s_rep_msr" as="m" exclude="1">
+            <link name="msr_id" />
+          </elink>
+        </query>
+      </from>
+    </form>
+    <form name="s_vpc" timestamp="03.11.2017 18:20:29" title="Объем/Цена/Стоимость" file="sql.builder.templates\sql.builder\projects\mpep\forms\s_vpc.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand button-type="grid-paste" column-visible="1" />
+          </toolbar>
+          <columns>
+            <column table="a" column="name" column-width="280" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="s_vpc" as="a" />
+      </from>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name">
+    <expression-package name="mpep-s" timestamp="05.11.2017 02:21:05" file="sql.builder.templates\sql.builder\projects\mpep\sproj\expr.xml">
+      <call as="s_idim_info" function="||" group="max" title="Измерение">
+        <fact column="s_idim_name" exclude="1" />
+        <call function="if">
+          <call function="is not null">
+            <fact column="s_idim_link_cld_name" />
+          </call>
+          <call function="||">
+            <const>'['</const>
+            <fact column="s_idim_link_cld_name" />
+            <const>']'</const>
+          </call>
+        </call>
+      </call>
+    </expression-package>
+  </expression-packages>
+  <dimension-packages child-name="dimension-package" key-name="name">
+    <dimension-package name="mpep-s" timestamp="05.11.2017 18:56:10" file="sql.builder.templates\sql.builder\projects\mpep\sproj\dims.xml">
+      <dimension class-type="s_rep" name="s_rep" />
+      <dimension class-type="s_msr" name="s_msr" />
+      <dimension class-type="s_dim" name="s_dim" />
+      <dimension class-type="s_idim" name="s_idim" />
+      <dimension class-type="s_idim_link_cld" name="s_idim_link_cld" />
+      <dimension class-type="s_idim_link_prnt" name="s_idim_link_prnt" />
+      <dimension class-type="s_rep_part_idim" name="s_rep_part_idim" />
+      <dimension class-type="s_rep_dim" name="s_rep_dim" />
+      <dimension class-type="s_rep_msr" name="s_rep_msr" />
+    </dimension-package>
+  </dimension-packages>
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

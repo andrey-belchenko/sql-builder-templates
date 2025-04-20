@@ -1,0 +1,906 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_hist_mat_ext" extend="ur_hist_mat" class="1" timestamp="03.07.2025 21:54:11">
+      <select>
+        <const type="number" as="cnt" fact="ur_hist_mat_count" agg="sum">1</const>
+        <call function="-" as="ost_proc" title="Остаток задолженности: проценты за пользование чужими денежными средствами">
+          <column table="a" column="proc" nvl="0" />
+          <column table="a" column="opl_proc" nvl="0" />
+        </call>
+        <call function="-" as="ost_ogr" title="Остаток задолж. расх. за введ. огр. реж. энергопотр.">
+          <column table="a" column="ogr" nvl="0" />
+          <column table="a" column="opl_ogr" nvl="0" />
+        </call>
+        <call function="-" as="ost_sud_izd" title="Остаток задолж. суд. издерж.">
+          <column table="a" nvl="0" column="sud_izd" />
+          <column table="a" column="opl_sud_izd" nvl="0" />
+        </call>
+        <column table="kod_folders" column="kod_sdp" as="folder_kod_sdp" />
+        <column table="kod_result" column="kod_post" as="result_kod_post" column-editable="1" />
+        <column table="kod_result" column="kod_post" as="result_kod_post_read" />
+        <call function="+nvl" as="gp_all" title="Гос. пошлина, всего" is-fact="1" agg="sum" fact="ur_hist_mat_gp_all">
+          <column table="a" column="gp_ret" />
+          <column table="a" column="gp_otv" />
+          <column table="a" column="gp_es" />
+        </call>
+        <call function="+nvl" as="pris_all_vvod" title="Задолженность по решению суда (Всего)">
+          <column table="this" column="osnreal" />
+          <column table="this" column="peni" />
+          <column table="this" column="ogr" />
+          <column table="this" column="gp_otv" />
+          <column table="this" column="sud_izd" />
+          <column table="this" column="astrent" />
+        </call>
+        <call function="||" as="name" title="Решение" vid="1">
+          <column table="kod_doc" column="abbr" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="kod_mat" column="dat_doc" />
+          </call>
+          <const>'  '</const>
+          <column table="kod_mat" column="num_delo" />
+          <const>'  '</const>
+          <column table="kod_result" column="name" />
+        </call>
+        <call function="||" as="info" title="Решение" vid="1" is-fact="1" fact="ur_hist_mat_info" agg="stragg">
+          <const>'Решение  '</const>
+          <column table="kod_result" column="name" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="this" column="dat_post" />
+          </call>
+        </call>
+        <column table="ur_isp_last" column="kod_isp_last" as="kod_isp_last" dgroup="max" />
+        <column table="this" column="kod_zased" as="kod_zased_ssp">
+          <listquery>
+            <query name="us_zased_ssp" />
+          </listquery>
+        </column>
+        <column table="this" column="kod_result" as="kod_result_ssp">
+          <listquery>
+            <query name="us_result_sdp2" />
+          </listquery>
+        </column>
+        <column table="this" column="kod_result" as="kod_result_pp">
+          <listquery>
+            <query name="us_result_sdp1" />
+          </listquery>
+        </column>
+        <column table="this" column="kod_mat" as="kod_mat_pp" dimension="kod_mat_pp" is-final-dimension="1" is-private-dimension="1" />
+        <call function="if" type="date" as="dat_post_k_rsm" is-fact="1" fact="ur_hist_mat_dat_pst_k_rsm" title="Дата прин. суд. акта (не решение)" agg="min">
+          <call function="like2">
+            <call function="lower">
+              <column table="kod_result" column="name" />
+            </call>
+            <const>'%к рассмотрению%'</const>
+          </call>
+          <column table="this" column="dat_post" />
+        </call>
+        <column table="result_kod_post" column="name" is-fact="1" agg="stragg_dist" fact="ur_hist_mat_post_name" as="post_name" />
+        <column table="kod_result" column="name" is-fact="1" agg="stragg_dist" fact="ur_hist_mat_result_name" as="result_name" />
+      </select>
+      <links>
+        <link name="kod_mat" as="kod_mat1">
+          <link name="kod_doc" />
+          <link name="kod_folders" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+        <dlink name="ur_isp" dimension="kod_isp" />
+        <dlink name="ur_isp_for_mat" dimension="kod_isp_for_mat" />
+        <dlink name="ur_isp_last" />
+      </links>
+      <actions>
+        <action action-type="dynamic-form" name="form_ur_hist_mat" call="ur_hist_mat" />
+        <action action-type="dynamic-form-create" name="create_form_ur_hist_mat" call="ur_hist_mat" />
+        <action action-type="client-update" call="ur_hist_mat_calc_gp" name="clu_calc_gp" title="Рассчитать гос. пошлину" />
+        <action action-type="client-update" call="ur_hist_mat_calc_gp_otv" name="clu_calc_gp_otv" title="Расчитать " />
+        <action action-type="client-update" call="ur_hist_mat_calc_gp_es" name="clu_calc_gp_es" title="Расчитать " />
+        <action action-type="client-update" call="ur_hist_mat_calc_gp_ret" name="clu_calc_gp_ret" title="Расчитать " />
+        <action action-type="dynamic-form" name="form_ur_hist_mat_bnk" call="ur_hist_mat_bnk" />
+        <action action-type="dynamic-form" name="form_ur_hist_mat_bnk_el" call="ur_hist_mat_bnk_el" />
+        <action action-type="dynamic-form" name="form_ur_hist_mat_bnk_el_vvod" call="ur_hist_mat_bnk_el_vvod" />
+        <action action-type="dynamic-form-create" name="create_form_ur_hist_mat_bnk" call="ur_hist_mat_bnk" />
+        <action action-type="dynamic-form-create" name="create_form_ur_hist_mat_bnk_el" call="ur_hist_mat_bnk_el" />
+        <action action-type="dynamic-form-create" name="create_form_ur_hist_mat_bnk_el_vvod" call="ur_hist_mat_bnk_el_vvod" />
+      </actions>
+      <from>
+        <query name="us_post" as="result_kod_post" join="left outer">
+          <call function="=">
+            <column table="this" column="result_kod_post" />
+            <column table="result_kod_post" column="kod_post" />
+          </call>
+        </query>
+        <query name="ur_isp" as="kod_isp_last" join="left outer" dname="-">
+          <call function="=">
+            <column table="this" column="kod_isp_last" />
+            <column table="kod_isp_last" column="kod_isp" />
+          </call>
+        </query>
+        <query name="us_zased" as="kod_zased_ssp" join="left outer" dname="ur_hist_mat_ssp" title="Судебный пристав">
+          <call function="=">
+            <column table="this" column="kod_zased_ssp" />
+            <column table="kod_zased_ssp" column="kod_zased" />
+          </call>
+        </query>
+        <query name="us_result" as="kod_result_pp" join="left outer" dname="ur_hist_mat_pp" title="Результат рассмотрения">
+          <call function="=">
+            <column table="this" column="kod_result_pp" />
+            <column table="kod_result_pp" column="kod_result" />
+          </call>
+        </query>
+        <query name="us_result" as="kod_result_ssp" join="left outer" dname="ur_hist_mat_ssp" title="Результат">
+          <call function="=">
+            <column table="this" column="kod_result_ssp" />
+            <column table="kod_result_ssp" column="kod_result" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <!--сгруппировать по kod_mat и взять kod_hist_mat_last_decision. Пока лучше не придумал-->
+    <query name="ur_hist_mat_decision" class="1" timestamp="27.09.2017 01:31:02">
+      <select>
+        <column table="a" column="kod_mat" type="number" />
+        <column table="a" column="kod_hist_mat" type="number" />
+        <call function="over" as="kod_hist_mat_last_decision">
+          <call function="first_value">
+            <column table="a" column="kod_hist_mat" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_mat" />
+          </call>
+          <!--Бельченко 27.10.14: переделать , колонка "dat_rassm desc nulls last" - не корректно, не понятно как работает-->
+          <call function="order by rows * *">
+            <column table="kod_result" column="decision" />
+            <call function="desc nulls last">
+              <column table="a" column="dat_post" />
+            </call>
+            <call function="desc nulls last">
+              <column table="a" column="dat_rassm" />
+            </call>
+            <call function="desc nulls last">
+              <column table="a" column="d_m" />
+            </call>
+          </call>
+        </call>
+        <column table="a" column="dat_post" type="number" />
+      </select>
+      <from>
+        <query name="ur_hist_mat" as="a" />
+        <query name="ur_mat" as="kod_mat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat" column="kod_mat" />
+          </call>
+        </query>
+        <query name="us_result" as="kod_result" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_result" />
+            <column table="kod_result" column="kod_result" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="kod_result" column="decision" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="prizn_has_isp_hist">
+      <select>
+        <column table="a" column="kod" as="kod_prizn_has_isp_hist" type="number" />
+        <column table="a" column="name" as="name_prizn_has_isp_hist" type="string" title="Наличие исполнительного листа" vid="1" />
+      </select>
+      <from>
+        <table name="prizn_has_isp_hist_view" view="1" as="a"></table>
+      </from>
+    </query>
+    <query name="ur_hist_mat_behavior" class="1" extend="ur_hist_mat" timestamp="28.07.2024 17:07:35">
+      <select>
+        <column table="kod_folders" column="kodp" as="folder_kodp" />
+        <!--<call function="if" as="kod_result_vld_post" type="string">
+          <call function="!=">
+            <column table="this" column="result_kod_post" />
+            <column table="this" column="result_kod_post_read" />
+          </call>
+          <const>'Укажите результат рассмотрения соответствующий судебному акту'</const>
+        </call>-->
+        <call function="if" as="gp_all_vld" type="string" exclude="1">
+          <call function="!=nvl">
+            <column table="this" column="gp_all" />
+            <column table="kod_mat" column="sum_gp" />
+          </call>
+          <const>'Сумма гос. пошлины по решению суда не соответствует сумме гос. пошлины оплаченной при подаче'</const>
+        </call>
+        <call function="if" as="is_post_astr_proc" type="string">
+          <call function="=">
+            <column table="this" column="kod_vid_proc" />
+            <const>2</const>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="case" as="dat_entry_vld" type="string" title="Дата вступления, валидация">
+          <call function="when">
+            <call function="and">
+              <call function="lt">
+                <column table="this" column="dat_srok" />
+                <call function="trunc">
+                  <call function="sysdate" />
+                </call>
+              </call>
+              <call function="is null">
+                <column table="this" column="dat_entry" />
+              </call>
+              <call function="=" comment="Емцов - добавил по 38755">
+                <column table="this" column="decision2" />
+                <const>1</const>
+              </call>
+            </call>
+            <const>'Срок обжалования решения прошел, укажите дату вступления в законную силу'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="lt">
+                <column table="this" column="dat_entry" />
+                <column table="this" column="dat_srok" />
+              </call>
+            </call>
+            <const>'[err]Указанная дата вступления решения в силу наступает ранее срока на обжалование'</const>
+          </call>
+        </call>
+        <call function="if" as="is_post_astr_proc_and_calc" type="string">
+          <call function="and">
+            <call function="=">
+              <column table="this" column="is_post_astr_proc" />
+              <const>1</const>
+            </call>
+            <call function="=">
+              <column table="this" column="proc_calc" />
+              <const>1</const>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="-" as="gp_es_new_val">
+          <column table="kod_mat" column="sum_gp" />
+          <column table="a" column="gp_otv" />
+          <call function="nvl0">
+            <column table="a" column="gp_ret" />
+          </call>
+        </call>
+        <call function="-" as="gp_otv_new_val">
+          <column table="kod_mat" column="sum_gp" />
+          <column table="a" column="gp_es" />
+          <call function="nvl0">
+            <column table="a" column="gp_ret" />
+          </call>
+        </call>
+        <call function="+nvl" as="gp_all" title="Гос. пошлина, всего">
+          <column table="a" column="gp_ret" />
+          <column table="a" column="gp_otv" />
+          <column table="a" column="gp_es" />
+        </call>
+        <column table="kod_result" column="decision" />
+        <call function="if" as="resh" title="Судебный акт - решение" comment="Емцов - добавил по 38755" type="number">
+          <call function="=">
+            <column table="kod_result" column="kod_post" />
+            <const>2</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="decision2" title="С судебным актом решение и признаком окончательного решения" comment="Емцов - добавил по 38755" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="this" column="resh" />
+              <const>1</const>
+            </call>
+            <call function="=">
+              <column table="this" column="decision" />
+              <const>1</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="sg_peny_helper.get_refin_perc" as="proc_const_new_val">
+          <column table="this" column="dat_post" />
+          <column table="kod_folders" column="kodp" />
+        </call>
+        <call function="case" as="decision_not_otmena" type="number">
+          <call function="when">
+            <call function="and">
+              <call function="!=">
+                <column table="kod_result" column="kod_result" />
+                <const>99</const>
+              </call>
+              <call function="is not null">
+                <column table="kod_result" column="decision" />
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+      </select>
+    </query>
+    <query name="prizn_has_astrent_hist">
+      <select>
+        <column table="a" column="kod" as="kod_prizn_has_astrent_hist" type="number" />
+        <column table="a" column="name" as="name_prizn_has_astrent_hist" type="string" title="Взыскан астрент" vid="1" />
+      </select>
+      <from>
+        <table name="prizn_has_astrent_hist_view" view="1" as="a"></table>
+      </from>
+    </query>
+    <!--Бельченко: новый вариант для куба-->
+    <query name="ur_hist_mat_dec" inherit="ur_hist_mat" class="1" title="Решение по делу" timestamp="22.04.2025 23:39:48">
+      <select>
+        <column table="this" column="kod_hist_mat" as="kod_hist_mat_desc" key-dimension="kod_hist_mat_dec" />
+        <column table="a" column="dat_post" as="dat_resh" agg="max" title="Дата принятия решения" dimension="dat" is-final-dimension="1" is-private-dimension="1" is-fact="1" />
+        <column table="this" column="dat_post" as="dat_entry_st" dimension="dat_ur" comment="раньше была dat_entry" is-fact="1" fact="ur_hist_mat_dat_entry_st" />
+        <column table="this" column="dat_entry" as="dat_entry_dec" fact="ur_hist_mat_dec_dat_entry" agg="max" dimension="dat_ur_ent" />
+        <column table="this" column="dat_send_il" as="dat_send_il_dec" fact="ur_hist_mat_dec_dat_send_il" agg="max" />
+        <call function="if" type="number" as="kod_ur_state" fact="kod_ur_state_2" agg="max">
+          <call function="is not null">
+            <column table="this" column="dat_entry" />
+          </call>
+          <const>2</const>
+        </call>
+        <column table="this" column="info" as="dec_info" fact="ur_h_m_dec_info" agg="max" />
+        <column table="this" column="ogr" fact="ur_hist_mat_dec_ogr" agg="sum" />
+        <column table="this" column="opl_ogr" fact="ur_hist_mat_dec_opl_ogr" agg="sum" />
+        <column table="this" column="ost_ogr" fact="ur_hist_mat_dec_ost_ogr" agg="sum" />
+        <column table="this" column="sud_izd" fact="ur_hist_mat_dec_sud_izd" agg="sum" />
+        <column table="this" column="opl_sud_izd" fact="ur_hist_mat_dec_opl_sud_izd" agg="sum" />
+        <column table="this" column="ost_sud_izd" fact="ur_hist_mat_dec_ost_sud_izd" agg="sum" />
+        <column table="this" column="gp_otv" agg="sum" is-fact="1" />
+        <column table="this" column="gp_es" agg="sum" is-fact="1" />
+        <column table="this" column="gp_ret" agg="sum" is-fact="1" />
+        <column table="this" column="peni" agg="sum" is-fact="1" />
+        <call function="+nvl" as="hand_sum" fact="ur_hist_mat_dec_hand_sum" agg="sum">
+          <column table="this" column="ogr" />
+          <column table="this" column="sud_izd" />
+        </call>
+        <call function="+nvl" as="hand_opl" fact="ur_hist_mat_dec_hand_opl" agg="sum">
+          <column table="this" column="opl_ogr" />
+          <column table="this" column="opl_sud_izd" />
+        </call>
+        <call function="+nvl" as="hand_ost" fact="ur_hist_mat_dec_hand_ost" agg="sum">
+          <column table="this" column="ost_ogr" />
+          <column table="this" column="ost_sud_izd" />
+        </call>
+        <column table="this" column="resh" as="pr_resh" is-fact="1" agg="max" />
+        <call function="()" as="pr_spis_tt" type="number" is-private-dimension="pr_spis_tt" is-final-dimension="pr_spis_tt" dimension="pr_spis_tt">
+          <const>0</const>
+        </call>
+        <column table="kod_result" column="kod_not_edit" />
+        <column table="this" column="gp_otv" as="gp_otv_dubl" agg="sum" is-fact="1" fact="ur_hist_mat_gp_otv" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="sud_izd" as="sud_izd_dubl" is-fact="1" agg="sum" fact="ur_hist_mat_sud_izd" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="astrent" agg="sum" is-fact="1" fact="ur_hist_mat_astrent" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="opl_peni" is-fact="1" agg="sum" fact="ur_hist_mat_opl_peni" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="opl_astrent" is-fact="1" agg="sum" fact="ur_hist_mat_opl_astrent" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="opl_osnreal" is-fact="1" agg="sum" fact="ur_hist_mat_opl_osnreal" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="opl_gpotv" is-fact="1" agg="sum" fact="ur_hist_mat_opl_gpotv" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ogr" as="ogr_dubl" agg="sum" is-fact="1" fact="ur_hist_mat_ogr" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="osnreal" is-fact="1" agg="sum" fact="ur_hist_mat_osnreal" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="peni" as="peni_dubl" is-fact="1" agg="sum" fact="ur_hist_mat_peni" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="opl_ogr" as="opl_ogr_dubl" is-fact="1" agg="sum" fact="ur_hist_mat_opl_ogr" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="opl_sud_izd" as="opl_sud_izd_dubl" is-fact="1" agg="sum" fact="ur_hist_mat_opl_sud_izd" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ostatok_osnreal" is-fact="1" agg="sum" fact="ur_hist_mat_ostatok_osnreal" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ostatok_peni" is-fact="1" agg="sum" fact="ur_hist_mat_ostatok_peni" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ostatok_gp_otv" is-fact="1" agg="sum" fact="ur_hist_mat_ostatok_gp_otv" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ostatok_ogr" is-fact="1" agg="sum" fact="ur_hist_mat_ostatok_ogr" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ostatok_sud_izd" is-fact="1" agg="sum" fact="ur_hist_mat_ostatok_sud_izd" comment="факты для работы в режиме ручного ввода" />
+        <column table="this" column="ostatok_astrent" is-fact="1" agg="sum" fact="ur_hist_mat_ostatok_astrent" comment="факты для работы в режиме ручного ввода" />
+      </select>
+      <where>
+        <call function="=">
+          <column table="kod_result" column="decision" />
+          <const>1</const>
+        </call>
+      </where>
+      <from>
+        <query name="ur_state" as="kod_ur_state" join="left outer" dimension="kod_ur_state">
+          <call function="=">
+            <column table="this" column="kod_ur_state" />
+            <column table="kod_ur_state" column="kod_ur_state" />
+          </call>
+        </query>
+        <query name="ur_mat" as="kod_mat_dec" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat_dec" column="kod_mat" />
+          </call>
+        </query>
+        <query name="ur_hist_mat" as="kod_hist_mat" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_hist_mat" />
+            <column table="kod_hist_mat" column="kod_hist_mat" />
+          </call>
+        </query>
+        <query name="ur_mat_pp" as="kod_mat_pp" join="left outer" dimension="kod_mat">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat_pp" column="kod_mat" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_mat" dimension="1" exclude="1">
+          <link name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dlink name="ur_dogplat" dimension="1" exclude="1" />
+        </link>
+        <dlink name="ur_isp" dimension="1">
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_kazn" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_isp_other" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_isp_arb_upr" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+        </dlink>
+        <link name="kod_mat_pp" as="kod_mat_pp1">
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1">
+            <dimlink name="kod_deb" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          </dimlink>
+          <dimlink name="kod_sf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_arb_upr" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_other" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="vid_real" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym_vozn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+        <link name="kod_hist_mat" as="kod_hist_mat1">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="ur_hist_mat_ba" inherit="ur_hist_mat" class="1" timestamp="09.03.2025 11:51:22">
+      <select>
+        <column table="this" column="kod_hist_mat" as="kod_hist_mat_ba" key-dimension="kod_hist_mat_ba" />
+        <column table="this" column="dat_mor" as="dat_mor_st" dimension="dat_ur" />
+        <column table="this" column="dat_mor" as="dat_mor_st_ent" dimension="dat_ur_ent" />
+        <column table="this" column="osnreal" as="osnreal_ba" is-fact="1" agg="sum" />
+        <column table="this" column="ogr" as="ogr_ba" is-fact="1" agg="max" />
+        <column table="this" column="peni" as="peni_ba" title="Пени" is-fact="1" agg="sum" />
+        <column table="this" column="gosposhlina" as="gosposhlina_ba" is-fact="1" agg="max" fact="ur_hist_mat_ba_gp_ba" />
+        <call function="if" type="number" as="kod_ur_state" fact="kod_ur_state_6" agg="max">
+          <call function="is not null">
+            <column table="this" column="dat_mor" />
+          </call>
+          <const>6</const>
+        </call>
+        <column table="this" column="prim" fact="ur_hist_mat_ba_prim" agg="stragg" />
+        <const type="number" as="cnt" fact="ur_hist_mat_ba_count" agg="sum">1</const>
+        <call function="if" as="is_in_reestr" is-fact="1" agg="max" type="number">
+          <call function="=">
+            <column table="this" column="kod_result" />
+            <const>61</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="this" column="ost_ogr" is-fact="1" agg="sum" />
+        <column table="kod_mat_ba" column="kod_folders" dimension="kod_folders" />
+        <column table="this" column="opl_osnreal" title="Осн. реал." editable="1" as="opl_osnreal_ba" is-fact="1" agg="sum" />
+        <column table="this" column="opl_peni" title="Проценты (пени)" editable="1" as="opl_peni_ba" is-fact="1" agg="sum" />
+        <column table="this" column="opl_gpotv" title="ГП" editable="1" as="opl_gpotv_ba" is-fact="1" agg="sum" />
+        <column table="this" column="opl_ogr" title="Расх. за введ. огр. реж. энергопотр." editable="1" as="opl_ogr_ba" is-fact="1" agg="sum" />
+      </select>
+      <from>
+        <query name="ur_state" as="kod_ur_state" join="left outer" dimension="kod_ur_state">
+          <call function="=">
+            <column table="this" column="kod_ur_state" />
+            <column table="kod_ur_state" column="kod_ur_state" />
+          </call>
+        </query>
+        <query name="ur_mat_ba" as="kod_mat_ba" join="left outer" dimension="kod_mat_ba">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat_ba" column="kod_mat_ba" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="kod_folders" column="kod_sdp" />
+          <const>9</const>
+        </call>
+      </where>
+      <links>
+        <link name="kod_mat_ba" as="kod_mat_ba1">
+          <link name="kod_folders" />
+          <dimlink name="kod_dogplat_bnk" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_sf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_deb" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="vid_real" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym_vozn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+        <dlink name="ur_stage_bk" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+      </links>
+    </query>
+    <query name="ur_hist_mat_calc_gp" class="1" timestamp="14.05.2017 22:54:46">
+      <params>
+        <param type="number" name="kod_hist_mat">
+          <const>984</const>
+        </param>
+      </params>
+      <select>
+        <call function="ur_read_bd.f_gp_doc" as="gp_otv">
+          <const>1</const>
+          <fact column="ur_dp_priz_all" />
+        </call>
+        <!--<call function="-" as="ost_proc" title="Остаток задолженности: проценты за пользование чужими денежными средствами">
+          <column table="a" column="proc" nvl="0"></column>
+          <column table="a" column="opl_proc" nvl="0"></column>
+        </call>-->
+        <!--<call function="-" as="ost_ogr" title="Остаток задолженности: расходы за ограничение энергопотребления" nvl="0">
+          <column table="a" column="ogr" nvl="0"></column>
+          <column table="a" column="opl_ogr" nvl="0"></column>
+        </call>-->
+        <!--Пока лучше не придумал-->
+      </select>
+      <from>
+        <qube>
+          <link name="kod_hist_mat" as="a" />
+          <where>
+            <call function="=">
+              <column table="a" column="kod_hist_mat" />
+              <useparam name="kod_hist_mat" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="ur_hist_mat_dec_list_for_il" class="1">
+      <params>
+        <param name="kod_folders" type="number" />
+      </params>
+      <select>
+        <column table="a" column="kod_hist_mat" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="ur_hist_mat_dec" as="a">
+          <link name="kod_mat" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=" optional="1">
+            <column table="kod_mat" column="kod_folders" />
+            <useparam name="kod_folders" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ur_hist_mat_dec_list_for_graf" class="1">
+      <params>
+        <param name="kod_folders" type="number" />
+      </params>
+      <select>
+        <column table="a" column="kod_hist_mat" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="ur_hist_mat_dec" as="a">
+          <link name="kod_result" />
+          <link name="kod_mat" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=" optional="1">
+            <column table="kod_mat" column="kod_folders" />
+            <useparam name="kod_folders" />
+          </call>
+          <call function="=">
+            <column table="kod_result" column="kod_not_edit" />
+            <const>3</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ur_hist_mat_calc_gp_otv" comment="Расчёт gp_otv" class="1" timestamp="31.05.2016 00:18:42">
+      <params>
+        <param type="number" name="kod_hist_mat" />
+      </params>
+      <select>
+        <call function="-" as="gp_otv" title="Гос. пошлина с ответчика">
+          <call function="nvl0">
+            <column table="kod_mat" column="sum_gp" />
+          </call>
+          <call function="nvl0">
+            <column table="a" column="gp_es" />
+          </call>
+          <call function="nvl0">
+            <column table="a" column="gp_ret" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_hist_mat" as="a" all-rows="1" />
+          <link name="kod_mat" all-rows="1" />
+          <where>
+            <call function="=">
+              <column table="a" column="kod_hist_mat" />
+              <useparam name="kod_hist_mat" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="ur_hist_mat_calc_gp_es" comment="Расчёт gp_es" class="1" timestamp="31.05.2016 00:18:23">
+      <params>
+        <param type="number" name="kod_hist_mat" />
+      </params>
+      <select>
+        <call function="-" as="gp_es" title="Гос. пошлина с истца">
+          <call function="nvl0">
+            <column table="kod_mat" column="sum_gp" />
+          </call>
+          <call function="nvl0">
+            <column table="a" column="gp_otv" />
+          </call>
+          <call function="nvl0">
+            <column table="a" column="gp_ret" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_hist_mat" as="a" all-rows="1" />
+          <link name="kod_mat" all-rows="1" />
+          <where>
+            <call function="=">
+              <column table="a" column="kod_hist_mat" />
+              <useparam name="kod_hist_mat" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="ur_hist_mat_calc_gp_ret" comment="Расчёт gp_ret" class="1" timestamp="31.05.2016 00:18:30">
+      <params>
+        <param type="number" name="kod_hist_mat" />
+      </params>
+      <select>
+        <call function="-" as="gp_ret" title="Возврат из бюджета">
+          <call function="nvl0">
+            <column table="kod_mat" column="sum_gp" />
+          </call>
+          <call function="nvl0">
+            <column table="a" column="gp_otv" />
+          </call>
+          <call function="nvl0">
+            <column table="a" column="gp_es" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_hist_mat" as="a" all-rows="1" />
+          <link name="kod_mat" all-rows="1" />
+          <where>
+            <call function="=">
+              <column table="a" column="kod_hist_mat" />
+              <useparam name="kod_hist_mat" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="ur_hist_mat_dec_othr" inherit="ur_hist_mat" class="1" timestamp="06.07.2016 20:38:54">
+      <select>
+        <const type="number" as="cnt" fact="ur_hist_mat_dec_othr_cnt" agg="sum">1</const>
+      </select>
+      <where>
+        <call function="=">
+          <column table="kod_result" column="decision" />
+          <const>1</const>
+        </call>
+      </where>
+      <links>
+        <link name="kod_mat" dimension="1">
+          <dlink name="ur_hist_mat" dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="ur_hist_mat_isp" inherit="ur_hist_mat" class="1" timestamp="24.06.2020 23:01:07">
+      <select>
+        <const as="cnt" type="number" is-fact="1" agg="sum">1</const>
+        <call function="||" as="info" title="Решение" vid="1" is-fact="1" fact="ur_hist_mat_isp_info" agg="stragg">
+          <const>'Решение  '</const>
+          <column table="kod_result" column="name" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="this" column="dat_post" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ur_mat_isp" as="kod_mat_isp" join="left outer" dimension="kod_mat_ba">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat_isp" column="kod_mat_isp" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="kod_folders" column="kod_sdp" />
+          <const>2</const>
+        </call>
+      </where>
+      <links>
+        <link name="kod_mat_isp" as="kod_mat_isp1">
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="ur_hist_mat_dec_ba" inherit="ur_hist_mat" class="1" timestamp="29.12.2017 12:05:50">
+      <select>
+        <column table="this" column="kod_hist_mat" as="kod_hist_mat_desc" key-dimension="kod_hist_mat_dec" />
+        <column table="this" column="dat_post" as="dat_post_ba" key-dimension="kod_hist_mat_dec" dimension="dat_ur" />
+        <column table="this" column="info" as="dec_info" fact="ur_h_m_dec_ba_info" agg="max" />
+      </select>
+      <where>
+        <call function="=">
+          <column table="kod_result" column="decision" />
+          <const>1</const>
+        </call>
+      </where>
+      <from>
+        <query name="ur_hist_mat" as="kod_hist_mat" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_hist_mat" />
+            <column table="kod_hist_mat" column="kod_hist_mat" />
+          </call>
+        </query>
+        <query name="ur_mat_ba" as="kod_mat_ba" join="left outer" dimension="kod_mat">
+          <call function="=">
+            <column table="a" column="kod_mat" />
+            <column table="kod_mat_ba" column="kod_mat" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_mat" dimension="1" exclude="1">
+          <link name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dlink name="ur_dogplat" dimension="1" exclude="1" />
+        </link>
+        <dlink name="ur_isp" dimension="1" exclude="1">
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_kazn" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+        </dlink>
+        <link name="kod_mat_ba" as="kod_mat_ba1">
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1">
+            <dimlink name="kod_deb" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          </dimlink>
+          <dimlink name="kod_sf" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+        </link>
+        <link name="kod_hist_mat" as="kod_hist_mat1" exclude="1">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="ur_hist_mat_ba_list" class="1" timestamp="03.09.2018 03:05:15">
+      <params>
+        <param name="kod_flders" type="number" />
+      </params>
+      <select>
+        <column table="a" column="kod_hist_mat" />
+        <column table="kod_doc" column="name" as="doc_name" />
+        <column table="kod_mat" column="num_delo" />
+        <column table="a" column="dat_post" />
+        <column table="kod_result" column="name" as="result_name" />
+        <column table="kod_stage" column="name" as="stage_name" />
+      </select>
+      <from>
+        <query name="ur_hist_mat" as="a">
+          <link name="kod_mat">
+            <link name="kod_doc" />
+          </link>
+          <link name="kod_result" />
+          <link name="kod_stage" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_mat" column="kod_folders" />
+            <useparam name="kod_flders" />
+          </call>
+          <call function="=1">
+            <column table="kod_result" column="decision" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <expression-packages>
+    <expression-package name="ur_hist_mat" class="1" timestamp="08.06.2018 03:11:16">
+      <call function="case" as="kod_result_vld" type="string" group="max">
+        <call function="when">
+          <call function="!=">
+            <column table="kod_hist_mat" column="result_kod_post" />
+            <column table="kod_hist_mat" column="result_kod_post_read" />
+          </call>
+          <const>'Укажите результат рассмотрения соответствующий судебному акту'</const>
+        </call>
+        <call function="when">
+          <call function="gt">
+            <fact column="ur_hist_mat_dec_othr_cnt" />
+            <const>1</const>
+          </call>
+          <const>'Уже есть другое окончательное решение по делу'</const>
+        </call>
+      </call>
+      <call function="if" as="ur_hist_mat_gp_vld" group="max" type="string">
+        <call function="!=nvl">
+          <fact column="ur_hist_mat_gp_all" />
+          <fact column="ur_mat_sum_gp" />
+        </call>
+        <const>'Сумма гос. пошлины по решению суда не соответствует сумме гос. пошлины оплаченной при подаче'</const>
+      </call>
+    </expression-package>
+    <expression-package name="ur_isp" class="1" timestamp="04.05.2017 19:01:56">
+      <call function="if" as="isp_kod_hist_mat_vld" type="string" group="max">
+        <call function="gt">
+          <fact column="ur_isp_for_mat_count" />
+          <const>1</const>
+        </call>
+        <const>'Уже есть исполнительный лист по выбранному делу'</const>
+      </call>
+      <call function="if" as="isp_list_exists" type="number" group="max">
+        <call function="gt">
+          <fact column="ur_isp_for_mat_count" />
+          <const>1</const>
+        </call>
+        <const>1</const>
+        <const>0</const>
+      </call>
+    </expression-package>
+  </expression-packages>
+  <views>
+    <view name="prizn_has_isp_hist_view">
+      select 0 as kod, 'Нет' as name from dual union
+      select 1, 'Есть' from dual
+    </view>
+    <view name="prizn_has_astrent_hist_view">
+      select 0 as kod, 'Нет' as name from dual union
+      select 1, 'Да' from dual
+    </view>
+  </views>
+</root>

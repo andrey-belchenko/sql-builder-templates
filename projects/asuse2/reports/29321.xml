@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="29321(16)" timestamp="21.11.2016 14:20:48" is-report="1" folder="opl" title="Информация по поступившей оплате" mode="tree" nogrid="1" with-behavior="0">
+      <params exclude="1">
+        <param name="dep" />
+        <param name="ym" />
+      </params>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="29321(16).xml" title="Информация по поступившей оплате" print-proc="2" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_ym" />
+        <usefield field="asuse_dep" />
+      </content>
+      <select>
+        <column table="kod_link" column="kod_link" />
+        <call function="nvl" as="abon_name" title="Наименование Государственного заказчика" group="max">
+          <column table="kod_link" column="pname" />
+          <column table="kodp" column="name" />
+        </call>
+        <column table="kod_link" column="num_opl" title="№ пл./пор." />
+        <column table="kod_link" column="dat_opl" title="Дата пл./пор" />
+        <column table="kod_opl" column="kod_opl" />
+        <column table="kod_dog" column="kod_dog" />
+        <fact column="sr_opl_bank_opl" group="sum" as="opl_bank" />
+        <column table="kod_link" column="num_sf" title="№ счета" />
+        <fact title="Сумма по договору" column="opl" group="sum" table="opl" />
+        <column table="kod_dog" column="ndog" title="Наименование  договора" />
+        <column table="dep" column="sname" title="Филиал ОАО «ГК»" as="dep_name" />
+        <column table="kod_ist" column="name" title="Вид бюджета" as="ist_name" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_link" />
+          <link name="kod_dep" only-for-cond="1" />
+          <dimset as="opl">
+            <link name="kod_opl">
+              <link name="kod_dog">
+                <link name="dep" />
+                <link name="kod_ist" />
+                <link name="kodp" />
+              </link>
+            </link>
+          </dimset>
+          <where>
+            <call function="in" optional="1">
+              <column table="kod_dep" column="kodp" />
+              <useparam name="dep" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_link" column="ym_opl" />
+              <useparam name="ym" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="opl_bank" order="abon_name,num_opl,dat_opl,opl_bank">
+          <group>
+            <sourcelink table="kod_link" />
+          </group>
+          <grset as="opl" order="ndog">
+            <group>
+              <sourcelink table="kod_dog" />
+            </group>
+            <where>
+              <call function="is not null">
+                <column table="this" column="kod_dog" />
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

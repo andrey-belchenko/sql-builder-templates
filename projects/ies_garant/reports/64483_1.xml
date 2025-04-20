@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="64483_1" form="form_64483_1" nogrid="1" is-report="1" title="Перечень точек поставки ТСО" timestamp="16.05.2024 13:21:48">
+      <params>
+        <param name="p_date" />
+        <param name="tso1" />
+        <param name="tso2" />
+        <param type="number" name="kod_emp" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="64483_1.xlsx" print-proc="2" print-xlsx="1" title="Перечень точек поставки ТСО" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="main64483_1" as="main" />
+        <query name="query_fio" as="sign">
+          <withparams>
+            <call name="kod_emp" function="nvl">
+              <useparam name="kod_emp" />
+              <const>-1</const>
+            </call>
+          </withparams>
+        </query>
+      </queries>
+      <procedure>
+        <text exclude="1">
+begin
+  delete vr_number_array;
+  for rec in( SELECT regexp_substr(str, '[^,]+', 1, level) KODP
+    FROM (
+          SELECT rtrim(ltrim(trim(':tso'),'('),')') str FROM dual     ) t
+   where t.str is not null
+    CONNECT BY instr(str, ',', 1, level - 1) &gt; 0
+  
+)
+ loop
+insert into vr_number_array (array_id,val)
+values ('tso',rec.kodp);
+ end loop;
+
+
+
+  for rec in( SELECT regexp_substr(str, '[^,]+', 1, level) KODP
+    FROM (
+          SELECT rtrim(ltrim(trim(':tso2'),'('),')') str FROM dual     ) t
+   where t.str is not null
+    CONNECT BY instr(str, ',', 1, level - 1) &gt; 0
+  
+)
+ loop
+insert into vr_number_array (array_id,val)
+values ('tso2',rec.kodp);
+ end loop;
+
+
+
+     sqlb_rep_ies.fill_table_64883_1(:p_date);
+end;
+      </text>
+        <text>
+declare     
+    NO_SELECT EXCEPTION;
+    t number := 0;
+    t1 number := 0; 
+
+begin
+ 
+     delete vr_number_array;
+ 
+  
+  
+   insert into vr_number_array (array_id,val) 
+    select 'tso1', kodp
+    from kr_org where 0=1 {or kodp in :tso1};
+     
+
+    select COUNT(array_id) into t from vr_number_array;
+   
+insert into vr_number_array (array_id,val)
+
+    select 'tso2', kodp
+   from kr_org where 0=1 {or kodp in :tso2};
+ 
+        
+
+select COUNT(array_id) into t1 from vr_number_array;
+   
+  
+
+if (t = 0 AND t1 = 0)
+THEN
+    RAISE_APPLICATION_ERROR (-20001,'Выберите параметр отчета "ТСО для услуги" или "ТСО для потерь".');
+ 
+else
+     sqlb_rep_ies.fill_table_64883_1(:p_date);
+end if; 
+
+end;
+      </text>
+      </procedure>
+    </report>
+  </reports>
+  <forms>
+    <form name="form_64483_1" timestamp="16.05.2024 13:16:32">
+      <content>
+        <usefield field="asuse_pwrcompany_2" name="tso1" title="ТСО для услуги" />
+        <usefield field="asuse_pwrcompany_2" title="ТСО для потерь" name="tso2" />
+        <usefield field="cmn_date_cur" title="На дату" name="p_date" format="dd.MM.yyyy HH:mm" type="date" show-checkbox="0" />
+        <usefield field="field_signatory" name="kod_emp" title="Подписант" show-checkbox="0" />
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="main64483_1" timestamp="23.11.2022 13:03:53">
+      <select>
+        <column table="a" column="kod_point" type="number" />
+        <column table="a" column="kod_dog" type="number" />
+        <column table="a" column="tr" type="number" />
+        <column table="a" column="kod_dog_p" type="number" />
+        <column table="a" column="dognum_p" group="max" type="string" />
+        <column table="a" column="sequential_number" />
+        <column table="a" column="dognum" group="max" type="string" />
+        <column table="a" column="payername" group="max" />
+        <column table="a" column="payername_p" group="max" />
+        <column table="a" column="feed_line" group="max" />
+        <column table="a" column="supply_point" group="max" />
+        <column table="a" column="name_object" group="max" />
+        <column table="a" column="place_installation" group="max" />
+        <column table="a" column="type_el_meter" group="max" />
+        <column table="a" column="el_meter_number" group="max" />
+        <column table="a" column="accuracy_class_el_meter" group="max" />
+        <column table="a" column="curr_transformer_type" group="max" />
+        <column table="a" column="voltage_transformer_type" group="max" />
+        <column table="a" column="date_verif_el_meter" group="max" />
+        <column table="a" column="design_factor" group="max" />
+        <column table="a" column="curr_transformer_num_1" group="max" />
+        <column table="a" column="curr_transformer_num_2" group="max" />
+        <column table="a" column="curr_transformer_num_3" group="max" />
+        <column table="a" column="accuracy_class_curr_trans" group="max" />
+        <column table="a" column="date_verif_curr_transformer" group="max" />
+        <column table="a" column="curr_trans_design_factor" group="max" />
+        <column table="a" column="voltage_transformer_num_1" group="max" />
+        <column table="a" column="voltage_transformer_num_2" group="max" />
+        <column table="a" column="voltage_transformer_num_3" group="max" />
+        <column table="a" column="accuracy_class_voltage_trans" group="max" />
+        <column table="a" column="date_verif_voltage_trans" group="max" />
+        <column table="a" column="voltage_trans_design_factor" group="max" />
+        <column table="a" column="initial_indications" group="max" />
+        <column table="a" column="constant_loss" group="max" />
+        <column table="a" column="variable_loss" group="max" />
+        <column table="a" column="maximum_power" group="max" />
+        <column table="a" column="voltage_level_point" group="max" />
+        <column table="a" column="balance_affiliation" group="max" />
+        <column table="a" column="actual_voltage_level" group="max" />
+        <column table="a" column="reliability_category" group="max" />
+        <column table="a" column="price_category" group="max" />
+        <column table="a" column="voltage_level_tariff" group="max" />
+        <column table="a" column="gran" type="string" />
+      </select>
+      <from>
+        <query name="sqlb_rep_64483_tbl" as="a" />
+      </from>
+      <grouping>
+        <grset as="dog">
+          <group>
+            <column table="this" column="kod_dog" />
+          </group>
+          <grset as="gran">
+            <group>
+              <column table="this" column="gran" />
+            </group>
+            <where>
+              <call function="!=">
+                <column table="this" column="gran" />
+                <const function="and" type="string">'transit'</const>
+              </call>
+            </where>
+            <grset as="point" order="sequential_number">
+              <group>
+                <column table="this" column="kod_point" />
+                <column table="this" column="sequential_number" />
+              </group>
+              <where>
+                <call function="=">
+                  <column table="this" column="tr" />
+                  <const function="and">0</const>
+                </call>
+              </where>
+            </grset>
+          </grset>
+          <grset as="point" order="sequential_number" exclude="1">
+            <group>
+              <column table="this" column="kod_point" />
+            </group>
+            <where>
+              <call function="=">
+                <column table="this" column="tr" />
+                <const function="and">0</const>
+              </call>
+            </where>
+          </grset>
+          <grset as="point_tr_p" order="sequential_number">
+            <group>
+              <column table="this" column="kod_dog_p" />
+              <column table="this" column="kod_point" exclude="1" />
+            </group>
+            <where>
+              <call function="=">
+                <column table="this" column="tr" />
+                <const function="and">1</const>
+              </call>
+            </where>
+            <grset as="point_tr">
+              <group>
+                <column table="this" column="kod_point" />
+                <column table="this" column="sequential_number" />
+              </group>
+            </grset>
+          </grset>
+          <where>
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="kod_dog" />
+              </call>
+            </call>
+          </where>
+        </grset>
+      </grouping>
+    </query>
+    <query name="main64483_2" timestamp="13.10.2022 10:13:58">
+      <select>
+        <column table="a" column="sqlb_rep_64483_tbl_id" />
+        <column table="a" column="feed_line" />
+        <column table="a" column="supply_point" />
+        <column table="a" column="name_object" />
+        <column table="a" column="place_installation" />
+        <column table="a" column="type_el_meter" />
+        <column table="a" column="el_meter_number" />
+        <column table="a" column="accuracy_class_el_meter" />
+        <column table="a" column="curr_transformer_type" />
+        <column table="a" column="voltage_transformer_type" />
+        <column table="a" column="date_verif_el_meter" />
+        <column table="a" column="design_factor" />
+        <column table="a" column="curr_transformer_num_1" />
+        <column table="a" column="curr_transformer_num_2" />
+        <column table="a" column="curr_transformer_num_3" />
+        <column table="a" column="accuracy_class_curr_trans" />
+        <column table="a" column="date_verif_curr_transformer" />
+        <column table="a" column="curr_trans_design_factor" />
+        <column table="a" column="voltage_transformer_num_1" />
+        <column table="a" column="voltage_transformer_num_2" />
+        <column table="a" column="voltage_transformer_num_3" />
+        <column table="a" column="accuracy_class_voltage_trans" />
+        <column table="a" column="date_verif_voltage_trans" />
+        <column table="a" column="voltage_trans_design_factor" />
+        <column table="a" column="initial_indications" />
+        <column table="a" column="constant_loss" />
+        <column table="a" column="variable_loss" />
+        <column table="a" column="maximum_power" />
+        <column table="a" column="voltage_level_point" />
+        <column table="a" column="balance_affiliation" />
+        <column table="a" column="actual_voltage_level" />
+        <column table="a" column="reliability_category" />
+        <column table="a" column="price_category" />
+        <column table="a" column="voltage_level_tariff" />
+      </select>
+      <from>
+        <query name="sqlb_rep_64483_tbl" as="a" />
+      </from>
+    </query>
+    <query name="query_fio" timestamp="25.11.2022 14:13:42">
+      <params>
+        <param name="kod_emp" />
+      </params>
+      <select>
+        <column table="a" column="dol" />
+        <column table="a" column="fio_small" type="string" />
+        <column table="a" column="kod_emp" />
+        <column table="a" column="name_dep_small" type="string" />
+      </select>
+      <from>
+        <query name="sqlb_signatory_view" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=" optional="1">
+            <column table="a" column="kod_emp" />
+            <useparam table="d" column="kodp" name="kod_emp" />
+          </call>
+          <call function="=">
+            <call function="rownum" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <fields>
+    <field id="field_signatory" title="Подписант" controlType="UICombo" type="number" name="kod_emp" timestamp="18.11.2022 15:22:52">
+      <listquery>
+        <query name="signatory_list" />
+      </listquery>
+      <defaultquery>
+        <query name="signatory_list_def" />
+      </defaultquery>
+    </field>
+  </fields>
+</root>

@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_isp_main_el" title="Исполнительное производство [:a.kodp]" security-id="asuse_ur_isp" with-behavior="0" timestamp="23.09.2023 23:17:28">
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">219</const>
+          <const>234</const>
+          <const exclude="1">158</const>
+        </param>
+        <param name="kod_isp" type="number" />
+      </params>
+      <content>
+        <column table="a" column="kod_isp" title="" column-mandatory="1" default="kod_isp" parname="cur_kod_isp" editable="ur_folders_is_not_new" editable-invert="1" />
+        <call function="if" as="is_el" table="a" type="number" parname="is_el" column-visible="0">
+          <call function="=">
+            <fact column="rs_esys_kod_esys" table="a" />
+            <const>1</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="a" column="kodp" title="" column-editable="0" parname="kodp" />
+        <uicommand name="open_form_finance" width-fixed="1" editable="kodp" visible="show_doc_tabs">
+          <useparam name="dep" />
+          <useparam name="kodp" />
+        </uicommand>
+        <fact table="a" column="kr_dog_name" />
+        <tabcontainer>
+          <fieldgroup title="Папка" show-toolbar="1">
+            <toolbar>
+              <uicommand button-type="custom-refresh" editable="ur_folders_is_not_new" action-type="refresh-form" />
+              <uicommand button-type="custom-commit" editable="a_has_changes" action-type="custom">
+                <useaction action-type="save" />
+                <useaction name="arbitrage_save_folder_category">
+                  <useparam name="kodp" />
+                  <useparam name="kod_category" />
+                </useaction>
+              </uicommand>
+            </toolbar>
+            <column table="kod_isp" column="dat_function" />
+            <column table="kod_isp" column="dat_srok" title="Срок отсрочки / рассрочки" />
+            <column table="a" column="kod_folders" exclude="1" />
+            <column table="a" column="kod_podr" as="kod_podr" parname="dep" />
+            <column table="a" column="kodp_new" exclude="1" />
+            <column table="a" column="kod_emp" />
+            <column table="a" column="vvod" editable="0" exclude="1" />
+            <column table="kod_folders" column="vvod" />
+            <column table="a" column="dat_create" title="Дата начала исполнительного производства" />
+            <fact column="ur_hist_mat_dec_dat_resh" title="Дата вынесения решения суда" table="a" />
+            <fact table="a" column="ur_dp_priz_hnd_plus_vvod" title="Задолженность по решению суда" />
+            <fact table="a" column="ur_opl_do_il_hnd_plus_vvod" title="Оплата до выдачи ИЛ" />
+            <fact table="a" column="dolg_on_il_hnd_plus_vvod" title="Задолженность на дату выдачи исп. листа" />
+            <fact table="a" column="ur_opl_posl_il_hnd_plus_vvod" title="Оплата по исп. листу" />
+            <fact table="a" column="dolg_resh_tek_hnd_plus_vvod" title="Остаток долга по исп. листу" comment="прошлое название &quot;Текущая задолженность&quot; заменил по 36144(1)" />
+            <fact column="kr_dogovor_name_group_cust" table="kodp" title="Группа потребления " />
+            <column table="a" column="kod_category" column-visible="rs_esys_is_1" parname="kod_category" />
+            <column table="a" column="dat_finish" />
+            <column table="a" column="num_doc" />
+            <column table="a" column="is_not_new" parname="ur_folders_is_not_new" as="is_not_new" column-visible="0" />
+            <call function="if" as="kod_esys10_other_visible" table="a" type="number" parname="kod_esys10_other_visible" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="a" column="is_not_new" />
+                </call>
+                <call function="=">
+                  <fact column="rs_esys_kod_esys" table="a" />
+                  <const>1</const>
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="if" as="show_vvod_tabs" table="a" type="number" parname="show_vvod_tabs" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="a" column="is_not_new" />
+                </call>
+                <call function="=1">
+                  <column table="kod_folders" column="vvod" />
+                </call>
+                <call function="!=">
+                  <call function="user_rights_kod_menu">
+                    <const>189006</const>
+                  </call>
+                  <const>2</const>
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="if" as="show_doc_tabs" table="a" type="number" parname="show_doc_tabs" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="a" column="is_not_new" />
+                </call>
+                <call function="=0">
+                  <column table="kod_folders" column="vvod" />
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+          </fieldgroup>
+          <fieldgroup visible="show_doc_tabs" title="Работа судебного пристава" comment="По документам">
+            <useform object="a" name="form_ur_folders_isp_rsp" />
+          </fieldgroup>
+          <fieldgroup visible="show_vvod_tabs" title="Работа судебного пристава" comment="Ручной ввод">
+            <useform object="a" name="form_ur_folders_isp_vvod" />
+          </fieldgroup>
+          <fieldgroup title="Финансово-имущественная характеристика" comment="По документам">
+            <useform object="a" name="form_ur_folders_isp_har_fi" />
+          </fieldgroup>
+          <fieldgroup title="Инкассо" comment="По документам" visible="show_doc_tabs">
+            <useform object="a" name="form_ur_folders_isp_inkasso" />
+          </fieldgroup>
+          <fieldgroup title="Казначейство" comment="По документам" visible="show_doc_tabs">
+            <useform object="a" name="form_ur_folders_isp_kazn" />
+          </fieldgroup>
+          <fieldgroup visible="show_doc_tabs" title="Иная работа" comment="По документам">
+            <useform object="a" name="form_ur_folders_isp_other" />
+          </fieldgroup>
+          <fieldgroup visible="show_vvod_tabs" title="Иная работа" comment="Ручной ввод">
+            <useform object="a" name="form_ur_folders_isp_other_vvod" />
+          </fieldgroup>
+        </tabcontainer>
+        <column table="a" column="kod_vi" column-default="uk_vi_ish_kod" column-visible="0" />
+        <column table="a" column="kod_sdp" column-default="uk_sdp_isp_kod" column-visible="0" />
+        <column table="a" column="tep_el" column-default="rs_esys_tepel" column-visible="0" />
+        <column table="kod_isp" column="kod_folders" as="kod_folders_pp" parname="kod_folders_pp" column-visible="0" />
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders_isp" as="a" new-rows-vis-for-other-tbls="1">
+          <link name="kodp">
+            <dlink name="kr_dogovor" exclude="1" />
+          </link>
+          <link name="kod_isp">
+            <link name="kod_folders" />
+          </link>
+          <where>
+            <call function="=">
+              <column table="a" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

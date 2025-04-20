@@ -1,0 +1,709 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="60877-data" timestamp="21.10.2021 18:17:23">
+      <params>
+        <param part="54556-params" name="ym">
+          <const exclude="1">2021.08</const>
+        </param>
+        <param name="kod_dog" type="array">
+          <const exclude="1">(600000788,100001024)</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="if" group="sum" as="dolg_deb_per" title="Дебиторская задолженность на конец отчетного периода">
+          <call function="lt">
+            <column table="dat" column="val" />
+            <call function="ym begin time">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" as="opl_av" group="sum" title="оплата аванса за период">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="nach_av_per_30" title="Аванс 30 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>30</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_av_per_30" title="Аванс 30 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>30</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="nach_av_per_40" title="Аванс 40 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>40</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_av_per_40" title="Аванс 40 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>40</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="nach_other_av_per" title="другие авансы  за период" group="sum">
+          <call function="and">
+            <call function="not in">
+              <column table="kod_sf" column="perc" nvl="0" />
+              <const>(40,30)</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_other_av_per" title="другие авансы  за период" group="sum">
+          <call function="and">
+            <call function="not in">
+              <column table="kod_sf" column="perc" nvl="0" />
+              <const>(40,30)</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="perep_per" title="переплата за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_opl" column="ym" />
+              <useparam name="ym" />
+            </call>
+            <call function="=">
+              <column table="kod_opl" column="kod_type_opl" />
+              <const>1</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_real" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="perep_opl_per" title="погашение переплатой за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_opl" column="ym" />
+              <useparam name="ym" />
+            </call>
+            <call function="=">
+              <column table="kod_opl" column="kod_type_opl" />
+              <const>3</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_real" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="perep_opl_av" title="погашение авансом за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_opl" column="ym" />
+              <useparam name="ym" />
+            </call>
+            <call function="=">
+              <column table="kod_opl" column="kod_type_opl" />
+              <const>4</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_real" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" group="1" key="1" />
+        <column table="kodp" column="name" group="kod_dog" />
+        <column table="kod_dog" column="ndog" group="kod_dog" />
+        <call function="ym add month" as="prev_ym" group="max">
+          <useparam table="this" column="ym" group="" name="ym" />
+          <const>0</const>
+        </call>
+        <fact column="fin_ul_dolg_deb_per" title="Дебиторская задолженность на конец отчетного периода ВСЕГО, тыс. руб." group="sum" as="dz">
+          <withparams>
+            <call function="ym begin time">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </withparams>
+        </fact>
+        <fact column="dolg_deb_per" mp="-3" exclude="1" />
+        <call function="if" as="norm_dolg" title="Нормативная дебиторская задолженность" type="number" group="sum">
+          <call function="gt">
+            <call function="smallest">
+              <column table="this" column="fin_ul_dolg_deb_per" window="kod_dog" group="" />
+              <column table="this" column="norm" window="kod_dog" group="" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="if">
+            <call function="ge">
+              <column table="this" column="norm" window="kod_dog" group="" />
+              <column table="this" column="fin_ul_dolg_deb_per" window="kod_dog" group="" />
+            </call>
+            <column table="this" column="fin_ul_dolg_deb_per" group="" />
+            <column table="this" column="norm" group="" />
+          </call>
+          <const>0</const>
+        </call>
+        <fact column="fin_ul_nachisl_osn" as="nachisl_osn_by_rym" if="ym" title="Начислено за отчетный период" group="sum">
+          <if>
+            <call function="and">
+              <call function="=" exclude="1">
+                <column table="kod_sf" column="ym_vozn" />
+                <column table="this" column="prev_ym" group="" />
+              </call>
+              <call function="=">
+                <column table="kod_sf" column="ym" />
+                <column table="this" column="prev_ym" group="" />
+              </call>
+              <call function="not" exclude="1">
+                <call function="and">
+                  <call function="=1">
+                    <column table="kod_sf" column="pr_hand" />
+                  </call>
+                  <call function="is null">
+                    <column table="kod_sf" column="kod_sf_first" />
+                  </call>
+                  <call function="lt">
+                    <fact column="fin_ul_opl_sf_osn" />
+                    <const>0</const>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </if>
+        </fact>
+        <fact column="fin_ul_nachisl_av" as="nachisl_av" if="sf_rym" group="sum" title="Промежуточный платеж (аванс согласно условиям договора)">
+          <if>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <column table="this" column="prev_ym" group="" />
+            </call>
+          </if>
+        </fact>
+        <call function="-nvl" as="norm" group="sum" title=" текущая задолженность">
+          <column table="this" column="nachisl_osn_by_rym" group="" />
+          <column column="opl_av" table="this" exclude="1" />
+          <column table="this" column="perep_opl_per" group="" />
+          <column table="this" column="perep_opl_av" group="" />
+        </call>
+        <fact title="Сверхнормативная задолженность(деб)" group="sum" as="sverh_dolg" column="fin_ul_sverh_dolg_deb_ng" mp="-3" exclude="1">
+          <withparams>
+            <call function="ym begin time">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </withparams>
+        </fact>
+        <call function="if" as="sverh_dolg" title="Нормативная дебиторская задолженность" type="number" group="sum">
+          <call function="ge">
+            <call function="-nvl">
+              <column table="this" column="fin_ul_dolg_deb_per" window="kod_dog" group="" />
+              <column table="this" column="norm_dolg" window="kod_dog" group="" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="fin_ul_dolg_deb_per" window="kod_dog" group="" />
+            <column table="this" column="norm_dolg" window="kod_dog" group="" />
+          </call>
+          <const>0</const>
+        </call>
+        <fact column="opl_av" group="sum" />
+        <fact column="nach_av_per_30" group="sum" />
+        <fact column="opl_av_per_30" group="sum" />
+        <fact column="nach_av_per_40" group="sum" />
+        <fact column="opl_av_per_40" group="sum" />
+        <fact column="nach_other_av_per" group="sum" />
+        <fact column="opl_other_av_per" group="sum" />
+        <fact column="perep_per" group="sum" />
+        <fact column="perep_opl_per" group="sum" />
+        <fact column="perep_opl_av" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kodp" />
+          </link>
+          <link name="kod_sf" />
+          <link name="kod_opl" />
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=0">
+            <column table="kod_dog" column="pr_active" />
+          </call>
+          <call function="not in" optional="1">
+            <column table="kod_dog" column="kod_dog" />
+            <useparam name="kod_dog" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="60877" timestamp="20.10.2021 13:37:47">
+      <params>
+        <usepart name="kod_dog" type="array" part="60877-params">
+          <const exclude="1">(600000788,100001329,100001337)</const>
+        </usepart>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" key="1" />
+        <column table="a" column="name" />
+        <column table="a" column="ndog" />
+        <call function="ym add month" as="prev_ym" group="max" exclude="1">
+          <useparam table="this" column="ym" group="" name="ym" />
+          <const>0</const>
+        </call>
+        <column column="dz" table="a" mp="-3" />
+        <column table="a" column="norm_dolg" mp="-3" />
+        <call function="if" as="sverh_dolg" title="Нормативная дебиторская задолженность" type="number" mp="-3">
+          <call function="ge">
+            <call function="-nvl">
+              <column table="this" column="dz" window="kod_dog" group="" />
+              <column table="this" column="norm_dolg" window="kod_dog" group="" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="dz" window="kod_dog" group="" />
+            <column table="this" column="norm_dolg" window="kod_dog" group="" />
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="sverh_dolg" mp="-3" exclude="1" />
+        <column table="a" column="nachisl_osn_by_rym" mp="-3" />
+        <column table="a" column="nach_av_per_30" mp="-3" />
+        <column table="a" column="nach_av_per_40" mp="-3" />
+        <column table="a" column="opl_av_per_30" title="Оплачено в отчетном периоде ВСЕГО, тыс. руб" mp="-3" />
+        <column table="a" column="opl_av_per_40" title="Оплачено в отчетном периоде ВСЕГО, тыс. руб" mp="-3" />
+        <column table="a" column="nach_other_av_per" title="Начислено в отчетном периоде, тыс. руб" mp="-3" />
+        <column table="a" column="opl_other_av_per" title="Оплачено в отчетном периоде ВСЕГО, тыс. руб" mp="-3" />
+        <column column="perep_per" table="a" title="Переплата в отчетном периоде, тыс. руб" mp="-3" />
+        <column column="perep_opl_per" table="a" title="Погашение переплатой в отчетном периоде, тыс. руб" mp="-3" />
+        <column column="perep_opl_av" table="a" title="Погашение авансом в отчетном периоде, тыс. руб" mp="-3" />
+      </select>
+      <from>
+        <query name="60877-data" as="a">
+          <usepart part="60877-withparams" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="gt">
+            <column table="a" column="dz" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="60877-data_test" timestamp="21.10.2021 18:16:15">
+      <params>
+        <param part="54556-params" name="ym">
+          <const>2021.09</const>
+        </param>
+        <param name="kod_dog" type="array">
+          <const>(100001022)</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="if" group="sum" as="dolg_deb_per" title="Дебиторская задолженность на конец отчетного периода">
+          <call function="lt">
+            <column table="dat" column="val" />
+            <call function="ym begin time">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" as="nach_av_per_30" title="Аванс 30 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>30</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="nach_av" title="Аванс 30 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>30</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_av" title="Аванс под rum" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_av_per_30" title="Аванс 30 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>30</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="nach_av_per_40" title="Аванс 40 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>40</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_av_per_40" title="Аванс 40 за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="perc" />
+              <const>40</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="nach_other_av_per" title="другие авансы  за период" group="sum">
+          <call function="and">
+            <call function="not in">
+              <column table="kod_sf" column="perc" nvl="0" />
+              <const>(40,30)</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="opl_other_av_per" title="другие авансы  за период" group="sum">
+          <call function="and">
+            <call function="not in">
+              <column table="kod_sf" column="perc" nvl="0" />
+              <const>(40,30)</const>
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="fin_ul_opl_sf_av" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="perep_per" title="переплата за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_opl" column="ym" />
+              <useparam name="ym" />
+            </call>
+            <call function="=">
+              <column table="kod_opl" column="kod_type_opl" />
+              <const>1</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_real" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="perep_opl_per" title="погашение переплатой за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_opl" column="ym" />
+              <useparam name="ym" />
+            </call>
+            <call function="=">
+              <column table="kod_opl" column="kod_type_opl" />
+              <const>3</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_real" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+        <call function="if" as="perep_opl_av" title="погашение авансом за период" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_opl" column="ym" />
+              <useparam name="ym" />
+            </call>
+            <call function="=">
+              <column table="kod_opl" column="kod_type_opl" />
+              <const>4</const>
+            </call>
+          </call>
+          <fact column="sr_opl_opl_real" title="Начислено в отчетном периоде, тыс. руб" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" group="1" key="1" />
+        <column table="kodp" column="name" group="kod_dog" />
+        <column table="kod_dog" column="ndog" group="kod_dog" />
+        <call function="ym add month" as="prev_ym" group="max">
+          <useparam table="this" column="ym" group="" name="ym" />
+          <const>0</const>
+        </call>
+        <fact column="fin_ul_dolg_deb_per" title="Дебиторская задолженность на конец отчетного периода ВСЕГО, тыс. руб." mp="-3" group="sum" as="dz" exclude="1">
+          <withparams>
+            <call function="ym begin time">
+              <call function="ym add month">
+                <useparam name="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </withparams>
+        </fact>
+        <fact column="dolg_deb_per" mp="-3" exclude="1" />
+        <call function="if" as="norm_dolg" title="Нормативная дебиторская задолженность" type="number" group="sum" mp="-3" exclude="1">
+          <call function="gt">
+            <call function="smallest">
+              <column table="this" column="fin_ul_dolg_deb_per" window="kod_dog" group="" />
+              <column table="this" column="norm" window="kod_dog" group="" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="if">
+            <call function="ge">
+              <column table="this" column="norm" window="kod_dog" group="" />
+              <column table="this" column="fin_ul_dolg_deb_per" window="kod_dog" group="" />
+            </call>
+            <column table="this" column="fin_ul_dolg_deb_per" group="" />
+            <column table="this" column="norm" group="" />
+          </call>
+          <const>0</const>
+        </call>
+        <fact column="fin_ul_nachisl_osn" as="nachisl_osn_by_rym" if="ym" title="Начислено за отчетный период" group="sum" mp="-3" exclude="1">
+          <if>
+            <call function="and">
+              <call function="=" exclude="1">
+                <column table="kod_sf" column="ym_vozn" />
+                <column table="this" column="prev_ym" group="" />
+              </call>
+              <call function="=">
+                <column table="kod_sf" column="ym" />
+                <column table="this" column="prev_ym" group="" />
+              </call>
+              <call function="not" exclude="1">
+                <call function="and">
+                  <call function="=1">
+                    <column table="kod_sf" column="pr_hand" />
+                  </call>
+                  <call function="is null">
+                    <column table="kod_sf" column="kod_sf_first" />
+                  </call>
+                  <call function="lt">
+                    <fact column="fin_ul_opl_sf_osn" />
+                    <const>0</const>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </if>
+        </fact>
+        <fact column="fin_ul_nachisl_av" as="nachisl_av" if="sf_rym" group="sum" title="Промежуточный платеж (аванс согласно условиям договора)" exclude="1">
+          <if>
+            <call function="=">
+              <column table="kod_sf" column="rym" />
+              <column table="this" column="prev_ym" group="" />
+            </call>
+          </if>
+        </fact>
+        <call function="-nvl" as="norm" group="sum" title=" текущая задолженность" exclude="1">
+          <column table="this" column="nachisl_osn_by_rym" group="" />
+          <column column="opl_av" table="this" />
+          <column table="this" column="perep_opl_per" group="" />
+          <column table="this" column="perep_opl_av" group="" />
+        </call>
+        <fact column="opl_av" group="sum" mp="-3" exclude="1" />
+        <call function="if" as="sverh_dolg" title="Нормативная дебиторская задолженность" type="number" group="sum" mp="-3" exclude="1">
+          <call function="gt">
+            <call function="-nvl">
+              <column table="this" column="dz" window="kod_dog" group="" />
+              <column table="this" column="norm_dolg" window="kod_dog" group="" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="dz" window="kod_dog" group="" />
+            <column table="this" column="norm_dolg" window="kod_dog" group="" />
+          </call>
+          <const>0</const>
+        </call>
+        <fact column="nach_av_per_30" group="sum" mp="-3" exclude="1" />
+        <fact column="opl_av_per_30" group="sum" mp="-3" exclude="1" />
+        <fact column="nach_av_per_40" group="sum" mp="-3" exclude="1" />
+        <fact column="opl_av_per_40" group="sum" mp="-3" exclude="1" />
+        <fact column="nach_other_av_per" group="sum" mp="-3" exclude="1" />
+        <fact column="opl_other_av_per" group="sum" mp="-3" exclude="1" />
+        <fact column="perep_per" group="sum" mp="-3" exclude="1" />
+        <fact column="perep_opl_per" group="sum" mp="-3" exclude="1" />
+        <fact column="perep_opl_av" group="sum" mp="-3" exclude="1" />
+        <fact column="nach_av" group="sum" mp="-3" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kodp" />
+          </link>
+          <link name="kod_sf" />
+          <link name="kod_opl" />
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=0">
+            <column table="kod_dog" column="pr_active" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_dog" column="kod_dog" />
+            <useparam name="kod_dog" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <forms>
+    <form name="60877" title="Отчет по задолженности" timestamp="22.11.2021 13:53:28">
+      <customers>
+        <customer id="16" />
+      </customers>
+      <content>
+        <usefield field="asuse_ym_tek" name="ym" />
+        <usefield field="asuse_kod_dog" name="kod_dog" title="Исключаемые договора" />
+      </content>
+    </form>
+  </forms>
+  <parts>
+    <part id="60877-params" timestamp="16.09.2021 18:44:31">
+      <param name="ym">
+        <const type="number">2019</const>
+      </param>
+      <param name="kod_dog">
+        <const type="number">2019</const>
+      </param>
+    </part>
+    <part id="60877-withparams" timestamp="16.09.2021 18:46:30">
+      <withparams>
+        <useparam name="ym" />
+        <useparam name="kod_dog" />
+      </withparams>
+    </part>
+  </parts>
+  <reports>
+    <report name="60877" title="Отчёт по дебиторской задолженности" timestamp="16.09.2021 20:30:53" form="60877">
+      <params>
+        <usepart part="60877-params" />
+      </params>
+      <print-templates exclude="1">
+        <excel exclude="1">
+          <template name="54556.xlsx" title="Начисления договоров" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="16" />
+      </customers>
+      <queries>
+        <query name="60877" as="a">
+          <columns>
+            <column table="a" name="kod_dog" title="" default="0" />
+            <column table="a" name="name" title="Наименование абонента" default="0" />
+            <column table="a" name="ndog" title="Номер договора" default="0" />
+            <column table="a" name="dz" title="Дебиторская задолженность на конец отчетного периода ВСЕГО, тыс. руб." default="0" />
+            <band title="Дебиторская задолженность в т.ч">
+              <column table="a" name="norm_dolg" title="Дебиторская задолженность на конец отчетного периода Текущая, тыс.руб." default="0" />
+              <column table="a" name="sverh_dolg" title="Дебиторская задолженность Просроченная, тыс.руб." default="0" />
+            </band>
+            <column table="a" name="nachisl_osn_by_rym" title="Начислено в отчетном периоде ВСЕГО, тыс. руб" default="0" />
+            <band title="Авансы 30 %">
+              <column table="a" name="nach_av_per_30" title="Начислено в отчетном периоде, тыс. руб" default="0" />
+              <column table="a" name="opl_av_per_30" title="Оплачено в отчетном периоде ВСЕГО, тыс. руб" default="0" />
+            </band>
+            <band title="Авансы 40 %">
+              <column table="a" name="nach_av_per_40" title="Начислено в отчетном периоде, тыс. руб" default="0" />
+              <column table="a" name="opl_av_per_40" title="Оплачено в отчетном периоде ВСЕГО, тыс. руб" default="0" />
+            </band>
+            <band title="Другие авансы">
+              <column table="a" name="nach_other_av_per" title="Начислено в отчетном периоде, тыс. руб" default="0" />
+              <column table="a" name="opl_other_av_per" title="Оплачено в отчетном периоде ВСЕГО, тыс. руб" default="0" />
+            </band>
+            <column table="a" name="perep_per" title="Переплата в отчетном периоде, тыс. руб" default="0" />
+            <column table="a" name="perep_opl_per" title="Погашение переплатой в отчетном периоде, тыс. руб" default="0" />
+            <column table="a" name="perep_opl_av" title="Погашение авансом в отчетном периоде, тыс. руб" default="0" />
+          </columns>
+          <usepart part="60877-withparams" />
+        </query>
+      </queries>
+    </report>
+  </reports>
+</root>

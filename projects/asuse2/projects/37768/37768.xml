@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="37768-3" timestamp="16.06.2017 15:46:45" use-repository="1" is-report="1" visible="0" title="Архивные договоры с задолженностью">
+      <events exclude="1">
+        <useaction event-name="double-click" name="open_form_finance">
+          <column table="this" column="dep" />
+          <column table="this" column="kodp" />
+        </useaction>
+      </events>
+      <customers>
+        <customer id="101" />
+      </customers> 
+      <select>
+        <column table="kod_dog_fin" column="kod_dog" group="1" />
+        <column table="kodp" column="kodp" group="1" />
+        <column table="dep" column="kodp" as="dep" group="1" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" group="1" />
+        <column table="kodp" column="nump" group="1" />
+        <column table="kodp" column="name" group="1" />
+        <column table="kod_dog_fin" column="ndog" group="1" />
+        <column table="kod_dog_fin" column="dat_fin" group="1" />
+        <column table="vid_real_no_av" column="sname" group="1" />
+        <fact column="fin_ul_ob" title="Дебиторская задолженность" group="sum" />
+        <fact column="fin_ul_ob_kr" group="sum" />
+        <call as="all_dolg" function="-nvl" title="Задолженность всего">
+          <column table="this" column="fin_ul_ob" />
+          <column table="this" column="fin_ul_ob_kr" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="pr_active" />
+              <link name="kodp" />
+              <link name="dep" />
+            </link>
+          </link>
+          <link name="vid_real_no_av" />
+          <where>
+            <call function="=nvl">
+              <column table="kod_dog" column="pr_active" />
+              <const>1</const>
+            </call>
+            <call function="is not null">
+              <column table="vid_real_no_av" column="vid_real" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <having>
+        <call function="!=0">
+          <column table="this" column="fin_ul_ob" />
+          <column table="this" column="fin_ul_ob_kr" />
+        </call>
+      </having>
+      <!--<where>
+        <call function="and">
+          <call function="=">
+            <column column="kod_folders" table="ur_mat" />
+            <useparam name="fk_kod_folders" />
+          </call>
+        </call>
+      </where>-->
+    </query>
+  </queries>
+</root>

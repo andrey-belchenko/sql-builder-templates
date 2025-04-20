@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_kazn" class="1" timestamp="26.07.2021 04:08:31">
+      <select>
+        <column table="a" column="kod_kazn" type="number" key-dimension="kod_kazn" is-fact="1" agg="max" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_state" type="number" column-mandatory="1" />
+        <column table="a" column="num_reg" type="string" title="Номер документа в казначействе" column-editable="0" is-fact="1" agg="stragg" />
+        <column table="a" column="dat_otv" type="date" title="Дата исполнения" is-fact="1" agg="min" />
+        <column table="a" column="num_pril" type="string" title="" />
+        <column table="a" column="prim" type="string" title="Примечание" controlType="UITextEx" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="dat_doc" type="date" title="Дата документа в казначействе" dimension="dat_ur" column-mandatory="1" column-default="today" />
+        <column table="a" column="kod_dog_kazn" type="number" />
+        <column table="a" column="dat_podachi" type="date" title="Дата передачи в казначейство" column-mandatory="1" column-default="today" is-private-dimension="isp_dat_podachi" is-final-dimension="isp_dat_podachi" dimension="isp_dat_podachi" is-fact="1" fact="ur_kazn_dat_podachi_min" agg="min" />
+        <column table="a" column="dat_otz" type="date" title="Дата отзыва из казначейства" is-fact="1" agg="min" />
+        <column table="a" column="kodp" type="number" title="" />
+        <column table="a" column="kod_scan" type="number" title="" />
+        <column table="a" column="ogr_v" type="number" title="Удовлетворено расх. за введ. огр. реж. энергопотр." comment="расходы за введение ограничения, удовлетворенные на сумму (татэнерго 31013)" agg="sum" fact="ur_kazn_ogr_v" />
+        <column table="a" column="sud_izd_v" type="number" title="Удовлетворено судебные издержки" comment="судебные издержки, удовлетворенные на сумму (татэнерго 31013)" fact="ur_kazn_sud_izd_v" agg="sum" />
+        <column table="a" column="astrent_v" type="number" comment="астрент, удовлетворенный на сумму (32564)" title="Удовлетворено астрент" fact="ur_kazn_astrent_v" agg="sum" />
+        <call function="if" type="number" as="kod_ur_state" fact="kod_ur_state_5" agg="max">
+          <call function="is not null">
+            <column table="this" column="dat_doc" />
+          </call>
+          <const>5</const>
+        </call>
+        <column table="ur_dogplat" column="kod_dog" dgroup="max" />
+        <column table="this" column="dat_doc" as="dat_doc_min" fact="ur_kazn_dat_doc_min" agg="min" />
+        <call function="+nvl" as="hand_opl" fact="ur_kazn_hand_opl" agg="sum">
+          <column table="this" column="ogr_v" />
+          <column table="this" column="sud_izd_v" />
+          <column table="this" column="astrent_v" />
+        </call>
+        <const as="cnt" type="number" agg="sum" is-fact="1" fact="ur_kazn_count">1</const>
+        <call function="||" as="info" agg="max" is-fact="1" fact="ur_kazn_info">
+          <call function="if">
+            <call function="is not null">
+              <column table="kod_ur_state" column="kod_ur_state" />
+            </call>
+            <call function="||">
+              <const>'Состояние: '</const>
+              <column table="kod_ur_state" column="name" />
+            </call>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="a" column="dat_otv" />
+            </call>
+            <call function="||">
+              <const>chr(10)||chr(13)</const>
+              <const>'Дата исполнения: '</const>
+              <call function="date to char">
+                <column table="a" column="dat_otv" />
+              </call>
+            </call>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="a" column="dat_otz" />
+            </call>
+            <call function="||">
+              <const>chr(10)||chr(13)</const>
+              <const>'Дата отзыва из банка: '</const>
+              <call function="date to char">
+                <column table="a" column="dat_otz" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="kod_state" column="name" as="state_name" is-fact="1" agg="stragg" />
+      </select>
+      <from>
+        <table name="ur_kazn" as="a" />
+        <query name="us_state" as="kod_state" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_state" />
+            <column table="kod_state" column="kod_state" />
+          </call>
+        </query>
+        <query name="ks_kazn" as="kod_dog_kazn" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog_kazn" />
+            <column table="kod_dog_kazn" column="kod_kazn" />
+          </call>
+        </query>
+        <query name="ur_folders" as="kod_folders" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="ur_scan_docs" as="kod_scan" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_scan" />
+            <column table="kod_scan" column="kod_scan" />
+          </call>
+        </query>
+        <query name="ur_state" as="kod_ur_state" join="left outer" dimension="kod_ur_state">
+          <call function="=">
+            <column table="this" column="kod_ur_state" />
+            <column table="kod_ur_state" column="kod_ur_state" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ur_folders_isp" as="kod_folders_isp" join="left outer" dimension="kod_folders_isp" dname="ur_kazn_isp">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders_isp" column="kod_folders" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="ur_dogplat" />
+        <dlink name="ur_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1">
+            <dimlink name="kod_sf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+            <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+            <dimlink dimension="1" is-final-dimension="1" is-private-dimension="1" name="kod_deb" />
+            <dimlink dimension="1" is-final-dimension="1" is-private-dimension="1" name="vid_real" />
+            <dimlink dimension="1" is-final-dimension="1" is-private-dimension="1" name="ym_vozn" />
+          </dimlink>
+        </dlink>
+        <link name="kod_folders_isp" as="kod_folders_isp1">
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+      <events>
+        <useaction event-name="object-save" action-type="custom">
+          <useaction action-type="execute-update" call="ur_kazn_upd_num_reg">
+            <column table="this" column="kod_kazn" />
+          </useaction>
+        </useaction>
+      </events>
+    </query>
+  </queries>
+</root>

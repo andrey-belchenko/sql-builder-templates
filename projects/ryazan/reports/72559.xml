@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="72559" title="ФОРМА 151 (ИНФОРМАЦИЯ О СУБЪЕКТАХ)" timestamp="20.08.2024 09:08:03">
+      <usefield field="asuse_dep_single" name="p_dep" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym" />
+    </form>
+  </forms>
+  <reports>
+    <report name="72559" title="13. ФОРМА 151 (ИНФОРМАЦИЯ О СУБЪЕКТАХ)" form="72559" nogrid="1" timestamp="10.06.2025 20:35:56">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param type="number" name="p_dep" />
+        <param type="number" name="p_ym" />
+      </params>
+      <print-templates>
+        <excel>
+          <template print-xlsx="1" name="72559.xlsx" title="ФОРМА 151 (ИНФОРМАЦИЯ О СУБЪЕКТАХ)" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[DECLARE
+    s_data_id rr_temp.skod%type;   
+ BEGIN
+  s_data_id    :='3d8b60b1-7255-916a-ac16-8c99c9d294fb';
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+
+INSERT INTO rr_temp (skod, n1, s1, s2, s3)
+with 
+  param as (select  kg.ym_first_day(:p_ym) as p_first_day_ym
+	                 , kg.ym_last_day(:p_ym) as p_last_day_ym
+                	 , kg.ym_first_day(kg.ym_add(:p_ym,-1)) as p_first_day_ym_pre
+	                 , kg.ym_last_day(kg.ym_add(:p_ym,-1)) as p_last_day_ym_pre
+                   from dual
+           )
+ , vdog as (select kod_vdog from ks_vdog where kod_tipdog = 0)
+ , pre as  (
+       SELECT  nk_adress.kf_get_sf(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END) as kod_srf
+        , nk_adress.kp_get_region_name(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END) as kod_region_name
+        , substr(nk_adress_r.get_oktmo_k_house(Decode(ob.kodd, -1, d.kod_d_dog,ob.kodd)),1,2) as srf_oktmo
+        , n.kod_numobj as kod_numobj
+        , CASE WHEN COALESCE(n.DAT_POSTAV_OBJ,n.dat_create) between p_first_day_ym and p_last_day_ym THEN 1 --'добавлена' 
+               WHEN n.dat_fin between p_first_day_ym_pre and p_last_day_ym_pre THEN 2 --'удалена'
+               ELSE CASE WHEN COALESCE(n.DAT_POSTAV_OBJ,n.dat_create) < p_first_day_ym THEN 3 --'без изменений' 
+                    ELSE 4 --'' 
+                    END
+          END as status
+    FROM kr_dogovor d
+        INNER JOIN kr_numobj n ON d.kod_dog = n.kod_dog
+        INNER JOIN kr_object ob ON n.kod_obj = ob.kod_obj
+        INNER JOIN vdog v ON d.kod_vdog = v.kod_vdog
+    cross join param
+      where 1=1 { AND d.dep IN :p_dep}  
+           and (n.dat_fin is null OR n.dat_fin is not null AND n.dat_fin >= p_first_day_ym_pre) -- НЕ берем договоры (все объекты), которые закончили свое действие за месяц до периода отчета
+      )
+, pre_obj as (
+   select srf_oktmo
+       , max(kod_region_name) as kod_region_name   
+       , count(CASE WHEN status= 1 THEN kod_numobj END) as s1
+       , count(CASE WHEN status= 2 THEN kod_numobj END) as s2
+       , count(CASE WHEN status= 3 THEN kod_numobj END) as s3      
+     from pre
+	 where status < 4
+     group by srf_oktmo 
+    )
+select s_data_id 
+     ,  srf_oktmo   -- код региона из ОКТМО
+     , kod_region_name
+     , CASE WHEN :p_dep = 1172 THEN 'ЭСК' 
+            WHEN :p_dep = 27435 THEN 'ГП' END as status_dep
+     , CASE WHEN s3 > 0 OR (s1 > 0 AND s2 > 0) THEN 'без изменений' 
+            WHEN s1 > 0 THEN 'прибыл'
+            WHEN s2 > 0 THEN 'убыл'
+        END as status
+from pre_obj
+;
+END;   ]]></procedure>
+      <queries>
+        <query name="72559_main_data" as="a" />
+        <query name="title_info" as="t">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_ym" />
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="72559_main_data" title="Основной запрос отчета № 13." order="n1" timestamp="15.01.2025 18:36:51">
+      <select>
+        <column table="a" column="n1" type="number" as="srf_oktmo" title="Код субъекта РФ" key="1" fixed="1" />
+        <column table="a" column="s1" type="string" as="kod_region_name" title="Наименование субъекта РФ" />
+        <column table="a" column="s2" type="string" as="status_dep" title="Статус участия" />
+        <column table="a" column="s3" type="string" as="status" title="Изменения" />
+      </select>
+      <from>
+        <table name="rr_temp" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=">
+            <column table="a" column="skod" />
+            <const type="string">'3d8b60b1-7255-916a-ac16-8c99c9d294fb'</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

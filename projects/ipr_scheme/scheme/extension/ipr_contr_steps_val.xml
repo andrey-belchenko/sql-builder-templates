@@ -1,0 +1,572 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="ipr_contr_steps_val-date_case1">
+      <params>
+        <param name="date_mode" />
+        <param name="res_date" />
+      </params>
+      <call function="case">
+        <call function="when">
+          <call function="in">
+            <useparam name="date_mode" />
+            <array>1,3</array>
+          </call>
+          <const>null</const>
+        </call>
+        <call function="when">
+          <call function="=">
+            <useparam name="date_mode" />
+            <const>2</const>
+          </call>
+          <useparam name="res_date" />
+        </call>
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <useparam name="date_mode" />
+              <const>4</const>
+            </call>
+            <call function="is not null">
+              <column table="a" column="kod_doc_rel" />
+            </call>
+          </call>
+          <column table="kod_doc_rel" column="doc_date" />
+        </call>
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <useparam name="date_mode" />
+              <const>5</const>
+            </call>
+            <call function="is not null">
+              <column table="a" column="kod_doc_rel" />
+            </call>
+            <call function="!=nvl">
+              <column table="kod_template_contr_steps_val" column="is_head_step" />
+              <const>1</const>
+            </call>
+          </call>
+          <column table="kod_ipr_doc" column="doc_date" dgroup="min" />
+        </call>
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <useparam name="date_mode" />
+              <const>6</const>
+            </call>
+            <call function="is not null">
+              <column table="a" column="kod_doc_rel" />
+            </call>
+            <call function="!=nvl">
+              <column table="kod_template_contr_steps_val" column="is_head_step" />
+              <const>1</const>
+            </call>
+          </call>
+          <column table="kod_ipr_doc" column="doc_date" dgroup="max" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_contr_steps_val-date_case2">
+      <params>
+        <param name="pfx" />
+      </params>
+      <call function="case" type="date">
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="temp_[:pfx]_date" />
+              <const>5</const>
+            </call>
+            <call function="=">
+              <column table="a" column="is_head_step" />
+              <const>1</const>
+            </call>
+          </call>
+          <column table="b" column="[:pfx]_date_min" />
+        </call>
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="temp_[:pfx]_date" />
+              <const>6</const>
+            </call>
+            <call function="=">
+              <column table="a" column="is_head_step" />
+              <const>1</const>
+            </call>
+          </call>
+          <column table="b" column="[:pfx]_date_max" />
+        </call>
+        <call function="else">
+          <column table="a" column="[:pfx]_date" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_contr_steps_val-date_case3">
+      <params>
+        <param name="pfx" />
+        <param name="saved_date" />
+      </params>
+      <call function="if">
+        <call function="=">
+          <column table="a" column="is_closed" />
+          <const>1</const>
+        </call>
+        <useparam name="saved_date" />
+        <column table="this" column="[:pfx]_date_calc" />
+      </call>
+    </part>
+  </parts>
+  <queries>
+    <query name="ipr_contr_steps_val-test">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a"></query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_contr_steps_val" />
+          <const>43962</const>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_contr_steps_val_ext" class="1" extend="ipr_contr_steps_val" timestamp="06.09.2017 23:23:18">
+      <select>
+        <!--<usepart part="ipr_contr_steps_val-ypym">
+          <column table="this" column="plan_date_beg"/>
+          <const>'bp'</const>
+        </usepart>
+        <usepart part="ipr_contr_steps_val-ypym">
+          <column table="this" column="fact_date_beg"/>
+          <const>'bf'</const>
+        </usepart>-->
+        <column table="ipr_contr_steps_val_dt" column="bp_date" />
+        <column table="ipr_contr_steps_val_dt" column="ep_date" fact="ipr_cstep_ep_date" agg="max" />
+        <column table="ipr_contr_steps_val_dt" column="bf_date" />
+        <column table="ipr_contr_steps_val_dt" column="ef_date" fact="ipr_cstep_ef_date" agg="max" />
+        <column table="ipr_contr_steps_val_dt_mat" column="ef_date" fact="ipr_cstep_ef_date_mat" agg="max" comment="для отчета по хоз способу 41656, другой способ материализации" as="ef_date_mat" />
+        <call function="||" as="comments_all" fact="ipr_cstep_cmnt_all" agg="max">
+          <column table="this" column="comments" />
+          <column table="this" column="comments_fill" />
+        </call>
+        <!--<call function="ipr_tituls_display.getdatecontrsteps" as="bp_date1" >
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>0</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_tituls_display.getdatecontrsteps" as="ep_date1">
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>0</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_tituls_display.getdatecontrsteps" as="bf_date1">
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_tituls_display.getdatecontrsteps" as="ef_date1">
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>1</const>
+          <const>1</const>
+        </call>-->
+        <!--<column table="this" column="plan_date_beg" as="bp_date" title="Начало план"/>
+        <column table="this" column="plan_date_end" as="ep_date" title="Окончание план"/>
+        <column table="this" column="fact_date_beg" as="bf_date" title="Начало факт"/>
+        <column table="this" column="fact_date_end" as="ef_date" title="Окончание факт"/>-->
+        <!--<usepart part="ipr_contr_steps_val-ypym">
+          <column table="this" column="ep_date"/>
+          <const>'ep'</const>
+        </usepart>
+        <usepart part="ipr_contr_steps_val-ypym">
+          <column table="this" column="ef_date_uch"/>
+          <const>'ef'</const>
+        </usepart>-->
+        <call function="case" as="need" type="string" title="Событие/работа (требуется/ не требуется)">
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="ef_date" />
+            </call>
+            <const>'Да'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="is null">
+                <column table="this" column="ef_date" />
+              </call>
+              <call function="or">
+                <call function="is not null">
+                  <column table="this" column="bp_date" />
+                </call>
+                <call function="is not null">
+                  <column table="this" column="ep_date" />
+                </call>
+              </call>
+            </call>
+            <const>'Нет'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="is null">
+                <column table="this" column="ef_date" />
+              </call>
+              <call function="is null">
+                <column table="this" column="bp_date" />
+              </call>
+              <call function="is null">
+                <column table="this" column="ep_date" />
+              </call>
+              <call function="is null">
+                <column table="this" column="bf_date" />
+              </call>
+            </call>
+            <const>'Не требуется'</const>
+          </call>
+        </call>
+        <column table="kod_doc_prev" column="prev_doc" />
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val_dt" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_contr_steps_val" />
+            <column table="ipr_contr_steps_val_dt" column="kod_contr_steps_val" />
+          </call>
+        </query>
+        <query name="ipr_contr_steps_val_dt_mat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_contr_steps_val" />
+            <column table="ipr_contr_steps_val_dt_mat" column="kod_contr_steps_val" />
+          </call>
+        </query>
+        <!--<query name="ipr_contr_steps_val_ord" as="a1" join="left outer">
+          <using>
+            <column column="kod_contr_steps_val"/>
+          </using>
+        </query>-->
+        <query name="ipr_contr_steps_val_ord" as="ipr_contr_steps_val_ord" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_contr_steps_val" />
+            <column table="ipr_contr_steps_val_ord" column="kod_contr_steps_val" />
+          </call>
+        </query>
+        <query name="ipr_doc_steps" as="kod_doc_steps" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="kod_doc_steps" column="kod_doc" />
+          </call>
+        </query>
+        <query name="vv_ipr_contr_steps_prev_doc" as="kod_doc_prev" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_ipr" />
+              <column table="kod_doc_prev" column="kod_ipr" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_titul_ip" />
+              <column table="kod_doc_prev" column="kod_titul_ip" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_doc" />
+              <column table="kod_doc_prev" column="kod_doc" />
+            </call>
+          </call>
+        </query>
+        <query name="ipr_contr_steps_val" as="kod_contr_steps_val_prev" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="this" column="prev_doc" />
+              <column table="kod_contr_steps_val_prev" column="kod_doc" />
+            </call>
+            <!--<call function="=">
+              <column table="a" column="kod_titul_ip" />
+              <column table="kod_contr_steps_val_prev" column="kod_titul_ip" />
+            </call>-->
+            <call function="=">
+              <column table="a" column="kod_ipr" />
+              <column table="kod_contr_steps_val_prev" column="kod_ipr" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_template_contr_steps_val" />
+              <column table="kod_contr_steps_val_prev" column="kod_template_contr_steps_val" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_num" />
+              <column table="kod_contr_steps_val_prev" column="kod_num" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_doc_prev" />
+      </links>
+      <!--<where>
+        <call function="=">
+          <column table="a" column="kod_ipr"/>
+          <const>8255</const>
+        </call>
+      </where>-->
+    </query>
+    <query name="ipr_contr_steps_val_ord" order="ord2,ord1" class="1" timestamp="27.04.2016 13:40:50">
+      <select>
+        <column table="a" column="kod_contr_steps_val" />
+        <column table="a" column="kod_parent" />
+        <column table="kod_template_contr_steps_val" column="abbr" />
+        <call function="to_number" as="ord1" fixed="1">
+          <call function="replace">
+            <column table="kod_template_contr_steps_val" column="abbr" />
+            <const>'.'</const>
+            <const>''</const>
+          </call>
+        </call>
+        <call function="to_number" as="ord2" fixed="1">
+          <call function="substr">
+            <call function="replace">
+              <column table="a" column="kod_num" />
+              <const>'.'</const>
+              <const>''</const>
+            </call>
+            <const>1</const>
+            <const>1</const>
+          </call>
+        </call>
+        <call function="rownum" as="step_ord" />
+        <!--<call function="connect_by_isleaf" as="last_level" />-->
+        <call function="if" as="last_level" type="number">
+          <call function="=">
+            <column table="kod_template_contr_steps_val" column="is_head_step" />
+            <const>1</const>
+          </call>
+          <const>0</const>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a">
+          <link name="kod_template_contr_steps_val" />
+        </query>
+      </from>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_contr_steps_val" prior="1" />
+          <column table="a" column="kod_parent" />
+        </call>
+      </connect>
+      <start>
+        <call function="is null">
+          <column table="a" column="kod_parent" />
+        </call>
+      </start>
+    </query>
+    <query name="ipr_contr_steps_val_dt_mat" class="1" timestamp="15.08.2017 17:24:59" inherit="ipr_contr_steps_val_dt" materialize="1">
+      <select></select>
+      <from></from>
+    </query>
+    <query name="ipr_contr_steps_val_dt" class="1" timestamp="15.08.2017 17:24:59" comment="m9.1" hint="materialize">
+      <select>
+        <column table="a" column="kod_contr_steps_val" />
+        <usepart part="ipr_contr_steps_val-date_case2" as="bp_date_calc">
+          <const>'bp'</const>
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case2" as="ep_date_calc">
+          <const>'ep'</const>
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case2" as="bf_date_calc">
+          <const>'bf'</const>
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case2" as="ef_date_calc">
+          <const>'ef'</const>
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case3" as="bp_date" title="Начало план" description="Планируемая дата начала контрольного этапа">
+          <const>'bp'</const>
+          <column table="a" column="plan_date_beg" />
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case3" as="ep_date" title="Окончание план" description="Планируемая дата окончания контрольного этапа">
+          <const>'ep'</const>
+          <column table="a" column="plan_date_end" />
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case3" as="bf_date" title="Начало факт" description="Фактическая дата начала контрольного этапа">
+          <const>'bf'</const>
+          <column table="a" column="fact_date_beg" />
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case3" as="ef_date" title="Окончание факт" description="Фактическая  дата окончания контрольного этапа">
+          <const>'ef'</const>
+          <column table="a" column="fact_date_end" />
+        </usepart>
+        <column table="this" column="ef_date" as="ef_date_uch" title="Окончание факт(учет)">
+          <if>
+            <call function="ge">
+              <call function="year">
+                <call function="nvl">
+                  <column table="this" column="ep_date" />
+                  <column table="this" column="ef_date" />
+                </call>
+              </call>
+              <call function="year">
+                <column table="this" column="ef_date" />
+              </call>
+            </call>
+          </if>
+        </column>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val_dt1" as="a">
+          <slink name="ipr_contr_steps_val_dt3" as="b" />
+        </query>
+      </from>
+    </query>
+    <query name="ipr_contr_steps_val_dt2">
+      <select>
+        <call function="connect_by_root" as="kod_contr_steps_val">
+          <column table="a" column="kod_contr_steps_val" />
+        </call>
+        <column table="a" column="kod_contr_steps_val" as="child" />
+        <column table="a" column="bp_date" />
+        <column table="a" column="ep_date" />
+        <column table="a" column="bf_date" />
+        <column table="a" column="ef_date" />
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val_dt1" as="a"></query>
+      </from>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_contr_steps_val" prior="1" />
+          <column table="a" column="kod_parent" />
+        </call>
+      </connect>
+    </query>
+    <query name="ipr_contr_steps_val_dt3">
+      <select>
+        <column table="a" column="kod_contr_steps_val" group="1" />
+        <column table="a" column="bp_date" as="bp_date_max" group="max" />
+        <column table="a" column="bp_date" as="bp_date_min" group="min" />
+        <column table="a" column="ep_date" as="ep_date_max" group="max" />
+        <column table="a" column="ep_date" as="ep_date_min" group="min" />
+        <column table="a" column="bf_date" as="bf_date_max" group="max" />
+        <column table="a" column="bf_date" as="bf_date_min" group="min" />
+        <column table="a" column="ef_date" as="ef_date_max" group="max" />
+        <column table="a" column="ef_date" as="ef_date_min" group="min" />
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val_dt2" as="a"></query>
+      </from>
+    </query>
+    <query name="ipr_contr_steps_val_dt1">
+      <select>
+        <column table="a" column="kod_contr_steps_val" />
+        <column table="a" column="kod_parent" />
+        <column table="kod_doc" column="is_closed" />
+        <column table="kod_template_contr_steps_val" column="is_head_step" />
+        <column table="kod_template_contr_steps_val" column="plan_date_beg" as="temp_bp_date" />
+        <column table="kod_template_contr_steps_val" column="plan_date_end" as="temp_ep_date" />
+        <column table="kod_template_contr_steps_val" column="fact_date_beg" as="temp_bf_date" />
+        <column table="kod_template_contr_steps_val" column="fact_date_end" as="temp_ef_date" />
+        <column table="a" column="plan_date_beg" />
+        <column table="a" column="plan_date_end" />
+        <column table="a" column="fact_date_beg" />
+        <column table="a" column="fact_date_end" />
+        <column table="a" column="kod_doc_rel" />
+        <!--<call function="ipr_tituls_display.getdatecontrsteps" as="bp_date" >
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>0</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_tituls_display.getdatecontrsteps" as="ep_date">
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>0</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_tituls_display.getdatecontrsteps" as="bf_date">
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_tituls_display.getdatecontrsteps" as="ef_date">
+          <column table="a" column="kod_ipr"/>
+          <column table="a" column="kod_contr_steps_val"/>
+          <const>1</const>
+          <const>1</const>
+        </call>-->
+        <usepart part="ipr_contr_steps_val-date_case1" as="bp_date">
+          <column table="kod_template_contr_steps_val" column="plan_date_beg" />
+          <column table="a" column="plan_date_beg" />
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case1" as="ep_date">
+          <column table="kod_template_contr_steps_val" column="plan_date_end" />
+          <column table="a" column="plan_date_end" />
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case1" as="bf_date">
+          <column table="kod_template_contr_steps_val" column="fact_date_beg" />
+          <column table="a" column="fact_date_beg" />
+        </usepart>
+        <usepart part="ipr_contr_steps_val-date_case1" as="ef_date">
+          <column table="kod_template_contr_steps_val" column="fact_date_end" />
+          <column table="a" column="fact_date_end" />
+        </usepart>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a">
+          <link name="kod_template_contr_steps_val" />
+          <link name="kod_doc_rel" />
+          <link name="kod_doc" />
+          <link name="kod_ipr">
+            <dlink name="ipr_doc_by_ipr" pushpred="1">
+              <link name="kod_doc" as="kod_ipr_doc" />
+              <where>
+                <call function="=">
+                  <column table="kod_ipr_doc" column="kod_doc_type" />
+                  <column table="kod_doc_rel" column="kod_doc_type" />
+                </call>
+              </where>
+            </dlink>
+          </link>
+        </query>
+      </from>
+    </query>
+    <!--<query name="ipr_contr_steps_val_ord">
+      <select>
+        <column table="a" column="kod_contr_steps_val" type="number"/>
+        <column table="a" column="ord" type="number"/>
+      </select>
+      <from>
+        <table name="ipr_contr_steps_val_ord" as="a" view="1"/>
+      </from>
+    </query>-->
+    <query name="ipr_contr_steps_prev_doc" timestamp="01.03.2017 15:00:04" class="1" stored="vv_ipr_contr_steps_prev_doc">
+      <select>
+        <column table="kod_ipr" column="kod_ipr" group="1" />
+        <column table="kod_ipr" column="kod_titul_ip" group="1" />
+        <column table="a" column="kod_doc" group="1" />
+        <call function="ipr_tituls_display.getprevcontrstepsdoc" as="prev_doc" type="number">
+          <column table="this" column="kod_doc" />
+          <column table="this" column="kod_ipr" />
+          <column table="this" column="kod_titul_ip" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a">
+          <link name="kod_ipr" />
+        </query>
+      </from>
+    </query>
+  </queries>
+  <!--<views>
+    <view name="ipr_contr_steps_val_ord">
+      select a.kod_contr_steps_val kod_contr_steps_val, ROWNUM ord
+      from ipr_contr_steps_val a, ipr_template_contr_steps_val b
+      where b.kod_template_contr_steps_val=a.kod_template_contr_steps_val
+      START WITH a.kod_parent is null
+      CONNECT BY PRIOR kod_contr_steps_val = a.kod_parent
+      ORDER SIBLINGS BY b.abbr
+    </view>
+  </views>-->
+</root>

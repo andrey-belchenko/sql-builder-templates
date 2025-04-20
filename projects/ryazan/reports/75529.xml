@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="75529" title="2001. Отчет о начислениях по договорам энергоснабжения" timestamp="22.05.2025 12:35:53">
+      <usefield field="asuse_dep_single" type="number" name="p_dep" mandatory="1" title="Отделение" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym" type="number" mandatory="1" title="Период" />
+    </form>
+  </forms>
+  <reports>
+    <report name="75529" form="75529" title="2001. Отчет о начислениях по договорам энергоснабжения" nogrid="1" timestamp="22.05.2025 16:27:27">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" />
+        <param name="p_ym" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="75529.xlsx" print-proc="2" print-xlsx="1" title="Отчет о начислениях по договорам энергоснабжения" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[BEGIN
+ delete vr_number_array;
+ INSERT INTO vr_number_array (array_id,val) SELECT 'p_dep', kodp  FROM kr_org  WHERE kodp=:p_dep;   
+ ng_rep_other.po_per_region(:p_ym,:p_ym);
+END;
+]]></procedure>
+      <queries>
+        <query name="title_info" as="t">
+          <withparams>
+            <useparam name="p_ym" />
+            <const>NULL</const>
+            <useparam name="p_dep" />
+            <const>NULL</const>
+            <const>NULL</const>
+          </withparams>
+        </query>
+        <query name="75529_data" as="d" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="75529_data" title="Запрос к отчету № 2001." timestamp="22.05.2025 16:43:23">
+      <select>
+        <call function="row_number" as="rwn" title="Номер строки" type="number" key="1">
+          <call function="order by simple">
+            <call function="lpad">
+              <column table="this" column="ndog" />
+              <const>10</const>
+              <const>0</const>
+            </call>
+          </call>
+        </call>
+        <column table="a" column="kod_dog" as="kod_dog" />
+        <column table="a" column="ndog" as="ndog" group="max" />
+        <column table="a" column="payer_name" as="payer_name" group="max" />
+        <column table="a" column="cust" as="cust" group="sum" />
+        <column table="a" column="nach" as="nach" group="sum" />
+        <column table="a" column="price" as="price" group="max" />
+        <column table="a" column="nachisl" as="nachisl" group="sum" />
+        <column table="a" column="nal" as="nal" group="sum" />
+      </select>
+      <from>
+        <query name="rr_rep_po" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="edizm" />
+          <const type="number">4</const>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog" />
+        <grset order="lpad(ndog,10,'0')" as="dog">
+          <group>
+            <column table="this" column="kod_dog" type="number" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

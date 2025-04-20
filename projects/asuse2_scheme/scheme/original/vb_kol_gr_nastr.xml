@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vb_kol_gr_nastr" class="1" timestamp="03.10.2022 13:41:40">
+      <select>
+        <column type="number" table="a" column="kod_kol_gr_nastr" key="1" />
+        <column type="number" table="a" column="kod_kol_gr" title="Код кольцевой группы" />
+        <column type="string" table="a" column="name" data-size="4000" title="Наименование" />
+        <call function="if" type="string" as="name_exp">
+          <call function="is null">
+            <column table="this" column="name" />
+          </call>
+          <const comment="хотел поставит замещающий текст но передумал">''</const>
+          <column table="this" column="name" />
+        </call>
+        <column type="number" table="a" column="s" title="Период с" />
+        <column type="number" table="a" column="po" title="Период по" />
+        <column type="string" table="a" column="u_m" data-size="4000" />
+        <column type="date" table="a" column="d_m" />
+        <column type="number" table="a" column="kod_fl" title="Код филиала" />
+        <column table="ym" column="ym" exclude="1" />
+        <column table="a" column="kol_gr_comment" type="string" title="Дополнение" />
+        <column table="a" column="is_auto_kg" type="number" />
+        <call as="is_auto_kg_real" function="nvl0">
+          <column table="this" column="is_auto_kg" />
+        </call>
+      </select>
+      <from>
+        <table name="vb_kol_gr_nastr" as="a" />
+        <query join="left outer" name="vb_kol_gr" as="kod_kol_gr" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="a" column="kod_kol_gr" />
+            <column table="kod_kol_gr" column="kod_kol_gr" />
+          </call>
+        </query>
+        <query join="left outer" name="spr_time_ym" as="s">
+          <call function="=">
+            <column table="a" column="s" />
+            <column table="s" column="ym" />
+          </call>
+        </query>
+        <query join="left outer" name="spr_time_ym" as="po">
+          <call function="=">
+            <column table="po" column="ym" />
+            <column table="a" column="po" />
+          </call>
+        </query>
+        <query join="left outer" name="jv_rep_cons_d_fl" as="kod_fl">
+          <call function="=">
+            <column table="a" column="kod_fl" />
+            <column table="kod_fl" column="kod_fl" />
+          </call>
+        </query>
+        <query join="left outer" name="vv_ym" as="ym">
+          <call function="between">
+            <column table="ym" column="ym" />
+            <column table="a" column="s" />
+            <call function="nvl">
+              <column table="a" column="po" />
+              <call function="date to ym">
+                <call function="sysdate" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

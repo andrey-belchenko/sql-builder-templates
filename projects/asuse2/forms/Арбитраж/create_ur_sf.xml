@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="create_ur_sf" title="Создание счета" with-behavior="0" timestamp="21.11.2023 13:52:18">
+      <params>
+        <param name="kod_mat" type="number">
+          <const exclude="1">78</const>
+        </param>
+        <param name="nachisl" type="number">
+          <const exclude="1">400</const>
+        </param>
+        <param name="p_vid_real" type="number">
+          <const exclude="1" comment="пени">7</const>
+          <const exclude="1" comment="госпошлина">9</const>
+          <const exclude="1" comment="штрафы">4</const>
+        </param>
+        <param name="p_vid_t" type="number">
+          <const exclude="1" comment="пени по решению суда">-44</const>
+          <const exclude="1" comment="госпошлина">49</const>
+          <const exclude="1" comment="штрафы">154</const>
+        </param>
+      </params>
+      <content>
+        <column table="a" column="num_delo" parname="num_delo" column-editable="0" title="Номер дела" />
+        <column table="s" column="kod_deb" parname="kod_deb" column-visible="0" />
+        <fieldgroup title="Создание счета" noborder="1">
+          <column table="a" column="kodp" parname="kodp" column-editable="0" title="Абонент" />
+          <fact table="a" column="kr_dogovor_kod_dog" parname="kod_dog_max" column-visible="0" />
+          <usefield field="asuse_kod_dog_cmb" column-mandatory="1" show-checkbox="0" editable="kod_sf_new" editable-invert="1" new-val="kod_dog_max" title="Договор">
+            <listquery>
+              <query name="kr_dogovor(kodp)" />
+            </listquery>
+          </usefield>
+          <usefield field="cmn_integer" name="kod_sf_new" checked="1" show-checkbox="0" column-visible="0" />
+          <usefield field="cmn_date_cur" name="dat" column-mandatory="1" title="Дата счета" show-checkbox="0" editable="kod_sf_new" editable-invert="1" />
+          <usefield field="asuse_ym" name="ym" column-editable="0" show-checkbox="0" column-mandatory="1" title="Период" />
+          <usefield field="cmn_float" name="nach" default="nachisl" show-checkbox="0" column-mandatory="1" editable="kod_sf_new" editable-invert="1" valid="nach_vld" title="Сумма" />
+          <column table="b" column="val" as="can_create_sf" parname="can_create_sf" column-visible="0" />
+          <column table="c" column="val" as="nach_vld" parname="nach_vld" column-visible="0" />
+          <usefield field="asuse_vid_real_cmb" name="vid_real" default="p_vid_real" show-checkbox="0" column-mandatory="1" column-editable="0" title="Вид реализации" />
+          <usefield field="asuse_vid_t_cmb" name="vid_t" default="p_vid_t" show-checkbox="0" column-mandatory="1" editable="kod_sf_new" editable-invert="1" title="Вид начисления" />
+        </fieldgroup>
+        <empty-item />
+        <label />
+        <uicommand title="Создать счет" action-type="custom" editable="can_create_sf">
+          <useaction name="sg_dop_plat.sf_create_with_ras">
+            <useparam name="kod_mat" />
+            <useparam name="kod_dog" />
+            <useparam name="dat" />
+            <useparam name="ym" />
+            <const>null</const>
+            <useparam name="vid_real" />
+            <useparam name="vid_t" />
+            <useparam name="nach" />
+            <useparam name="kod_sf_new" />
+            <useparam name="kod_deb" />
+          </useaction>
+          <useaction action-type="execute-add" call="ur_dogplat_insert_pd">
+            <const>6</const>
+            <useparam name="kod_mat" />
+            <useparam name="kod_deb" />
+            <useparam name="nach" />
+            <useparam name="dat" />
+            <useparam name="nach" />
+            <const>1</const>
+            <useparam name="kod_sf_new" />
+          </useaction>
+          <useaction action-type="close" />
+          <useaction action-type="dynamic-form" call="sr_facvip_ur" modal="1">
+            <useparam name="kod_mat" />
+            <useparam name="kod_sf_new" />
+          </useaction>
+        </uicommand>
+      </content>
+      <from>
+        <query name="ur_mat" as="a">
+          <link name="kod_folders" />
+          <where>
+            <call function="=">
+              <column table="a" column="kod_mat" />
+              <useparam name="kod_mat" />
+            </call>
+          </where>
+        </query>
+        <query name="create_ur_sf_can_create" as="b" auto-refresh="1">
+          <withparams>
+            <useparam name="is_form_valid" />
+            <useparam name="kod_sf_new" />
+          </withparams>
+        </query>
+        <query name="create_ur_sf_nachisl_vld" as="c" auto-refresh="1">
+          <withparams>
+            <useparam name="nach" />
+          </withparams>
+        </query>
+        <query name="sr_facvip" as="s" auto-refresh="1">
+          <where>
+            <call function="=">
+              <column table="s" column="kod_sf" />
+              <useparam name="kod_sf_new" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+  <queries>
+    <query name="create_ur_sf_can_create" timestamp="21.11.2023 13:52:18">
+      <params>
+        <param name="is_form_valid" type="number" />
+        <param name="kod_sf" type="number" />
+      </params>
+      <select>
+        <call function="if" as="val" type="number">
+          <call function="and">
+            <call function="=">
+              <useparam name="is_form_valid" />
+              <const>1</const>
+            </call>
+            <call function="is null">
+              <useparam name="kod_sf" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="create_ur_sf_nachisl_vld" timestamp="21.11.2023 13:52:18">
+      <params>
+        <param name="nach" type="number" />
+      </params>
+      <select>
+        <call function="if" type="string" as="val">
+          <call function="le">
+            <call function="nvl">
+              <useparam name="nach" />
+              <const>0</const>
+            </call>
+            <const>0</const>
+          </call>
+          <const>'Сумма должна быть больше нуля'</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+  </queries>
+</root>
