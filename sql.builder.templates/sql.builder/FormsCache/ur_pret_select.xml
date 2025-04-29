@@ -1,0 +1,769 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="ur_pret_select" timestamp="16.10.2018 16:26:34" security-id="asuse_ur_pir_pretenz" with-behavior="0" title="Выбор претензий для привязки в карточку ПИР" form-size="875;475" file="sql.builder.templates\sql.builder\projects\asuse2\reports\arbitrage\forms\ur_pret_select.xml" elid="281" ord="281" leaf="0" lvl="2" pelid="">
+    <grid table="kr_pret" show-toolbar="1" show-checkbox="1" id="15786511">
+      <toolbar id="15627715">
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="18958137" />
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="30362455" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="49669033" />
+        <uicommand action-type="save-and-close" button-type="custom-ok" title="Подтрердить выбор сохранить и закрыть" name="custom-ok" icon="Ok_24" file="sql.builder.templates\sql.builder\projects\common\main.xml" id="25814913" />
+      </toolbar>
+      <columns id="17476686">
+        <field table="kr_pret" name="kod_pret" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="53723982" />
+        <field table="kr_pret" name="nump" title="Код абонента" controlType="UIText" rows-limit="100" id="3747739" />
+        <field table="kr_pret" name="name" title="Наименование абонента" width="233" controlType="UIText" rows-limit="100" id="30381626" />
+        <field table="kr_pret" name="ndog" title="Номер договора" controlType="UIText" rows-limit="100" id="52059905" />
+        <field table="kr_pret" name="dat_form" title="Дата формирования" controlType="UIDate" rows-limit="100" id="14710292" />
+        <field table="kr_pret" name="dolg_osn_real" title="Сумма задолженности ОД" width="135" controlType="UIText" edit-mask="N2" rows-limit="100" id="61166328" />
+        <field table="kr_pret" name="dat_send" title="Дата отправки" width="107" controlType="UIDate" rows-limit="100" id="50836944" />
+      </columns>
+      <events id="58466761">
+        <useaction event-name="checked-row-save" action-type="custom" id="32413985">
+          <useaction action-type="execute-insert-by-report" call="ur_pretenz_ins_by_pret_rep" id="13572325">
+            <useparam name="kod_pret" id="42657621" />
+            <useparam name="kod_folders" id="34828128" />
+          </useaction>
+        </useaction>
+      </events>
+    </grid>
+    <toolbar id="47230007" />
+  </form>
+  <params>
+    <param name="kod_folders" type="number">
+      <const>23</const>
+    </param>
+    <param name="kodp" type="number">
+      <const>1897</const>
+    </param>
+  </params>
+  <dataset>
+    <params>
+      <param name="kod_folders" type="number">
+        <const>23</const>
+      </param>
+      <param name="kodp" type="number">
+        <const>1897</const>
+      </param>
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="kr_pret_has_changes" parname="kr_pret_has_changes" />
+    </fields>
+    <table name="kr_pret" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="kr_pret" column-editable="0" key="kod_pret" is-ms-upd="1" is-top="1" key-dimension="kr_pret">
+      <select-text>
+--
+select kr_pret.kod_pret as kod_pret, /*number*//*key*/
+kodp.nump as nump, /*Код абонента*//*string*/
+kodp.name as name, /*Наименование абонента*//*string*/
+kod_dog.ndog as ndog, /*Номер договора*//*string*/
+kr_pret.dat_form as dat_form, /*Дата формирования*//*date*/
+kod_pret_dolg_dog.dolg_osn_real as dolg_osn_real, /*Сумма задолженности ОД*//*number*/
+kr_pret.dat_send as dat_send, /*Дата отправки*//*date*/
+kr_pret.is_new as is_new, /*number*/
+kr_pret.is_not_new as is_not_new/*number*/
+
+from (
+--
+select qube.kr_pret as kr_pret, /*number*//*key*/
+sum( case  when ((kod_pretenz.kod_folders = :kod_folders ) )  then qube.ur_pretenz_count_old1 end )  as ur_pretenz_for_pret_cnt1/*Наличие привязки по указанному документу*//*number*/
+
+from (
+--
+select qube.kr_pret as kr_pret, /*number*/
+qube.kod_pretenz as kod_pretenz, /*number*//*key*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select null as kod_pretenz, /*key*/
+qube.kr_pret as kr_pret, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--
+select un.kr_pret as kr_pret/*number*//*key*/
+
+from (
+(
+(
+--
+select kr_pret.kod_pret as kr_pret/*number*//*key*/
+
+from (
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from kr_pret
+a
+--\kr_pret
+)
+kr_pret
+--\kr_pret
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+where
+(kod_dog.kodp = :kodp )  and (kr_pret.kod_pret is not null ) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kr_pret/*number*//*key*/
+)
+qube
+--\
+)
+--\
+union all
+(
+--
+select qube.kod_pretenz as kod_pretenz, /*number*//*key*/
+qube.kr_pret as kr_pret, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+--
+select un.kod_pretenz as kod_pretenz, /*number*//*key*/
+un.kr_pret as kr_pret, /*number*//*key*/
+sum(un.ur_pretenz_count_old1)  as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select kod_pretenz.kod_pretenz as kod_pretenz, /*number*//*key*/
+kod_pretenz.kod_pret as kr_pret, /*number*/
+kod_pretenz.cnt as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+a.kod_pret as kod_pret, /*number*/
+1 as cnt/*number*/
+
+from ur_pretenz
+a
+--\ur_pretenz
+)
+kod_pretenz
+--\ur_pretenz
+left outer join
+(
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from kr_pret
+a
+--\kr_pret
+)
+kr_pret on kod_pretenz.kod_pret = kr_pret.kod_pret--\kr_pret
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+where
+(kod_dog.kodp = :kodp )  and (kr_pret.kod_pret is not null ) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_pretenz, /*number*//*key*/
+un.kr_pret/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+left outer join
+(
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+a.kod_folders as kod_folders/*number*/
+
+from ur_pretenz
+a
+--\ur_pretenz
+)
+kod_pretenz on kod_pretenz.kod_pretenz = qube.kod_pretenz--\ur_pretenz
+ group by
+qube.kr_pret/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.dat_form as dat_form, /*Дата формирования*//*date*/
+a.dat_send as dat_send, /*Дата отправки*//*date*/
+a.kod_pret_dolg_dog as kod_pret_dolg_dog, /*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from kr_pret
+a
+--\kr_pret
+)
+kr_pret on kr_pret.kod_pret = qube.kr_pret--\kr_pret
+left outer join
+(
+--vr_pret_dolg_dog
+select a.kod_pret_dolg_dog as kod_pret_dolg_dog, /*number*//*key*/
+a.dolg_osn_real as dolg_osn_real/*Сумма задолженности ОД*//*number*/
+
+from vr_pret_dolg_dog
+a
+--\vr_pret_dolg_dog
+)
+kod_pret_dolg_dog on kr_pret.kod_pret_dolg_dog = kod_pret_dolg_dog.kod_pret_dolg_dog--\vr_pret_dolg_dog
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.ndog as ndog/*Номер договора*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+a.name as name/*Наименование абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on kod_dog.kodp = kodp.kodp--\kr_payer
+where
+( nvl( qube.ur_pretenz_for_pret_cnt1 ,0)=0 ) --\
+</select-text>
+      <columns>
+        <column name="kod_pret" table="kr_pret" type="number" title="" parname="kod_pret" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_pret" temp-col-name="n1" />
+        <column name="nump" table="kodp" type="string" title="Код абонента" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_pret_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_pret_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kodp.nump as nump, /*Код абонента*//*string*/
+kr_pret.kod_pret as kod_pret/*number*//*key*/
+
+from (
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_pret as kod_pret,a.kod_dog as kod_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+a
+--\(select a.kod_pret as kod_pret,a.kod_dog as kod_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+)
+kr_pret
+--\kr_pret
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump/*Код абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on kod_dog.kodp = kodp.kodp--\kr_payer
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="name" table="kodp" type="string" title="Наименование абонента" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_pret_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_pret_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kodp.name as name, /*Наименование абонента*//*string*/
+kr_pret.kod_pret as kod_pret/*number*//*key*/
+
+from (
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_pret as kod_pret,a.kod_dog as kod_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+a
+--\(select a.kod_pret as kod_pret,a.kod_dog as kod_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+)
+kr_pret
+--\kr_pret
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Наименование абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on kod_dog.kodp = kodp.kodp--\kr_payer
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="ndog" table="kod_dog" type="string" title="Номер договора" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_pret_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_pret_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_dog.ndog as ndog, /*Номер договора*//*string*/
+kr_pret.kod_pret as kod_pret/*number*//*key*/
+
+from (
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_pret as kod_pret,a.kod_dog as kod_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+a
+--\(select a.kod_pret as kod_pret,a.kod_dog as kod_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+)
+kr_pret
+--\kr_pret
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog as ndog/*Номер договора*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="dat_form" table="kr_pret" type="date" title="Дата формирования" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="dat_form" temp-col-name="d1" />
+        <column name="dolg_osn_real" table="kod_pret_dolg_dog" type="number" title="Сумма задолженности ОД" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_pret_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_pret_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_pret_dolg_dog.dolg_osn_real as dolg_osn_real, /*Сумма задолженности ОД*//*number*/
+kr_pret.kod_pret as kod_pret/*number*//*key*/
+
+from (
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_pret_dolg_dog as kod_pret_dolg_dog/*number*/
+
+from (select a.kod_pret as kod_pret,a.kod_pret_dolg_dog as kod_pret_dolg_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n7 as kod_pret_dolg_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+a
+--\(select a.kod_pret as kod_pret,a.kod_pret_dolg_dog as kod_pret_dolg_dog  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n7 as kod_pret_dolg_dog  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+)
+kr_pret
+--\kr_pret
+left outer join
+(
+--vr_pret_dolg_dog
+select a.kod_pret_dolg_dog as kod_pret_dolg_dog, /*number*//*key*/
+a.dolg_osn_real as dolg_osn_real/*Сумма задолженности ОД*//*number*/
+
+from vr_pret_dolg_dog
+a
+--\vr_pret_dolg_dog
+)
+kod_pret_dolg_dog on kr_pret.kod_pret_dolg_dog = kod_pret_dolg_dog.kod_pret_dolg_dog--\vr_pret_dolg_dog
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="dat_send" table="kr_pret" type="date" title="Дата отправки" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="dat_send" temp-col-name="d2" />
+        <column name="is_new" table="kr_pret" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="kr_pret" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_pret as kod_pret 
+,:dat_form as dat_form 
+,:dat_send as dat_send 
+ 
+from dual ) 
+ 
+loop 
+insert into kr_pret 
+(kod_pret 
+,dat_form 
+,dat_send 
+) 
+ values  
+(r.kod_pret 
+,r.dat_form 
+,r.dat_send 
+) 
+ returning  
+kod_pret into :kod_pret; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from kr_pret where kod_pret=:kod_pret</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='kr_pret' 
+and 
+names=:form_id 
+and 
+f2=:kod_pret; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_pret as kod_pret 
+,:dat_form as dat_form 
+,:dat_send as dat_send 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,d1 
+,d2 
+) 
+ values  
+('kr_pret' 
+,:form_id 
+,:kod_pret 
+,:row_state_id 
+,r.kod_pret 
+,r.dat_form 
+,r.dat_send 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_pret as kod_pret 
+,:dat_form as dat_form 
+,:dat_send as dat_send 
+,a.kod_dog 
+,a.dep 
+,a.status 
+,a.nom_pret 
+,a.sposob 
+,a.dat_poluch 
+,a.puser 
+,a.kod_emp 
+,a.kod_pret_dolg_dog 
+,a.dat_arx 
+,a.v_sud 
+,a.DAT_PRD_UR 
+,a.DAT_IZM_STATUS_UR 
+,a.STATUS_UR 
+ 
+from kr_pret a  where kod_pret=:kod_pret) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,d1 
+,d2 
+,n2 
+,n3 
+,n4 
+,s1 
+,n5 
+,d3 
+,s2 
+,n6 
+,n7 
+,d4 
+,n8 
+,d5 
+,d6 
+,n9 
+) 
+ values  
+('kr_pret' 
+,:form_id 
+,:kod_pret 
+,:row_state_id 
+,r.kod_pret 
+,r.dat_form 
+,r.dat_send 
+,r.kod_dog 
+,r.dep 
+,r.status 
+,r.nom_pret 
+,r.sposob 
+,r.dat_poluch 
+,r.puser 
+,r.kod_emp 
+,r.kod_pret_dolg_dog 
+,r.dat_arx 
+,r.v_sud 
+,r.DAT_PRD_UR 
+,r.DAT_IZM_STATUS_UR 
+,r.STATUS_UR 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='kr_pret' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update kr_pret set  
+(kod_pret 
+,dat_form 
+,dat_send 
+) 
+= 
+ ( select  
+:kod_pret as kod_pret 
+,:dat_form as dat_form 
+,:dat_send as dat_send 
+ 
+from dual ) 
+ 
+where 
+kod_pret=:kod_pret 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="kr_pret" as="kr_pret">
+          <columns>
+            <column name="kod_pret" type="number" title="" visible="0" />
+            <column name="nump" type="string" title="Код абонента" />
+            <column name="name" type="string" title="Наименование абонента" />
+            <column name="ndog" type="string" title="Номер договора" />
+            <column name="dat_form" type="date" title="Дата формирования" />
+            <column name="dolg_osn_real" type="number" title="Сумма задолженности ОД" />
+            <column name="dat_send" type="date" title="Дата отправки" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="kod_pret" type="number" title="" visible="0" />
+            <column name="nump" type="string" title="Код абонента" />
+            <column name="name" type="string" title="Наименование абонента" />
+            <column name="ndog" type="string" title="Номер договора" />
+            <column name="dat_form" type="date" title="Дата формирования" />
+            <column name="dolg_osn_real" type="number" title="Сумма задолженности ОД" />
+            <column name="dat_send" type="date" title="Дата отправки" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_pret_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_pret_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select kr_pret.kod_pret as kod_pret, /*number*//*key*/
+kodp.nump as nump, /*Код абонента*//*string*/
+kodp.name as name, /*Наименование абонента*//*string*/
+kod_dog.ndog as ndog, /*Номер договора*//*string*/
+kr_pret.dat_form as dat_form, /*Дата формирования*//*date*/
+kod_pret_dolg_dog.dolg_osn_real as dolg_osn_real, /*Сумма задолженности ОД*//*number*/
+kr_pret.dat_send as dat_send, /*Дата отправки*//*date*/
+kr_pret.is_new as is_new, /*number*/
+kr_pret.is_not_new as is_not_new/*number*/
+
+from (
+--kr_pret
+select a.kod_pret as kod_pret, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.dat_form as dat_form, /*Дата формирования*//*date*/
+a.dat_send as dat_send, /*Дата отправки*//*date*/
+a.kod_pret_dolg_dog as kod_pret_dolg_dog, /*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_pret as kod_pret,a.kod_dog as kod_dog,a.dat_form as dat_form,a.dat_send as dat_send,a.kod_pret_dolg_dog as kod_pret_dolg_dog,0 as is_new,1 as is_not_new  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog,t.d1 as dat_form,t.d2 as dat_send,t.n7 as kod_pret_dolg_dog,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+a
+--\(select a.kod_pret as kod_pret,a.kod_dog as kod_dog,a.dat_form as dat_form,a.dat_send as dat_send,a.kod_pret_dolg_dog as kod_pret_dolg_dog,0 as is_new,1 as is_not_new  from kr_pret a where not exists (select * from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and a.kod_pret=t.f2 ) and   a.kod_pret in :kod_pret_prm   union all  select t.n1 as kod_pret,t.n2 as kod_dog,t.d1 as dat_form,t.d2 as dat_send,t.n7 as kod_pret_dolg_dog,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='kr_pret' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pret_prm )
+)
+kr_pret
+--\kr_pret
+left outer join
+(
+--vr_pret_dolg_dog
+select a.kod_pret_dolg_dog as kod_pret_dolg_dog, /*number*//*key*/
+a.dolg_osn_real as dolg_osn_real/*Сумма задолженности ОД*//*number*/
+
+from vr_pret_dolg_dog
+a
+--\vr_pret_dolg_dog
+)
+kod_pret_dolg_dog on kr_pret.kod_pret_dolg_dog = kod_pret_dolg_dog.kod_pret_dolg_dog--\vr_pret_dolg_dog
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.ndog as ndog/*Номер договора*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog on kr_pret.kod_dog = kod_dog.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+a.name as name/*Наименование абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on kod_dog.kodp = kodp.kodp--\kr_payer
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

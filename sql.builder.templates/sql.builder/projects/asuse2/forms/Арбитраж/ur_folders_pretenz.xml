@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_pretenz" title="Претензии в папке" security-id="asuse_ur_pir_pretenz" with-behavior="0" timestamp="28.12.2023 14:15:00">
+      <customers>
+        <customer id="10" />
+        <customer id="3" />
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">157</const>
+        </param>
+      </params>
+      <content>
+        <column table="ur_folders" column="kodp" column-visible="0" parname="ur_folders_kodp" />
+        <column table="ur_folders" column="vvod" column-visible="0" parname="is_vvod" />
+        <column table="ur_folders" column="not_vvod" column-visible="0" parname="is_not_vvod" />
+        <call function="if" type="number" column-visible="0" parname="dep_pio" exclude="1">
+          <call function="=">
+            <fact table="rs_esys" column="kod_esys" />
+            <const>1</const>
+          </call>
+          <const comment="Управление АО «Татэнергосбыт»">1219</const>
+          <column table="kod_folders" column="kod_podr" />
+        </call>
+        <const type="number" as="dep_pio" column-visible="0" parname="dep_pio" comment="Управление АО «Татэнергосбыт»">1219</const>
+        <grid table="ur_pretenz" show-toolbar="1">
+          <toolbar>
+            <uicommand object="ur_pretenz" name="form_ur_dogplat_hand" button-type="select-money" editable="item_is_not_new" modal="1" visible="is_vvod" exclude="1">
+              <const>4</const>
+            </uicommand>
+            <uicommand object="ur_pretenz" name="form_ur_dogplat_doc_view" button-type="select-money" editable="item_is_not_new" modal="1" visible="is_not_vvod">
+              <const>4</const>
+              <useparam name="ur_folders_kodp" />
+            </uicommand>
+            <uicommand action-type="dynamic-form-create-multiple" call="ur_pret_select" title="Выбор претензий для привязки" modal="1">
+              <useparam name="kod_folders" />
+              <useparam name="ur_folders_kodp" />
+            </uicommand>
+            <uicommand name="upech_doc" editable="item_is_not_new">
+              <useparam name="cur_kod_pretenz" />
+              <const>4</const>
+              <useparam name="kod_folders" />
+            </uicommand>
+            <usefield field="cmn_check" title="Не показывать архивные" name="no_arh" checked="1" />
+          </toolbar>
+          <columns>
+            <column table="ur_pretenz" column="kod_pretenz" parname="cur_kod_pretenz" column-visible="0" editable="right_common" />
+            <fact table="ur_pretenz" column="kr_dog_name" title="Договор" />
+            <column table="ur_pretenz" column="kod_vid_pretenz" title="Вид претензии" editable="right_common" />
+            <column table="ur_pretenz" column="dat_doc" title="Дата претензии" editable="right_common" />
+            <column table="ur_pretenz" column="kod_subject" title="Предмет" editable="right_common" />
+            <fact table="ur_pretenz" column="ur_dp_sum_all_on_pret" title="Заявленная сумма" />
+            <fact table="ur_pretenz" column="ur_dp_sum_osn" title="Основная реализация" />
+            <fact table="ur_pretenz" column="ur_dp_sum_peni" title="Проценты (пени)" />
+            <fact table="ur_pretenz" column="peni_period_str" title="Период пени" column-visible="is_customer10_flag" column-width="99" />
+            <column table="ur_pretenz" column="ogr" title="Расх. за введ. огранич. реж. энергопотребл." editable="right_common" />
+            <fact table="ur_pretenz" column="ur_dogplat_ym_min" title="Период начисления с" format="F2" />
+            <fact table="ur_pretenz" column="ur_dogplat_ym_max" title="Период начисления по" format="F2" />
+            <column table="ur_pretenz" column="dat_do" title="Оплатить до" editable="right_common" />
+            <column table="ur_pretenz" column="dat_srok" title="Срок ответа" editable="right_common" />
+            <column table="ur_pretenz" column="kod_state" title="Состояние документа" editable="right_common" />
+            <column table="ur_pretenz" column="dat_otv" title="Дата получения ответа" editable="right_common" />
+            <column table="ur_pretenz" column="reply" title="Содержание ответа" editable="right_common" />
+            <fact table="ur_pretenz" column="ur_opl_on_pret" title="Оплата по претензии" />
+            <fact table="ur_pretenz" column="ur_opl_osn" title="Оплата основной реализации" />
+            <fact table="ur_pretenz" column="ur_opl_peni" title="Оплата проценты (пени)" />
+            <column table="ur_pretenz" column="opl_ogr" title="Оплата расх. за введ. огранич. реж. энергопотребл." editable="right_common" />
+            <fact table="ur_pretenz" column="ur_dolg_on_pret" title="Остаток задолженности по претензии" />
+            <fact table="ur_pretenz" column="ur_dolg_vist_osn" title="Остаток основной реализации" />
+            <fact table="ur_pretenz" column="ur_dolg_vist_peni" title="Остаток проценты (пени)" />
+            <fact table="ur_pretenz" column="ur_pretenz_ost_ogr" title="Остаток расх. за введ. огранич. реж. энергопотребл." />
+            <column table="ur_pretenz" column="dat_arh" title="Дата архивации" editable="right_common" />
+            <column table="ur_pretenz" column="pr_priv" title="Скопирована из модуля &quot;Претензии&quot;" editable="right_common" />
+            <column table="ur_pretenz" column="kod_mat" title="Иск" column-width="221" editable="right_common" />
+            <column table="ur_pretenz" column="kod_emp" title="Исполнитель ПИО" editable="right_pio">
+              <listquery>
+                <query name="kr_employee_urists_singl_dep">
+                  <withparams>
+                    <useparam name="dep_pio" />
+                  </withparams>
+                </query>
+              </listquery>
+            </column>
+            <column table="ur_pretenz" column="num_sz" title="№ с/з о пост. мат." column-width="118" editable="right_pio" />
+            <column table="ur_pretenz" column="pio_date" title="Дата поступления материалов в ПИО" column-width="93" editable="right_pio" />
+            <column table="ur_pretenz" column="prim" title="Примечание" editable="right_pio" />
+            <column table="ur_pretenz" column="is_not_new" column-visible="0" parname="item_is_not_new" as="is_not_new" editable="right_common" />
+            <column table="ur_pretenz" column="right_common" parname="right_common" column-visible="0" editable="0" />
+            <column table="ur_pretenz" column="right_pio" parname="right_pio" column-visible="0" editable="0" />
+            <column table="ur_pretenz" column="last_kod_pretenz" column-visible="0" />
+          </columns>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <elink name="ur_pretenz">
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="and" optional="1">
+                  <call function="is null">
+                    <column table="ur_pretenz" column="dat_arh" />
+                  </call>
+                  <call function="=">
+                    <useparam name="no_arh" />
+                    <const>1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

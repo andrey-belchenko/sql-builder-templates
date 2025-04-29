@@ -1,0 +1,65 @@
+<root>
+  <queries>
+    <query name="n_debet_state">
+      <select>
+        <column table="a" column="rowid" as="id" type="string">
+        </column>
+        <column table="a" column="kod_deb" type="number">
+        </column>
+        <column table="a" column="pr_obr" type="number">
+        </column>
+        <column table="a" column="dat_ust" type="date">
+        </column>
+        <column table="a" column="name" type="string">
+        </column>
+        <usepart part="gm to ym">
+          <const>a</const>
+        </usepart>
+        <column table="st" column="pr_nokniga">
+        </column>
+      </select>
+      <from>
+        <table name="n_debet_state" as="a">
+        </table>
+        <query name="k_state" as="st" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_obr">
+            </column>
+            <column table="st" column="pr_obr">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="n_debet_state_sp">
+      <select>
+        <column table="a" column="*">
+        </column>
+      </select>
+      <from>
+        <query name="n_debet_state" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="pr_nokniga" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="n_debet.n_debet_state_sp">
+      <select>
+        <column table="a" column="kod_deb" group="1">
+        </column>
+        <column table="a" column="ym" group="min">
+        </column>
+        <column table="a" column="dat_ust" group="min">
+        </column>
+      </select>
+      <from>
+        <query name="n_debet_state_sp" as="a">
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

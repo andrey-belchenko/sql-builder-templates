@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="va_trade_load_log" timestamp="03.12.2018 19:53:14" title="Лог загрузки (энерготрейдинг)">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-save" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+          </toolbar>
+          <columns>
+            <column table="a" column="realtime" column-width="167" />
+            <column table="a" column="load_time" column-width="140" />
+            <column table="a" column="date_value" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="va_trade_load_log" as="a" auto-refresh="1" column-editable="0" order="load_time desc" />
+      </from>
+    </form>
+    <form name="va_sp_zatr_load_log" timestamp="21.11.2018 23:52:36" title="Загрузка (затраты, доходы и расходы)">
+      <content>
+        <grid show-toolbar="1" table="a">
+          <toolbar>
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-save" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+            <uicommand action-type="custom" title="Загрузить из файла">
+              <useaction action-type="call-client-method" assembly="sql.builder" type-name="sql.builder.MP.Test.Test" function="Test4" />
+              <useaction action-type="refresh-table" object="a" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column column="d_m" column-width="120" table="a" />
+            <column column="god" column-width="52" table="a" />
+            <column column="filename" column-width="184" table="a" />
+            <column column="filetime" column-width="129" table="a" />
+            <column column="u_m" column-width="89" table="a" />
+            <column column="t_m" column-width="227" table="a" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="va_sp_zatr_load_log" as="a" auto-refresh="1" column-editable="0" order="d_m desc" />
+      </from>
+    </form>
+    <form name="va_data_load_log" timestamp="16.08.2019 18:11:07" title="Загрузка KE30">
+      <content>
+        <column table="a" column="warn" exclude="1" />
+        <usefield field="va_direct1_has_mvp" show-checkbox="0" name="p_kod_direct" type="number" column-mandatory="1" text-location="1" />
+        <usefield field="cmn_string" show-checkbox="0" name="p_warn" title="Warning" type="string" column-visible="0">
+          <defaultquery>
+            <query name="va_direct_mvp_warn" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" show-checkbox="0" name="p_mvp_kod" type="string" column-editable="0" valid="p_warn" title="Код МВП">
+          <defaultquery>
+            <query name="va_direct_mvp" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" show-checkbox="0" column-mandatory="1" name="p_ym" title="Периоды" type="number">
+          <listquery>
+            <query name="mped_spr_time_ym" />
+          </listquery>
+          <defaultquery>
+            <query name="mped_spr_time_ym_prev" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" show-checkbox="0" name="p_dir_kod" title="Код подр." type="string" column-visible="0">
+          <defaultquery>
+            <query name="va_dr_fq_list1_kod_stragg" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" show-checkbox="0" name="p_dir_name" title="Наим. подр." type="string" column-visible="0">
+          <defaultquery>
+            <query name="va_dr_fq_list1_name_stragg" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" show-checkbox="0" name="p_ym_row" title="Периоды строкой" type="string" column-visible="0">
+          <defaultquery>
+            <query name="mped_ym_stragg" />
+          </defaultquery>
+        </usefield>
+        <grid show-toolbar="1" table="a">
+          <toolbar>
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-save" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+            <uicommand action-type="custom" title="Загрузить из файла" editable="is_form_valid">
+              <useaction action-type="call-plsql" name="rr_temp_ins_load_ke30_params">
+                <useparam name="p_dir_kod" />
+                <useparam name="p_dir_name" />
+                <useparam name="p_ym_row" />
+              </useaction>
+              <useaction action-type="call-client-method" assembly="sql.builder" type-name="sql.builder.MP.Test.Test" function="LoadKE30SapTempl" />
+              <useaction action-type="refresh-table" object="a" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column column="d_m" column-width="120" table="a" />
+            <column column="god" column-width="52" table="a" column-visible="0" />
+            <column table="a" column="direct_name" column-width="128" />
+            <column table="a" column="direct_kod" column-width="206" column-visible="0" />
+            <column table="a" column="period" column-width="181" />
+            <column column="filename" column-width="184" table="a" />
+            <column column="filetime" column-width="129" table="a" />
+            <column column="u_m" column-width="89" table="a" />
+            <column column="t_m" column-width="227" table="a" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="va_sp_zatr_load_log" as="a" auto-refresh="1" column-editable="0" order="d_m desc" />
+      </from>
+    </form>
+  </forms>
+</root>

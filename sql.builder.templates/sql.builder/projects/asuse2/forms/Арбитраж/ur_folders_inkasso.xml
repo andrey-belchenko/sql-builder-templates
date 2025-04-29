@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_inkasso" title="Инкассо" security-id="asuse_ur_isp_inkasso" with-behavior="0" timestamp="28.12.2023 14:10:00">
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">2000003824</const>
+        </param>
+      </params>
+      <content>
+        <column table="kod_mat" column="kod_mat" as="kod_mat_main" parname="kod_mat_main" column-visible="0" />
+        <column table="ur_inkasso_kodb_def" column="kodb" parname="kodb_def" column-visible="0" />
+        <column table="ur_folders" column="kod_isp" parname="kod_isp" column-visible="0" />
+        <column table="f10" column="val" parname="f10" column-editable="1" column-visible="0" />
+        <grid table="ur_inkasso" show-toolbar="1">
+          <toolbar>
+            <uicommand action-type="dynamic-form" call="ur_dp_inkasso" modal="1">
+              <useparam name="cur_kod_inkasso" />
+              <useparam name="kod_mat_main" />
+            </uicommand>
+            <uicommand name="upech_doc" editable="item_is_not_new">
+              <useparam name="cur_kod_inkasso" />
+              <const>11</const>
+              <useparam name="kod_folders" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column table="ur_inkasso" column="kod_inkasso" parname="cur_kod_inkasso" column-visible="0" />
+            <column table="ur_inkasso" column="num_reg" title="Номер инкас. поруч." />
+            <column table="ur_inkasso" column="dat_doc" title="Дата инкас. поруч." />
+            <column table="ur_inkasso" column="kodb" title="Банк" default="kodb_def" />
+            <column table="ur_inkasso" column="dat_podachi" />
+            <band title="Сумма задолженности заявленная к выплате">
+              <fact table="ur_inkasso" column="dolg_on_il_hnd" title="Всего" />
+              <fact table="ur_inkasso" column="dolg_on_il_osn" title="Основная реализация" />
+              <fact table="ur_inkasso" column="dolg_on_il_peni" title="Проценты (пени)" />
+              <fact column="peni_period_str" table="ur_inkasso" title="Период пени" column-visible="is_customer10_flag" />
+              <fact table="ur_inkasso" column="dolg_on_il_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <fact table="ur_inkasso" column="ur_hist_mat_dec_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_inkasso" column="dolg_on_il_gp_doc" title="Гос. пошлина" />
+              <fact table="ur_inkasso" column="dolg_on_il_astr" width-perc="50" title="Астрент" />
+              <fact table="ur_inkasso" column="ur_hist_mat_dec_sud_izd" />
+            </band>
+            <column table="ur_inkasso" column="kod_state" title="Состояние" />
+            <column table="ur_inkasso" column="dat_otv" />
+            <column table="ur_inkasso" column="dat_otz" />
+            <band title="Задолженность удовлетворена на сумму">
+              <fact table="ur_inkasso" column="ur_opl_inkasso" title="Всего" />
+              <fact table="ur_inkasso" column="ur_opl_posl_il_osn" title="Основная реализация" />
+              <fact table="ur_inkasso" column="ur_opl_posl_il_peni" title="Проценты (пени)" />
+              <fact table="ur_inkasso" column="ur_opl_posl_il_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <column table="ur_inkasso" column="ogr_v" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_inkasso" column="ur_opl_posl_il_gp" title="Гос. пошлина" />
+              <column table="ur_inkasso" column="astrent_v" title="Астрент" />
+              <column table="ur_inkasso" column="sud_izd_v" title="Судебные издержки" />
+            </band>
+            <band title="Остаток задолженности">
+              <fact table="ur_inkasso" column="dolg_inkasso" title="Всего" />
+              <fact table="ur_inkasso" column="dolg_resh_tek_osn" title="Основная реализация" />
+              <fact table="ur_inkasso" column="dolg_resh_tek_peni" title="Проценты (пени)" />
+              <fact table="ur_inkasso" column="dolg_resh_tek_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <fact table="ur_inkasso" column="dolg_inkasso_tek_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_inkasso" column="dolg_resh_tek_gp_doc" title="Гос. пошлина" />
+              <fact table="ur_inkasso" column="dolg_inkasso_tek_astr" title="Астрент" />
+              <fact table="ur_inkasso" column="dolg_inkasso_tek_sud_izd" title="Судебные издержки" />
+            </band>
+            <column table="ur_inkasso" column="prim" title="Примечание" />
+            <fact table="ur_inkasso" column="kr_dog_name" />
+            <fact table="ur_inkasso" column="ur_dp_ym_min_priz" title="Период задолж. с" />
+            <fact table="ur_inkasso" column="ur_dp_ym_max_priz" title="Период задолж. по" />
+            <column table="ur_inkasso" column="kod_scan" />
+            <column table="ur_inkasso" column="is_not_new" column-visible="0" parname="item_is_not_new" as="is_not_new" />
+          </columns>
+          <events>
+            <useaction event-name="new-row-save" action-type="execute-add" call="ur_dp_inkasso_insert_all">
+              <useparam name="kod_folders" />
+              <useparam name="cur_kod_inkasso" />
+            </useaction>
+          </events>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders_isp" as="ur_folders">
+          <link name="kod_isp">
+            <link name="kod_hist_mat">
+              <link name="kod_mat" />
+            </link>
+          </link>
+          <elink name="ur_inkasso" />
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+        <query name="ur_inkasso_kodb_def">
+          <withparams>
+            <useparam name="kod_isp" />
+          </withparams>
+        </query>
+        <query name="is_customer10_flag" as="f10" />
+      </from>
+    </form>
+  </forms>
+</root>

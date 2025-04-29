@@ -1,0 +1,292 @@
+<root>
+  <reports>
+    <report name="temp_pr_selo_dog">
+      <queries>
+        <query name="temp_pr_selo_dog">
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="kr_dogovor">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" type="number">
+        </column>
+        <column table="a" column="kod_dog_fin" type="number">
+        </column>
+        <column table="a" column="dat_dog" type="date" title="Дата договора">
+        </column>
+        <column table="a" column="kodp" type="number">
+        </column>
+        <column table="dog_fin" column="kodp" as="kodp_fin" type="number">
+        </column>
+        <column table="a" column="ndog" type="string" title="Номер договора">
+        </column>
+        <call function="||" as="name" title="Договор">
+          <const>'№ '</const>
+          <column table="a" column="ndog">
+          </column>
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_dog">
+            </column>
+          </call>
+        </call>
+        <column table="a" column="kod_ist" dimension="kod_ist">
+        </column>
+        <column table="a" column="tep_el" type="number">
+        </column>
+        <column table="a" column="dep" type="number">
+        </column>
+        <column table="a" column="pr_active" type="number">
+        </column>
+        <column table="pr_active" column="name" as="pr_active_name">
+        </column>
+        <call function="if" as ="dat_fin" type="date" title="Дата окончания договора">
+          <call function="=">
+            <column table="a" column="pr_active"/>
+            <const>1</const>
+          </call>
+          <column table="a" column="dat_fin" />
+        </call>
+      
+        <column table="p" column="name" as="dep_name" title="Отделение">
+        </column>
+        <column table="nos" column="prizn_selo" title="Обл/Гор (Договор)">
+        </column>
+        <column table="no" column="dat_create" as="obj_dat_create">
+        </column>
+        <column table="no" column="dat_fin" as="obj_dat_fin">
+        </column>
+        <column table="pay" column="nump">
+        </column>
+        <column table="pay" column="inn">
+        </column>
+        <column table="pay" column="kpp">
+        </column>
+        <column table="pay" column="name" as="payer_name">
+        </column>
+        <column table="opl" column="dolg" as="kred_dolg">
+        </column>
+        <column table="fv_dolg_osn" column="dolg" as="dolg_osn">
+        </column>
+        <column table="fv_dolg" column="dolg">
+        </column>
+        <column table="fv_dolg_osn" column="kod_sf" as="last_dolg_sf">
+        </column>
+      </select>
+      <from>
+        <table name="kr_dogovor" as="a">
+        </table>
+        <query name="kr_org" as="p" join="left outer">
+          <call function="=">
+            <column table="a" column="dep">
+            </column>
+            <column table="p" column="kodp">
+            </column>
+          </call>
+        </query>
+        <query name="kr_payer" as="pay" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp">
+            </column>
+            <column table="pay" column="kodp">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor_dop" as="kod_dog_dop" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kod_dog_dop" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="dog_fin" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog_fin">
+            </column>
+            <column table="dog_fin" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor.kr_numobj" as="no" join="left outer">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_dog">
+            </column>
+            <column table="no" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor.kr_numobj.prizn_selo" as="nos" join="left outer">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_dog">
+            </column>
+            <column table="nos" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor.sr_opl" as="opl" join="left outer">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_dog">
+            </column>
+            <column table="opl" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor.sr_facvip.dolg.osn" as="fv_dolg_osn" join="left outer">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_dog_fin">
+            </column>
+            <column table="fv_dolg_osn" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor.sr_facvip.dolg" as="fv_dolg" join="left outer">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_dog_fin">
+            </column>
+            <column table="fv_dolg" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="pr_active" as="pr_active" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_active">
+            </column>
+            <column table="pr_active" column="kod">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+    
+    <query name="kr_dogovor.kr_numobj.prizn_selo">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1">
+        </column>
+        <column table="a" column="prizn_selo" group="max">
+        </column>
+      </select>
+      <from>
+        <query name="kr_numobj" as="a">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    
+    <query name="temp_pr_selo_dog" hint="first_rows(1)">
+      <select>
+        <!--<column table="a" column="dep_name"></column>
+        <column table="a" column="ndog"></column>
+        <column table="a" column="dat_dog"></column>
+        <column table="a" column="obj_dat_create"></column>
+        <column table="a" column="obj_dat_fin"></column> -->
+        <column table="a" column="kod_dog">
+        </column>
+        <column table="a" column="prizn_selo">
+        </column>
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <withparams>
+            <call function="ym begin time">
+              <const>p_ym</const>
+            </call>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_dog"></column>
+          <const>p_kod_dog</const>
+        </call>
+      </where>
+    </query>
+
+
+    <query name="kr_payer.kr_dogovor">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    
+    <query name="kr_payer.kr_dogovor">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <withparams>
+            <useparam name="date" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+
+    <query name="pr_active">
+      <select>
+        <column table="a" column="kod" type="number"/>
+        <column table="a" column="name" type="string" title="Статус"/>
+      </select>
+      <from>
+        <table name="pr_active" view="1" as="a"/>
+      </from>
+    </query>
+    
+  </queries>
+  <views>
+    <view name="pr_active">
+      select 0 kod, 'Активный' name from dual union select  1, 'Удален' from dual  union select  2, 'Новый' from dual
+    </view>
+  </views>
+
+</root>

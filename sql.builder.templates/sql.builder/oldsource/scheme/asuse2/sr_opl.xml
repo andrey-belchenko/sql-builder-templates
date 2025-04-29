@@ -1,0 +1,352 @@
+<root>
+  <queries>
+    <query name="sr_opl">
+      <params>
+        <param name="date">
+          <call function="doomsday" />
+        </param>
+      </params>
+      <select>
+        <column table="o" column="kod_opl" as="kod_opl">
+        </column>
+        <column table="o" column="kod_dog" as="kod_dog1">
+        </column>
+        <column table="d" column="kod_dog_fin" as="kod_dog">
+        </column>
+        <column table="o" column="kod_vidopl">
+        </column>
+        <column table="o" column="num_opl" type="string">
+        </column>
+        <column table="o" column="kod_parent">
+        </column>
+        <column table="o" column="vid_real" as="vid_real_opl">
+        </column>
+        <column table="v" column="vid_real">
+        </column>
+        <column table="v" column="ym" as="sf_ym" title="Период начисления">
+        </column>
+        <column table="v" column="dat_bzad_nvl">
+        </column>
+        <column table="v" column="kod_bu_akt">
+        </column>
+        <column table="v" column="kod_bu_org">
+        </column>
+        <column table="v" column="bu_akt_date_isp">
+        </column>
+        <column table="d" column="kod_dog_fin">
+        </column>
+        <column table="df" column="dep">
+        </column>
+        <column table="df" column="dep_name">
+        </column>
+        <column table="df" column="kodp">
+        </column>
+        <column table="df" column="nump">
+        </column>
+        <column table="df" column="ndog">
+        </column>
+        <column table="df" column="dat_fin" as="dog_dat_fin">
+        </column>
+        <column table="df" column="pr_active" as="dog_pr_active">
+        </column>
+        <column table="d" column="prizn_selo" as="prizn_selo_dog">
+        </column>
+        <call function="nvl0" as="nal" title="Оплачено НДС">
+          <column table="n" column="nal">
+          </column>
+        </call>
+        <column table="o" column="kod_sf">
+        </column>
+        <column table="o" column="ym">
+        </column>
+        <column table="o" column="dat_opl" type="date">
+        </column>
+        <call function="date to ym" as="date_ym">
+          <column table="o" column="dat_opl">
+          </column>
+        </call>
+        <column table="o" column="kod_type_opl" />
+        <column table="tpo" column="name" as="type_opl_name" title="Тип оплаты" />
+        <call function="case" as="pfact_prev" type="number">
+          <!-- является ли оплата погашением факта оплатами пердыдущего периода-->
+          <call function="when">
+            <call function="and">
+              <call function="ls">
+                <call function="date to ym">
+                  <column table="o" column="dat_opl">
+                  </column>
+                </call>
+                <column table="o" column="ym">
+                </column>
+              </call>
+              <call function="in">
+                <column table="o" column="kod_type_opl">
+                </column>
+                <call function="array">
+                  <const>3</const>
+                  <const>4</const>
+                </call>
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="else">
+            <const>0</const>
+          </call>
+        </call>
+        <call function="case" as="pfact_prev_name" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="this" column="pfact_prev" group="1">
+              </column>
+              <const>1</const>
+            </call>
+            <const>'Погашение факта переплатой/авансом прошлого периода'</const>
+          </call>
+          <call function="else">
+            <const>'Оплата текущего периода'</const>
+          </call>
+        </call>
+        <call function="case" as="dat_oper">
+          <call function="when">
+            <call function="in">
+              <column table="o" column="kod_type_opl">
+              </column>
+              <call function="array">
+                <const>0</const>
+                <const>1</const>
+                <const>2</const>
+              </call>
+            </call>
+            <column table="o" column="dat_opl">
+            </column>
+          </call>
+          <call function="else">
+            <call function="ym end time">
+              <column table="o" column="ym" />
+            </call>
+          </call>
+        </call>
+        <call function="+" as="oplf" title="Оплачено (руб.)">
+          <call function="nvl0">
+            <column table="o" column="opl">
+            </column>
+          </call>
+          <call function="nvl0">
+            <column table="o" column="opls">
+            </column>
+          </call>
+        </call>
+        <column table="o" column="opl" type="number" title="Оплачено (руб.)">
+        </column>
+        <column table="o" column="opls" />
+        <column table="stor" column="opls" as="storno">
+        </column>
+        <call function="case" as="dolg" title="Кредиторская задолженность" type="number">
+          <call function="when">
+            <call function="in">
+              <column table="o" column="kod_type_opl">
+              </column>
+              <call function="array">
+                <const>1</const>
+                <const>2</const>
+              </call>
+            </call>
+            <call function="+nvl">
+              <column table="o" column="opl">
+              </column>
+              <column table="stor" column="oplf">
+              </column>
+            </call>
+          </call>
+          <call function="else">
+            <const>null</const>
+          </call>
+        </call>
+
+        <column table="fo" column="cust">
+        </column>
+        
+        <call function="case" as="opl_bu_do" title="Оплачено(руб.) до признания БП" type="number">
+          <call function="when">
+            <call function="ls">
+              <column table="o" column="dat_opl"/>
+              <call function="nvl">
+                <column table="v" column="bu_akt_date_isp"/>
+                <call function="doomsday"/>
+              </call>
+            </call>
+            <column table="o" column="opl"/>
+          </call>
+        </call>
+
+        <call function="case" as="cust_bu_do" title="Оплачено(нат. пок.) до признания БП" type="number">
+          <call function="when">
+            <call function="ls">
+              <column table="o" column="dat_opl"/>
+              <call function="nvl">
+                <column table="v" column="bu_akt_date_isp"/>
+                <call function="doomsday"/>
+              </call>
+            </call>
+            <column table="this" column="cust"/>
+          </call>
+        </call>
+        
+        
+        <column table="ob" column="kodbpol" />
+        <column table="ob" column="pol_rs">
+        </column>
+        <column table="ob" column="pol_rs_name">
+        </column>
+        <column table="ob" column="vid_opl_abbr">
+        </column>
+        <column table="rco" column="into_kniga">
+        </column>
+        <column table="rco" column="into_kniga_name">
+        </column>
+        <column table="rco" column="rym" as="fk_rym">
+        </column>
+       
+      </select>
+      <from>
+        <table name="sr_opl" as="o">
+        </table>
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_dog">
+            </column>
+            <column table="d" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="kr_dogovor" as="df" join="left outer">
+          <call function="=">
+            <column table="d" column="kod_dog_fin">
+            </column>
+            <column table="df" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="sr_facvip" as="v" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_sf">
+            </column>
+            <column table="v" column="kod_sf">
+            </column>
+          </call>
+        </query>
+        <query name="sr_opl.sr_opl_nal" as="n" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_opl">
+            </column>
+            <column table="n" column="kod_opl">
+            </column>
+          </call>
+        </query>
+        <query name="sr_opl.sr_facopl" as="fo" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_opl">
+            </column>
+            <column table="fo" column="kod_opl">
+            </column>
+          </call>
+        </query>
+        <query name="sr_opl_bank" as="ob" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_link">
+            </column>
+            <column table="ob" column="kod_link">
+            </column>
+          </call>
+        </query>
+        <query name="sk_type_opl" as="tpo" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_type_opl">
+            </column>
+            <column table="tpo" column="kod_type_opl">
+            </column>
+          </call>
+        </query>
+        <!--сторно-->
+        <query name="sr_opl.sr_opl" as="stor" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="stor" column="kod_parent">
+            </column>
+            <column table="o" column="kod_opl">
+            </column>
+          </call>
+        </query>
+        <query name="sr_recalc_opl" as="rco" join="left outer">
+          <call function="=">
+            <column table="o" column="kod_opl">
+            </column>
+            <column table="rco" column="kod_opl">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="ls">
+          <column table="this" column="dat_oper">
+          </column>
+          <useparam name="date" />
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl.sr_opl">
+      <params>
+        <param name="date">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_parent" group="1">
+        </column>
+        <column table="a" column="oplf" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="sr_opl" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_type_opl">
+          </column>
+          <call function="array">
+            <const>5</const>
+            <const>6</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor.sr_opl">
+      <params>
+        <param name="date">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="sr_opl" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

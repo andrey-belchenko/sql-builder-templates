@@ -1,0 +1,522 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="49533" timestamp="18.10.2018 19:55:18" use-repository="1">
+      <params>
+        <usepart part="49533-params" />
+      </params>
+      <queries>
+        <query name="49533-main" as="main" update-target="vr_pret_dolg_calc">
+          <withparams>
+            <usepart part="49533-withparams" />
+          </withparams>
+          <query name="49533-dog" as="dog" update-target="vr_pret_dolg_dog">
+            <withparams>
+              <usepart part="49533-withparams" />
+            </withparams>
+            <call function="is not null" comment="заплатка,нужно условие со ссылкой на колонку master, по другому не работает">
+              <column table="main" column="calc_date" />
+            </call>
+            <query name="49533-sf" as="sf" update-target="vr_pret_dolg_sf">
+              <withparams>
+                <usepart part="49533-withparams" />
+              </withparams>
+              <call function="=">
+                <column table="dog" column="kod_dog" />
+                <column table="sf" column="kod_dog" />
+              </call>
+            </query>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="49533-dog" timestamp="21.03.2019 13:57:48" use-repository="1">
+      <params>
+        <usepart part="49533-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <call function="vg_period.ym_enum_str_to_date_ranges_str" as="per_dolg_osn_real">
+          <column table="a" column="per_dolg_osn_real" group="stragg" />
+        </call>
+        <column table="a" column="total_dolg_osn_real" group="sum" as="dolg_osn_real" />
+        <column table="a" column="num_delo" group="stragg_dist" exclude="1" />
+        <column table="a" column="per_dolg_osn_real" group="count_dist" as="cnt_per_dolg" title="Количество периодов задолженности" />
+        <column table="a" column="dat_sud" group="max" exclude="1" />
+        <column table="a" column="dat_bzad" group="min" title="Дата возникновения задолженности" as="dat_beg_dolg" />
+        <column table="a" column="total_dolg_avans" group="sum" as="dolg_avans" />
+        <call function="+nvl" as="dolg_osn_avans" title="Долг по авансам и основной реализации">
+          <column table="a" column="total_dolg_avans" group="sum" />
+          <column table="a" column="total_dolg_osn_real" group="sum" />
+        </call>
+        <call function="rtrim" as="dolg_desc">
+          <call function="||">
+            <call function="if">
+              <call function="!=">
+                <const type="number">0</const>
+                <call function="nvl0">
+                  <call function="max">
+                    <column column="total_dolg_osn_real" table="a" />
+                  </call>
+                </call>
+              </call>
+              <call function="||">
+                <const type="string">' ('</const>
+                <call function="listagg">
+                  <call function="if">
+                    <call function="!=">
+                      <const type="number">0</const>
+                      <call function="nvl0">
+                        <column column="total_dolg_osn_real" table="a" />
+                      </call>
+                    </call>
+                    <call function="||">
+                      <call function="ym to char">
+                        <column table="a" column="ym_vozn" />
+                      </call>
+                      <const type="string">' - '</const>
+                      <call function="number_to_currency_string">
+                        <column table="a" column="total_dolg_osn_real" />
+                      </call>
+                      <const type="string">' руб.'</const>
+                    </call>
+                  </call>
+                  <const>', '</const>
+                  <column table="a" column="ym_vozn" />
+                </call>
+                <const>')'</const>
+                <call function="if">
+                  <call function="!=">
+                    <call function="nvl0">
+                      <call function="max">
+                        <column column="total_dolg_avans" table="a" />
+                      </call>
+                    </call>
+                    <const type="number">0</const>
+                  </call>
+                  <const>','</const>
+                </call>
+              </call>
+            </call>
+            <call function="listagg">
+              <call function="if">
+                <call function="!=">
+                  <const type="number">0</const>
+                  <call function="nvl0">
+                    <column column="total_dolg_avans" table="a" />
+                  </call>
+                </call>
+                <call function="||">
+                  <const type="string">' промежуточный платеж '</const>
+                  <column column="perc" table="a" />
+                  <const type="string">'% за '</const>
+                  <call function="lower">
+                    <call function="mes-name">
+                      <call function="mes">
+                        <column column="ym_vozn" table="a" />
+                      </call>
+                    </call>
+                  </call>
+                  <const type="string">' '</const>
+                  <call function="trunc">
+                    <column column="ym_vozn" table="a" />
+                    <const type="number">0</const>
+                  </call>
+                  <const type="string">' года - '</const>
+                  <call function="number_to_currency_string">
+                    <column column="total_dolg_avans" table="a" />
+                  </call>
+                  <const type="string">' руб.'</const>
+                </call>
+              </call>
+              <const>','</const>
+              <column table="a" column="ym_vozn" />
+              <column table="a" column="perc" />
+            </call>
+          </call>
+          <const>'.'</const>
+        </call>
+        <call function="rtrim" as="dolg_desc" exclude="1">
+          <call function="||" title="Описание долга">
+            <call function="if">
+              <call function="!=">
+                <const type="number">0</const>
+                <call function="nvl0">
+                  <call function="max">
+                    <column column="total_dolg_osn_real" table="a" />
+                  </call>
+                </call>
+              </call>
+              <call function="||">
+                <const>' ('</const>
+                <call function="ltrim">
+                  <call function="stragg_dist">
+                    <call function="if">
+                      <call function="!=">
+                        <const type="number">0</const>
+                        <call function="nvl0">
+                          <column column="total_dolg_osn_real" table="a" />
+                        </call>
+                      </call>
+                      <call function="||">
+                        <const type="string">' '</const>
+                        <column column="ym_vozn" table="a" />
+                        <const type="string">' - '</const>
+                        <call function="to_char">
+                          <column column="total_dolg_osn_real" table="a" />
+                          <const type="string">'FM999G999G999G999G999D00'</const>
+                        </call>
+                        <const type="string">' руб.'</const>
+                      </call>
+                    </call>
+                  </call>
+                  <const type="string">' '</const>
+                </call>
+                <const>')'</const>
+                <call function="if">
+                  <call function="!=">
+                    <call function="nvl0">
+                      <call function="max">
+                        <column column="total_dolg_avans" table="a" />
+                      </call>
+                    </call>
+                    <const type="number">0</const>
+                  </call>
+                  <const>','</const>
+                </call>
+              </call>
+            </call>
+            <call function="stragg_dist">
+              <call function="if">
+                <call function="gt">
+                  <column column="total_dolg_avans" table="a" />
+                  <const type="number">0</const>
+                </call>
+                <call function="||">
+                  <const type="string">' промежуточный платеж '</const>
+                  <column column="perc" table="a" />
+                  <const type="string">'% за '</const>
+                  <call function="lower">
+                    <call function="mes-name">
+                      <call function="mes">
+                        <column column="ym_vozn" table="a" />
+                      </call>
+                    </call>
+                  </call>
+                  <const type="string">' '</const>
+                  <call function="trunc">
+                    <column column="ym_vozn" table="a" />
+                    <const type="number">0</const>
+                  </call>
+                  <const type="string">' года - '</const>
+                  <call function="to_char">
+                    <column column="total_dolg_avans" table="a" />
+                    <const type="string">'FM999G999G999G999G999D00'</const>
+                  </call>
+                  <const type="string">' руб.'</const>
+                </call>
+              </call>
+            </call>
+          </call>
+          <const>'.'</const>
+        </call>
+        <call function="if" as="dolg_avans_30_40" group="sum" type="number">
+          <call function="or">
+            <call function="=">
+              <call function="nvl">
+                <column table="a" column="perc" />
+                <const>0</const>
+              </call>
+              <const>30</const>
+            </call>
+            <call function="=">
+              <call function="nvl">
+                <column table="a" column="perc" />
+                <const>0</const>
+              </call>
+              <const>40</const>
+            </call>
+          </call>
+          <column column="total_dolg_avans" table="a" />
+        </call>
+        <call function="if" as="dolg_avans_n30_n40" group="sum" type="number">
+          <call function="not">
+            <call function="or">
+              <call function="=">
+                <call function="nvl">
+                  <column table="a" column="perc" />
+                  <const>0</const>
+                </call>
+                <const>30</const>
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="a" column="perc" />
+                  <const>0</const>
+                </call>
+                <const>40</const>
+              </call>
+            </call>
+          </call>
+          <column column="total_dolg_avans" table="a" />
+        </call>
+      </select>
+      <from>
+        <query name="49533-by_month" as="a">
+          <withparams>
+            <usepart part="49533-withparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="49533-pre" timestamp="22.10.2018 15:31:16" use-repository="1" materialize="1">
+      <params>
+        <usepart part="49533-params" />
+      </params>
+      <expressions>
+        <call function="if" group="sum" as="dolg_osn_real" title="Долг по основной реализации" type="number">
+          <call function="and">
+            <call function="le">
+              <column table="dat" column="val" />
+              <useparam name="p_date" />
+            </call>
+            <call function="le">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_date" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" group="sum" as="dolg_avans" title="Долг по авансам" type="number" comment="долг по авансу">
+          <call function="and">
+            <call function="le">
+              <column table="dat" column="val" />
+              <useparam name="p_date" />
+            </call>
+            <call function="le">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_date" />
+            </call>
+            <call function="gt">
+              <call function="nvl">
+                <column table="kod_sf" column="dat_ezad" />
+                <call function="doomsday" />
+              </call>
+              <useparam name="p_date" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_av" />
+        </call>
+        <call function="=" as="is_dec">
+          <column table="kod_hist_mat_dec" column="kod_not_edit" />
+          <const>1</const>
+        </call>
+        <call function="over" group="max" as="num_delo" type="string" exclude="1">
+          <call function="last_value">
+            <fact column="ur_mat_num_delo_max" condition="is_dec" />
+          </call>
+          <call function="partition by">
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+          <call function="order by 2">
+            <column table="kod_hist_mat_dec" column="dat_resh" />
+          </call>
+        </call>
+        <call function="over" as="total_dolg_osn_real" group="max" type="number" comment="всего долга по основной реализации">
+          <call function="sum">
+            <fact column="dolg_osn_real" />
+          </call>
+          <call function="partition by">
+            <column table="kod_dog" column="kod_dog" />
+            <column table="kod_sf" column="rym" />
+          </call>
+        </call>
+        <call function="over" as="total_dolg_avans" group="max" type="number" comment="всего аванса за месяц по каждому проценту" exclude="1">
+          <call function="sum">
+            <fact column="dolg_avans" />
+            <call function="if" exclude="1">
+              <call function="and">
+                <call function="le">
+                  <column table="dat" column="val" />
+                  <useparam name="p_date" />
+                </call>
+                <call function="gt">
+                  <call function="nvl">
+                    <column table="kod_sf" column="dat_ezad" />
+                    <call function="doomsday" />
+                  </call>
+                  <useparam name="p_date" />
+                </call>
+              </call>
+              <fact column="fin_ul_ob_av" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="kod_dog" column="kod_dog" />
+            <column table="kod_sf" column="rym" />
+            <column table="kod_sf" column="perc" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_sf" column="kod_sf" />
+        <column table="kod_deb" column="kod_deb" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kod_sf" column="ym_vozn" />
+        <call function="if" type="string" as="per_dolg_osn_real">
+          <call function="!=0">
+            <column table="this" column="dolg_osn_real" />
+          </call>
+          <call function="ym to char">
+            <column table="this" column="ym_vozn" />
+          </call>
+        </call>
+        <fact column="num_delo" as="num_delo" table="sf" exclude="1" />
+        <fact column="dolg_osn_real" table="sf" />
+        <fact column="dolg_osn_real" table="deb" as="dolg_osn_real_deb" />
+        <fact column="ur_mat_dat_doc_max" table="sf" as="dat_sud" exclude="1" />
+        <call function="if" as="dat_bzad" title="Дата возникновения задолженности">
+          <call function="!=0">
+            <column table="this" column="dolg_osn_real" />
+          </call>
+          <column table="kod_sf" column="dat_bzad" />
+        </call>
+        <fact table="sf" column="total_dolg_osn_real" />
+        <fact table="sf" column="total_dolg_avans" exclude="1" />
+        <fact table="sf" column="dolg_avans" />
+        <column table="kod_sf" column="perc" title="Процентов аванса" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_dog" />
+          <dimset as="sf">
+            <link name="kod_sf" />
+            <link name="kod_deb" />
+          </dimset>
+          <dimset as="deb">
+            <link name="kod_deb" />
+          </dimset>
+          <where>
+            <call function="in">
+              <column table="kod_dog" column="kod_dog" />
+              <call function="vr_number_array.get">
+                <useparam name="p_kod_dog_array_id" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="or">
+          <call function="and">
+            <call function="!=0">
+              <column table="this" column="total_dolg_osn_real" />
+            </call>
+            <call function="!=0">
+              <column table="this" column="dolg_osn_real" />
+            </call>
+          </call>
+          <call function="is not null" exclude="1">
+            <column table="this" column="dat_calc_peni" exclude="1" />
+          </call>
+          <call function="!=0">
+            <column table="this" column="dolg_gp" exclude="1" />
+            <column table="this" column="dolg_peni" exclude="1" />
+            <column table="this" column="dolg_sud_peni" exclude="1" />
+            <column table="this" column="dolg_astr" exclude="1" />
+            <column table="this" column="dolg_othr" exclude="1" />
+            <column table="this" column="dolg_osn_real_deb" exclude="1" />
+            <column table="this" column="dolg_avans" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="49533-main" timestamp="18.10.2018 16:50:56">
+      <params>
+        <usepart part="49533-params" />
+      </params>
+      <select>
+        <call function="()" as="calc_date" type="date">
+          <useparam name="p_date" />
+        </call>
+        <call function="()" type="number" as="kod_pret_dolg_calc">
+          <useparam name="p_kod_pret_dolg_calc" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+    </query>
+    <query name="49533-sf" timestamp="22.10.2018 12:58:45">
+      <params>
+        <usepart part="49533-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="kod_sf" group="1" />
+        <column table="a" column="dolg_osn_real" group="sum" />
+        <column group="sum" table="a" column="dolg_avans" />
+        <column table="a" column="dolg_gp" group="sum" exclude="1" />
+        <column table="a" column="dolg_peni" group="sum" exclude="1" />
+        <column table="a" column="dolg_sud_peni" group="sum" exclude="1" />
+        <column table="a" column="dolg_astr" group="sum" exclude="1" />
+        <column table="a" column="num_delo" group="max" exclude="1" />
+        <column table="a" column="dolg_othr" group="sum" exclude="1" />
+        <column table="a" column="dat_calc_peni" group="max" exclude="1" />
+        <column table="a" column="dat_sud" group="max" exclude="1" />
+      </select>
+      <from>
+        <query name="49533-pre" as="a">
+          <withparams>
+            <usepart part="49533-withparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="49533-by_month" timestamp="22.10.2018 12:48:32">
+      <params>
+        <usepart part="49533-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="ym_vozn" group="1" />
+        <column group="1" table="a" column="perc" />
+        <column table="a" column="per_dolg_osn_real" group="max" />
+        <column table="a" column="dolg_osn_real" group="sum" as="total_dolg_osn_real" />
+        <column table="a" column="num_delo" group="stragg_dist" exclude="1" />
+        <column table="a" column="dat_sud" group="max" exclude="1" />
+        <column table="a" column="dat_bzad" group="min" title="Дата возникновения задолженности" as="dat_beg_dolg" />
+        <column table="a" column="dolg_avans" group="sum" as="total_dolg_avans" />
+        <column table="a" column="dat_bzad" group="min" />
+      </select>
+      <from>
+        <query name="49533-pre" as="a">
+          <withparams>
+            <usepart part="49533-withparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <parts>
+    <part id="49533-params" timestamp="18.10.2018 16:46:04">
+      <param type="date" name="p_date">
+        <const>to_date('27.08.2018','DD.MM.YYYY')</const>
+      </param>
+      <param type="string" name="p_kod_dog_array_id">
+        <const>'dog1'</const>
+      </param>
+      <param type="number" name="p_kod_pret_dolg_calc">
+        <const>8</const>
+      </param>
+    </part>
+    <part id="49533-withparams" timestamp="18.10.2018 16:46:32">
+      <useparam name="p_date" />
+      <useparam name="p_kod_dog_array_id" />
+      <useparam name="p_kod_pret_dolg_calc" />
+    </part>
+  </parts>
+</root>

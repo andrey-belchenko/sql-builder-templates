@@ -1,0 +1,820 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="34883" timestamp="11.08.2022 15:37:40" is-report="1" title="Ведомость по неопознанным и ошибочно перечисленным суммам" folder="opl" nogrid="1" with-behavior="0">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="34883.xml" title="Ведомость по неопознанным и ошибочно перечисленным суммам" print-proc="2" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_ym" />
+      </content>
+      <params exclude="1">
+        <param name="ym">
+          <const>2016.03</const>
+        </param>
+        <param name="dep">
+          <const>102276623</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="or" as="child_cond">
+          <call function="=">
+            <column table="kod_link_child" column="pr_raznos" />
+            <const>1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_link_bro" column="kod_link" />
+          </call>
+        </call>
+        <call function="if" as="out_razn" type="number" group="sum">
+          <call function="=">
+            <column table="kod_link_child" column="pr_raznos" />
+            <const>1</const>
+          </call>
+          <fact column="sr_opl_bank_child_opl" condition="child_cond" />
+        </call>
+        <call function="if" as="out_spis" type="number" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_link_child" column="pr_kvit" />
+              <const>2</const>
+            </call>
+            <call function="=">
+              <column table="kod_link_child" column="kod_tvidopl" />
+              <const>-2</const>
+            </call>
+          </call>
+          <call function="0-">
+            <fact column="sr_opl_bank_child_opl" condition="child_cond" />
+          </call>
+        </call>
+        <call function="if" as="out_vozv" type="number" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_link_child" column="pr_kvit" />
+              <const>2</const>
+            </call>
+            <call function="!=nvl">
+              <column table="kod_link_child" column="kod_tvidopl" />
+              <const>-2</const>
+            </call>
+          </call>
+          <call function="0-">
+            <fact column="sr_opl_bank_child_opl" condition="child_cond" />
+          </call>
+        </call>
+        <call as="saldo" group="sum" function="-nvl">
+          <fact column="sr_opl_bank_main_opl" />
+          <call function="+nvl">
+            <fact column="out_razn" />
+            <fact column="out_spis" />
+            <fact column="out_vozv" />
+          </call>
+        </call>
+        <call function="if" as="saldo_beg" type="number" group="sum">
+          <call function="lt">
+            <column table="kod_link" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="saldo" />
+        </call>
+        <call function="if" as="saldo_end" type="number" group="sum">
+          <call function="le">
+            <column table="kod_link" column="dat_opl" />
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="saldo" />
+        </call>
+        <call function="if" as="out_razn_nds" type="number" group="sum">
+          <call function="=">
+            <column table="kod_link_child" column="pr_raznos" />
+            <const>1</const>
+          </call>
+          <fact column="sr_opl_bank_child_nds" condition="child_cond" />
+        </call>
+        <call function="if" as="out_spis_nds" type="number" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_link_child" column="pr_kvit" />
+              <const>2</const>
+            </call>
+            <call function="=">
+              <column table="kod_link_child" column="kod_tvidopl" />
+              <const>-2</const>
+            </call>
+          </call>
+          <call function="0-">
+            <fact column="sr_opl_bank_child_nds" condition="child_cond" />
+          </call>
+        </call>
+        <call function="if" as="out_vozv_nds" type="number" group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="kod_link_child" column="pr_kvit" />
+              <const>2</const>
+            </call>
+            <call function="!=nvl">
+              <column table="kod_link_child" column="kod_tvidopl" />
+              <const>-2</const>
+            </call>
+          </call>
+          <call function="0-">
+            <fact column="sr_opl_bank_child_nds" condition="child_cond" />
+          </call>
+        </call>
+        <call as="saldo_nds" group="sum" function="-nvl">
+          <fact column="sr_opl_bank_main_nds" />
+          <call function="+nvl">
+            <fact column="out_razn_nds" />
+            <fact column="out_spis_nds" />
+            <fact column="out_vozv_nds" />
+          </call>
+        </call>
+        <call function="if" as="saldo_beg_nds" type="number" group="sum">
+          <call function="lt">
+            <column table="kod_link" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="saldo_nds" />
+        </call>
+        <call function="if" as="saldo_end_nds" type="number" group="sum">
+          <call function="le">
+            <column table="kod_link" column="dat_opl" />
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+          </call>
+          <fact column="saldo_nds" />
+        </call>
+      </expressions>
+      <select>
+        <call function="date to char" as="dat1" group="max">
+          <call function="ym begin time">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="date to char" as="dat2" group="max">
+          <call function="ym end time">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="mes-name" as="mes" group="max">
+          <call function="month">
+            <call function="ym begin time">
+              <useparam name="ym" />
+            </call>
+          </call>
+        </call>
+        <call function="year" as="god" group="max">
+          <call function="ym begin time">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <fact table="dep" column="kr_dep_count" group="sum" />
+        <column table="kod_dep" column="name" group="stragg_dist" as="dep_name" />
+        <call function="nvl" type="string" title="Плательщик" group="max" as="pname">
+          <column table="kod_link_main" column="pname" />
+          <column table="kodp" column="name" as="pname" />
+        </call>
+        <column group="max" as="dest_pay" table="kod_dest" column="sname" />
+        <column table="kod_link_main" column="kod_link" as="kod_link_main" />
+        <column table="kod_link_main" column="dat_opl" as="dat_opl_main" />
+        <column table="kod_link_main" column="num_opl" as="num_opl_main" />
+        <column table="kod_link_main" column="dat_fact" as="dat_fact_main" />
+        <call function="if" as="perc_main" type="number">
+          <call function="ge">
+            <column table="this" column="dat_fact_main" />
+            <call function="to_date">
+              <const type="date">'01.01.2019'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+          </call>
+          <const>20</const>
+          <const>18</const>
+        </call>
+        <call function="date to ym" as="ym_main">
+          <column table="kod_link_main" column="dat_opl" />
+        </call>
+        <column table="kod_vidopl_main" column="sname" title="Документ" as="doc_name_main" />
+        <column table="kodbpol_main" column="rs" as="rs_main" />
+        <column table="kodb_main" column="name" as="bank_name_main" />
+        <column table="kod_link_main" column="remark" as="remark_main" />
+        <column table="kod_link" column="kod_link" />
+        <column table="kod_link" column="dat_opl" />
+        <column table="kod_link" column="num_opl" />
+        <column table="kod_link" column="dat_fact" />
+        <call function="if" as="perc">
+          <call function="ge">
+            <column table="this" column="dat_fact" />
+            <call function="to_date">
+              <const type="date">'01.01.2019'</const>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+          </call>
+          <const>20</const>
+          <const>18</const>
+        </call>
+        <column table="kodbpol" column="rs" />
+        <column table="kodb" column="name" as="bank_name" />
+        <column table="kod_link" column="remark" />
+        <call function="date to ym" as="ym">
+          <column table="kod_link" column="dat_opl" />
+        </call>
+        <column table="kod_vidopl" title="Документ" column="sname" as="doc_name" />
+        <fact column="kr_dep_sname" as="kr_dep_sname_main" group="max" table="main" />
+        <fact column="kr_dep_sname" table="child" group="max" />
+        <fact column="sr_opl_bank_main_opl" title="Поступило" group="sum" as="inp" table="main" />
+        <fact column="sr_opl_bank_main_nds" title="Поступило НДС" group="sum" as="inp_nds" table="main" />
+        <fact column="out_razn" title="Разнесено" table="child" group="sum" />
+        <fact column="out_spis" title="Списано" table="child" group="sum" />
+        <fact column="out_vozv" title="Возвращено" table="child" group="sum" />
+        <call function="+nvl" as="out" title="Выбытие" group="sum">
+          <fact column="out_spis" title="Списано" table="child" />
+          <fact column="out_vozv" title="Возвращено" table="child" />
+          <fact column="out_razn" title="Разнесено" table="child" />
+        </call>
+        <fact column="out_razn_nds" title="Разнесено" table="child" group="sum" />
+        <fact column="out_spis_nds" title="Списано" table="child" group="sum" />
+        <fact column="out_vozv_nds" title="Возвращено" table="child" group="sum" />
+        <call function="+nvl" as="out_nds" title="Выбытие" group="sum">
+          <fact column="out_spis_nds" title="Списано" table="child" />
+          <fact column="out_vozv_nds" title="Возвращено" table="child" />
+          <fact column="out_razn_nds" title="Разнесено" table="child" />
+        </call>
+        <fact column="saldo_beg" title="Сальдо на начало" group="sum" table="main" />
+        <fact column="saldo_end" title="Сальдо на конец" group="sum" table="main" />
+        <fact column="saldo_beg_nds" title="Сальдо на начало НДС" group="sum" table="main" />
+        <fact column="saldo_end_nds" title="Сальдо на конец НДС" group="sum" table="main" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" only-for-cond="1" />
+          <dimset as="dep">
+            <link name="kod_dep" />
+            <where>
+              <call function="=" exclude="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main">
+            <link name="kod_link_main">
+              <link name="kod_vidopl" as="kod_vidopl_main" />
+              <link name="kodbpol" as="kodbpol_main">
+                <link name="kodb" as="kodb_main" />
+              </link>
+              <link name="kodp" />
+              <link name="kod_dest" as="kod_dest" />
+              <link name="kod_sr_pach" exclude="1" />
+            </link>
+            <link name="kod_dep" only-for-cond="1" />
+            <where>
+              <call function="=">
+                <column table="kod_link_main" column="pr_kvit" />
+                <const>2</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="kod_sr_pach" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kodbpol_main" column="dep" />
+                <useparam name="dep" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="child">
+            <link name="kod_link_main" />
+            <link name="kod_dep" only-for-cond="1" />
+            <link name="kod_link_child" as="kod_link">
+              <link name="kod_vidopl" />
+              <link name="kodbpol">
+                <link name="kodb" />
+              </link>
+            </link>
+            <where>
+              <call function="=">
+                <column table="kod_link_main" column="pr_kvit" />
+                <const>2</const>
+              </call>
+              <call function="=" exclude="1">
+                <column table="kod_sr_pach" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="=" exclude="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="or" exclude="1">
+                <call function="=">
+                  <column table="kod_link" column="pr_raznos" />
+                  <const>1</const>
+                </call>
+                <call function="not exists">
+                  <query>
+                    <select>
+                      <column table="sr_opl_bank" column="kod_link" />
+                    </select>
+                    <from>
+                      <query name="sr_opl_bank" />
+                    </from>
+                    <where>
+                      <call function="and">
+                        <call function="=">
+                          <column table="sr_opl_bank" column="kod_parent" />
+                          <column table="kod_link" column="kod_parent" />
+                        </call>
+                        <call function="!=">
+                          <column table="sr_opl_bank" column="kod_link" />
+                          <column table="kod_link" column="kod_link" />
+                        </call>
+                      </call>
+                    </where>
+                  </query>
+                </call>
+              </call>
+              <call function="in" optional="1">
+                <column table="kodbpol" column="dep" />
+                <useparam name="dep" />
+              </call>
+            </where>
+          </dimset>
+          <where exclude="1">
+            <call function="or">
+              <call function="=" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping exclude="1">
+        <grset as="a">
+          <group>
+            <sourcelink table="kod_link_main" />
+          </group>
+        </grset>
+      </grouping>
+      <grouping>
+        <grset as="itog">
+          <grset as="itog_in">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <column table="this" column="ym_main" />
+                  <useparam name="ym" />
+                </call>
+              </call>
+            </where>
+            <grset as="in">
+              <group>
+                <sourcelink table="kod_link_main" />
+              </group>
+            </grset>
+          </grset>
+          <grset as="itog_out">
+            <where>
+              <call function="=">
+                <column table="this" column="ym" />
+                <useparam name="ym" />
+              </call>
+            </where>
+            <grset as="out_razn">
+              <group>
+                <sourcelink table="kod_link_main" />
+                <sourcelink table="kod_link" />
+              </group>
+              <where>
+                <call function="and">
+                  <call function="!=0">
+                    <column table="this" column="out_razn" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset as="out_spis">
+              <group>
+                <sourcelink table="kod_link_main" />
+                <sourcelink table="kod_link" />
+              </group>
+              <where>
+                <call function="and">
+                  <call function="!=0">
+                    <column table="this" column="out_spis" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset as="out_vozv">
+              <group>
+                <sourcelink table="kod_link_main" />
+                <sourcelink table="kod_link" />
+              </group>
+              <where>
+                <call function="and">
+                  <call function="!=0">
+                    <column table="this" column="out_vozv" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+          </grset>
+          <grset as="beg_detail">
+            <group>
+              <sourcelink table="kod_link_main" />
+            </group>
+            <where>
+              <call function="true" />
+            </where>
+            <having>
+              <call function="!=0">
+                <column table="this" column="saldo_beg" />
+              </call>
+            </having>
+          </grset>
+          <grset as="e_detail">
+            <group>
+              <sourcelink table="kod_link_main" />
+            </group>
+            <where>
+              <call function="true" />
+            </where>
+            <having>
+              <call function="!=0">
+                <column table="this" column="saldo_end" />
+              </call>
+            </having>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="37977-1" timestamp="20.12.2016 19:57:32" folder="dolg" nogrid="1" with-behavior="0">
+      <params>
+        <param type="date" name="dat">
+          <const>to_date('31.10.2016','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="()" as="deb" type="number" group="sum">
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="()" as="kred" type="number" group="sum">
+          <call function="0-">
+            <fact column="fin_ul_ob_kr" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="vid_real_no_av" column="vid_real" />
+        <call function="row_number" as="npp" title="№" format="F0">
+          <call function="order by 2">
+            <column table="kodp" column="inn" />
+            <column table="dep" column="sname" title="Наименование филиала" as="dep_sname" thissrc="dep_sname" />
+            <column table="kodp" column="name" />
+            <column table="vid_real_no_av" column="sname" as="vid_real_name" thissrc="vid_real_name" />
+          </call>
+        </call>
+        <column table="kodp" column="inn" />
+        <call function="nvl" as="inn_nvl" title=" ">
+          <column table="kodp" column="inn" />
+          <call function="||">
+            <const>'!'</const>
+            <column table="kodp" column="kodp" />
+          </call>
+        </call>
+        <column table="dep" column="sname" title="Наименование филиала" as="dep_sname" />
+        <column table="kod_dog_fin" column="ndog" />
+        <column table="kodp" column="name" />
+        <fact column="deb" title="ДЗ" />
+        <fact column="kred" title="КЗ" />
+        <call function="over" as="deb_by_inn" title=" ">
+          <call function="sum">
+            <column table="this" column="deb" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="inn_nvl" />
+          </call>
+        </call>
+        <call function="over" as="kred_by_inn" title=" ">
+          <call function="sum">
+            <column table="this" column="kred" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="inn_nvl" />
+          </call>
+        </call>
+        <column table="vid_real_no_av" column="sname" as="vid_real_name" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="kodp" />
+              <link name="dep" />
+              <link name="kod_vdog" />
+            </link>
+          </link>
+          <link name="vid_real_no_av" />
+          <link name="dat" />
+          <where>
+            <call function="and">
+              <call function="is not null">
+                <column table="vid_real_no_av" column="vid_real" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="dat" />
+              </call>
+              <call function="!=">
+                <column table="kod_dog_fin" column="pr_active" />
+                <const>1</const>
+              </call>
+              <call function="!=">
+                <column table="kod_vdog" column="kod_tipdog" />
+                <const>6</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="37977" timestamp="20.12.2016 20:02:39" is-report="1" folder="dolg" with-behavior="0" title="Проверка сальдо при наличии нескольких договоров">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <content>
+        <usefield field="cmn_date_cur" name="dat" title="Дата" />
+      </content>
+      <params exclude="1">
+        <param type="date" name="dat">
+          <const>to_date('31.10.2016','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="vid_real" />
+        <call function="row_number" as="npp" title="№" format="F0">
+          <call function="order by 2">
+            <column table="a" column="inn" />
+            <column table="a" column="dep_sname" title="Наименование филиала" thissrc="dep_sname" />
+            <column table="a" column="ndog" thissrc="vid_real_name" />
+            <column table="a" column="vid_real" />
+          </call>
+        </call>
+        <column table="a" column="inn" />
+        <column table="a" column="dep_sname" />
+        <column table="a" column="ndog" />
+        <column table="a" column="name" />
+        <column table="a" column="deb" />
+        <column table="a" column="kred" />
+        <column table="a" column="vid_real_name" />
+      </select>
+      <from>
+        <query name="37977-1" as="a">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=0">
+            <column table="a" column="deb_by_inn" />
+          </call>
+          <call function="!=0">
+            <column table="a" column="kred_by_inn" />
+          </call>
+          <call function="!=0">
+            <column table="a" column="deb" />
+            <column table="a" column="kred" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="37977-test" timestamp="03.02.2017 03:53:25" folder="dolg" nogrid="1" with-behavior="0">
+      <params>
+        <param type="date" name="dat">
+          <const>to_date('03.02.2017','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="()" as="deb" type="number" group="sum">
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="()" as="kred" type="number" group="sum">
+          <call function="0-">
+            <fact column="fin_ul_ob_kr" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="vid_real_no_av" column="vid_real" />
+        <call function="row_number" as="npp" title="№" format="F0">
+          <call function="order by 2">
+            <column table="kodp" column="inn" />
+            <column table="dep" column="sname" title="Наименование филиала" as="dep_sname" thissrc="dep_sname" />
+            <column table="kodp" column="name" />
+            <column table="vid_real_no_av" column="sname" as="vid_real_name" thissrc="vid_real_name" />
+          </call>
+        </call>
+        <column table="kodp" column="inn" />
+        <call function="nvl" as="inn_nvl" title=" ">
+          <column table="kodp" column="inn" />
+          <call function="||">
+            <const>'!'</const>
+            <column table="kodp" column="kodp" />
+          </call>
+        </call>
+        <column table="dep" column="sname" title="Наименование филиала" as="dep_sname" />
+        <column table="kod_dog_fin" column="ndog" />
+        <column table="kodp" column="name" />
+        <fact column="deb" title="ДЗ" />
+        <fact column="kred" title="КЗ" />
+        <call function="over" as="deb_by_inn" title=" ">
+          <call function="sum">
+            <column table="this" column="deb" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="inn_nvl" />
+          </call>
+        </call>
+        <call function="over" as="kred_by_inn" title=" ">
+          <call function="sum">
+            <column table="this" column="kred" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="inn_nvl" />
+          </call>
+        </call>
+        <column table="vid_real_no_av" column="sname" as="vid_real_name" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="kodp" />
+              <link name="dep" />
+              <link name="kod_vdog" />
+            </link>
+          </link>
+          <link name="vid_real_no_av" />
+          <link name="dat" />
+          <where>
+            <call function="and">
+              <call function="is not null" exclude="1">
+                <column table="vid_real_no_av" column="vid_real" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="dat" />
+              </call>
+              <call function="!=">
+                <column table="kod_dog_fin" column="pr_active" />
+                <const>1</const>
+              </call>
+              <call function="!=">
+                <column table="kod_vdog" column="kod_tipdog" />
+                <const>6</const>
+              </call>
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <array>20010531</array>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="37977-tes" timestamp="03.02.2017 04:07:16" folder="dolg" nogrid="1" with-behavior="0">
+      <params>
+        <param type="date" name="dat">
+          <const>to_date('03.02.2017','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="()" as="deb" type="number" group="sum">
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="()" as="kred" type="number" group="sum">
+          <call function="0-">
+            <fact column="fin_ul_ob_kr" />
+          </call>
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="vid_real_no_av" column="vid_real" />
+        <call function="row_number" as="npp" title="№" format="F0">
+          <call function="order by 2">
+            <column table="kodp" column="inn" />
+            <column table="dep" column="sname" title="Наименование филиала" as="dep_sname" thissrc="dep_sname" />
+            <column table="kodp" column="name" />
+            <column table="vid_real_no_av" column="sname" as="vid_real_name" thissrc="vid_real_name" />
+          </call>
+        </call>
+        <column table="kodp" column="inn" />
+        <call function="nvl" as="inn_nvl" title=" ">
+          <column table="kodp" column="inn" />
+          <call function="||">
+            <const>'!'</const>
+            <column table="kodp" column="kodp" />
+          </call>
+        </call>
+        <column table="dep" column="sname" title="Наименование филиала" as="dep_sname" />
+        <column table="kod_dog_fin" column="ndog" />
+        <column table="kodp" column="name" />
+        <fact column="deb" title="ДЗ" />
+        <fact column="sr_facras_nachisl" />
+        <fact column="sr_opl_opl_sf" />
+        <fact column="kred" title="КЗ" exclude="1" />
+        <call function="over" as="deb_by_inn" title=" " exclude="1">
+          <call function="sum">
+            <column table="this" column="deb" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="inn_nvl" />
+          </call>
+        </call>
+        <call function="over" as="kred_by_inn" title=" " exclude="1">
+          <call function="sum">
+            <column table="this" column="kred" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="inn_nvl" />
+          </call>
+        </call>
+        <column table="vid_real_no_av" column="sname" as="vid_real_name" />
+        <column table="vid_real" column="sname" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="kodp" />
+              <link name="dep" />
+              <link name="kod_vdog" />
+            </link>
+          </link>
+          <link name="vid_real_no_av" />
+          <link name="vid_real" />
+          <link name="dat" />
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_dog_fin" column="kod_dog" />
+                <const>20010531</const>
+              </call>
+              <call function="is not null" exclude="1">
+                <column table="vid_real_no_av" column="vid_real" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="dat" />
+              </call>
+              <call function="!=">
+                <column table="kod_dog_fin" column="pr_active" />
+                <const>1</const>
+              </call>
+              <call function="!=">
+                <column table="kod_vdog" column="kod_tipdog" />
+                <const>6</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

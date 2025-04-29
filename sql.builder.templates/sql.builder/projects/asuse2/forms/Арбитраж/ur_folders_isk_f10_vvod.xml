@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_isk_f10_vvod" title="Судебное производство" security-id="asuse_ur_pir_isk" with-behavior="0" comment="Закладка «Судебное производство» «Карточки по ведению ПИР» (см. form ur_folders_main)" timestamp="28.07.2024 17:32:15">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">2000002636</const>
+        </param>
+      </params>
+      <content>
+        <column table="ur_folders" column="kodp" column-visible="0" parname="ur_folders_kodp" invisible-in-column-chooser="1" />
+        <column table="ur_folders" column="vvod" column-visible="0" parname="is_vvod" invisible-in-column-chooser="1" />
+        <column table="ur_folders" column="not_vvod" column-visible="0" parname="is_not_vvod" />
+        <column table="ur_folders" column="kod_podr" column-visible="0" parname="dep" invisible-in-column-chooser="1" />
+        <const type="number" as="dep_pio" column-visible="0" parname="dep_pio" comment="Управление АО «Татэнергосбыт»">1219</const>
+        <splitcontainer>
+          <fieldgroup title="Материалы переданные в суд">
+            <grid table="ur_mat" show-toolbar="1">
+              <toolbar>
+                <uicommand name="upech_doc" editable="item_is_not_new">
+                  <useparam name="cur_kod_mat" />
+                  <const>6</const>
+                  <useparam name="kod_folders" />
+                </uicommand>
+                <uicommand name="oplmat" editable="item_is_not_new" exclude="1">
+                  <useparam name="ur_folders_kodp" />
+                </uicommand>
+                <uicommand action-type="dynamic-form" call="ur_folders_g_plat" modal="1" editable="item_is_not_new" title="Платежи ГП" exclude="1">
+                  <const>0</const>
+                  <useparam name="cur_kod_mat" />
+                </uicommand>
+                <usefield field="cmn_check" title="Не показывать архивные" name="no_arh" checked="1" />
+              </toolbar>
+              <columns>
+                <column table="ur_mat" column="kod_mat" parname="cur_kod_mat" column-visible="0" />
+                <column table="ur_mat" column="pio_date" title="Дата поступления материалов в ПИО" />
+                <column table="ur_mat" column="kod_emp" title="Исполнитель ПИО">
+                  <listquery>
+                    <query name="kr_employee_urists_singl_dep">
+                      <withparams>
+                        <useparam name="dep_pio" />
+                      </withparams>
+                    </query>
+                  </listquery>
+                </column>
+                <fact column="ur_pretenz_pio_date" table="ur_mat" title="Дата поступления материалов в ПИО" exclude="1" />
+                <fact column="ur_pretenz_last_pio_fio" table="ur_mat" title="Исполнитель ПИО" exclude="1" />
+                <fact table="ur_mat" column="kr_dog_name" title="Договор" />
+                <column table="ur_mat" column="num_reg" title="Номер иска" column-editable="1" />
+                <column table="ur_mat" column="kod_doc" invisible-in-column-chooser="1" />
+                <column table="kod_doc" column="is_peresmotr" column-visible="0" parname="is_peresmotr" />
+                <column table="ur_mat" column="kod_subject" invisible-in-column-chooser="1" />
+                <column table="ur_mat" column="kod_parent" title="Обжалование" editable="is_peresmotr" mandatory="is_peresmotr" invisible-in-column-chooser="1" />
+                <fact column="ur_hist_mat_dec_dat_entry" table="ur_mat" />
+                <fact column="ur_dp_pr_sch_gp" table="ur_mat" title="Счет на оплату ГП" valid="ur_mat_pr_sch_gp_vld" exclude="1" />
+                <fact column="ur_dp_pr_sch_peni" table="ur_mat" title="Счет на оплату процентов (пени)" valid="ur_mat_pr_sch_peni_vld" exclude="1" />
+                <fact column="ur_dp_pr_sch_shtr" table="ur_mat" title="Счет на оплату штрафа" valid="ur_mat_pr_sch_peni_vld" exclude="1" />
+                <fact column="ur_mat_pr_sch_gp_vld" table="ur_mat" parname="ur_mat_pr_sch_gp_vld" column-visible="0" />
+                <fact column="ur_mat_pr_sch_peni_vld" table="ur_mat" parname="ur_mat_pr_sch_peni_vld" column-visible="0" />
+                <fact table="ur_mat" column="ur_mat_zadol_po_isku" title="Задолженность по иску" />
+                <column table="ur_mat" column="period_zadol_s_vvod" title="Период задолженности с" controlType="UICombo" format="F2">
+                  <listquery val-field-name="ym">
+                    <query name="ym_list_vvod" />
+                  </listquery>
+                  <listquery val-field-name="kodp" exclude="1">
+                    <query name="kr_dogovor_list(dep_sng)">
+                      <withparams>
+                        <useparam name="dep" />
+                      </withparams>
+                    </query>
+                  </listquery>
+                </column>
+                <column table="ur_mat" column="period_zadol_po_vvod" title="Период задолженности по" controlType="UICombo" format="F2">
+                  <listquery val-field-name="ym">
+                    <query name="ym_list_vvod" />
+                  </listquery>
+                  <listquery val-field-name="kodp" exclude="1">
+                    <query name="kr_dogovor_list(dep_sng)">
+                      <withparams>
+                        <useparam name="dep" />
+                      </withparams>
+                    </query>
+                  </listquery>
+                </column>
+                <column table="ur_mat" column="osnreal" title="Основная реал." editable="1" />
+                <column table="ur_mat" column="peni" title="Проценты (пени)" editable="1" />
+                <fact column="mat_peni_period_str" table="ur_mat" title="Период пени" column-width="141">
+                  <buttons>
+                    <uicommand action-type="dynamic-form" call="ur_mat_peni_period_select" type="Ellipsis" side="Right" title="Выбор периодов пени" modal="1" visible="item_is_not_new">
+                      <useparam name="cur_kod_mat" />
+                    </uicommand>
+                  </buttons>
+                </fact>
+                <column table="ur_mat" column="ogr" title="Расх. за введ. огранич. реж. энергопотребл." />
+                <column table="ur_mat" column="ur_opl_do_resh_vvod" editable="1" title="Оплата до вынес. реш. суда" />
+                <fact table="ur_mat" column="ur_mat_ostatok_zadol_do_resch" title="Остаток задолженности до вынес. реш. суда" />
+                <fact column="ur_mat_sum_gp" table="ur_mat" title="Сумма гос. пошлины">
+                  <buttons>
+                    <uicommand action-type="dynamic-form" call="ur_mat_gp" type="Ellipsis" side="Right" modal="1" title="Госпошлина истца" is-ret="0" visible="1">
+                      <useparam table="ur_dogplat" column="kod_sf" name="cur_kod_mat" />
+                    </uicommand>
+                  </buttons>
+                </fact>
+                <column table="ur_mat" column="dat_otv" />
+                <column table="ur_mat" column="kod_sud" title="Суд / судебный участок" invisible-in-column-chooser="1" />
+                <column table="ur_mat" column="dat_doc" title="Дата подачи в суд" />
+                <column table="ur_mat" column="dat_prin" />
+                <column table="ur_mat" column="type_rassm" title="Порядок рассмотрения" invisible-in-column-chooser="1" />
+                <column table="ur_mat" column="date_rassm_approx" title="Примерный срок рассмотрения" />
+                <column table="ur_mat" column="num_delo" />
+                <column table="ur_mat" column="link_delo" title="Гиперссылка" />
+                <column table="ur_mat" column="kod_scan" title="Файл" invisible-in-column-chooser="1" />
+                <column table="ur_mat" column="prim" title="Примечание" />
+                <column table="ur_mat" column="is_not_new" column-visible="0" parname="item_is_not_new" as="is_not_new" editable="item_is_not_new" />
+                <column table="ur_mat" column="dat_arh" title="Дата архивации" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title="История рассмотрения">
+            <grid table="ur_hist_mat" show-toolbar="1">
+              <toolbar>
+                <uicommand action-type="dynamic-form-create" call="ur_hist_mat_f10_vvod" button-type="custom-add-form" title="Добавить" modal="1" editable="item_is_not_new">
+                  <const>null</const>
+                  <useparam name="cur_kod_mat" />
+                  <const>6</const>
+                </uicommand>
+                <uicommand button-type="grid-copy" column-visible="0" />
+                <uicommand button-type="grid-add" column-visible="0" />
+              </toolbar>
+              <columns>
+                <column table="ur_hist_mat" column="kod_hist_mat" parname="cur_kod_hist_mat" column-visible="0" />
+                <column table="ur_hist_mat" column="kod_mat" parname="cur_kod_mat1" column-visible="0" invisible-in-column-chooser="1" />
+                <column table="ur_hist_mat" column="kod_zased" mandatory="1" title="Судья" invisible-in-column-chooser="1" />
+                <column table="ur_hist_mat" column="dat_rassm" mandatory="1" title="Дата суд. разб." />
+                <column table="ur_hist_mat" column="dat_entry" title="Дата вст. реш. в зак. силу" />
+                <column table="ur_hist_mat" column="dat_send_il" title="Дата направления ИЛ в филиал" />
+                <column table="ur_hist_mat" column="dat_post" title="Дата прин. суд. акта" />
+                <column table="ur_hist_mat" column="dat_receipt_post" title="Дата пол. суд. акта" />
+                <column table="ur_hist_mat" column="dat_send_petition_il" title="Дата напр. ход-ва о выдаче ИЛ" />
+                <column table="ur_hist_mat" column="dat_srok" title="Срок обжалования решения" />
+                <column table="kod_result" column="kod_post" title="Судебный акт" invisible-in-column-chooser="1" />
+                <column table="ur_hist_mat" column="kod_result" title="Результат рассмотрения" invisible-in-column-chooser="1" />
+                <column table="ur_hist_mat" column="decision" parname="decision" as="decision" column-visible="0" />
+                <column table="ur_hist_mat" column="decision_not_otmena" parname="decision_not_otmena" as="decision_not_otmena" column-visible="0" />
+                <band title="Задолженность по решению суда">
+                  <fact table="ur_hist_mat" column="ur_hist_mat_sum_pris_all" title="Всего" />
+                  <column table="ur_hist_mat" column="period_zadol_s_vvod" title="Период задолженности с" controlType="UICombo" format="F2" editable="1">
+                    <listquery val-field-name="ym">
+                      <query name="ym_list_vvod" />
+                    </listquery>
+                    <listquery val-field-name="kodp" exclude="1">
+                      <query name="kr_dogovor_list(dep_sng)">
+                        <withparams>
+                          <useparam name="dep" />
+                        </withparams>
+                      </query>
+                    </listquery>
+                  </column>
+                  <column table="ur_hist_mat" column="period_zadol_po_vvod" title="Период задолженности с" controlType="UICombo" format="F2" editable="1">
+                    <listquery val-field-name="ym">
+                      <query name="ym_list_vvod" />
+                    </listquery>
+                    <listquery val-field-name="kodp" exclude="1">
+                      <query name="kr_dogovor_list(dep_sng)">
+                        <withparams>
+                          <useparam name="dep" />
+                        </withparams>
+                      </query>
+                    </listquery>
+                  </column>
+                  <column table="ur_hist_mat" column="osnreal" title="Основная реализация" editable="1" />
+                  <column table="ur_hist_mat" column="peni" title="Проценты (пени)" editable="1" />
+                  <column table="ur_hist_mat" column="ogr" title="Расх. за введ. огр. реж. энергопотр." editable="1" />
+                  <column table="ur_hist_mat" column="gp_otv" title="ГП с ответчика" editable="1" />
+                  <column table="ur_hist_mat" column="gp_es" title="ГП с исца" exists="decision" exclude="1" />
+                  <column table="ur_hist_mat" column="gp_ret" title="ГП возврат из бюджета" exists="decision" exclude="1" />
+                  <column table="ur_hist_mat" column="astrent" width-perc="50" title="Астрент" editable="1" />
+                  <column table="ur_hist_mat" column="sud_izd" editable="1" />
+                </band>
+                <band title="Оплата по. реш. суда до выдачи исп. листа">
+                  <fact table="ur_hist_mat" column="ur_hist_mat_opl_all" exists="decision_not_otmena" title="Всего" />
+                  <column table="ur_hist_mat" column="opl_osnreal" exists="decision_not_otmena" title="Осн. реал." editable="1" />
+                  <column table="ur_hist_mat" column="opl_peni" exists="decision_not_otmena" title="Проценты (пени)" editable="1" />
+                  <column table="ur_hist_mat" column="opl_ogr" exists="decision_not_otmena" title="Расх. за введ. огр. реж. энергопотр." editable="1" />
+                  <column table="ur_hist_mat" column="opl_gpotv" exists="decision_not_otmena" title="ГП" editable="1" />
+                  <column table="ur_hist_mat" column="opl_astrent" exists="decision_not_otmena" title="Астрент" editable="1" />
+                  <column table="ur_hist_mat" column="opl_sud_izd" exists="decision_not_otmena" title="Судебные издержки" editable="1" />
+                </band>
+                <band title="Остаток задол.  по реш. суда до выд. исп. листа">
+                  <fact table="ur_hist_mat" column="ur_hist_mat_ostatok_zadol_all" exists="decision_not_otmena" title="Всего" />
+                  <column table="ur_hist_mat" column="ostatok_osnreal" exists="decision_not_otmena" title="Осн. реал. " />
+                  <column table="ur_hist_mat" column="ostatok_peni" exists="decision_not_otmena" title="Проценты (пени)" />
+                  <column table="ur_hist_mat" column="ostatok_ogr" exists="decision_not_otmena" title="Расх. за введ. огр. реж. энергопотр." />
+                  <column table="ur_hist_mat" column="ostatok_gp_otv" exists="decision_not_otmena" title="ГП" />
+                  <column table="ur_hist_mat" column="ostatok_astrent" exists="decision_not_otmena" title="Астрент" />
+                  <column table="ur_hist_mat" column="ostatok_sud_izd" exists="decision_not_otmena" title="Судебные издержки" />
+                </band>
+                <column table="ur_hist_mat" column="kod_scan" column-editable="1" invisible-in-column-chooser="1" />
+                <column table="ur_hist_mat" column="prim" />
+              </columns>
+              <events>
+                <useaction event-name="double-click" action-type="dynamic-form" call="ur_hist_mat_f10_vvod" modal="1">
+                  <useparam name="cur_kod_hist_mat" />
+                  <useparam name="cur_kod_mat1" />
+                  <const>6</const>
+                </useaction>
+              </events>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <elink name="ur_mat">
+            <link name="kod_doc" />
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="and" optional="1">
+                  <call function="is null">
+                    <column table="ur_mat" column="dat_arh" />
+                  </call>
+                  <call function="=1">
+                    <useparam name="no_arh" />
+                  </call>
+                </call>
+              </call>
+            </where>
+            <elink name="ur_hist_mat" column-editable="0">
+              <link name="kod_result" />
+            </elink>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

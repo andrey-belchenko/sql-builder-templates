@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="48118" timestamp="23.08.2018 19:33:25" is-report="1" use-temp="1">
+      <params>
+        <param name="p_kodp_array_id" type="string">
+          <const>'list1'</const>
+        </param>
+        <param name="p_date" type="date">
+          <const>sysdate-10</const>
+        </param>
+        <param name="p_ym" type="number">
+          <const>2018.05</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp" group="1" />
+        <column table="a" column="ob_deb" as="dz" group="sum" />
+        <column table="a" column="ob_kred" as="kz" group="sum" />
+        <column table="a" column="ym" as="first_dolg_ym" group="min" />
+      </select>
+      <from>
+        <query name="48118-1" as="a">
+          <withparams>
+            <useparam name="p_kodp_array_id" />
+            <useparam name="p_date" />
+            <useparam name="p_ym" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="48118-1" timestamp="27.06.2018 18:51:14">
+      <params>
+        <param name="p_kodp_array_id" type="string">
+          <const>'list1'</const>
+        </param>
+        <param name="p_date" type="date">
+          <const>sysdate-10</const>
+        </param>
+        <param name="p_ym" type="number">
+          <const>2018.05</const>
+        </param>
+      </params>
+      <expressions>
+        <call as="vid_real_2_8" function="in" exclude="1">
+          <column table="kod_sf" column="vid_real" />
+          <array>2,8</array>
+        </call>
+        <call as="vid_real_2_8" function="=1">
+          <column table="kod_sf" column="pr_osn2_stored" />
+        </call>
+        <call as="nachisl" group="sum" function="()" type="number">
+          <fact column="s_facras_nachisl_nds" condition="vid_real_2_8" />
+        </call>
+        <call as="opl_2_8" group="sum" function="if" type="number">
+          <call function="in">
+            <column table="kod_opl" column="kod_type_opl" />
+            <array>0</array>
+          </call>
+          <fact column="s_facopl_oplf" condition="vid_real_2_8" />
+        </call>
+        <call as="opl" group="sum" function="+nvl">
+          <fact column="opl_2_8" />
+          <fact column="s_opl_kred_oplf" />
+        </call>
+        <call as="ob_deb" group="sum" function="-nvl" type="number" exclude="1">
+          <fact column="oborot" condition="vid_real_2_8" />
+          <fact column="oborot_spis" condition="vid_real_2_8" />
+        </call>
+        <call as="ob_deb" group="sum" function="()" type="number">
+          <fact column="oborot" condition="vid_real_2_8" />
+        </call>
+        <call as="ob_kred" group="sum" function="()" type="number">
+          <fact column="oborot_kr" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kodp" column="kodp" />
+        <call function="if" type="number" as="ym">
+          <call function="!=0">
+            <column table="this" column="ob_deb" />
+          </call>
+          <column as="ym" column="ym" table="kod_sf" />
+        </call>
+        <column column="kod_sf" table="kod_sf" />
+        <fact column="ob_kred" />
+        <fact column="ob_deb" table="sf" />
+        <fact column="s_facras_nachisl_nds" table="sf" />
+        <fact column="s_facopl_opl_nds" table="sf" />
+      </select>
+      <from>
+        <qube>
+          <link name="kodp" />
+          <link name="dat" />
+          <dimset as="sf">
+            <link name="kod_sf" />
+            <where>
+              <call function="le">
+                <column table="kod_sf" column="ym" />
+                <useparam name="p_ym" />
+              </call>
+            </where>
+          </dimset>
+          <where>
+            <call function="and">
+              <call function="in" exclude="1">
+                <column table="kodp" column="kodp" />
+                <array>102100400</array>
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date" />
+              </call>
+              <call function="in">
+                <column table="kodp" column="kodp" />
+                <call function="vr_number_array.get">
+                  <useparam name="p_kodp_array_id" />
+                </call>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

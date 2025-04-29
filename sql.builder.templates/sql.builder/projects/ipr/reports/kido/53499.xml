@@ -1,0 +1,621 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="53499" timestamp="09.07.2020 17:04:27" is-report="1" with-behavior="1" title="Заявки за весь период (OLD)" visible="0" mode="default" nogrid="1" datareader="1">
+      <print-templates>
+        <excel>
+          <template name="53499.xlsx" title="Заявки за весь период" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <!--<print-templates>
+        <excel>
+          <template name="26630.xlsx" title="Отчет по исполнителю" print-xlsx="1" print-proc="2" del-cols="1" output-format="xlsb" />
+        </excel>
+      </print-templates>-->
+      <customers>
+        <customer id="17" />
+      </customers>
+      <select>
+        <column table="zz" column="kod_zayav" />
+        <column table="zz" column="num_zayav" />
+        <call as="dat_zayav" function="trunc" type="date">
+          <column table="zz" column="dat_zayav" />
+        </call>
+        <column table="kod_spr_query" column="name" as="type_zayav" />
+        <column table="c_zayav_family" column="name_path" />
+        <column table="kodp" column="name" as="kontragent" />
+        <call as="region" type="string" function="case">
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="pr_city" />
+              </call>
+              <const>1</const>
+            </call>
+            <const>'Город'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="pr_city" />
+              </call>
+              <const>0</const>
+            </call>
+            <const>'Область'</const>
+          </call>
+        </call>
+        <column table="c_zayav_family" column="name_filial" />
+        <column table="c_zayav_family" column="str_adr" />
+        <call as="n_zayav" function="+">
+          <column table="oz" column="d_k1" />
+          <column table="oz" column="d_k2" />
+          <column table="oz" column="d_k3" />
+        </call>
+        <column table="oz" column="d_k1" as="n_zayav1" />
+        <column table="oz" column="d_k2" as="n_zayav2" />
+        <column table="oz" column="d_k3" as="n_zayav3" />
+        <call as="n_susch" function="+">
+          <column table="oz" column="s_k1" />
+          <column table="oz" column="s_k2" />
+          <column table="oz" column="s_k3" />
+        </call>
+        <column table="oz" column="s_k1" as="n_susch1" />
+        <column table="oz" column="s_k2" as="n_susch2" />
+        <column table="oz" column="s_k3" as="n_susch3" />
+        <call as="n" function="+">
+          <column table="oz" column="d_k1" />
+          <column table="oz" column="d_k2" />
+          <column table="oz" column="d_k3" />
+          <column table="oz" column="s_k1" />
+          <column table="oz" column="s_k2" />
+          <column table="oz" column="s_k3" />
+        </call>
+        <call as="n1" function="+">
+          <column table="oz" column="d_k1" />
+          <column table="oz" column="s_k1" />
+        </call>
+        <call as="n2" function="+">
+          <column table="oz" column="d_k2" />
+          <column table="oz" column="s_k2" />
+        </call>
+        <call as="n3" function="+">
+          <column table="oz" column="d_k3" />
+          <column table="oz" column="s_k3" />
+        </call>
+        <column table="kod_voltage" column="name_kr" />
+        <column table="ist_pit" column="name_tp_1" />
+        <column table="ist_pit" column="name_ist_1" />
+        <column table="ist_pit" column="name_ist_2" />
+        <column table="kn_st_req" column="name" as="status_zayav" />
+        <column table="st_det" column="status_zayav_det" />
+        <call as="date_coming" function="trunc" type="date">
+          <column table="rq" column="date_coming" />
+        </call>
+        <call function="()" as="dt_project" type="date">
+          <const>pres.AS_CONTR_PROPS(rq.kn_request, 2)</const>
+        </call>
+        <call as="dat_ready" function="trunc" type="date">
+          <column table="dt_docs" column="dat_ready" />
+        </call>
+        <call as="dat_download" function="trunc" type="date">
+          <column table="dt_docs" column="dat_download" />
+        </call>
+        <call as="dat_sign" function="trunc" type="date">
+          <column table="dt_docs" column="dat_sign" />
+        </call>
+      </select>
+      <from>
+        <query name="c_zayav" as="zz">
+          <link name="c_zayav_energo">
+            <link name="kod_voltage" />
+          </link>
+          <link name="c_zayav_family" />
+          <link name="kodp" />
+          <link name="kod_spr_query" />
+        </query>
+        <query name="as_request" as="rq" join="inner">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="rq" column="kod_zayav" />
+          </call>
+          <link name="kn_st_req" />
+        </query>
+        <query name="53499-zayav_power" as="oz" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="oz" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="53499-zayav_status_detailed" as="st_det" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="st_det" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="53499-zayav_ist_pit" as="ist_pit" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="ist_pit" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="53499-zayav_dats_doc" as="dt_docs" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="dt_docs" column="kod_zayav" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="53499-zayav_power" timestamp="19.07.2019 12:17:54">
+      <select>
+        <column table="a" column="kod_zayav" group="1" />
+        <call function="nvl0" as="s_k1" title="Существующая мощность, кат. 1" group="sum">
+          <column table="a" column="qs_so" />
+        </call>
+        <call function="nvl0" as="s_k2" title="Существующая мощность, кат. 2" group="sum">
+          <column table="a" column="qs_sw" />
+        </call>
+        <call function="nvl0" as="s_k3" title="Существующая мощность, кат. 3" group="sum">
+          <column table="a" column="qs_sk" />
+        </call>
+        <call function="nvl0" as="d_k1" title="Добавленная мощность, кат. 1" group="sum">
+          <column table="a" column="qd_so" />
+        </call>
+        <call function="nvl0" as="d_k2" title="Добавленная мощность, кат. 2" group="sum">
+          <column table="a" column="qd_sw" />
+        </call>
+        <call function="nvl0" as="d_k3" title="Добавленная мощность, кат. 3" group="sum">
+          <column table="a" column="qd_sk" />
+        </call>
+      </select>
+      <from>
+        <query name="qr_numobj_zayav" as="a" />
+      </from>
+    </query>
+    <query name="53499-zayav_status_detailed" timestamp="19.07.2019 12:17:55">
+      <select>
+        <column table="zz" column="kod_zayav" group="1" />
+        <column table="kod_spr_viz" column="name" group="stragg_dist" as="status_zayav_det" />
+      </select>
+      <from>
+        <query name="c_zayav" as="zz" />
+        <query name="is_viza_agr_doc_last" as="l" join="left outer">
+          <call function="=">
+            <column table="l" column="full_kod_doc" />
+            <call function="nvl">
+              <column table="zz" column="full_code_doc" />
+              <call function="||">
+                <const>'ZYV_'</const>
+                <column table="zz" column="kod_zayav" />
+              </call>
+            </call>
+          </call>
+          <link name="kod_spr_viz" />
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="kod_spr_viz" column="name" />
+        </call>
+      </where>
+    </query>
+    <query name="53499-zayav_ist_pit" timestamp="19.07.2019 12:17:55">
+      <select>
+        <column table="l" column="kod_zayav" group="1" />
+        <column table="qr_tu_energo" column="name_tp_1" group="stragg_dist" />
+        <column table="qr_tu_energo" column="name_ist_1" group="stragg_dist" />
+        <column table="qr_tu_energo" column="name_ist_2" group="stragg_dist" />
+      </select>
+      <from>
+        <query name="qr_links" as="l">
+          <link name="kod_tu">
+            <link name="qr_tu_energo" />
+          </link>
+        </query>
+      </from>
+    </query>
+    <query name="53499-zayav_dt_download_lkk" timestamp="19.07.2019 11:58:25">
+      <select>
+        <column table="a" column="kod_dop_contract" />
+        <column table="a" column="dat_first_download_lkk" />
+      </select>
+      <from>
+        <query name="c_dop_doc" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_vid_doc" />
+            <const>27</const>
+          </call>
+          <call function="is null">
+            <column table="a" column="dat_end" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="53499-zayav_dt_sign_lkk" timestamp="19.07.2019 11:58:25">
+      <select>
+        <column table="a" column="kod_dop_contract" />
+        <column table="kod_dop_doc" column="dt_sign" />
+      </select>
+      <from>
+        <query name="c_dop_doc" as="a" />
+        <query name="c_dop_doc_sign" as="kod_dop_doc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dop_doc" />
+            <column table="kod_dop_doc" column="kod_dop_doc" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_vid_doc" />
+            <const>27</const>
+          </call>
+          <call function="is null">
+            <column table="a" column="dat_end" />
+          </call>
+          <call function="=">
+            <call function="nvl0">
+              <column table="kod_dop_doc" column="pr_sign" />
+            </call>
+            <const>2</const>
+          </call>
+          <call function="is not null">
+            <column table="kod_dop_doc" column="dt_sign" />
+          </call>
+          <call function="or">
+            <call function="is not null">
+              <column table="kod_dop_doc" column="prim" />
+            </call>
+            <call function="gt">
+              <call function="length">
+                <column table="kod_dop_doc" column="file_sign" />
+              </call>
+              <const>0</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="53499-zayav_dats_doc" timestamp="19.07.2019 18:18:45">
+      <select>
+        <column table="kod_dop_contract" column="kod_zayav" group="1" />
+        <call as="dat_ready" group="max" type="date" function="case">
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <const>(84, 131, 681)</const>
+            </call>
+            <column table="a" column="dat_viz" />
+          </call>
+        </call>
+        <call as="dat_download" group="max" type="date" function="greatest">
+          <call function="case">
+            <call function="when">
+              <call function="in">
+                <column table="a" column="kod_spr_viz" />
+                <const comment="Передано контрагенту на подпись, Контрагент скачал договор ЛКК">(37, 671)</const>
+              </call>
+              <column table="a" column="dat_viz" />
+            </call>
+          </call>
+          <call function="nvl">
+            <column table="ddl" column="dat_first_download_lkk" />
+            <call function="nativity" />
+          </call>
+        </call>
+        <call as="dat_sign" group="max" type="date" function="greatest">
+          <call function="case">
+            <call function="when">
+              <call function="in">
+                <column table="a" column="kod_spr_viz" />
+                <const>(125, 670)</const>
+              </call>
+              <column table="a" column="dat_viz" />
+            </call>
+          </call>
+          <call function="nvl">
+            <column table="dsl" column="dt_sign" />
+            <call function="nativity" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="is_viza_agr_doc" as="a" />
+        <query name="is_dop_contract" as="kod_dop_contract" join="inner">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="kod_dop_contract" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="53499-zayav_dt_download_lkk" as="ddl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="ddl" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="53499-zayav_dt_sign_lkk" as="dsl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="dsl" column="kod_dop_contract" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="pref" />
+            <const>'ABD_'</const>
+          </call>
+          <call function="in">
+            <column table="a" column="kod_spr_viz" />
+            <const>(84, 131, 681, 125, 670, 37, 671)</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="53499-zayav_dats_doc_v1_data" timestamp="10.06.2020 17:29:08">
+      <select>
+        <column table="kod_dop_contract" column="kod_zayav" />
+        <call as="dat_ready" type="date" function="case">
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <const>(84, 131, 681)</const>
+            </call>
+            <column table="a" column="dat_viz" />
+          </call>
+        </call>
+        <call as="dat_download" type="date" function="greatest">
+          <call function="case">
+            <call function="when">
+              <call function="in">
+                <column table="a" column="kod_spr_viz" />
+                <const comment="Передано контрагенту на подпись, Контрагент скачал договор ЛКК">(37, 671)</const>
+              </call>
+              <column table="a" column="dat_viz" />
+            </call>
+          </call>
+          <call function="nvl">
+            <column table="ddl" column="dat_first_download_lkk" />
+            <call function="nativity" />
+          </call>
+        </call>
+        <call as="dat_sign" type="date" function="greatest">
+          <call function="case">
+            <call function="when">
+              <call function="in">
+                <column table="a" column="kod_spr_viz" />
+                <const>(125, 670)</const>
+              </call>
+              <column table="a" column="dat_viz" />
+            </call>
+          </call>
+          <call function="nvl">
+            <column table="dsl" column="dt_sign" />
+            <call function="nativity" />
+          </call>
+        </call>
+        <call function="over" as="max_dat_sign">
+          <call function="min">
+            <column table="this" column="dat_sign" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_zayav" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="is_viza_agr_doc" as="a" />
+        <query name="is_dop_contract" as="kod_dop_contract" join="inner">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="kod_dop_contract" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="53499-zayav_dt_download_lkk" as="ddl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="ddl" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="53499-zayav_dt_sign_lkk" as="dsl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_doc" />
+            <column table="dsl" column="kod_dop_contract" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="pref" />
+            <const>'ABD_'</const>
+          </call>
+          <call function="in">
+            <column table="a" column="kod_spr_viz" />
+            <const>(84, 131, 681, 125, 670, 37, 671)</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="53499_v1" timestamp="09.07.2020 17:07:04" is-report="1" with-behavior="1" title="Заявки за весь период" visible="0" mode="default" nogrid="1" datareader="1">
+      <print-templates>
+        <excel>
+          <template name="53499.xlsx" title="Заявки за весь период" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <!--<print-templates>
+        <excel>
+          <template name="26630.xlsx" title="Отчет по исполнителю" print-xlsx="1" print-proc="2" del-cols="1" output-format="xlsb" />
+        </excel>
+      </print-templates>-->
+      <customers>
+        <customer id="17" />
+      </customers>
+      <select>
+        <column table="zz" column="kod_zayav" />
+        <column table="zz" column="num_zayav" />
+        <call as="dat_zayav" function="trunc" type="date">
+          <column table="zz" column="dat_zayav" />
+        </call>
+        <column table="kod_spr_query" column="name" as="type_zayav" />
+        <column table="is_spr_from_path" column="name" as="name_path" />
+        <column table="kodp" column="name" as="kontragent" />
+        <call as="region" type="string" function="case">
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="pr_city" />
+              </call>
+              <const>1</const>
+            </call>
+            <const>'Город'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <call function="nvl0">
+                <column table="c_zayav_family" column="pr_city" />
+              </call>
+              <const>0</const>
+            </call>
+            <const>'Область'</const>
+          </call>
+        </call>
+        <column table="c_zayav_family" column="name_filial" />
+        <column table="c_zayav_family" column="str_adr" />
+        <call as="n_zayav" function="+">
+          <column table="oz" column="d_k1" />
+          <column table="oz" column="d_k2" />
+          <column table="oz" column="d_k3" />
+        </call>
+        <column table="oz" column="d_k1" as="n_zayav1" />
+        <column table="oz" column="d_k2" as="n_zayav2" />
+        <column table="oz" column="d_k3" as="n_zayav3" />
+        <call as="n_susch" function="+">
+          <column table="oz" column="s_k1" />
+          <column table="oz" column="s_k2" />
+          <column table="oz" column="s_k3" />
+        </call>
+        <column table="oz" column="s_k1" as="n_susch1" />
+        <column table="oz" column="s_k2" as="n_susch2" />
+        <column table="oz" column="s_k3" as="n_susch3" />
+        <call as="n" function="+">
+          <column table="oz" column="d_k1" />
+          <column table="oz" column="d_k2" />
+          <column table="oz" column="d_k3" />
+          <column table="oz" column="s_k1" />
+          <column table="oz" column="s_k2" />
+          <column table="oz" column="s_k3" />
+        </call>
+        <call as="n1" function="+">
+          <column table="oz" column="d_k1" />
+          <column table="oz" column="s_k1" />
+        </call>
+        <call as="n2" function="+">
+          <column table="oz" column="d_k2" />
+          <column table="oz" column="s_k2" />
+        </call>
+        <call as="n3" function="+">
+          <column table="oz" column="d_k3" />
+          <column table="oz" column="s_k3" />
+        </call>
+        <column table="kod_voltage" column="name_kr" />
+        <column table="ist_pit" column="name_tp_1" />
+        <column table="ist_pit" column="name_ist_1" />
+        <column table="ist_pit" column="name_ist_2" />
+        <column table="kn_st_req" column="name" as="status_zayav" />
+        <column table="st_det" column="status_zayav_det" />
+        <call as="date_coming" function="trunc" type="date">
+          <column table="rq" column="date_coming" />
+        </call>
+        <call function="()" as="dt_project" type="date">
+          <const>pres.as_contr_props_56484(rq.kn_request, 2)</const>
+        </call>
+        <call as="dat_ready" function="trunc" type="date">
+          <column table="dt_docs" column="dat_ready" />
+        </call>
+        <call as="dat_download" function="trunc" type="date">
+          <column table="dt_docs" column="dat_download" />
+        </call>
+        <call as="dat_sign" function="trunc" type="date">
+          <column table="dt_docs" column="dat_sign" />
+        </call>
+      </select>
+      <from>
+        <query name="c_zayav" as="zz">
+          <link name="c_zayav_energo">
+            <link name="kod_voltage" />
+            <link name="is_spr_from_path" />
+          </link>
+          <link name="c_zayav_family" />
+          <link name="kodp" />
+          <link name="kod_spr_query" />
+        </query>
+        <query name="as_request" as="rq" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="rq" column="kod_zayav" />
+          </call>
+          <link name="kn_st_req" />
+        </query>
+        <query name="53499-zayav_power" as="oz" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="oz" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="53499-zayav_status_detailed" as="st_det" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="st_det" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="53499-zayav_ist_pit" as="ist_pit" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="ist_pit" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="53499-zayav_dats_doc_v1" as="dt_docs" join="left outer">
+          <call function="=">
+            <column table="zz" column="kod_zayav" />
+            <column table="dt_docs" column="kod_zayav" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="53499-zayav_dats_doc_v1" timestamp="10.06.2020 17:32:26">
+      <select>
+        <column table="a" column="kod_zayav" group="1" />
+        <call function="if" as="dat_ready" group="max">
+          <call function="le">
+            <column table="a" column="dat_ready" />
+            <call function="nvl">
+              <column table="a" column="max_dat_sign" />
+              <call function="doomsday" />
+            </call>
+          </call>
+          <column table="a" column="dat_ready" />
+        </call>
+        <call function="if" as="dat_download" group="max">
+          <call function="le">
+            <column table="a" column="dat_download" />
+            <call function="nvl">
+              <column table="a" column="max_dat_sign" />
+              <call function="doomsday" />
+            </call>
+          </call>
+          <column table="a" column="dat_download" />
+        </call>
+        <column table="a" column="dat_sign" group="min" />
+      </select>
+      <from>
+        <query name="53499-zayav_dats_doc_v1_data" as="a" />
+      </from>
+    </query>
+  </queries>
+</root>

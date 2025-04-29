@@ -1,0 +1,3752 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="ipr_fin_body-select">
+      <call function="+" as="ym">
+        <call function="*">
+          <column table="head" column="year" />
+          <const>100</const>
+        </call>
+        <column table="a" column="period" />
+      </call>
+    </part>
+    <part id="ipr_fin_body-links">
+      <params>
+        <param name="s" />
+      </params>
+      <link name="kod_[:s]_head" as="head" />
+    </part>
+    <part id="ipr_fin_body-from"></part>
+    <part id="ipr_fin_body-columns">
+      <!--удалить-->
+      <column table="a" column="year" />
+      <!--<column table="a" column="ym"/>-->
+      <column table="a" column="period" />
+    </part>
+    <part id="ipr_fin_body-columns1">
+      <column table="a" column="year" />
+      <column table="a" column="ym" />
+      <column table="a" column="period" />
+    </part>
+    <!--<part id="ipr_fin_body-columns2">
+      <column table="a" column="kap_sum" />
+      <column table="a" column="kap_sum_nds" />
+      <column table="a" column="finplan_sum" />
+      <column table="a" column="finplan_sum_nds" />
+      <column table="a" column="vvod_sum" />
+      <column table="a" column="vvod_sum_nds" />
+      <column table="a" column="kap_nds" />
+      <column table="a" column="finplan_nds" />
+      <column table="a" column="pow_mba" />
+      <column table="a" column="pow_km" />
+      <column table="a" column="kap_sum_fact" />
+      <column table="a" column="kap_sum_nds_fact" />
+      <column table="a" column="kap_nds_fact" />
+      <column table="a" column="fp_sum_fact" />
+      <column table="a" column="fp_sum_nds_fact" />
+      <column table="a" column="fp_nds_fact" />
+      <column table="a" column="vvod_sum_fact" />
+    </part>-->
+    <part id="ipr_fin_body-saldo-partition">
+      <call function="partition by">
+        <column table="this" column="kod_doc_osn" />
+        <column table="this" column="kod_ipr_ext" />
+        <column table="this" column="kod_dog_i" group="max" />
+        <column table="this" column="kod_ipr_dog" group="max" />
+        <column table="this" column="kod_dog" group="max" />
+        <column table="this" column="kodzatrat" group="max" />
+        <column table="this" column="kod_smet" group="max" />
+      </call>
+      <call function="order by 2">
+        <column table="this" column="ym" group="max" />
+      </call>
+    </part>
+    <part id="ipr_fin_body-saldo-partition-rn">
+      <call function="partition by">
+        <column table="this" column="kod_doc_osn" />
+        <column table="this" column="kod_ipr_ext" />
+        <column table="this" column="kod_dog_i" group="max" />
+        <column table="this" column="kod_ipr_dog" group="max" />
+        <column table="this" column="kod_dog" group="max" />
+        <column table="this" column="kodzatrat" group="max" />
+        <column table="this" column="kod_smet" group="max" />
+        <column table="this" column="ym" group="max" />
+      </call>
+      <call function="order by 2">
+        <column table="this" column="ym" group="max" />
+      </call>
+    </part>
+    <part id="ipr_fin_body-saldo-partition-rn-ipr">
+      <call function="partition by">
+        <column table="this" column="kod_doc_osn" group="1" />
+        <column table="this" column="kod_ipr_ext" group="1" />
+        <column table="this" column="ym" group="max" />
+      </call>
+      <call function="order by 2">
+        <column table="this" column="ym" group="max" />
+      </call>
+    </part>
+    <part id="ipr_fin_body-saldo-partition-smet">
+      <call function="partition by">
+        <column table="this" column="kod_doc_osn" group="1" />
+        <column table="this" column="kod_ipr_ext" group="1" />
+        <column table="this" column="kod_dog_i" group="1" />
+        <column table="this" column="kod_smet" group="1" />
+      </call>
+      <call function="order by 2">
+        <column table="this" column="ym" group="max" />
+      </call>
+    </part>
+    <part id="ipr_fin_body-saldo-partition-dog">
+      <call function="partition by">
+        <column table="this" column="kod_doc_osn" group="1" />
+        <column table="this" column="kod_ipr_ext" group="1" />
+        <column table="this" column="kod_dog_i" group="1" />
+      </call>
+      <call function="order by 2">
+        <column table="this" column="ym" group="max" />
+      </call>
+    </part>
+    <part id="ipr_fin_body-saldo-partition-ipr">
+      <call function="partition by">
+        <column table="this" column="kod_doc_osn" group="1" />
+        <column table="this" column="kod_ipr_ext" group="1" />
+      </call>
+      <call function="order by 2">
+        <call function="asc nulls first">
+          <column table="this" column="ym" group="max" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_fin_body-dk-columns">
+      <call function="row_number" as="rn_dog" type="number" group="max" agg="max">
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+          <column table="this" column="kod_dog_i" />
+          <column table="this" column="ym" />
+        </call>
+        <call function="order by 2">
+          <const>null</const>
+        </call>
+      </call>
+      <call function="over" as="ym_nxt_dog" type="number" group="max" agg="max">
+        <call function="first_value">
+          <column table="this" column="ym" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+          <column table="this" column="kod_dog_i" />
+        </call>
+        <call function="order by range 1 *">
+          <column table="this" column="ym" />
+        </call>
+      </call>
+      <call function="row_number" as="rn_smet" type="number" group="max" agg="max">
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+          <column table="this" column="kod_dog_i" />
+          <column table="this" column="kod_smet" />
+          <column table="this" column="ym" />
+        </call>
+        <call function="order by 2">
+          <const>null</const>
+        </call>
+      </call>
+      <call function="over" as="ym_nxt_smet" type="number" group="max" agg="max">
+        <call function="first_value">
+          <column table="this" column="ym" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+          <column table="this" column="kod_dog_i" />
+          <column table="this" column="kod_smet" />
+        </call>
+        <call function="order by range 1 *">
+          <column table="this" column="ym" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_fin_body-dk-columns-pwf">
+      <params>
+        <param name="s"></param>
+      </params>
+      <!--kod_ipr_ext,kod_dog_i,kod_smet-->
+      <call function="over" as="sld[:s]_dog" type="number" title="Сальдо(договор)" group="sum" agg="sum">
+        <call function="sum">
+          <column table="this" column="saldo[:s]" group="" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+          <column table="this" column="kod_dog_i" />
+        </call>
+        <call function="order by 2">
+          <column table="this" column="ym" />
+        </call>
+      </call>
+      <call as="deb[:s]_dog" function="if" title="Дебет (договор)" group="sum" agg="sum">
+        <call function="gt">
+          <column table="this" column="sld[:s]_dog" group="" />
+          <const>0</const>
+        </call>
+        <column table="this" column="sld[:s]_dog" group="" />
+      </call>
+      <call as="kred[:s]_dog" function="if" title="Кредит (договор)" group="sum" agg="sum">
+        <call function="lt">
+          <column table="this" column="sld[:s]_dog" group="" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="sld[:s]_dog" group="" />
+        </call>
+      </call>
+      <call function="over" as="sld[:s]_smet" type="number" title="Сальдо(строка сметы)" group="sum" agg="sum">
+        <call function="sum">
+          <column table="this" column="saldo[:s]" group="" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+          <column table="this" column="kod_dog_i" />
+          <column table="this" column="kod_smet" />
+        </call>
+        <call function="order by 2">
+          <column table="this" column="ym" />
+        </call>
+      </call>
+      <call as="deb[:s]_smet" function="if" title="Дебет (строка сметы)" group="sum" agg="sum">
+        <call function="gt">
+          <column table="this" column="sld[:s]_smet" group="" />
+          <const>0</const>
+        </call>
+        <column table="this" column="sld[:s]_smet" group="" />
+      </call>
+      <call as="kred[:s]_smet" function="if" title="Кредит (строка сметы)" group="sum" agg="sum">
+        <call function="lt">
+          <column table="this" column="sld[:s]_smet" group="" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="sld[:s]_smet" group="" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_fin_body-columns5">
+      <params>
+        <param name="s"></param>
+      </params>
+      <column table="this" column="kap_sum[:s]" as="kap_sum[:s]_itog" cumulate="ym" />
+      <column table="this" column="kap_sum_nds[:s]" as="kap_sum_nds[:s]_itog" cumulate="ym" />
+      <column table="this" column="kap_nds[:s]" as="kap_nds[:s]_itog" cumulate="ym" />
+      <column table="this" column="fp_sum_nds[:s]" as="fp_sum_nds[:s]_itog" cumulate="ym" />
+      <column table="this" column="fp_nds[:s]" as="fp_nds[:s]_itog" cumulate="ym" />
+      <column table="this" column="vvod_sum[:s]" as="vvod_sum[:s]_itog" cumulate="ym" />
+      <!--<column table="this" column="pow_mba[:s]" as="pow_mba[:s]_itog" cumulate="ym" />
+      <column table="this" column="pow_km[:s]" as="pow_km[:s]_itog" cumulate="ym" />
+      <column table="this" column="pow_km_kl[:s]" as="pow_km_kl[:s]_itog" cumulate="ym" />-->
+      <call function="-nvl" as="saldo[:s]" agg="sum">
+        <column table="this" column="fp_sum_nds[:s]" />
+        <column table="this" column="kap_sum_nds[:s]" />
+      </call>
+      <call function="if" as="debet[:s]" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo[:s]" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo[:s]" />
+      </call>
+      <call function="if" as="kredit[:s]" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo[:s]" />
+          <const>0</const>
+        </call>
+        <call function="*">
+          <column table="this" column="saldo[:s]" />
+          <const>-1</const>
+        </call>
+      </call>
+      <call function="-nvl" as="nzs[:s]" agg="sum">
+        <column table="this" column="kap_sum[:s]" />
+        <column table="this" column="vvod_sum[:s]" />
+      </call>
+      <column table="this" column="saldo[:s]" as="saldo[:s]_itog" cumulate="ym" />
+      <call function="if" as="debet[:s]_itog" virtual="1" title="Дебиторская задолженность с НДС" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo[:s]_itog" window="kod_doc_osn,kod_ipr_ext" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo[:s]_itog" />
+      </call>
+      <call function="if" as="kredit[:s]_itog" virtual="1" title="Кредиторская задолженность с НДС" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo[:s]_itog" window="kod_ipr" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo[:s]_itog" />
+        </call>
+      </call>
+      <call function="if" as="debet[:s]_itog_smet" virtual="1" title="Дебиторская задолженность с НДС(на уровне сметы)" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo[:s]_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i,kod_smet" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo[:s]_itog" />
+      </call>
+      <call function="if" as="kredit[:s]_itog_smet" virtual="1" title="Кредиторская задолженность с НДС(на уровне сметы)" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo[:s]_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i,kod_smet" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo[:s]_itog" />
+        </call>
+      </call>
+      <call function="if" as="debet[:s]_itog_dog" virtual="1" title="Дебиторская задолженность с НДС(на уровне договора)" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo[:s]_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo[:s]_itog" />
+      </call>
+      <call function="if" as="kredit[:s]_itog_dog" virtual="1" title="Кредиторская задолженность с НДС(на уровне договора)" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo[:s]_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo[:s]_itog" />
+        </call>
+      </call>
+      <column table="this" column="nzs[:s]" as="nzs[:s]_itog" cumulate="ym" />
+    </part>
+    <part id="ipr_fin_body-columns3" class="1" timestamp="17.05.2017 19:51:47">
+      <call function="over" as="has_plan" type="number">
+        <call function="max">
+          <call function="if">
+            <call function="not 0">
+              <column table="this" column="kap_sum" />
+              <column table="this" column="vvod_sum" />
+              <column table="this" column="fp_sum" />
+              <column table="this" column="dz" />
+              <column table="this" column="kz" />
+              <column table="this" column="nzs_saldo" />
+            </call>
+            <const>1</const>
+            <const>0</const>
+          </call>
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+        </call>
+      </call>
+      <call function="over" as="summ_on_ipr" type="number">
+        <call function="sum">
+          <column table="this" column="summ" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+        </call>
+      </call>
+      <call function="over" as="summ_10_on_ipr" type="number">
+        <call function="sum">
+          <column table="this" column="summ_10" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+        </call>
+      </call>
+      <call function="over" as="summ_30_on_ipr" type="number">
+        <call function="sum">
+          <column table="this" column="summ_30" />
+        </call>
+        <call function="partition by">
+          <column table="this" column="kod_doc_osn" />
+          <column table="this" column="kod_ipr_ext" />
+        </call>
+      </call>
+      <call function="smallest" as="summ_k_rasp_on_ipr">
+        <column table="this" column="summ_on_ipr" />
+        <column table="this" column="summ_10_on_ipr" />
+        <column table="this" column="summ_30_on_ipr" />
+      </call>
+      <call function="decode" as="summ_k_rasp_id" type="number">
+        <column table="this" column="summ_k_rasp_on_ipr" />
+        <column table="this" column="summ_on_ipr" />
+        <const>0</const>
+        <column table="this" column="summ_10_on_ipr" />
+        <const>1</const>
+        <column table="this" column="summ_30_on_ipr" />
+        <const>3</const>
+      </call>
+      <!--факт-->
+      <column table="this" column="kap_sum_fact" as="kap_sum_fact_itog" cumulate="ym" />
+      <!--<column table="this" column="kap_sum_nds_fact_a" as="kap_sum_nds_fact_a_itog" cumulate="ym"/>-->
+      <column table="this" column="kap_sum_nds_fact" as="kap_sum_nds_fact_itog" cumulate="ym" />
+      <column table="this" column="kap_nds_fact" as="kap_nds_fact_itog" cumulate="ym" />
+      <column table="this" column="fp_sum_nds_fact" as="fp_sum_nds_fact_itog" cumulate="ym" />
+      <column table="this" column="fp_nds_fact" as="fp_nds_fact_itog" cumulate="ym" />
+      <column table="this" column="vvod_sum_fact" as="vvod_sum_fact_itog" cumulate="ym" />
+      <call function="-nvl" as="saldo_fact" agg="sum">
+        <column table="this" column="fp_sum_nds_fact" />
+        <column table="this" column="kap_sum_nds_fact" />
+      </call>
+      <call function="-nvl" as="nzs_fact" agg="sum">
+        <column table="this" column="kap_sum_fact" />
+        <column table="this" column="vvod_sum_fact" />
+        <column table="this" column="kap_sum_fact_sp" />
+      </call>
+      <call function="-nvl" as="nzs_fact_c" agg="sum">
+        <column table="this" column="kap_sum_fact_c" />
+        <column table="this" column="vvod_sum_fact" />
+        <column table="this" column="kap_sum_fact_sp" />
+      </call>
+      <column table="this" column="saldo_fact" as="saldo_fact_itog" cumulate="ym" />
+      <column table="this" column="nzs_fact" as="nzs_fact_itog" cumulate="ym" />
+      <column table="this" column="nzs_fact_c" as="nzs_fact_c_itog" cumulate="ym" />
+      <call function="if" as="debet_fact_itog" virtual="1" title="Дебиторская задолженность факт с НДС" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo_fact_itog" window="kod_doc_osn,kod_ipr_ext" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo_fact_itog" />
+      </call>
+      <call function="if" as="kredit_fact_itog" virtual="1" title="Кредиторская задолженность факт с НДС" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo_fact_itog" window="kod_ipr" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo_fact_itog" />
+        </call>
+      </call>
+      <call function="if" as="debet_fact_itog_smet" virtual="1" title="Дебиторская задолженность факт с НДС(на уровне сметы)" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo_fact_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i,kod_smet" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo_fact_itog" />
+      </call>
+      <call function="if" as="kredit_fact_itog_smet" virtual="1" title="Кредиторская задолженность факт с НДС(на уровне сметы)" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo_fact_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i,kod_smet" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo_fact_itog" />
+        </call>
+      </call>
+      <call function="if" as="debet_fact_itog_dog" virtual="1" title="Дебиторская задолженность факт с НДС(на уровне договора)" agg="sum">
+        <call function="gt">
+          <column table="this" column="saldo_fact_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo_fact_itog" />
+      </call>
+      <call function="if" as="kredit_fact_itog_dog" virtual="1" title="Кредиторская задолженность факт с НДС(на уровне договора)" agg="sum">
+        <call function="lt">
+          <column table="this" column="saldo_fact_itog" window="kod_doc_osn,kod_ipr_ext,kod_dog_i" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo_fact_itog" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_fin_body-columns4">
+      <!-- колонки , в которых из суммы исключены записи у которых год меньше года основного документа вместо них берется введенная вручную сумма из  IPR_CLOSED_PLANS-->
+      <call function="if" as="fp_sum_nds_pos" group="sum" agg="sum">
+        <call function="or">
+          <call function="is null">
+            <column table="this" column="zsaldo" group="" />
+          </call>
+          <call function="ge">
+            <column table="this" column="year" />
+            <column table="kod_doc_osn1" column="god_ip" />
+          </call>
+        </call>
+        <column table="this" column="fp_sum_nds" group="" />
+      </call>
+      <call function="if" as="kap_sum_nds_pos" group="sum" agg="sum">
+        <call function="or">
+          <call function="is null">
+            <column table="this" column="zsaldo" group="" />
+          </call>
+          <call function="ge">
+            <column table="this" column="year" />
+            <column table="kod_doc_osn1" column="god_ip" />
+          </call>
+        </call>
+        <column table="this" column="kap_sum_nds" group="" />
+      </call>
+      <call function="if" as="kap_sum_pos" group="sum" agg="sum">
+        <call function="or">
+          <call function="is null">
+            <column table="this" column="znzs" group="" />
+          </call>
+          <call function="ge">
+            <column table="this" column="year" />
+            <column table="kod_doc_osn1" column="god_ip" />
+          </call>
+        </call>
+        <column table="this" column="kap_sum" group="" />
+      </call>
+      <call function="if" as="vvod_sum_pos" group="sum" agg="sum">
+        <call function="or">
+          <call function="is null">
+            <column table="this" column="znzs" group="" />
+          </call>
+          <call function="ge">
+            <column table="this" column="year" />
+            <column table="kod_doc_osn1" column="god_ip" />
+          </call>
+        </call>
+        <column table="this" column="vvod_sum" group="" />
+      </call>
+      <column table="this" column="kap_sum_nds_pos" as="kap_sum_nds_pos_itog" cumulate="ym" />
+      <column table="this" column="kap_sum_pos" as="kap_sum_pos_itog" cumulate="ym" />
+      <column table="this" column="fp_sum_nds_pos" as="fp_sum_nds_pos_itog" cumulate="ym" />
+      <column table="this" column="vvod_sum_pos" as="vvod_sum_pos_itog" cumulate="ym" />
+      <call function="-nvl" as="saldo_pos" agg="sum">
+        <column table="this" column="fp_sum_nds_pos" />
+        <column table="this" column="kap_sum_nds_pos" />
+      </call>
+      <call function="-nvl" as="nzs_pos" agg="sum">
+        <column table="this" column="kap_sum_pos" />
+        <column table="this" column="vvod_sum_pos" />
+      </call>
+      <!--<call function="+nvl" as="saldo_pos_itog_ipr" type="number" agg="sum">
+        <call function="over">
+          <call function="sum">
+            <column table="this" column="saldo_pos" />
+          </call>
+          <usepart part="ipr_fin_body-saldo-partition-ipr" />
+        </call>
+        <column table="this" column="zsaldo"/>
+      </call>-->
+      <column table="this" column="saldo_pos" as="saldo_pos_itog1" cumulate="ym" />
+      <column table="this" column="nzs_pos" as="nzs_pos_itog1" cumulate="ym" />
+      <call function="if" as="debet2_itog" virtual="1">
+        <call function="gt">
+          <column table="this" column="saldo_pos_itog" window="kod_doc_osn,kod_ipr_ext" />
+          <const>0</const>
+        </call>
+        <column table="this" column="saldo_pos_itog" />
+      </call>
+      <call function="if" as="kredit2_itog" virtual="1">
+        <call function="lt">
+          <column table="this" column="saldo_pos_itog" window="kod_doc_osn,kod_ipr_ext" />
+          <const>0</const>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo_pos_itog" />
+        </call>
+      </call>
+      <call function="+nvl" as="saldo_pos_itog" type="number" agg="sum">
+        <column table="this" column="saldo_pos_itog1" />
+        <column table="this" column="zsaldo1" />
+      </call>
+      <call function="+nvl" as="nzs2_itog" type="number" agg="sum">
+        <column table="this" column="nzs_pos_itog1" />
+        <column table="this" column="nzs_saldo" />
+      </call>
+      <!--<call function="if" as="debet2_itog" agg="sum" >
+          <call function="and">
+           
+            <call function="gt">
+              <column table="this" column="saldo_pos_itog_ipr" />
+              <const>0</const>
+            </call>
+          </call>
+          <column table="this" column="saldo_pos_itog" />
+      </call>-->
+      <!--<call function="if" as="kredit2_itog" agg="sum">
+        <call function="and">
+          <call function="lt">
+            <column table="this" column="saldo_pos_itog_ipr" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="0-">
+          <column table="this" column="saldo_pos_itog" />
+        </call>
+      </call>-->
+      <!--<call function="if" as="nzs2_itog" agg="sum">
+        <call function="and">
+          <call function="=">
+            <call function="row_number">
+              <usepart part="ipr_fin_body-saldo-partition-rn-ipr" />
+            </call>
+            <const>1</const>
+          </call>
+        </call>
+        <column table="this" column="nzs_pos_itog_ipr" />
+      </call>-->
+    </part>
+    <part id="ipr_fin_smet-values" class="1" timestamp="14.08.2016 23:58:29">
+      <params>
+        <param name="kod_target" />
+        <param name="pfx" />
+      </params>
+      <column table="a" column="summ1" as="summ_[:kod_target]" if="[:kod_target]" fact="ipr_smet_summ_[:kod_target][:pfx]" agg="sum">
+        <if>
+          <call function="=">
+            <column table="smet_doc" column="doc_target_str" />
+            <call function="upper">
+              <useparam name="kod_target" />
+            </call>
+          </call>
+        </if>
+      </column>
+      <column table="a" column="summ1_10" as="summ_10_[:kod_target]" if="[:kod_target]" agg="sum" fact="ipr_smet_summ_10_[:kod_target][:pfx]" />
+      <column table="a" column="summ1_30" as="summ_30_[:kod_target]" if="[:kod_target]" agg="sum" fact="ipr_smet_summ_30_[:kod_target][:pfx]" />
+      <column table="a" column="summ2_nds" as="summ2_nds_[:kod_target]" if="[:kod_target]" fact="ipr_smet_summ_nds_[:kod_target][:pfx]" agg="sum" />
+      <column table="a" column="summ1_nds" as="summ_nds_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="summ1_10_nds" as="summ_10_nds_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="summ1_30_nds" as="summ_30_nds_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="vl_km" as="vl_km_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="vl_km_10" as="vl_km_10_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="vl_km_30" as="vl_km_30_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="kl_km" as="kl_km_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="kl_km_10" as="kl_km_10_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="kl_km_30" as="kl_km_30_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="prch" as="prch_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="prch_10" as="prch_10_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="prch_30" as="prch_30_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="mva" as="mva_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="mva_10" as="mva_10_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="mva_30" as="mva_30_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="summ" as="all_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="summ_10" as="all_10_[:kod_target]" if="[:kod_target]" />
+      <column table="a" column="summ_30" as="all_30_[:kod_target]" if="[:kod_target]" />
+    </part>
+    <part id="ipr_fin_body-smet_cols" class="1" timestamp="27.02.2016 13:07:33">
+      <params>
+        <param name="table_pfx" />
+        <param name="title_pfx" />
+      </params>
+      <!--summ то что отночится к деньгам, all все включая квт  км шт-->
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_nds_usr" agg="sum" group="sum" title="Сметная стоимость по УРС с  НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_10_nds_usr" agg="sum" group="sum" title="Сметная стоимость по УРС -10% с НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_30_nds_usr" agg="sum" group="sum" title="Сметная стоимость по УРС -30% с НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_usr" agg="sum" group="sum" title="Сметная стоимость по УРС без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_10_usr" agg="sum" group="sum" title="Сметная стоимость по УРС -10% без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_30_usr" agg="sum" group="sum" title="Сметная стоимость по УРС -30% без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_nds_psd" agg="sum" group="sum" title="Сметная стоимость по ПСД с НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_nds_psd_10" agg="sum" group="sum" title="Сметная стоимость по ПСД -10% с НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_nds_psd_30" agg="sum" group="sum" title="Сметная стоимость по ПСД -30% с НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_psd" agg="sum" group="sum" title="Сметная стоимость по ПСД без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_psd_10" agg="sum" group="sum" title="Сметная стоимость по ПСД -10% без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_psd_30" agg="sum" group="sum" title="Сметная стоимость по ПСД -30% без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_nds_utvpsd" agg="sum" group="sum" title="Утвержденная сметная стоимость по ПСД с НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="summ_utvpsd" agg="sum" group="sum" title="Утвержденная сметная стоимость по ПСД без НДС[:title_pfx]" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_psd" agg="sum" group="sum" title="Сметная величина по ПСД  без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_psd_10" agg="sum" group="sum" title="Сметная величина по ПСД -10% без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_psd_30" agg="sum" group="sum" title="Сметная величина по ПСД -30% без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_usr" agg="sum" group="sum" title="Сметная величина по УРС  без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_10_usr" agg="sum" group="sum" title="Сметная величина по УРС -10% без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_30_usr" agg="sum" group="sum" title="Сметная величина по УРС -30% без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="all_utvpsd" agg="sum" group="sum" title="Утвержденная величина по ПСД  без НДС[:title_pfx]" stored="0" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="mva_psd_30" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="mva_30_usr" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="kl_km_psd_30" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="kl_km_30_usr" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="vl_km_psd_30" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="vl_km_30_usr" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="prch_psd_30" agg="sum" group="sum" as="+[:table_pfx]" />
+      <column table="ipr_fin_smet[:table_pfx]" column="prch_30_usr" agg="sum" group="sum" as="+[:table_pfx]" />
+      <call function="nvl" as="summ_30_mva[:table_pfx]" title="Полная стоимость строительства (-30%) МВА [:title_pfx]" type="number">
+        <column table="this" column="mva_psd_30[:table_pfx]" />
+        <column table="this" column="mva_30_usr[:table_pfx]" />
+      </call>
+      <call function="nvl" as="summ_30_kl_km[:table_pfx]" title="Полная стоимость строительства (-30%) КЛ, км [:title_pfx]" type="number">
+        <column table="this" column="kl_km_psd_30[:table_pfx]" />
+        <column table="this" column="kl_km_30_usr[:table_pfx]" />
+      </call>
+      <call function="nvl" as="summ_30_vl_km[:table_pfx]" title="Полная стоимость строительства (-30%) ВЛ, км [:title_pfx]" type="number">
+        <column table="this" column="vl_km_psd_30[:table_pfx]" />
+        <column table="this" column="vl_km_30_usr[:table_pfx]" />
+      </call>
+      <call function="nvl" as="summ_30_prch[:table_pfx]" title="Полная стоимость строительства (-30%) Прочее [:title_pfx]" type="number">
+        <column table="this" column="prch_psd_30[:table_pfx]" />
+        <column table="this" column="prch_30_usr[:table_pfx]" />
+      </call>
+      <column table="this" column="summ_utvpsd[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_utvpsd_tit[:table_pfx]" />
+      <column table="this" column="summ_psd[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_psd_tit[:table_pfx]" />
+      <column table="this" column="summ_usr[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_usr_tit[:table_pfx]" />
+      <column table="this" column="summ_psd_10[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_psd_10_tit[:table_pfx]" />
+      <column table="this" column="summ_psd_30[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_psd_30_tit[:table_pfx]" />
+      <column table="this" column="summ_10_usr[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_usr_10_tit[:table_pfx]" />
+      <column table="this" column="summ_30_usr[:table_pfx]" stored="0" window="kod_doc_osn,kod_ipr_ext" as="summ_usr_30_tit[:table_pfx]" />
+      <call function="smallest not 0" as="summ_k_rasp_psd_tit[:table_pfx]" stored="0">
+        <column table="this" column="summ_utvpsd_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_10_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_30_tit[:table_pfx]" />
+      </call>
+      <call function="smallest not 0" as="summ_k_rasp_usr_tit[:table_pfx]" stored="0">
+        <column table="this" column="summ_usr_tit[:table_pfx]" />
+        <column table="this" column="summ_usr_10_tit[:table_pfx]" />
+        <column table="this" column="summ_usr_30_tit[:table_pfx]" />
+      </call>
+      <call function="nvl" as="summ_k_rasp_all[:table_pfx]" stored="0">
+        <column table="this" column="summ_k_rasp_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_k_rasp_usr_tit[:table_pfx]" />
+      </call>
+      <call function="decode" as="summ_k_rasp_psd[:table_pfx]" type="number" title="Сметная стоимость к распределению ПСД без НДС [:title_pfx]">
+        <column table="this" column="summ_k_rasp_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_utvpsd_tit[:table_pfx]" />
+        <column table="this" column="summ_utvpsd[:table_pfx]" />
+        <column table="this" column="summ_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_psd[:table_pfx]" />
+        <column table="this" column="summ_psd_10_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_10[:table_pfx]" />
+        <column table="this" column="summ_psd_30_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_30[:table_pfx]" />
+      </call>
+      <call function="decode" as="summ_k_rasp_usr[:table_pfx]" type="number" title="Сметная стоимость к распределению УСР без НДС [:title_pfx]">
+        <column table="this" column="summ_k_rasp_usr_tit[:table_pfx]" />
+        <column table="this" column="summ_usr_tit[:table_pfx]" />
+        <column table="this" column="summ_usr[:table_pfx]" />
+        <column table="this" column="summ_usr_10_tit[:table_pfx]" />
+        <column table="this" column="summ_10_usr[:table_pfx]" />
+        <column table="this" column="summ_usr_30_tit[:table_pfx]" />
+        <column table="this" column="summ_30_usr[:table_pfx]" />
+      </call>
+      <call function="decode" as="summ_k_rasp[:table_pfx]" type="number" title="Сметная стоимость к распределению без НДС [:title_pfx]">
+        <column table="this" column="summ_k_rasp_all[:table_pfx]" />
+        <column table="this" column="summ_utvpsd_tit[:table_pfx]" />
+        <column table="this" column="summ_utvpsd[:table_pfx]" />
+        <column table="this" column="summ_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_psd[:table_pfx]" />
+        <column table="this" column="summ_usr_tit[:table_pfx]" />
+        <column table="this" column="summ_usr[:table_pfx]" />
+        <column table="this" column="summ_psd_10_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_10[:table_pfx]" />
+        <column table="this" column="summ_psd_30_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_30[:table_pfx]" />
+        <column table="this" column="summ_usr_10_tit[:table_pfx]" />
+        <column table="this" column="summ_10_usr[:table_pfx]" />
+        <column table="this" column="summ_usr_30_tit[:table_pfx]" />
+        <column table="this" column="summ_30_usr[:table_pfx]" />
+      </call>
+      <!--
+      <call function="smallest" as="summ_k_rasp_psd[:table_pfx]" stored="0">
+        <column table="this" column="summ_psd_10_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_30_tit[:table_pfx]" />
+      </call>
+      <call function="smallest" as="summ_k_rasp_usr[:table_pfx]" stored="0">
+        <column table="this" column="summ_usr_10_tit[:table_pfx]" />
+        <column table="this" column="summ_usr_30_tit[:table_pfx]" />
+      </call>
+      <call function="smallest" as="summ_k_rasp_all[:table_pfx]" stored="0">
+        <column table="this" column="summ_k_rasp_tit[:table_pfx]" />
+        <column table="this" column="summ_k_rasp_psd[:table_pfx]" />
+        <column table="this" column="summ_k_rasp_usr[:table_pfx]" />
+      </call>
+      <call function="decode" as="summ_k_rasp[:table_pfx]" type="number" stored="0" title="Сметная стоимость к распределению без НДС [:title_pfx]">
+        <column table="this" column="summ_k_rasp_all[:table_pfx]" />
+        <column table="this" column="summ_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_psd[:table_pfx]" />
+        <column table="this" column="summ_usr_tit[:table_pfx]" />
+        <column table="this" column="summ_usr[:table_pfx]" />
+        <column table="this" column="summ_psd_10_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_10[:table_pfx]" />
+        <column table="this" column="summ_psd_30_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_30[:table_pfx]" />
+        <column table="this" column="summ_usr_10_tit[:table_pfx]" />
+        <column table="this" column="summ_10_usr[:table_pfx]" />
+        <column table="this" column="summ_usr_30_tit[:table_pfx]" />
+        <column table="this" column="summ_30_usr[:table_pfx]" />
+      </call>-->
+      <call function="smallest" as="summ_k_rasp_tit[:table_pfx]" stored="0">
+        <column table="this" column="summ_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_usr_tit[:table_pfx]" />
+      </call>
+      <call function="decode" as="summ_k_rasp_old[:table_pfx]" type="number" stored="0">
+        <column table="this" column="summ_k_rasp_tit[:table_pfx]" />
+        <column table="this" column="summ_psd_tit[:table_pfx]" />
+        <column table="this" column="summ_psd[:table_pfx]" />
+        <column table="this" column="summ_usr_tit[:table_pfx]" />
+        <column table="this" column="summ_usr[:table_pfx]" />
+      </call>
+    </part>
+    <part id="ipr_fin_phis_param-val">
+      <params>
+        <param name="kod_phis_param" />
+      </params>
+      <call function="if" as="phis_val[:kod_phis_param]">
+        <call function="in">
+          <column table="phis_param" column="kod_phis_param" />
+          <useparam name="kod_phis_param" />
+        </call>
+        <column table="phis_param" column="value" />
+      </call>
+    </part>
+    <part id="ipr_fin_phis_param-val-num">
+      <params>
+        <param name="kod_phis_param" />
+      </params>
+      <call function="cut_num" as="phis_val[:kod_phis_param]">
+        <call function="if">
+          <call function="in">
+            <column table="phis_param" column="kod_phis_param" />
+            <useparam name="kod_phis_param" />
+          </call>
+          <column table="phis_param" column="value" />
+        </call>
+      </call>
+    </part>
+    <part id="ipr_fin_phis_param-val-dem-num">
+      <params>
+        <param name="kod_phis_param" />
+      </params>
+      <call function="cut_num" as="phis_val_dem_[:kod_phis_param]">
+        <call function="if">
+          <call function="in">
+            <column table="phis_param" column="kod_phis_param" />
+            <useparam name="kod_phis_param" />
+          </call>
+          <column table="phis_param" column="value_dem" />
+        </call>
+      </call>
+    </part>
+  </parts>
+  <queries>
+    <query name="ipr_fin_period">
+      <params>
+        <param name="year" />
+      </params>
+      <select>
+        <call function="year" as="year" group="1">
+          <column table="a" column="dat_day" />
+        </call>
+        <call function="month" as="period" group="1">
+          <column table="a" column="dat_day" />
+        </call>
+        <call function="date to ym2" as="ym" group="1">
+          <column table="a" column="dat_day" />
+        </call>
+      </select>
+      <from>
+        <query name="vv_day" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="between">
+            <column table="a" column="dat_day" />
+            <const>sysdate-365*3</const>
+            <const>sysdate+365*7</const>
+          </call>
+          <call function="between" optional="1">
+            <call function="year" as="year">
+              <column table="a" column="dat_day" />
+            </call>
+            <call function="-">
+              <useparam name="year" />
+              <const>1</const>
+            </call>
+            <useparam name="year" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_period_data">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" />
+        <column table="ips_vid_zatrat" column="kodzatrat" />
+        <const as="kod_ipr_dog">null</const>
+        <column table="period" column="year" />
+        <column table="period" column="period" />
+        <column table="period" column="ym" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" />
+        <query as="ips_vid_zatrat" join="cross">
+          <select>
+            <column table="ips_vid_zatrat" column="kodzatrat" />
+          </select>
+          <from>
+            <query name="ips_vid_zatrat" />
+          </from>
+          <where>
+            <call function="=">
+              <column table="ips_vid_zatrat" column="kod_smet" />
+              <const>4</const>
+            </call>
+          </where>
+        </query>
+        <query name="ipr_fin_period" as="period" join="cross" />
+      </from>
+    </query>
+    <query name="ipr_fin_period_dog">
+      <params>
+        <param name="year" />
+      </params>
+      <select>
+        <column table="ipr_vid_zatrat_titul" column="kod_ipr" />
+        <column table="kod_vid_zatrat" column="kod_smet" />
+        <column table="ipr_vid_zatrat_titul" column="kod_vid_zatrat" as="kodzatrat" />
+        <column table="ipr_vid_zatrat_titul" column="kod_ipr_dog" />
+        <column table="kod_ipr_dog" column="kod_dog" />
+        <column table="period" column="year" />
+        <column table="period" column="period" />
+        <column table="period" column="ym" />
+      </select>
+      <from>
+        <query name="ipr_vid_zatrat_titul">
+          <link name="kod_vid_zatrat" />
+          <link name="kod_ipr_dog" />
+        </query>
+        <query name="ipr_fin_period" as="period" join="cross">
+          <withparams>
+            <useparam name="year" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <!--<query name="ipr_fin_body">
+      <select>
+        <column table="a" column="kodzatrat" />
+        <column table="a" column="kod_ipr" />
+    
+        <column table="a" column="ym"/>
+        <column table="a" column="kod_ipr_dog" />
+        <column table="a" column="kod_dog" />
+        <usepart part="ipr_fin_body-columns"/>
+      </select>
+      <from>
+      
+        <query name="ipr_fin_body_united" as="a"/>
+        <query name="ipr_vid_zatrat_titul" as="kod_vid_zatrat_titul" join="left outer">
+          <using>
+            <column column="kod_vid_zatrat_titul"/>
+          </using>
+        </query>
+        <query name="ipr_ipr_data" as="kod_ipr" join="left outer">
+          <using>
+            <column column="kod_ipr"/>
+          </using>
+          <link name="kod_doc_osn"/>
+          <dlink name="ipr_closed_plans"/>
+        </query>
+      </from>
+    </query>-->
+    <query name="ipr_fin_body_united_test2" class="1" timestamp="04.04.2018 23:38:18" is-report="1" use-repository="1">
+      <select>
+        <column table="a" column="kod_ipr" group="1" exclude="1" />
+        <column table="kod_doc_osn" column="doc_num" group="1" exclude="1" />
+        <column table="kod_dog_i" column="name_i" group="1" exclude="1" />
+        <column table="a" column="kod_ipr_dog" group="1" exclude="1" />
+        <!--<column table="a" column="kod_ipr" group="1" />
+        <column table="a" column="kod_schet_y" group="1" />
+        <column table="a" column="ym_vozn" group="1" />
+        <column table="a" column="kap_sum_fact_per" group="sum" />
+        <column table="a" column="kap_sum_fact_pri" group="sum" />
+        <call function="-nvl" as="kap_sum_fact_a" group="sum">
+          <column table="a" column="kap_sum_nds_fact_a" />
+          <column table="a" column="kap_nds_fact_a" />
+        </call>-->
+        <column table="a" column="kap_sum_fact_n" group="sum" />
+        <!--<column table="a" column="kap_sum_fact_c" group="sum" />
+        <column table="a" column="kap_sum_fact_d" group="sum" />
+        <column table="a" column="kap_sum_fact" group="sum" />
+        <column table="a" column="kap_sum_fact_m83" group="sum" />-->
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <extendwhere>
+            <call function="and">
+              <call function="=">
+                <column table="*" column="ym" />
+                <const>201801</const>
+              </call>
+              <call function="=">
+                <column table="*" column="year" />
+                <const>2018</const>
+              </call>
+              <!--<call function="=">
+            <column table="a" column="kod_doc_osn" />
+            <const>242796</const>
+          </call>-->
+              <!--<call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <const>3208503</const>
+              </call>-->
+              <call function="in">
+                <column table="kod_ipr_ext" column="kod_doc_osn" />
+                <const>143403</const>
+              </call>
+              <call function="=">
+                <column table="kod_titul_ip" column="tit_num_new" />
+                <const>'10110268000'</const>
+              </call>
+              <!--<call function="=nvl">
+            <column table="a" column="kod_ipr" />
+            <column table="a" column="kod_ipr_ext" />
+          </call>-->
+            </call>
+          </extendwhere>
+          <link name="kod_ipr" />
+          <link name="kod_doc_osn" />
+          <link name="kod_dog_i" />
+        </query>
+      </from>
+    </query>
+    <query name="ipr_fin_body_united_test3" class="1" use-repository="0" timestamp="01.09.2016 12:24:04">
+      <select>
+        <!--<column table="a" column="kod_ipr" group="1" />
+        <column table="a" column="kod_schet_y" group="1" />
+        <column table="a" column="ym_vozn" group="1" />
+        <column table="a" column="kap_sum_fact_per" group="sum" />
+        <column table="a" column="kap_sum_fact_pri" group="sum" />
+        <call function="-nvl" as="kap_sum_fact_a" group="sum">
+          <column table="a" column="kap_sum_nds_fact_a" />
+          <column table="a" column="kap_nds_fact_a" />
+        </call>-->
+        <column table="a" column="fp_sum_nds_fact_a" group="sum" />
+        <column table="a" column="fp_sum_nds_fact_b" group="sum" />
+        <!--<column table="a" column="kap_sum_fact_c" group="sum" />
+        <column table="a" column="kap_sum_fact_d" group="sum" />
+        <column table="a" column="kap_sum_fact" group="sum" />
+        <column table="a" column="kap_sum_fact_m83" group="sum" />-->
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <extendwhere>
+            <call function="=">
+              <column table="*" column="year" />
+              <const>2016</const>
+            </call>
+            <call function="=">
+              <column table="kod_ipr" column="kod_doc_osn" />
+              <const>143403</const>
+            </call>
+            <call function="in">
+              <column table="kod_titul_ip1" column="kod_ispolnit" />
+              <const>21</const>
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <!--<where>
+        <call function="=">
+          <column table="a" column="phis_typel" group="sum" />сщь
+        </call>
+      </where>-->
+    </query>
+    <query name="ipr_fin_body_united_test4_gr">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ipr_fin_body_united_test4" as="a">
+          <grsets>
+            <on-rows>
+              <grset level="1" as="tit" title="Титул">
+                <grset level="2" as="dog" title="Договор">
+                  <grset level="5" as="smet" title="Смета" />
+                </grset>
+              </grset>
+            </on-rows>
+            <on-columns>
+              <!--<grset level="1" as="ym1" title="Период" order="ym">
+                <facts>
+                  <column column="ob" />
+                </facts>
+              </grset>-->
+              <grset level="3,4" as="ym" title="Период" order="ym" intervals="1" for-rows="tit,dog">
+                <facts>
+                  <column column="sld_fact_dog" />
+                  <column column="deb_fact_dog" />
+                  <column column="kred_fact_dog" />
+                </facts>
+                <where>
+                  <call function="and">
+                    <call function="=1">
+                      <column table="a" column="rn_dog" />
+                    </call>
+                    <call function="is not null">
+                      <column table="a" column="ym" />
+                    </call>
+                  </call>
+                </where>
+              </grset>
+              <grset level="3,6" as="ym1" title="Период" order="ym" intervals="1">
+                <facts>
+                  <column column="sld_fact_smet" />
+                  <column column="deb_fact_smet" />
+                  <column column="kred_fact_smet" />
+                </facts>
+                <where>
+                  <call function="and">
+                    <call function="=1">
+                      <column table="a" column="rn_smet" />
+                    </call>
+                    <call function="is not null">
+                      <column table="a" column="ym" />
+                    </call>
+                  </call>
+                </where>
+              </grset>
+            </on-columns>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="ipr_fin_body_united_test4" grouplevel="no" timestamp="01.09.2016 12:24:04">
+      <select>
+        <column table="a" column="kod_ipr" group="1" />
+        <column table="kod_titul_ip" column="tit_num_new" group="kod_ipr" />
+        <column table="a" column="kod_dog_i" group="2" />
+        <column table="kod_dog_i" column="name_i" group="kod_dog_i" />
+        <column table="a" column="ym" group="3" />
+        <column table="a" column="kod_smet" group="5" />
+        <column table="kod_smet" column="name" group="kod_smet" />
+        <column table="a" column="ym_nxt_dog" group="4" />
+        <column table="a" column="rn_dog" />
+        <column table="a" column="sld_fact_dog" group="sum" />
+        <column table="a" column="deb_fact_dog" group="sum" />
+        <column table="a" column="kred_fact_dog" group="sum" />
+        <column table="a" column="ym_nxt_smet" group="6" />
+        <column table="a" column="rn_smet" />
+        <column table="a" column="sld_fact_smet" group="sum" />
+        <column table="a" column="deb_fact_smet" group="sum" />
+        <column table="a" column="kred_fact_smet" group="sum" />
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <extendwhere>
+            <call function="=">
+              <column table="*" column="kod_doc_osn" />
+              <const>143404</const>
+            </call>
+            <call function="=">
+              <column table="*" column="kod_ipr" />
+              <const>29567</const>
+            </call>
+          </extendwhere>
+          <link name="kod_ipr_ext">
+            <link name="kod_titul_ip" />
+          </link>
+          <link name="kod_dog_i" />
+          <link name="kod_smet" />
+        </query>
+      </from>
+    </query>
+    <query name="ipr_fin_body_united" cstyle="union" stored="vr_ipr_a" changes="kod_titul_ip_changed" title="Ведение инвестиционных проектов" class="1" timestamp="05.02.2018 21:14:54">
+      <params>
+        <param name="kod_titul_ip" />
+        <param name="year" />
+      </params>
+      <select>
+        <column table="*" column="kod_razdel" group="1" stored="0" />
+        <column table="*" column="kod_doc_osn" group="1" stored="1" />
+        <column table="*" column="kod_ipr" group="1" />
+        <column table="*" column="kod_ipr_ext" group="1" />
+        <column table="*" column="year" group="1" timeline="time1" />
+        <column table="*" column="period" group="1" timeline="time1" />
+        <column table="*" column="ym" group="1" timeline="time1" />
+        <column table="*" column="ym_vozn" group="1" />
+        <column table="*" column="ym" group="max" as="max_ym" />
+        <column table="*" column="ym" group="max" as="min_ym" />
+        <column table="*" column="kodzatrat" group="1" />
+        <!--<column table="kod_ipr" column="kod_titul_ip" group="1" />
+        <column table="kod_ipr" column="kod_main_titul" group="1" />-->
+        <column table="*" column="kod_titul_ip" group="1" />
+        <column table="*" column="kod_main_titul" group="1" />
+        <column table="kod_sbor_titul1" column="kod_titul_ip" as="kod_titul_ip_sb" group="1" />
+        <!--<column table="*" column="kodzatrat" as="kodzatrat_for_part" group="max" />-->
+        <column table="*" column="kod_ipr_dog" group="1" />
+        <column table="*" column="kod_dog" group="1" />
+        <usepart part="ipr_dogs-kod_dog_i" as="kod_dog_i" group="1" />
+        <column table="*" column="kod_smet" group="1" type="number" />
+        <column table="*" column="kod_smet_sub" group="1" stored="0" type="number" />
+        <column table="*" column="dat" group="1" stored="0" timeline="time1" />
+        <column table="*" column="dat_doc_steps" group="1" stored="0" timeline="time_steps" />
+        <column table="*" column="kvart" group="1" stored="0" timeline="time1" />
+        <column table="*" column="kod_contr_steps_val" group="1" stored="0" />
+        <column table="*" column="kod_doc" group="1" stored="0" />
+        <column table="*" column="pr_last_smet" group="1" />
+        <column table="*" column="kod_doc_smet" group="1" stored="0" />
+        <column table="*" column="doc_target_str" group="1" stored="0" />
+        <column table="*" column="kod_vip_dog" group="1" stored="0" />
+        <column table="*" column="kod_opl_period" group="1" stored="0" />
+        <column table="*" column="is_avans" group="1" stored="0" />
+        <column table="*" column="kod_schet" group="1" />
+        <column table="*" column="kod_schet_it" group="1" />
+        <column table="*" column="pr_opl_spis" group="1" />
+        <call function="if" as="kod_schet_y" group="1" type="number">
+          <call function="ge">
+            <call function="smallest">
+              <call function="ym2 god">
+                <column table="this" column="ym_vozn" group="" />
+              </call>
+              <column table="this" column="year" group="" />
+            </call>
+            <const>2016</const>
+          </call>
+          <column table="this" column="kod_schet" group="" />
+        </call>
+        <column table="ipr_fin_kap" column="plan_summ" as="kap_sum" group="sum" agg="sum" class-title="Освоение капиталовложений" />
+        <column table="ipr_fin_kap" column="plan_summ_nds" as="kap_sum_nds" group="sum" agg="sum" />
+        <column table="ipr_fin_kap" column="wfact_summ" as="kap_sum_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_kap" column="wfact_summ_nds" as="kap_sum_nds_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan" column="plan_summ" as="fp_sum" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan" column="plan_summ_nds" as="fp_sum_nds" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan" column="wfact_summ" as="fp_sum_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan" column="wfact_summ_nds" as="fp_sum_nds_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_vvod" column="god_vvod" group="max" as="god_vvod" title="Год ввода в эксплуатацию" />
+        <column table="ipr_fin_vvod" column="plan_summ" as="vvod_sum" group="sum" agg="sum" />
+        <column table="ipr_fin_vvod" column="plan_summ_nds" as="vvod_sum_nds" group="sum" agg="sum" />
+        <column table="ipr_fin_vvod" column="wfact_summ" as="vvod_sum_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_vvod" column="wfact_summ_nds" as="vvod_sum_nds_wait" group="sum" agg="sum" />
+        <call function="-nvl" as="kap_nds" title="Плановый объем освоения НДС" agg="sum">
+          <column table="this" column="kap_sum_nds" />
+          <column table="this" column="kap_sum" />
+        </call>
+        <call function="-nvl" as="kap_nds_wait" title="Плановый объем освоения НДС (ожидаемый)" agg="sum">
+          <column table="this" column="kap_sum_nds_wait" />
+          <column table="this" column="kap_sum_wait" />
+        </call>
+        <call function="-nvl" as="fp_nds" title="Плановый объем финансирования НДС" agg="sum">
+          <column table="this" column="fp_sum_nds" />
+          <column table="this" column="fp_sum" />
+        </call>
+        <call function="-nvl" as="fp_nds_wait" title="Плановый объем финансирования НДС (ожидаемый)" agg="sum">
+          <column table="this" column="fp_sum_nds_wait" />
+          <column table="this" column="fp_sum_wait" />
+        </call>
+        <column table="ipr_fin_power" column="km" as="pow_km" group="sum" agg="sum" title="Ввод КМ ВЛ план" />
+        <column table="ipr_fin_power" column="mba" as="pow_mba" group="sum" agg="sum" title="Ввод МВА план" />
+        <column table="ipr_fin_power" column="cnt" as="pow_cnt" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_del" as="pow_km_del" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="mba_del" as="pow_mba_del" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_pr" as="pow_km_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="mba_pr" as="pow_mba_pr" group="sum" agg="sum" title="Прирост МВА план" />
+        <column table="ipr_fin_power" column="cnt_pr" as="pow_cnt_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="mba_fact" as="pow_mba_fact" group="sum" agg="sum" title="Ввод МВА факт" />
+        <column table="ipr_fin_power" column="km_fact" as="pow_km_fact" group="sum" agg="sum" title="Ввод КМ ВЛ факт" />
+        <column table="ipr_fin_power" column="cnt_fact" as="pow_cnt_fact" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_fact_pr" as="pow_km_fact_pr" group="sum" agg="sum" title="Прирост КМ ВЛ факт" />
+        <column table="ipr_fin_power" column="mba_fact_pr" as="pow_mba_fact_pr" group="sum" agg="sum" title="Прирост МВА факт" />
+        <column table="ipr_fin_power" column="cnt_fact_pr" as="pow_cnt_fact_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="mba_wfact" as="pow_mba_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_wfact" as="pow_km_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_wfact" as="pow_cnt_wait" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_proch_wfact" as="pow_cnt_proch_wait" group="sum" />
+        <column table="ipr_fin_power" column="km_wfact_pr" as="pow_km_wait_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="mba_wfact_pr" as="pow_mba_wait_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_wfact_pr" as="pow_cnt_wait_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_proch_wfact_pr" as="pow_cnt_proch_wait_pr" group="sum" />
+        <column table="ipr_fin_power" column="cnt_proch" as="pow_cnt_proch" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_proch_pr" as="pow_cnt_proch_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_proch_fact" as="pow_cnt_proch_fact" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="cnt_proch_fact_pr" as="pow_cnt_proch_fact_pr" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_kl" as="pow_km_kl" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_kl_del" as="pow_km_kl_del" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="km_kl_fact" as="pow_km_kl_fact" agg="sum" group="sum" />
+        <column table="ipr_fin_power" column="km_kl_ekspl" as="pow_km_kl_ekspl" agg="sum" group="sum" />
+        <column table="ipr_fin_power" column="km_kl_pr" as="pow_km_kl_pr" agg="sum" group="sum" />
+        <column table="ipr_fin_power" column="km_kl_fact_pr" as="pow_km_kl_fact_pr" agg="sum" group="sum" />
+        <column table="ipr_fin_power" column="km_kl_wfact" as="pow_km_kl_wait" agg="sum" group="sum" />
+        <column table="ipr_fin_power" column="km_kl_wfact_pr" as="pow_km_kl_wait_pr" agg="sum" group="sum" />
+        <column table="ipr_fin_power" column="pow_any" as="pow_any" group="sum" agg="sum" />
+        <column table="ipr_fin_power" column="pow_any_fact" as="pow_any_fact" group="sum" agg="sum" />
+        <column table="this" column="pow_km" as="pow_km_itog" group="sum" agg="sum" title="Ввод КМ ВЛ план" cumulate="ym" />
+        <column table="this" column="pow_mba" as="pow_mba_itog" group="sum" agg="sum" title="Ввод МВА план" cumulate="ym" />
+        <column table="this" column="pow_cnt" as="pow_cnt_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_del" as="pow_km_del_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_mba_del" as="pow_mba_del_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_pr" as="pow_km_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_mba_pr" as="pow_mba_pr_itog" group="sum" agg="sum" title="Прирост МВА план" cumulate="ym" />
+        <column table="this" column="pow_cnt_pr" as="pow_cnt_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_mba_fact" as="pow_mba_fact_itog" group="sum" agg="sum" title="Ввод МВА факт" cumulate="ym" />
+        <column table="this" column="pow_km_fact" as="pow_km_fact_itog" group="sum" agg="sum" title="Ввод КМ ВЛ факт" cumulate="ym" />
+        <column table="this" column="pow_cnt_fact" as="pow_cnt_fact_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_fact_pr" as="pow_km_fact_pr_itog" group="sum" agg="sum" title="Прирост КМ ВЛ факт" cumulate="ym" />
+        <column table="this" column="pow_mba_fact_pr" as="pow_mba_fact_pr_itog" group="sum" agg="sum" title="Прирост МВА факт" cumulate="ym" />
+        <column table="this" column="pow_cnt_fact_pr" as="pow_cnt_fact_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_mba_wait" as="pow_mba_wait_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_wait" as="pow_km_wait_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_wait" as="pow_cnt_wait_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_proch_wait" as="pow_cnt_proch_wait_itog" group="sum" cumulate="ym" />
+        <column table="this" column="pow_km_wait_pr" as="pow_km_wait_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_mba_wait_pr" as="pow_mba_wait_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_wait_pr" as="pow_cnt_wait_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_proch_wait_pr" as="pow_cnt_proch_wait_pr_itog" group="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_proch" as="pow_cnt_proch_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_proch_pr" as="pow_cnt_proch_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_proch_fact" as="pow_cnt_proch_fact_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_cnt_proch_fact_pr" as="pow_cnt_proch_fact_pr_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl" as="pow_km_kl_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_del" as="pow_km_kl_del_itog" group="sum" agg="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_fact" as="pow_km_kl_fact_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_ekspl" as="pow_km_kl_ekspl_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_pr" as="pow_km_kl_pr_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_fact_pr" as="pow_km_kl_fact_pr_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_wait" as="pow_km_kl_wait_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_km_kl_wait_pr" as="pow_km_kl_wait_pr_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_any" as="pow_any_itog" agg="sum" group="sum" cumulate="ym" />
+        <column table="this" column="pow_any_fact" as="pow_any_fact_itog" agg="sum" group="sum" cumulate="ym" />
+        <!--для заявки 29611-->
+        <call function="+nvl" as="pow_km_all" title="Ввод КМ план">
+          <column table="this" column="pow_km" />
+          <column table="this" column="pow_km_kl" />
+        </call>
+        <call function="+nvl" as="pow_other" title="Ввод другие ед. изм. план">
+          <column table="this" column="pow_cnt_proch" />
+          <column table="this" column="pow_cnt" />
+        </call>
+        <call function="+nvl" as="pow_other_wait" title="Ввод другие ед. изм. ож. факт" stored="0">
+          <column table="this" column="pow_cnt_proch_wait" />
+          <column table="this" column="pow_cnt_wait" />
+        </call>
+        <call function="+nvl" as="pow_other_wait_pr" title="Ввод другие ед. изм. ож. факт" stored="0">
+          <column table="this" column="pow_cnt_proch_wait_pr" />
+          <column table="this" column="pow_cnt_wait_pr" />
+        </call>
+        <call function="+nvl" as="pow_km_all_pr" title="Прирост КМ план">
+          <column table="this" column="pow_km_pr" />
+          <column table="this" column="pow_km_kl_pr" />
+        </call>
+        <call function="+nvl" as="pow_other_pr" title="Прирост другие ед. изм. план">
+          <column table="this" column="pow_cnt_proch_pr" />
+          <column table="this" column="pow_cnt_pr" />
+        </call>
+        <call function="+nvl" as="pow_km_all_fact" title="Ввод КМ факт" description="Фактический ввод физических параметров (МВА)">
+          <column table="this" column="pow_km_fact" />
+          <column table="this" column="pow_km_kl_fact" />
+        </call>
+        <call function="+nvl" as="pow_km_all_fact_date" title="Ввод КМ факт" description="Фактический ввод физических параметров (МВА)" stored="0">
+          <column table="this" column="pow_km_fact_date" />
+          <column table="this" column="pow_km_kl_fact_date" />
+        </call>
+        <call function="+nvl" as="pow_km_all_wait" title="Ввод КМ ожид. факт" description="Фактический ввод физических параметров (МВА)" stored="0">
+          <column table="this" column="pow_km_wait" />
+          <column table="this" column="pow_km_kl_wait" />
+        </call>
+        <call function="+nvl" as="pow_other_fact" title="Ввод другие ед. изм. факт">
+          <column table="this" column="pow_cnt_proch_fact" />
+          <column table="this" column="pow_cnt_fact" />
+        </call>
+        <call function="+nvl" as="pow_km_all_fact_pr" title="Прирост КМ факт">
+          <column table="this" column="pow_km_fact_pr" />
+          <column table="this" column="pow_km_kl_fact_pr" />
+        </call>
+        <call function="+nvl" as="pow_km_all_wait_pr" title="Прирост КМ факт" stored="0">
+          <column table="this" column="pow_km_wait_pr" />
+          <column table="this" column="pow_km_kl_wait_pr" />
+        </call>
+        <call function="+nvl" as="pow_other_fact_pr" title="Прирост другие ед. изм. факт">
+          <column table="this" column="pow_cnt_proch_fact" />
+          <column table="this" column="pow_cnt_fact" />
+        </call>
+        <column table="ipr_fin_power_date" column="km_kl_fact_date" as="pow_km_kl_fact_date" agg="sum" group="sum" stored="0" />
+        <column table="ipr_fin_power_date" column="km_fact_date" as="pow_km_fact_date" agg="sum" group="sum" stored="0" />
+        <column table="ipr_fin_power_date" column="cnt_fact_date" as="pow_cnt_fact_date" agg="sum" group="sum" stored="0" />
+        <column table="ipr_fin_power_date" column="cnt_proch_fact_date" as="pow_cnt_proch_fact_date" agg="sum" group="sum" stored="0" />
+        <column table="ipr_fin_power_date" column="mba_fact_date" as="pow_mba_fact_date" agg="sum" group="sum" stored="0" />
+        <column table="ipr_fin_kap_fact_dog" column="vsego" as="kap_sum_nds_fact_a" group="sum" title="Фактический объем освоения c НДС (без перебросок)" agg="sum" />
+        <column table="ipr_fin_kap_fact_dog" column="nds" as="kap_nds_fact_a" group="sum" title="Фактический объем освоения НДС(без перебросок)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mfr" column="summ_per" as="kap_sum_fact_per" group="sum" title="Фактический объем освоения без НДС (передано)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mfr" column="nds_per" as="kap_nds_fact_per" group="sum" title="Фактический объем освоения НДС (передано)" agg="sum" />
+        <call function="+nvl" as="kap_sum_nds_fact_per" title="Фактический объем освоения с НДС (передано)" agg="sum">
+          <column table="this" column="kap_sum_fact_per" />
+          <column table="this" column="kap_nds_fact_per" />
+        </call>
+        <column table="ipr_fin_kap_fact_mfr" column="summ_per_pr" as="kap_sum_fact_per_pr" group="sum" title="Фактический объем освоения прочие без НДС (передано)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mfr" column="nds_per_pr" as="kap_nds_fact_per_pr" group="sum" title="Фактический объем освоения  прочие  НДС (передано)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mfr" column="summ_sp" as="kap_sum_fact_sp" group="sum" title="Фактический объем освоения без НДС (списано)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mfr" column="nds_sp" as="kap_nds_fact_sp" group="sum" title="Фактический объем освоения НДС (списано)" agg="sum" />
+        <call function="+nvl" as="kap_sum_nds_fact_sp" title="Фактический объем освоения с НДС (списано)" agg="sum">
+          <column table="this" column="kap_sum_fact_sp" />
+          <column table="this" column="kap_nds_fact_sp" />
+        </call>
+        <column table="ipr_fin_kap_fact_mfr" column="summ_sp_pr" as="kap_sum_fact_sp_pr" group="sum" title="Фактический объем освоения прочие без НДС (списано)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mfr" column="nds_sp_pr" as="kap_nds_fact_sp_pr" group="sum" title="Фактический объем освоения  прочие  НДС (списано)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mto" column="summ" as="kap_sum_fact_pri" group="sum" title="Фактический объем освоения без НДС (принято)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mto" column="nds" as="kap_nds_fact_pri" group="sum" title="Фактический объем освоения НДС (принято)" agg="sum" />
+        <call function="+nvl" as="kap_sum_nds_fact_pri" title="Фактический объем освоения с НДС (принято)" agg="sum">
+          <column table="this" column="kap_sum_fact_pri" />
+          <column table="this" column="kap_nds_fact_pri" />
+        </call>
+        <column table="ipr_fin_kap_fact_mto" column="summ_pr" as="kap_sum_fact_pri_pr" group="sum" title="Фактический объем освоения прочие без НДС (принято)" agg="sum" />
+        <column table="ipr_fin_kap_fact_mto" column="nds_pr" as="kap_nds_fact_pri_pr" group="sum" title="Фактический объем освоения прочие НДС (принято)" agg="sum" />
+        <call function="-nvl" as="kap_sum_nds_fact" agg="sum" title="Фактический объем освоения c НДС">
+          <call function="+nvl">
+            <column table="this" column="kap_sum_nds_fact_a" />
+            <column table="this" column="kap_sum_nds_fact_pri" />
+          </call>
+          <column table="this" column="kap_sum_nds_fact_per" />
+        </call>
+        <call function="-nvl" as="kap_nds_fact" agg="sum" title="Фактический объем освоения НДС">
+          <call function="+nvl">
+            <column table="this" column="kap_nds_fact_a" />
+            <column table="this" column="kap_nds_fact_pri" />
+          </call>
+          <column table="this" column="kap_nds_fact_per" />
+        </call>
+        <column table="ipr_fin_finplan_fact_dog" column="sum_opl" as="fp_fact_sum" group="sum" />
+        <column table="ipr_fin_kap_fact_dog_pr" column="vsego" as="fp_fact_sum_pr" group="sum" />
+        <call function="+nvl" as="fp_sum_nds_fact_a" title="Фактический объем финансирования c НДС (без перебросок)" agg="sum">
+          <column table="this" column="fp_fact_sum" />
+          <column table="this" column="fp_fact_sum_pr" />
+        </call>
+        <column table="ipr_fin_finplan_fact_dog" column="nds" as="fp_fact_nds" group="sum" />
+        <column table="ipr_fin_kap_fact_dog_pr" column="nds" as="fp_fact_nds_pr" group="sum" />
+        <call function="+nvl" as="fp_nds_fact_a" title="Фактический объем финансирования НДС (без перебросок)" agg="sum">
+          <column table="this" column="fp_fact_nds" />
+          <column table="this" column="fp_fact_nds_pr" />
+        </call>
+        <column table="ipr_fin_finplan_fact_mfr" column="summ_per" as="fp_sum_fact_per1" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan_fact_mfr" column="nds_per" as="fp_nds_fact_per1" group="sum" agg="sum" />
+        <call function="+nvl" as="fp_sum_fact_per" title="Фактический объем финансирования без НДС (передано)" agg="sum">
+          <column table="this" column="fp_sum_fact_per1" />
+          <column table="this" column="kap_sum_fact_per_pr" />
+        </call>
+        <call function="+nvl" as="fp_nds_fact_per" title="Фактический объем финансирования НДС (передано)" agg="sum">
+          <column table="this" column="fp_nds_fact_per1" />
+          <column table="this" column="kap_nds_fact_per_pr" />
+        </call>
+        <call function="+nvl" as="fp_sum_nds_fact_per" title="Фактический объем финансирования с НДС (передано)" agg="sum">
+          <column table="this" column="fp_sum_fact_per" />
+          <column table="this" column="fp_nds_fact_per" />
+        </call>
+        <column table="ipr_fin_finplan_fact_mfr" column="summ_sp" as="fp_sum_fact_sp1" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan_fact_mfr" column="nds_sp" as="fp_nds_fact_sp1" group="sum" agg="sum" />
+        <call function="+nvl" as="fp_sum_fact_sp" title="Фактический объем финансирования без НДС (списано)" agg="sum">
+          <column table="this" column="fp_sum_fact_sp1" />
+          <column table="this" column="kap_sum_fact_sp_pr" />
+        </call>
+        <call function="+nvl" as="fp_nds_fact_sp" title="Фактический объем финансирования НДС (списано)" agg="sum">
+          <column table="this" column="fp_nds_fact_sp1" />
+          <column table="this" column="kap_nds_fact_sp_pr" />
+        </call>
+        <call function="+nvl" as="fp_sum_nds_fact_sp" title="Фактический объем финансирования с НДС (списано)" agg="sum">
+          <column table="this" column="fp_sum_fact_sp" />
+          <column table="this" column="fp_nds_fact_sp" />
+        </call>
+        <column table="ipr_fin_finplan_fact_mto" column="summ" as="fp_sum_fact_pri1" group="sum" agg="sum" />
+        <column table="ipr_fin_finplan_fact_mto" column="nds" as="fp_nds_fact_pri1" group="sum" agg="sum" />
+        <call function="+nvl" as="fp_sum_fact_pri" title="Фактический объем финансирования без НДС (принято)" agg="sum">
+          <column table="this" column="fp_sum_fact_pri1" />
+          <column table="this" column="kap_sum_fact_pri_pr" />
+        </call>
+        <call function="+nvl" as="fp_nds_fact_pri" title="Фактический объем финансирования НДС (принято)" agg="sum">
+          <column table="this" column="fp_nds_fact_pri1" />
+          <column table="this" column="kap_nds_fact_pri_pr" />
+        </call>
+        <call function="+nvl" as="fp_sum_nds_fact_pri" title="Фактический объем финансирования с НДС (принято)" agg="sum">
+          <column table="this" column="fp_sum_fact_pri" />
+          <column table="this" column="fp_nds_fact_pri" />
+        </call>
+        <call function="-nvl" as="fp_sum_nds_fact" agg="sum" title="Фактический объем финансирования c НДС">
+          <call function="+nvl">
+            <column table="this" column="fp_sum_nds_fact_a" />
+            <column table="this" column="fp_sum_nds_fact_pri" />
+          </call>
+          <column table="this" column="fp_sum_nds_fact_per" />
+        </call>
+        <call function="-nvl" as="fp_nds_fact" agg="sum" title="Фактический объем финансирования НДС">
+          <call function="+nvl">
+            <column table="this" column="fp_nds_fact_a" />
+            <column table="this" column="fp_nds_fact_pri" />
+          </call>
+          <column table="this" column="fp_nds_fact_per" />
+        </call>
+        <!--<column table="ipr_fin_vvod_fact_dog" column="summ" as="vvod_sum_fact_a" group="sum" agg="sum" />
+        <column table="ipr_fin_vvod_fact_dog_mto" column="summ" as="vvod_sum_fact_pri" group="sum" agg="sum" />
+        <call function="+nvl" as="vvod_sum_fact" title="Фактический ввод в без НДС" agg="sum" description="Фактический ввод в основные фонды без НДС">
+          <column table="this" column="vvod_sum_fact_a" />
+          <column table="this" column="vvod_sum_fact_pri" />
+        </call>-->
+        <column table="ipr_fin_vvod_fact_dog" column="summ" as="vvod_sum_fact" group="sum" agg="sum" title="Фактический ввод в без НДС" />
+        <call function="-nvl" as="kap_sum_fact" title="Фактический объем освоения без НДС" agg="sum" class-title="Освоение капиталовложений">
+          <column table="this" column="kap_sum_nds_fact" />
+          <column table="this" column="kap_nds_fact" />
+        </call>
+        <call function="-nvl" as="kap_sum_fact_a" title="Фактический объем освоения без НДС" agg="sum" class-title="Освоение капиталовложений" stored="0">
+          <column table="this" column="kap_sum_nds_fact_a" />
+          <column table="this" column="kap_nds_fact_a" />
+        </call>
+        <call function="-nvl" as="fp_sum_fact" title="Фактический объем финансирования без НДС" agg="sum">
+          <column table="this" column="fp_sum_nds_fact" />
+          <column table="this" column="fp_nds_fact" />
+        </call>
+        <column table="ipr_fin_ipr200" column="km" group="sum" agg="sum" />
+        <column table="ipr_fin_ipr250" column="km_kl" group="sum" agg="sum" />
+        <column table="ipr_fin_ipr100" column="pow" group="sum" agg="sum" />
+        <column table="ipr_fin_ipr300" column="other" group="sum" agg="sum" />
+        <column table="ipr_fin_ipr" column="ipr_fin_ipr" group="sum" agg="sum" />
+        <column table="ipr_fin_smet" column="summ_s" group="sum" agg="sum" />
+        <!--!!! есть дубли. Почистить-->
+        <column table="ipr_fin_smet" column="sum_psd" group="sum" agg="sum" />
+        <column table="ipr_fin_smet" column="sum_utvpsd" group="sum" agg="sum" />
+        <column table="ipr_fin_smet" column="sum_usr" group="sum" agg="sum" />
+        <column table="ipr_fin_smet_tek" column="summ_smet" as="+_tek" group="sum" agg="sum" />
+        <column table="this" column="summ_smet_tek" as="+_on_doc" window="kod_doc_osn,kod_ipr_ext,kod_doc_smet" agg="sum" />
+        <usepart part="ipr_fin_body-smet_cols">
+          <const>''</const>
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_body-smet_cols">
+          <const>'_tek'</const>
+          <const>' (тек.)'</const>
+        </usepart>
+        <call function="coalesce" as="summ" title="Полная стоимость строительства" type="number">
+          <column table="this" column="summ_nds_psd" />
+          <column table="this" column="summ_nds_utvpsd" />
+          <column table="this" column="summ_nds_usr" />
+        </call>
+        <call function="coalesce" as="summ_bn" title="Полная стоимость строительства без НДС" type="number">
+          <column table="this" column="summ_psd" />
+          <column table="this" column="summ_utvpsd" />
+          <column table="this" column="summ_usr" />
+        </call>
+        <call function="nvl" as="summ_10" title="Полная стоимость строительства (-10%)" type="number">
+          <column table="this" column="summ_nds_psd_10" />
+          <column table="this" column="summ_10_nds_usr" />
+        </call>
+        <call function="nvl" as="summ_10_bn" title="Полная стоимость строительства (-10%) без НДС" type="number">
+          <column table="this" column="summ_psd_10" />
+          <column table="this" column="summ_10_usr" />
+        </call>
+        <call function="nvl" as="summ_30" title="Полная стоимость строительства (-30%)" type="number">
+          <column table="this" column="summ_nds_psd_30" />
+          <column table="this" column="summ_30_nds_usr" />
+        </call>
+        <call function="nvl" as="summ_30_bn" title="Полная стоимость строительства (-30%) без НДС" type="number">
+          <column table="this" column="summ_psd_30" />
+          <column table="this" column="summ_30_usr" />
+        </call>
+        <column table="this" column="kz" as="kza" window="kod_doc_osn,kod_ipr_ext" />
+        <column table="this" column="dz" as="dza" window="kod_doc_osn,kod_ipr_ext" />
+        <column table="this" column="nzs_saldo" as="znzs" window="kod_doc_osn,kod_ipr_ext" />
+        <call function="if" as="zsaldo1" type="number">
+          <call function="is null">
+            <call function="nvl">
+              <column table="this" column="dz" />
+              <column table="this" column="kz" />
+            </call>
+          </call>
+          <const>null</const>
+          <call function="-nvl">
+            <column table="this" column="dz" />
+            <column table="this" column="kz" />
+          </call>
+        </call>
+        <column table="this" column="zsaldo1" as="zsaldo" window="kod_doc_osn,kod_ipr_ext" />
+        <column table="ipr_fin_ipr" column="dz" group="sum" agg="sum" />
+        <column table="ipr_fin_ipr" column="kz" group="sum" agg="sum" />
+        <column table="ipr_fin_ipr" column="saldo" as="nzs_saldo" group="sum" agg="sum" />
+        <usepart part="ipr_fin_body-columns5">
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_body-columns5">
+          <const>'_wait'</const>
+        </usepart>
+        <usepart part="ipr_fin_body-dk-columns" />
+        <usepart part="ipr_fin_body-dk-columns-pwf">
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_body-dk-columns-pwf">
+          <const>'_wait'</const>
+        </usepart>
+        <usepart part="ipr_fin_body-dk-columns-pwf">
+          <const>'_fact'</const>
+        </usepart>
+        <usepart part="ipr_fin_body-columns3" />
+        <usepart part="ipr_fin_body-columns4" />
+        <column table="ipr_fin_zatrat" column="plan_cost" as="dog_plan_cost" group="sum" agg="sum" />
+        <column table="ipr_fin_zatrat" column="plan_cost_nds" as="dog_plan_cost_nds" group="sum" agg="sum" />
+        <column table="ipr_fin_zatrat_proch" column="proch_plan_cost" as="dog_proch_plan_cost" stored="0" group="sum" agg="sum" />
+        <column table="ipr_fin_zatrat_proch" column="proch_plan_cost_nds" as="dog_proch_plan_cost_nds" stored="0" group="sum" agg="sum" />
+        <column table="ipr_fin_pfa" column="kvl_prim" as="pfa_kvl_prim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="fin_prim" as="pfa_fin_prim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="vv_prim" as="pfa_vv_prim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="mba_prim" as="pfa_mba_prim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="km_prim" as="pfa_km_prim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="kvl_wprim" as="pfa_kvl_wprim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="fin_wprim" as="pfa_fin_wprim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="vv_wprim" as="pfa_vv_wprim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="mba_wprim" as="pfa_mba_wprim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="km_wprim" as="pfa_km_wprim" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="kvl_krit_name" as="pfa_kvl_krit_name" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="fin_krit_name" as="pfa_fin_krit_name" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="vv_krit_name" as="pfa_vv_krit_name" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="kvl_krit_name1" as="pfa_kvl_krit_name1" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="fin_krit_name1" as="pfa_fin_krit_name1" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_pfa" column="vv_krit_name1" as="pfa_vv_krit_name1" group="stragg_dist" agg="no" stored="0" />
+        <column table="ipr_fin_steps" column="ipr_fin_steps" group="max" stored="0" />
+        <call function="over" as="kod_doc_steps_last" stored="0">
+          <call function="last_value">
+            <column table="kod_contr_steps_val" column="kod_doc" group="max" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_doc_osn" />
+            <column table="this" column="kod_ipr_ext" />
+          </call>
+          <call function="order by rows * *">
+            <call function="asc nulls first">
+              <column table="this" column="dat" />
+            </call>
+          </call>
+        </call>
+        <call function="case" as="pr_steps_last" type="number" stored="0">
+          <call function="when">
+            <call function="is null">
+              <column table="kod_contr_steps_val" column="kod_doc" group="max" />
+            </call>
+            <const>null</const>
+          </call>
+          <call function="else">
+            <call function="if">
+              <call function="=">
+                <column table="kod_contr_steps_val" column="kod_doc" group="max" />
+                <column table="this" column="kod_doc_steps_last" />
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+          </call>
+        </call>
+        <column table="ipr_fin_doc" column="ipr_fin_doc" group="max" />
+        <!--Бельченко: при формировании пакета хранилища stragg_dist меняется на max  -это кривая заплатка, но пока ,вроде, сойдет,  иначе валится ORA-01467: sort key too long-->
+        <column table="ipr_fin_tit_objects" column="eksp_norm_podst" title="Нормативный срок службы, лет" class-title="Подстанции" group="max" />
+        <column table="ipr_fin_tit_objects" column="eksp_norm_lin" title="Нормативный срок службы, лет" class-title="Линии электропередачи" group="max" />
+        <column table="ipr_fin_phis_param" column="phis_val12" as="phis_coltr" group="sum" agg="sum" type="number" />
+        <column table="ipr_fin_phis_param" column="phis_val17" as="phis_numtr" group="stragg_dist" agg="stragg_dist" />
+        <column table="ipr_fin_phis_param" column="phis_val13" as="phis_mvatr" group="sum" agg="sum" type="number" />
+        <column table="ipr_fin_phis_param" column="phis_val1" as="phis_typel" group="stragg_dist" agg="stragg_dist" />
+        <column table="ipr_fin_phis_param" column="phis_val3" as="phis_numl" group="stragg_dist" agg="stragg_dist" />
+        <column table="ipr_fin_phis_param" column="phis_val14" as="phis_km_vl" group="sum" agg="sum" type="number" />
+        <column table="ipr_fin_phis_param" column="phis_val18" as="phis_km_kl" group="sum" agg="sum" type="number" />
+        <column table="ipr_fin_phis_param" column="phis_val16" as="phis_other" group="sum" agg="sum" type="number" />
+        <column table="this" column="phis_coltr" as="phis_coltr_itog" agg="sum" cumulate="ym" />
+        <column table="this" column="phis_numtr" as="phis_numtr_itog" agg="stragg_dist" cumulate="ym" />
+        <column table="this" column="phis_mvatr" as="phis_mvatr_itog" agg="sum" cumulate="ym" />
+        <column table="this" column="phis_typel" as="phis_typel_itog" agg="stragg_dist" cumulate="ym" />
+        <column table="this" column="phis_numl" as="phis_numl_itog" agg="stragg_dist" cumulate="ym" />
+        <column table="this" column="phis_km_vl" as="phis_km_vl_itog" agg="sum" cumulate="ym" />
+        <column table="this" column="phis_km_kl" as="phis_km_kl_itog" agg="sum" cumulate="ym" />
+        <column table="this" column="phis_other" as="phis_other_itog" agg="sum" cumulate="ym" />
+        <!--лимиты-->
+        <column table="ipr_fin_lim" column="value_osv" as="kap_lim_sum" group="sum" agg="sum" class-title="Освоение капиталовложений" title="Лимит освоения" />
+        <column table="ipr_fin_lim" column="value_fin_nds" as="fp_lim_sum_nds" group="sum" agg="sum" title="Лимит финансирования" />
+        <column table="ipr_fin_lim" column="value_vvod" as="vvod_lim_sum" group="sum" agg="sum" title="Лимит ввод в ОФ" />
+        <column table="vv_ipr_vvod_fiz_dop_plan" column="km_vl1" as="vvd_plan_km_vl1" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_plan" column="km_vl2" as="vvd_plan_km_vl2" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_plan" column="km_vl1_pr" as="vvd_plan_km_vl1_pr" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_plan" column="km_vl2_pr" as="vvd_plan_km_vl2_pr" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_fact" column="km_vl1" as="vvd_fact_km_vl1" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_fact" column="km_vl2" as="vvd_fact_km_vl2" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_fact" column="km_vl1_pr" as="vvd_fact_km_vl1_pr" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_fact" column="km_vl2_pr" as="vvd_fact_km_vl2_pr" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_wfact" column="km_vl1" as="vvd_wfact_km_vl1" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_wfact" column="km_vl2" as="vvd_wfact_km_vl2" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_wfact" column="km_vl1_pr" as="vvd_wfact_km_vl1_pr" group="sum" agg="sum" />
+        <column table="vv_ipr_vvod_fiz_dop_wfact" column="km_vl2_pr" as="vvd_wfact_km_vl2_pr" group="sum" agg="sum" />
+        <column table="this" column="vvd_plan_km_vl1" as="vvd_plan_km_vl1_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_plan_km_vl2" as="vvd_plan_km_vl2_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_plan_km_vl1_pr" as="vvd_plan_km_vl1_pr_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_plan_km_vl2_pr" as="vvd_plan_km_vl2_pr_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_fact_km_vl1" as="vvd_fact_km_vl1_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_fact_km_vl2" as="vvd_fact_km_vl2_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_fact_km_vl1_pr" as="vvd_fact_km_vl1_pr_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_fact_km_vl2_pr" as="vvd_fact_km_vl2_pr_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_wfact_km_vl1" as="vvd_wfact_km_vl1_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_wfact_km_vl2" as="vvd_wfact_km_vl2_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_wfact_km_vl1_pr" as="vvd_wfact_km_vl1_pr_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="vvd_wfact_km_vl2_pr" as="vvd_wfact_km_vl2_pr_itog" cumulate="ym" agg="sum" />
+        <column table="ipr_fin_kap_fact_move_to_8_3" column="sum_akt" as="kap_sum_fact_m83" group="sum" agg="sum" />
+        <column table="ipr_fin_kap_fact_move_to_8_3" column="nds_akt" as="kap_nds_fact_m83" group="sum" agg="sum" />
+        <column table="ipr_fin_kap_fact_move_to_8_3" column="sum_nds_akt" as="kap_sum_nds_fact_m83" group="sum" agg="sum" />
+        <column table="this" column="kap_sum_fact_m83" as="kap_sum_fact_m83_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="kap_nds_fact_m83" as="kap_nds_fact_m83_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="kap_sum_nds_fact_m83" as="kap_sum_nds_fact_m83_itog" cumulate="ym" agg="sum" />
+        <call function="-nvl" as="kap_sum_fact_pp" agg="sum">
+          <column table="this" column="kap_sum_fact_pri" />
+          <column table="this" column="kap_sum_fact_per" />
+        </call>
+        <call function="-nvl" as="kap_nds_fact_pp" agg="sum">
+          <column table="this" column="kap_nds_fact_pri" />
+          <column table="this" column="kap_nds_fact_per" />
+        </call>
+        <call function="-nvl" as="fp_sum_nds_fact_pp" agg="sum">
+          <column table="this" column="fp_sum_nds_fact_pri" />
+          <column table="this" column="fp_sum_nds_fact_per" />
+        </call>
+        <call function="-nvl" as="fp_nds_fact_pp" agg="sum">
+          <column table="this" column="fp_nds_fact_pri" />
+          <column table="this" column="fp_nds_fact_per" />
+        </call>
+        <call function="if" as="kap_sum_fact_pp_pg" agg="sum">
+          <call function="lt">
+            <call function="ym2 god">
+              <column table="this" column="ym_vozn" group="" />
+            </call>
+            <call function="ym2 god">
+              <column table="this" column="ym" group="" />
+            </call>
+          </call>
+          <column table="this" column="kap_sum_fact_pp" />
+        </call>
+        <call function="if" as="kap_nds_fact_pp_pg" agg="sum">
+          <call function="lt">
+            <call function="ym2 god">
+              <column table="this" column="ym_vozn" group="" />
+            </call>
+            <call function="ym2 god">
+              <column table="this" column="ym" group="" />
+            </call>
+          </call>
+          <column table="this" column="kap_nds_fact_pp" />
+        </call>
+        <call function="if" as="fp_sum_nds_fact_pp_pg" agg="sum">
+          <call function="lt">
+            <call function="ym2 god">
+              <column table="this" column="ym_vozn" group="" />
+            </call>
+            <call function="ym2 god">
+              <column table="this" column="ym" group="" />
+            </call>
+          </call>
+          <column table="this" column="fp_sum_nds_fact_pp" />
+        </call>
+        <call function="if" as="fp_nds_fact_pp_pg" agg="sum">
+          <call function="lt">
+            <call function="ym2 god">
+              <column table="this" column="ym_vozn" group="" />
+            </call>
+            <call function="ym2 god">
+              <column table="this" column="ym" group="" />
+            </call>
+          </call>
+          <column table="this" column="fp_nds_fact_pp" />
+        </call>
+        <!--добавлены перенос посчетам-->
+        <call function="+nvl" as="kap_sum_fact_b" agg="sum">
+          <column table="this" column="kap_sum_fact" />
+          <call function="if">
+            <call function="is not null">
+              <column table="this" column="kod_schet_y" group="" />
+            </call>
+            <column table="this" column="kap_sum_fact_m83" />
+          </call>
+        </call>
+        <call function="+nvl" as="kap_nds_fact_b" agg="sum">
+          <column table="this" column="kap_nds_fact" />
+          <call function="if">
+            <call function="is not null">
+              <column table="this" column="kod_schet_y" group="" />
+            </call>
+            <column table="this" column="kap_nds_fact_m83" />
+          </call>
+        </call>
+        <column table="this" column="kap_sum_fact_b" as="kap_sum_fact_b_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="kap_nds_fact_b" as="kap_nds_fact_b_itog" cumulate="ym" agg="sum" />
+        <!--исключены 7 1014 1015-->
+        <call function="if" as="kap_sum_fact_c" agg="sum">
+          <call function="not in">
+            <call function="nvl">
+              <column table="this" column="kod_schet_y" group="" />
+              <const>0</const>
+            </call>
+            <array>1,2</array>
+          </call>
+          <column table="this" column="kap_sum_fact_b" />
+        </call>
+        <call function="if" as="kap_nds_fact_c" agg="sum">
+          <call function="not in">
+            <call function="nvl">
+              <column table="this" column="kod_schet_y" group="" />
+              <const>0</const>
+            </call>
+            <array>1,2</array>
+          </call>
+          <column table="this" column="kap_nds_fact_b" />
+        </call>
+        <column table="this" column="kap_sum_fact_c" as="kap_sum_fact_c_itog" cumulate="ym" agg="sum" />
+        <column table="this" column="kap_nds_fact_c" as="kap_nds_fact_c_itog" cumulate="ym" agg="sum" />
+        <!--исключены 7 1014 1015  по переброскам-->
+        <call function="if" as="kap_sum_fact_pp_pg_c" agg="sum">
+          <call function="not in">
+            <call function="nvl">
+              <column table="this" column="kod_schet_y" group="" />
+              <const>0</const>
+            </call>
+            <array>1,2</array>
+          </call>
+          <column table="this" column="kap_sum_fact_pp_pg" />
+        </call>
+        <call function="if" as="kap_nds_fact_pp_pg_c" agg="sum">
+          <call function="not in">
+            <call function="nvl">
+              <column table="this" column="kod_schet_y" group="" />
+              <const>0</const>
+            </call>
+            <array>1,2</array>
+          </call>
+          <column table="this" column="kap_nds_fact_pp_pg" />
+        </call>
+        <!--исключены переброски прошлых периодов-->
+        <call function="-nvl" as="kap_sum_fact_d" agg="sum">
+          <column table="this" column="kap_sum_fact_c" />
+          <column table="this" column="kap_sum_fact_pp_pg_c" />
+        </call>
+        <call function="-nvl" as="kap_nds_fact_d" agg="sum">
+          <column table="this" column="kap_nds_fact_c" />
+          <column table="this" column="kap_nds_fact_pp_pg_c" />
+        </call>
+        <call function="-nvl" as="kap_sum_fact_n" agg="sum">
+          <column table="this" column="kap_sum_fact" />
+          <column table="this" column="kap_sum_fact_pp_pg" />
+        </call>
+        <call function="-nvl" as="kap_nds_fact_n" agg="sum">
+          <column table="this" column="kap_nds_fact" />
+          <column table="this" column="kap_nds_fact_pp_pg" />
+        </call>
+        <call function="-nvl" as="fp_sum_nds_fact_b" agg="sum">
+          <column table="this" column="fp_sum_nds_fact" />
+          <column table="this" column="fp_sum_nds_fact_pp_pg" />
+        </call>
+        <call function="-nvl" as="fp_nds_fact_b" agg="sum">
+          <column table="this" column="fp_nds_fact" />
+          <column table="this" column="fp_nds_fact_pp_pg" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_fin_kap" />
+        <query name="ipr_fin_finplan" />
+        <query name="ipr_fin_vvod" />
+        <query name="ipr_fin_power" />
+        <query name="ipr_fin_power_date" />
+        <query name="ipr_fin_kap_fact_dog" />
+        <query name="ipr_fin_kap_fact_move_to_8_3" />
+        <query name="ipr_fin_kap_fact_mfr" />
+        <query name="ipr_fin_kap_fact_mto" />
+        <query name="ipr_fin_finplan_fact_dog" />
+        <query name="ipr_fin_kap_fact_dog_pr" />
+        <query name="ipr_fin_finplan_fact_mfr" />
+        <query name="ipr_fin_finplan_fact_mto" />
+        <query name="ipr_fin_vvod_fact_dog" />
+        <!--<query name="ipr_fin_vvod_fact_dog_mto" />-->
+        <!--<query name="ipr_fin_period_dog" fixed="1">
+          <withparams>
+            <useparam name="year"/>
+          </withparams>
+        </query>-->
+        <query name="ipr_fin_ipr" />
+        <query name="ipr_fin_ipr100" />
+        <query name="ipr_fin_ipr200" />
+        <query name="ipr_fin_ipr250" />
+        <query name="ipr_fin_ipr300" />
+        <query name="ipr_fin_zatrat" />
+        <query name="ipr_fin_zatrat_proch" />
+        <query name="ipr_fin_smet" />
+        <query name="ipr_fin_smet_tek" />
+        <query name="ipr_fin_pfa" />
+        <query name="ipr_fin_steps" />
+        <!--<query name="ipr_fin_steps_plan"/>
+        <query name="ipr_fin_steps_fact"/>-->
+        <query name="ipr_fin_doc" />
+        <query name="ipr_fin_tit_objects" />
+        <query name="ipr_fin_phis_param" />
+        <query name="ipr_fin_lim" />
+        <query name="vv_ipr_vvod_fiz_dop_plan" />
+        <query name="vv_ipr_vvod_fiz_dop_wfact" />
+        <query name="vv_ipr_vvod_fiz_dop_fact" />
+      </from>
+      <push>
+        <from>
+          <query name="ipr_ipr_data" as="kod_ipr" join="left outer">
+            <using>
+              <column column="kod_ipr" />
+            </using>
+            <link name="kod_doc_osn" as="kod_doc_osn1" />
+            <dlink name="ipr_closed_plans" />
+            <link name="kod_main_titul" as="kod_main_titul1" />
+            <link name="kod_main_ipr_ipr_data" as="kod_main_ipr_ipr_data1" />
+            <!--link kod_titul_ip1 добавлен для подключения условия extendwhere kod_titul_ip1.kod_ispolnit в запросе 29611; через kod_titul_ip не работает, какие то нестыковки-->
+            <link name="kod_titul_ip" as="kod_titul_ip1" />
+          </query>
+          <query name="ipr_ipr_data" as="kod_ipr_ext" join="left outer">
+            <call function="=">
+              <column table="*" column="kod_ipr_ext" />
+              <column table="kod_ipr_ext" column="kod_ipr" />
+            </call>
+          </query>
+          <query name="vv_ipr_ipr_data_check_pl_ft" as="check_pl_ft" join="left outer">
+            <call function="and">
+              <call function="=">
+                <column table="*" column="kod_ipr_ext" />
+                <column table="check_pl_ft" column="kod_ipr_ext" />
+              </call>
+              <call function="=">
+                <column table="*" column="kod_doc_osn" />
+                <column table="check_pl_ft" column="kod_doc_osn" />
+              </call>
+            </call>
+          </query>
+          <query name="spr_time_ym" as="ym" join="left outer">
+            <call function="=">
+              <column table="*" column="ym" />
+              <column table="ym" column="ym2" />
+            </call>
+          </query>
+          <query name="ips_vid_zatrat" as="kodzatrat" join="left outer">
+            <using>
+              <column column="kodzatrat" />
+            </using>
+            <!--<link name="kod_smet" as="kod_smet1"/>-->
+          </query>
+          <query name="ipr_dogs" as="kod_ipr_dog" join="left outer">
+            <using>
+              <column column="kod_ipr_dog" />
+            </using>
+          </query>
+          <query name="ipr_dogs_i" as="kod_dog_i" join="left outer">
+            <using>
+              <column column="kod_dog_i" />
+            </using>
+          </query>
+          <query name="is_dogovor" as="kod_dog" join="left outer">
+            <using>
+              <column column="kod_dog" />
+            </using>
+          </query>
+          <query name="ips_smet_structure" as="kod_smet" join="left outer">
+            <using>
+              <column column="kod_smet" />
+            </using>
+          </query>
+          <query name="ips_smet_structure_ext" as="kod_smet_ext" join="left outer">
+            <using>
+              <column column="kod_smet" />
+            </using>
+          </query>
+          <query name="ips_smet_structure" as="kod_smet_sub" join="left outer">
+            <call function="=">
+              <column table="kod_smet_sub" column="kod_smet" />
+              <column table="*" column="kod_smet_sub" />
+            </call>
+          </query>
+          <query name="ipr_titul_ip" as="kod_titul_ip" join="left outer">
+            <using>
+              <column column="kod_titul_ip" />
+            </using>
+          </query>
+          <query name="ipr_contr_steps_val" as="kod_contr_steps_val" join="left outer">
+            <using>
+              <column column="kod_contr_steps_val" />
+            </using>
+            <!--<link name="kod_doc" as="kod_doc_steps1"/>-->
+          </query>
+          <query name="ipr_doc" as="kod_doc" join="left outer">
+            <using>
+              <column column="kod_doc" />
+            </using>
+          </query>
+          <query name="ipr_doc" as="kod_doc_smet" join="left outer">
+            <call function="=">
+              <column table="*" column="kod_doc_smet" />
+              <column table="kod_doc_smet" column="kod_doc" />
+            </call>
+          </query>
+          <query name="ips_doc_target_str" as="doc_target_str" join="left outer">
+            <call function="=">
+              <column table="*" column="doc_target_str" />
+              <column table="doc_target_str" column="doc_target_str" />
+            </call>
+          </query>
+          <query name="isv_ip_vip_dog" as="kod_vip_dog" join="left outer">
+            <using>
+              <column column="kod_vip_dog" />
+            </using>
+          </query>
+          <query name="isv_ip_opl" as="kod_opl_period" join="left outer">
+            <using>
+              <column column="kod_opl_period" />
+            </using>
+          </query>
+          <query name="ipr_titul_ip" as="kod_main_titul" join="left outer">
+            <link name="kod_sbor_titul" as="kod_sbor_titul1" />
+            <call function="=">
+              <column table="kod_main_titul" column="kod_titul_ip" />
+              <column table="*" column="kod_main_titul" />
+            </call>
+          </query>
+          <query name="ips_razdel_ip" as="kod_razdel" join="left outer">
+            <call function="=">
+              <column table="kod_razdel" column="kod_razdel" />
+              <column table="*" column="kod_razdel" />
+            </call>
+          </query>
+          <query name="ipr_doc" as="kod_doc_osn" join="left outer">
+            <call function="=">
+              <column table="*" column="kod_doc_osn" />
+              <column table="kod_doc_osn" column="kod_doc" />
+            </call>
+          </query>
+          <!--<query as="changes" join="inner">
+            <call function="and">
+              <call function="=">
+                <column table="kod_ipr" column="kod_titul_ip"/>
+                <column table="changes" column="kod_titul_ip"/>
+              </call>
+            </call>
+            <select>
+              <column table="a" column="kod_titul_ip"/>
+            </select>
+            <from>
+              <table name="vr_ipr_test_dims" as="a"/>
+            </from>
+          </query>-->
+        </from>
+      </push>
+      <!--<where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_ipr" column="kod_doc_osn"/>
+            <const>43383</const>
+          </call>
+        </call>
+      </where>-->
+    </query>
+    <query name="ipr_fin_tit_objects" class="1" timestamp="17.08.2016 03:47:59">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="ipr_ipr_data" column="kod_ipr" />
+        <call function="if" as="eksp_norm_podst">
+          <call function="=">
+            <column table="a" column="kod_vid_object" />
+            <const>1</const>
+          </call>
+          <column table="a" column="ekspluat_normativ" />
+        </call>
+        <call function="if" as="eksp_norm_lin">
+          <call function="=">
+            <column table="a" column="kod_vid_object" />
+            <const>7</const>
+          </call>
+          <column table="a" column="ekspluat_normativ" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_tituls_objects" as="a">
+          <!--<slink name="ipr_tituls_objects" as="b" />-->
+          <link name="kod_titul_ip">
+            <elink name="ipr_ipr_data" />
+          </link>
+        </query>
+      </from>
+    </query>
+    <query name="ipr_fin_ipr" class="1" timestamp="17.08.2016 03:44:22">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="a" column="kod_main_titul" />
+        <column table="a" column="kod_razdel" />
+        <column table="a" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <!--колонка, для того чтобы выводились все титулы при отсутствии фин данных-->
+        <const as="ipr_fin_ipr" type="number">1</const>
+        <!--<column table="a" column="km" />
+        <column table="a" column="km_kl" />
+        <column table="a" column="pow"/>-->
+        <column table="ipr_closed_plans" column="dz" dgroup="sum" title="Заданная начальная дебиторская задолженность" />
+        <column table="ipr_closed_plans" column="kz" dgroup="sum" title="Заданная начальная кредиторская задолженность" />
+        <column table="ipr_closed_plans" column="saldo" dgroup="sum" title="Заданное НЗС" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a">
+          <link name="kod_main_titul">
+            <link name="kod_razdel" />
+          </link>
+          <link name="kod_kriteria" />
+          <link name="kod_priority_insert_ip" />
+          <link name="kod_klass" />
+          <dlink name="ipr_closed_plans" />
+        </query>
+      </from>
+    </query>
+    <query name="ipr_fin_ipr100" class="1" timestamp="17.08.2016 03:44:38">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="a" column="kod_main_titul" />
+        <column table="a" column="kod_razdel" />
+        <column table="a" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <const as="kod_smet">100</const>
+        <column table="a" column="pow" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a" />
+      </from>
+    </query>
+    <query name="ipr_fin_ipr200" class="1" timestamp="17.08.2016 03:44:54">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="a" column="kod_main_titul" />
+        <column table="a" column="kod_razdel" />
+        <column table="a" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <const as="kod_smet">200</const>
+        <column table="a" column="km" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a" />
+      </from>
+    </query>
+    <query name="ipr_fin_ipr250" class="1" timestamp="17.08.2016 03:45:09">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="a" column="kod_main_titul" />
+        <column table="a" column="kod_razdel" />
+        <column table="a" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <const as="kod_smet">250</const>
+        <column table="a" column="km_kl" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a" />
+      </from>
+    </query>
+    <query name="ipr_fin_ipr300" class="1" timestamp="17.08.2016 03:45:21">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="a" column="kod_main_titul" />
+        <column table="a" column="kod_razdel" />
+        <column table="a" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <const as="kod_smet">300</const>
+        <const as="other" type="number">null</const>
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a" />
+      </from>
+    </query>
+    <query name="ipr_fin_pfa" class="1" timestamp="17.08.2016 03:46:50">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <column table="a" column="year" />
+        <call function="kv end mes" as="period">
+          <column table="a" column="kvart" />
+        </call>
+        <call function="num to ym2" as="ym">
+          <column table="this" column="year" />
+          <column table="this" column="period" />
+        </call>
+        <column table="a" column="kvart" />
+        <column table="a" column="kvl_prim" />
+        <column table="a" column="fin_prim" />
+        <column table="a" column="vv_prim" />
+        <column table="a" column="mba_prim" title="" />
+        <column table="a" column="km_prim" />
+        <column table="a" column="kvl_wprim" />
+        <column table="a" column="fin_wprim" />
+        <column table="a" column="vv_wprim" />
+        <column table="a" column="mba_wprim" title="" />
+        <column table="a" column="km_wprim" />
+        <column table="kvl_krit" column="full_name" as="kvl_krit_name" title="+ по освоению" />
+        <column table="vv_krit" column="full_name" as="vv_krit_name" title="+ по вводу" />
+        <column table="fin_krit" column="full_name" as="fin_krit_name" title="+ по финансированию" />
+        <column table="kvl_krit" column="full_name1" as="kvl_krit_name1" title="+ по освоению" />
+        <column table="vv_krit" column="full_name1" as="vv_krit_name1" title="+ по вводу" />
+        <column table="fin_krit" column="full_name1" as="fin_krit_name1" title="+ по финансированию" />
+      </select>
+      <from>
+        <query name="ipr_planfactanaliz" as="a">
+          <link name="kvl_krit" />
+          <link name="vv_krit" />
+          <link name="fin_krit" />
+          <link name="kod_ipr" />
+        </query>
+      </from>
+    </query>
+    <query name="ipr_fin_smet" class="1" timestamp="21.03.2017 13:12:21">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <column table="ipr_ipr_data" column="kod_ipr" dimension="kod_ipr" />
+        <!--<column table="ipr_ipr_data" column="kod_doc_osn"/>-->
+        <!--<column table="ipr_smet_struct_titul" column="kod_smet_titul"/>-->
+        <call function="decode" as="kod_smet" dimension="ipr_kod_smet">
+          <column table="a" column="kod_smet" />
+          <const>5</const>
+          <const>4</const>
+          <const>6</const>
+          <const>4</const>
+          <const>7</const>
+          <const>4</const>
+          <column table="a" column="kod_smet" />
+        </call>
+        <call function="decode" as="kod_smet_sub" dimension="ipr_kod_smet_sub">
+          <column table="a" column="kod_smet" />
+          <const>5</const>
+          <column table="a" column="kod_smet" />
+          <const>6</const>
+          <column table="a" column="kod_smet" />
+          <const>7</const>
+          <column table="a" column="kod_smet" />
+          <const>null</const>
+        </call>
+        <column table="kod_doc" column="kod_doc" as="kod_doc_smet" dimension="ipr_kod_doc_smet" />
+        <call function="()" type="number" as="pr_last_smet" dimension="ipr_pr_last_smet">
+          <const>1</const>
+        </call>
+        <!--<column table="ipr_fix_smet_doc" column="kod_fix_smet"/>-->
+        <const as="kod_vid_zatrat_titul">null</const>
+        <const as="kod_ipr_dog">null</const>
+        <const as="kod_dog">null</const>
+        <const as="kodzatrat">null</const>
+        <const as="year">null</const>
+        <const as="period">null</const>
+        <const as="ym">null</const>
+        <usepart part="ipr_fin_smet-values">
+          <const>'usr'</const>
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'psd'</const>
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'psd_10'</const>
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'psd_30'</const>
+          <const>''</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'utvpsd'</const>
+          <const>''</const>
+        </usepart>
+        <column table="this" column="summ_nds_utvpsd" as="summ_s" title="Утверждённая сметная стоимость строительства объекта" type="number" />
+        <column table="this" column="summ_nds_psd" as="sum_psd" type="number" />
+        <column table="this" column="summ_nds_utvpsd" as="sum_utvpsd" type="number" />
+        <column table="this" column="summ_nds_usr" as="sum_usr" type="number" />
+      </select>
+      <from>
+        <query name="ipr_smet_struct_titul" as="a">
+          <link name="kod_titul_ip">
+            <elink name="ipr_ipr_data" />
+          </link>
+          <link name="kod_doc">
+            <elink name="ipr_fix_smet_doc" as="smet_doc" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="ipr_ipr_data" column="kod_titul_ip" />
+            <column table="smet_doc" column="kod_titul_ip" />
+          </call>
+          <call function="=">
+            <column table="ipr_ipr_data" column="kod_doc_osn" />
+            <column table="smet_doc" column="kod_doc_osn" />
+          </call>
+          <!--<call function="=">
+            <column table="ipr_ipr_data" column="kod_doc_osn"/>
+            <column table="a" column="kod_doc_osn"/>
+          </call>-->
+          <call function="!=">
+            <column table="a" column="kod_smet" />
+            <const>4</const>
+          </call>
+          <!--<call function="=">
+            <column table="kod_titul_ip" column="tit_num_new"/>
+            <const>10120180000</const>
+          </call>-->
+        </call>
+      </where>
+    </query>
+    <!--этот и предыдущий запрос почти одинаковые можно вынести общие куски в parts-->
+    <query name="ipr_fin_smet_tek" class="1" timestamp="20.03.2017 12:44:28">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" />
+        <column table="ipr_ipr_data" column="kod_ipr" dimension="kod_ipr" />
+        <column table="a" column="kod_titul_ip" dimension="ipr_kod_titul_ip" />
+        <column table="smet_doc" column="pr_last" as="pr_last_smet" dimension="ipr_pr_last_smet" />
+        <column table="smet_doc" column="kod_doc_smet" dimension="ipr_kod_doc" />
+        <column table="smet_doc" column="kod_doc_smet" as="kod_doc_smet_s" dimension="ipr_kod_doc_smet" />
+        <column table="smet_doc" column="doc_target_str" />
+        <call function="decode" as="kod_smet" dimension="ipr_kod_smet">
+          <column table="a" column="kod_smet" />
+          <const>5</const>
+          <const>4</const>
+          <const>6</const>
+          <const>4</const>
+          <column table="a" column="kod_smet" />
+        </call>
+        <call function="decode" as="kod_smet_sub" dimension="ipr_kod_smet_sub">
+          <column table="a" column="kod_smet" />
+          <const>5</const>
+          <column table="a" column="kod_smet" />
+          <const>6</const>
+          <column table="a" column="kod_smet" />
+          <const>null</const>
+        </call>
+        <column table="a" column="summ1" as="summ_smet" />
+        <usepart part="ipr_fin_smet-values">
+          <const>'usr'</const>
+          <const>'_tek'</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'psd'</const>
+          <const>'_tek'</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'psd_10'</const>
+          <const>'_tek'</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'psd_30'</const>
+          <const>'_tek'</const>
+        </usepart>
+        <usepart part="ipr_fin_smet-values">
+          <const>'utvpsd'</const>
+          <const>'_tek'</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="ipr_smet_struct_titul" as="a">
+          <link name="kod_titul_ip">
+            <elink name="ipr_ipr_data" />
+          </link>
+          <link name="kod_doc">
+            <elink name="ipr_tek_smet_doc" as="smet_doc" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=" exclude="1">
+            <column table="ipr_ipr_data" column="kod_ipr" />
+            <column table="smet_doc" column="kod_ipr" />
+          </call>
+          <call function="=">
+            <column table="a" column="kod_titul_ip" />
+            <column table="smet_doc" column="kod_titul_ip" />
+          </call>
+          <call function="!=">
+            <column table="a" column="kod_smet" />
+            <const>4</const>
+          </call>
+          <call function="=" exclude="1">
+            <column table="smet_doc" column="pr_last" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_zatrat" class="1" timestamp="02.08.2018 16:39:16">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="a" column="kod_vid_zatrat_titul" />
+        <column table="a" column="kod_ipr_dog" dimension="ipr_kod_ipr_dog" />
+        <column table="kod_ipr_dog" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="a" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_smet" column="kod_smet" dimension="ipr_kod_smet" />
+        <column table="kod_vid_zatrat" column="kodzatrat" />
+        <const as="year">null</const>
+        <const as="period">null</const>
+        <const as="ym">null</const>
+        <column table="a" column="plan_cost" agg="sum" fact="ipr_vid_zatr_plan_cost" />
+        <column table="a" column="plan_cost_nds" agg="sum" fact="ipr_vid_zatr_plan_cost_nds" />
+      </select>
+      <from>
+        <query name="ipr_vid_zatrat_titul" as="a">
+          <link name="kod_vid_zatrat">
+            <link name="kod_smet" />
+          </link>
+          <link name="kod_ipr_dog" />
+          <link name="kod_ipr" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="=">
+            <column table="b" column="pr_last"/>
+            <const>1</const>
+          </call>-->
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+          <call function="!=nvl">
+            <column table="kod_ipr_dog" column="is_old" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_zatrat_proch" class="1" timestamp="28.11.2016 10:33:31">
+      <select>
+        <column table="a" as="kod_ipr_ext" column="kod_ipr" />
+        <column table="kod_ipr" column="kod_titul_ip" dimension="ipr_kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <column table="a" column="kod_vid_zatrat_titul" />
+        <column table="a" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_smet" column="kod_smet" dimension="ipr_kod_smet" />
+        <column table="kod_vid_zatrat" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <const as="year">null</const>
+        <const as="period">null</const>
+        <const as="ym">null</const>
+        <column table="a" column="plan_cost" as="proch_plan_cost" agg="sum" fact="ipr_fin_dog_cost_pr_sum" />
+        <column table="a" column="plan_cost_nds" as="proch_plan_cost_nds" agg="sum" fact="ipr_fin_dog_cost_pr_sum_nds" />
+      </select>
+      <from>
+        <query name="ipr_vid_zatrat_titul" as="a">
+          <link name="kod_vid_zatrat">
+            <link name="kod_smet" />
+          </link>
+          <link name="kod_ipr_dog" />
+          <link name="kod_ipr" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <call function="nvl">
+              <column table="kod_ipr_dog" column="kod_dog" />
+              <const>-1</const>
+            </call>
+            <const>-1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_finplan" class="1" timestamp="30.05.2017 15:34:23">
+      <select>
+        <column table="kod_ipr" column="kod_ipr" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <column table="b" column="kod_vid_zatrat_titul" />
+        <column table="c" column="kod_ipr_dog" dimension="ipr_kod_ipr_dog" />
+        <column table="kod_ipr_dog" column="kod_dog" />
+        <column table="c" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vid_zatrat" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="b" column="year" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" dimension="ipr_ym" />
+        <call function="ym2 end day" as="dat" dimension="ipr_dat">
+          <column table="a" column="ym" />
+        </call>
+        <column table="a" column="plan_summ" agg="sum" fact="ipr_fin_sum" />
+        <column table="a" column="plan_summ_nds" agg="sum" fact="ipr_fin_sum_nds" />
+        <column table="a" column="wfact_summ" agg="sum" fact="ipr_fin_wf_sum" />
+        <column table="a" column="wfact_summ_nds" agg="sum" fact="ipr_fin_wf_sum_nds" />
+      </select>
+      <from>
+        <query name="ipr_finplan_body" as="a">
+          <link name="kod_finplan_head" as="b">
+            <link name="kod_vid_zatrat_titul" as="c">
+              <link name="kod_vid_zatrat">
+                <link name="kod_smet" />
+              </link>
+              <link name="kod_ipr_dog" />
+              <link name="kod_ipr" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="b" column="pr_last" />
+            <const>1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_kap" class="1" timestamp="30.05.2017 15:35:45">
+      <select>
+        <column table="a" column="kod_kapitalvloz_body" key="1" as="kod_ipr_fin_kap" />
+        <column table="kod_ipr" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_ipr" column="kod_ipr" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <column table="b" column="kod_vid_zatrat_titul" />
+        <column table="c" column="kod_ipr_dog" dimension="ipr_kod_ipr_dog" />
+        <column table="kod_ipr_dog" column="kod_dog" />
+        <column table="kod_smet" column="kod_smet" dimension="ipr_kod_smet" />
+        <column table="kod_vid_zatrat" column="kodzatrat" />
+        <column table="b" column="year" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" dimension="ipr_ym" />
+        <call function="ym2 end day" as="dat" dimension="ipr_dat">
+          <column table="a" column="ym" />
+        </call>
+        <column table="a" column="plan_summ" fact="ipr_kap_sum" agg="sum" />
+        <column table="a" column="plan_summ_nds" fact="ipr_kap_sum_nds" agg="sum" />
+        <column table="a" column="wfact_summ" agg="sum" fact="ipr_kap_wf_sum" />
+        <column table="a" column="wfact_summ_nds" agg="sum" fact="ipr_kap_wf_sum_nds" />
+      </select>
+      <from>
+        <query name="ipr_kapitalvloz_body" as="a">
+          <link name="kod_kapitalvloz_head" as="b">
+            <link name="kod_vid_zatrat_titul" as="c">
+              <link name="kod_vid_zatrat">
+                <link name="kod_smet" />
+              </link>
+              <link name="kod_ipr_dog" />
+              <link name="kod_ipr" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="b" column="pr_last" />
+            <const>1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_vvod" class="1" timestamp="17.08.2016 03:40:21">
+      <select>
+        <column table="kod_ipr" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <column table="b" column="kod_vid_zatrat_titul" />
+        <column table="c" column="kod_ipr_dog" dimension="ipr_kod_ipr_dog" />
+        <column table="kod_ipr_dog" column="kod_dog" />
+        <column table="c" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vid_zatrat" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="b" column="year" />
+        <column table="b" column="year" as="god_vvod" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" dimension="ipr_ym" />
+        <column table="a" column="plan_summ" agg="sum" fact="ipr_vvd_sum" />
+        <column table="a" column="plan_summ_nds" agg="sum" fact="ipr_vvd_sum_nds" />
+        <column table="a" column="wfact_summ" agg="sum" fact="ipr_vvd_wf_sum" />
+        <column table="a" column="wfact_summ_nds" agg="sum" fact="ipr_vvd_wf_sum_nds" />
+      </select>
+      <from>
+        <query name="ipr_vvod_body" as="a">
+          <link name="kod_vvod_head" as="b">
+            <link name="kod_vid_zatrat_titul" as="c">
+              <link name="kod_vid_zatrat">
+                <link name="kod_smet" />
+              </link>
+              <link name="kod_ipr_dog" />
+              <link name="kod_ipr" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="b" column="pr_last" />
+            <const>1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_power_date" class="1" timestamp="28.11.2016 10:33:15">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_titul_ip" dimension="ipr_kod_titul_ip" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <const as="kod_smet">null</const>
+        <const as="kodzatrat">null</const>
+        <const as="kod_ipr_dog">null</const>
+        <const as="kod_dog">null</const>
+        <column table="ipr_ipr_data" column="kod_ipr" dimension="kod_ipr" />
+        <column table="ipr_doc" column="doc_date" as="dat" />
+        <call function="year" as="year">
+          <column table="ipr_doc" column="doc_date" />
+        </call>
+        <call function="date to ym2" as="ym">
+          <column table="ipr_doc" column="doc_date" />
+        </call>
+        <call function="month" as="period">
+          <column table="ipr_doc" column="doc_date" />
+        </call>
+        <call function="ipr_tituls_characters.getSummCharValuesByKS14" as="km_fact_date" type="number">
+          <const>14</const>
+          <column table="ipr_tituls_objects" column="kod_tituls_object" />
+          <column table="ipr_doc" column="kod_doc" />
+        </call>
+        <call function="ipr_tituls_characters.getSummCharValuesByKS14" as="mba_fact_date" mp="-6" type="number" fact="ipr_fin_pow_mba_ft_dt" agg="sum">
+          <const>13</const>
+          <column table="ipr_tituls_objects" column="kod_tituls_object" />
+          <column table="ipr_doc" column="kod_doc" />
+        </call>
+        <call function="ipr_tituls_characters.getSummCharValuesByKS14" as="cnt_fact_date" type="number">
+          <const>15</const>
+          <column table="ipr_tituls_objects" column="kod_tituls_object" />
+          <column table="ipr_doc" column="kod_doc" />
+        </call>
+        <call function="ipr_tituls_characters.getSummCharValuesByKS14" as="cnt_proch_fact_date" type="number">
+          <const>16</const>
+          <column table="ipr_tituls_objects" column="kod_tituls_object" />
+          <column table="ipr_doc" column="kod_doc" />
+        </call>
+        <call function="ipr_tituls_characters.getSummCharValuesByKS14" as="km_kl_fact_date" type="number">
+          <const>18</const>
+          <column table="ipr_tituls_objects" column="kod_tituls_object" />
+          <column table="ipr_doc" column="kod_doc" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_titul_ip" as="a">
+          <elink name="ipr_ipr_data">
+            <elink name="ipr_doc_by_ipr">
+              <link name="kod_doc" as="ipr_doc" />
+            </elink>
+          </elink>
+          <elink name="ipr_tituls_objects" />
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="ipr_doc" column="kod_doc_type" />
+          <array>38,39</array>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_power" class="1" timestamp="17.08.2016 03:40:38">
+      <select>
+        <column table="kod_ipr" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <const as="kod_smet">null</const>
+        <const as="kodzatrat">null</const>
+        <const as="kod_ipr_dog">null</const>
+        <const as="kod_dog">null</const>
+        <column table="b" column="kod_ipr" />
+        <column table="b" column="year" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" />
+        <column table="a" column="mba" description="Плановый ввод физических параметров (МВА)" />
+        <column table="a" column="km" description="Плановый ввод физических параметров ВЛ (км)" />
+        <column table="a" column="cnt" description="Плановый ввод физических параметров (прочие)" />
+        <column table="a" column="km_pr" description="Плановый прирост физических параметров ВЛ (км)" />
+        <column table="a" column="mba_pr" description="Плановый прирост физических параметров (МВА)" />
+        <column table="a" column="cnt_pr" description="Плановый прирост физических параметров (прочие)" />
+        <column table="a" column="mba_del" />
+        <column table="a" column="km_del" />
+        <column table="a" column="mba_fact" description="Фактический ввод физических параметров (МВА)" />
+        <column table="a" column="km_fact" description="Фактический ввод физических параметров ВЛ (км)" />
+        <column table="a" column="cnt_fact" description="Фактический ввод физических параметров (прочие)" />
+        <column table="a" column="km_fact_pr" description="Фактический прирост физических параметров ВЛ (км)" />
+        <column table="a" column="mba_fact_pr" description="Фактический прирост физических параметров (МВА)" />
+        <column table="a" column="cnt_fact_pr" description="Фактический прирост физических параметров (прочие)" />
+        <column table="a" column="mba_wfact" />
+        <column table="a" column="km_wfact" />
+        <column table="a" column="cnt_wfact" />
+        <column table="a" column="cnt_proch_wfact" />
+        <column table="a" column="km_wfact_pr" />
+        <column table="a" column="mba_wfact_pr" />
+        <column table="a" column="cnt_wfact_pr" />
+        <column table="a" column="cnt_proch_wfact_pr" />
+        <column table="a" column="cnt_proch" />
+        <column table="a" column="cnt_proch_pr" />
+        <column table="a" column="cnt_proch_fact" />
+        <column table="a" column="cnt_proch_fact_pr" />
+        <column table="a" column="cnt_proch_wfact_pr" />
+        <column table="a" column="km_kl" description="Плановый ввод физических параметров КЛ (км)" />
+        <column table="a" column="km_kl_del" />
+        <column table="a" column="km_kl_fact" description="Фактический ввод физических параметров КЛ (км)" />
+        <column table="a" column="km_kl_ekspl" />
+        <column table="a" column="km_kl_pr" description="Плановый прирост физических параметров КЛ (км)" />
+        <column table="a" column="km_kl_fact_pr" description="Фактичекий прирост физических параметров КЛ (км)" />
+        <column table="a" column="km_kl_wfact" />
+        <column table="a" column="km_kl_wfact_pr" />
+        <call function="coalesce nullif 0" as="pow_any" type="number">
+          <column table="a" column="mba" />
+          <column table="a" column="km" />
+          <column table="a" column="km_kl" />
+          <column table="a" column="cnt" />
+          <column table="a" column="cnt_proch" />
+          <column table="a" column="mba_pr" />
+          <column table="a" column="km_pr" />
+          <column table="a" column="km_pr" />
+          <column table="a" column="cnt_pr" />
+          <column table="a" column="cnt_pr" />
+        </call>
+        <call function="coalesce nullif 0" as="pow_any_fact">
+          <column table="a" column="mba_fact" />
+          <column table="a" column="km_fact" />
+          <column table="a" column="km_kl_fact" />
+          <column table="a" column="cnt_fact" />
+          <column table="a" column="cnt_proch_fact" />
+          <column table="a" column="mba_fact_pr" />
+          <column table="a" column="km_fact_pr" />
+          <column table="a" column="km_fact_pr" />
+          <column table="a" column="cnt_fact_pr" />
+          <column table="a" column="cnt_fact_pr" />
+        </call>
+      </select>
+      <from>
+        <query name="ipr_power_body" as="a">
+          <link name="kod_power_head" as="b">
+            <link name="kod_ipr" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="b" column="pr_last" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_kap_fact_dog" class="1" timestamp="15.08.2017 18:15:42">
+      <select>
+        <column table="a" column="kod_schet_it" />
+        <column table="a" column="kod_schet" dimension="ipr_kod_schet" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="a" column="kod_vip_dog" dimension="ipr_kod_vip_dog" key="1" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="a" column="kod_ip" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <column table="a" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="kod_smet" column="kod_smet" />
+        <column table="a" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="a" column="year" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" dimension="ipr_ym" />
+        <column table="a" column="nds" fact="ipr_kap_fact_nds_a" agg="sum" />
+        <column table="a" column="vsego" fact="ipr_kap_fact_sum_nds_a" agg="sum" />
+        <column table="a" column="dat_doc" as="dat" dimension="ipr_dat" />
+      </select>
+      <from>
+        <query name="isv_ip_vip_dog_for_plan" as="a">
+          <link name="kod_ip">
+            <elink name="vv_ipr_ipr_data_extra">
+              <link name="kod_ipr_ext" as="ipr_ipr_data" />
+            </elink>
+            <elink name="ipr_ipr_data" exclude="1" />
+          </link>
+          <link name="kod_smet" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--<query name="ipr_fin_kap_fact_dog_pr">
+      <select>
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="ipr_dogs" column="kod_ipr_dog"/>
+        <column table="ipr_dogs" column="kod_ipr"/>
+        <column table="a" column="kod_dog"/>
+        <column table="kod_smet" column="kod_smet"/>
+        <column table="a" column="kodzatrat"/>
+        <column table="a" column="year"/>
+        <column table="a" column="period"/>
+        <column table="a" column="ym"/>
+        <column table="a" column="nds"/>
+        <column table="a" column="vsego"/>
+        <column table="a" column="dat_doc" as="dat"/>
+      </select>
+      <from>
+        <query name="isv_ip_vip_dog" as="a">
+          <link name="kod_ip">
+            <elink name="ipr_ipr_data">
+              <elink name="ipr_dogs"/>
+            </elink>
+          </link>
+          <link name="kod_smet"/>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent"/>
+          </call>
+          <call function="is null or -1">
+            <column table="a" column="kod_dog"/>
+          </call>
+          <call function="is null or -1">
+            <column table="ipr_dogs" column="kod_dog"/>
+          </call>
+          <call function="in">
+            <column table="ipr_dogs" column="kod_dog_type"/>
+            <array>52,56</array>
+          </call>
+        </call>
+      </where>
+    </query>-->
+    <query name="ipr_fin_kap_fact_mfr" class="1" timestamp="03.04.2018 17:50:07">
+      <select>
+        <column table="mv" column="kod_move_wsumm" key="1" />
+        <column table="kod_vip_dog" column="kod_schet_it" />
+        <column table="kod_vip_dog" column="kod_schet" dimension="ipr_kod_schet" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="mv" column="kod_titul_ip_fr" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <column table="kod_vip_dog" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="kod_vip_dog" column="kod_vip_dog" dimension="ipr_kod_vip_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="kod_vip_dog" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vip_dog" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="kod_doc" column="doc_date" as="dat" dimension="ipr_dat" />
+        <call function="year" as="year">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="month" as="period">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="num to ym2" as="ym" dimension="ipr_ym">
+          <column table="this" column="year" />
+          <column table="this" column="period" />
+        </call>
+        <column table="kod_vip_dog" column="ym" as="ym_vozn" is-private-dimension="ipr_ym_vozn" is-final-dimension="ipr_ym_vozn" dimension="ipr_ym_vozn" />
+        <column table="mv" column="summ" />
+        <call function="*" as="nds">
+          <column table="mv" column="summ" />
+          <call function="/">
+            <column table="kod_vip_dog" column="proc_nds" />
+            <const>100</const>
+          </call>
+        </call>
+        <column table="this" column="summ" as="summ_per" if="per" fact="ipr_kap_fact_sum_per" agg="sum">
+          <if>
+            <call function="is not null">
+              <column table="mv" column="kod_fact_wcompl_to" />
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_per" if="per" fact="ipr_kap_fact_nds_per" agg="sum" />
+        <column table="this" column="summ" as="summ_sp" if="sp" fact="ipr_kap_fact_sum_sp" agg="sum">
+          <if>
+            <call function="is null">
+              <column table="mv" column="kod_fact_wcompl_to" />
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_sp" if="sp" fact="ipr_kap_fact_nds_sp" agg="sum" />
+        <column table="this" column="summ" as="summ_per_pr" if="per_pr" fact="ipr_kap_fact_sum_per_pr" agg="sum">
+          <if>
+            <call function="and">
+              <call function="is not null">
+                <column table="mv" column="kod_fact_wcompl_to" />
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="kod_vip_dog" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_per_pr" if="per_pr" fact="ipr_kap_fact_nds_per_pr" agg="sum" />
+        <column table="this" column="summ" as="summ_sp_pr" if="sp_pr" fact="ipr_kap_fact_sum_sp_pr" agg="sum">
+          <if>
+            <call function="and">
+              <call function="is null">
+                <column table="mv" column="kod_fact_wcompl_to" />
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="kod_vip_dog" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_sp_pr" if="sp_pr" fact="ipr_kap_fact_nds_sp_pr" agg="sum" />
+      </select>
+      <from>
+        <query name="ipr_move_wsumm" as="mv">
+          <link name="kod_titul_ip_fr">
+            <elink name="ipr_ipr_data" exclude="1" />
+            <elink name="vv_ipr_ipr_data_extra">
+              <link name="kod_ipr_ext" as="ipr_ipr_data" />
+            </elink>
+          </link>
+          <link name="kod_fact_wcompl_fr">
+            <link name="kod_vip_dog_for_plan" as="kod_vip_dog">
+              <link name="kod_smet" />
+            </link>
+          </link>
+          <link name="kod_doc" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_kap_fact_mto" class="1" timestamp="03.04.2018 17:49:00">
+      <select>
+        <column table="mv" column="kod_move_wsumm" key="1" />
+        <column table="kod_vip_dog" column="kod_schet_it" />
+        <column table="kod_vip_dog" column="kod_schet" dimension="ipr_kod_schet" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="mv" column="kod_titul_ip_to" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="kod_vip_dog" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="kod_vip_dog" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="kod_vip_dog" column="kod_vip_dog" dimension="ipr_kod_vip_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vip_dog" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="kod_doc" column="doc_date" as="dat" dimension="ipr_dat" />
+        <call function="year" as="year">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="month" as="period">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="num to ym2" as="ym" dimension="ipr_ym">
+          <column table="this" column="year" />
+          <column table="this" column="period" />
+        </call>
+        <column table="kod_vip_dog_fr" column="ym" as="ym_vozn" is-private-dimension="ipr_ym_vozn" is-final-dimension="ipr_ym_vozn" dimension="ipr_ym_vozn" />
+        <column table="mv" column="summ" fact="ipr_kap_fact_sum_pri" agg="sum" />
+        <call function="*" as="nds" fact="ipr_kap_fact_nds_pri" agg="sum">
+          <column table="mv" column="summ" />
+          <call function="/">
+            <column table="kod_vip_dog" column="proc_nds" />
+            <const>100</const>
+          </call>
+        </call>
+        <column table="this" column="summ" as="summ_pr" if="pr" fact="ipr_kap_fact_sum_pri_pr" agg="sum">
+          <if>
+            <call function="=">
+              <call function="nvl">
+                <column table="kod_vip_dog" column="kod_dog" />
+                <const>-1</const>
+              </call>
+              <const>-1</const>
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_pr" if="pr" fact="ipr_kap_fact_nds_pri_pr" agg="sum" />
+      </select>
+      <from>
+        <query name="ipr_move_wsumm" as="mv">
+          <link name="kod_fact_wcompl_to">
+            <link name="kod_vip_dog_for_plan" as="kod_vip_dog">
+              <link name="kod_smet" />
+            </link>
+          </link>
+          <link name="kod_fact_wcompl_fr">
+            <link name="kod_vip_dog_for_plan" as="kod_vip_dog_fr" />
+          </link>
+          <link name="kod_titul_ip_to">
+            <elink name="ipr_ipr_data" exclude="1" />
+            <elink name="vv_ipr_ipr_data_extra">
+              <link name="kod_ipr_ext" as="ipr_ipr_data" />
+            </elink>
+          </link>
+          <link name="kod_doc" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+          <call function="is not null">
+            <column table="mv" column="kod_titul_ip_to" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_finplan_fact_dog" class="1" timestamp="17.10.2017 20:13:17">
+      <select>
+        <column table="kod_vip_dog" column="kod_schet_it" />
+        <call function="coalesce" as="kod_schet" dimension="ipr_kod_schet">
+          <column table="kod_vip_dog" column="kod_schet_it" />
+          <column table="kodzatrat" column="kod_schet" />
+          <const>3</const>
+        </call>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="a" column="kod_vip_dog" dimension="ipr_kod_vip_dog" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="a" column="kod_opl_period" dimension="ipr_kod_opl_period" key="1" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="a" column="kod_ip" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="a" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="a" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="a" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="a" column="year" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" dimension="ipr_ym" />
+        <column table="a" column="dat_opl" as="dat" dimension="ipr_dat" />
+        <column table="a" column="nds" fact="ipr_fin_fact_nds_b" agg="sum" />
+        <column table="a" column="sum_opl" fact="ipr_fin_fact_sum_nds_b" agg="sum" />
+        <column table="a" column="is_avans" />
+        <call function="if" type="number" as="pr_opl_spis">
+          <call function="=">
+            <column table="kod_ro" column="kod_spr_doc" />
+            <const>212</const>
+          </call>
+          <const>1</const>
+        </call>
+        <column table="this" column="sum_opl" as="sum_opl_av" if="av" exclude="1">
+          <if>
+            <call function="=1">
+              <column table="a" column="is_avans" />
+            </call>
+          </if>
+        </column>
+      </select>
+      <from>
+        <query name="isv_ip_opl_for_plan" as="a">
+          <link name="kod_vip_dog" />
+          <link name="kod_ip">
+            <elink name="ipr_ipr_data" exclude="1" />
+            <elink name="vv_ipr_ipr_data_extra">
+              <link name="kod_ipr_ext" as="ipr_ipr_data" />
+            </elink>
+          </link>
+          <link name="kodzatrat">
+            <link name="kod_smet" />
+          </link>
+          <link name="kod_ro" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="is not null">
+            <column table="kod_ipr_dog" column="kod_ipr_dog"/>
+          </call>-->
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--ipr_fin_finplan_fact_mfr ipr_fin_finplan_fact_mfo пока убрал тк в программе не не увидел перебросок по финансированию в ФП и сальдо-->
+    <query name="ipr_fin_finplan_fact_mfr" class="1" timestamp="17.10.2017 20:15:26">
+      <select>
+        <column table="mvf" column="kod_move_wsumm_fin" key="1" />
+        <column table="kod_vip_dog" column="kod_schet_it" />
+        <call function="coalesce" as="kod_schet" dimension="ipr_kod_schet">
+          <column table="kod_vip_dog" column="kod_schet_it" />
+          <column table="kodzatrat" column="kod_schet" />
+          <const>3</const>
+        </call>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="kod_vip_dog" column="kod_vip_dog" dimension="ipr_kod_vip_dog" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="mvf" column="kod_opl_period" dimension="ipr_kod_opl_period" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="mv" column="kod_titul_ip_fr" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="kod_vip_dog" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="kod_vip_dog" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vip_dog" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <call function="year" as="year">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="month" as="period">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="num to ym2" as="ym" dimension="ipr_ym">
+          <column table="this" column="year" />
+          <column table="this" column="period" />
+        </call>
+        <column table="kod_doc" column="doc_date" as="dat" dimension="ipr_dat" />
+        <column table="kod_opl_period" column="ym" as="ym_vozn" />
+        <column table="mvf" column="summ" />
+        <column table="mvf" column="summ_nds" />
+        <call function="-nvl" as="nds">
+          <column table="this" column="summ_nds" />
+          <column table="this" column="summ" />
+        </call>
+        <column table="this" column="summ" as="summ_per" if="per" fact="ipr_fin_fact_sum_per_b" agg="sum">
+          <if>
+            <call function="is not null">
+              <column table="mv" column="kod_fact_wcompl_to" />
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_per" if="per" fact="ipr_fin_fact_nds_per_b" agg="sum" />
+        <column table="this" column="summ_nds" as="summ_nds_per" if="per" fact="ipr_fin_fact_sum_nds_per_b" agg="sum" />
+        <column table="this" column="summ" as="summ_sp" if="sp" fact="ipr_fin_fact_sum_sp_b" agg="sum">
+          <if>
+            <call function="is null">
+              <column table="mv" column="kod_fact_wcompl_to" />
+            </call>
+          </if>
+        </column>
+        <column table="this" column="nds" as="nds_sp" if="sp" fact="ipr_fin_fact_nds_sp_b" agg="sum" />
+        <column table="this" column="summ_nds" as="summ_nds_sp" if="sp" fact="ipr_fin_fact_sum_nds_sp_b" agg="sum" />
+        <column table="kod_opl_period" column="is_avans" />
+        <column table="this" column="summ_nds" as="summ_nds_av" if="av" exclude="1">
+          <if>
+            <call function="=1">
+              <column table="kod_opl_period" column="is_avans" />
+            </call>
+          </if>
+        </column>
+      </select>
+      <from>
+        <query name="ipr_move_wsumm_fin" as="mvf">
+          <link name="kod_opl_period" />
+          <link name="kod_move_wsumm" as="mv">
+            <link name="kod_titul_ip_fr">
+              <elink name="ipr_ipr_data" exclude="1" />
+              <elink name="vv_ipr_ipr_data_extra">
+                <link name="kod_ipr_ext" as="ipr_ipr_data" />
+              </elink>
+            </link>
+            <link name="kod_fact_wcompl_fr">
+              <link name="kod_vip_dog_for_plan" as="kod_vip_dog">
+                <link name="kod_smet" />
+                <link name="kodzatrat" />
+              </link>
+            </link>
+            <link name="kod_doc" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_finplan_fact_mto" class="1" timestamp="17.10.2017 20:16:29">
+      <select>
+        <column table="mvf" column="kod_move_wsumm_fin" key="1" />
+        <column table="kod_vip_dog" column="kod_schet_it" />
+        <call function="coalesce" as="kod_schet" dimension="ipr_kod_schet">
+          <column table="kod_vip_dog" column="kod_schet_it" />
+          <column table="kodzatrat" column="kod_schet" />
+          <const>3</const>
+        </call>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="kod_vip_dog" column="kod_vip_dog" dimension="ipr_kod_vip_dog" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="mvf" column="kod_opl_period" dimension="ipr_kod_opl_period" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="mv" column="kod_titul_ip_to" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="kod_vip_dog" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="kod_vip_dog" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vip_dog" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <call function="year" as="year">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="month" as="period">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="num to ym2" as="ym" dimension="ipr_ym">
+          <column table="this" column="year" />
+          <column table="this" column="period" />
+        </call>
+        <column table="kod_opl_period" column="ym" as="ym_vozn" />
+        <column table="kod_doc" column="doc_date" as="dat" dimension="ipr_dat" />
+        <column table="mvf" column="summ" fact="ipr_fin_fact_sum_pri_b" agg="sum" />
+        <column table="mvf" column="summ_nds" fact="ipr_fin_fact_sum_nds_pri_b" agg="sum" />
+        <call function="-nvl" as="nds" fact="ipr_fin_fact_nds_pri_b" agg="sum">
+          <column table="this" column="summ_nds" />
+          <column table="this" column="summ" />
+        </call>
+        <column table="kod_opl_period" column="is_avans" />
+        <column table="this" column="summ_nds" as="summ_nds_av" if="av" exclude="1">
+          <if>
+            <call function="=1">
+              <column table="kod_opl_period" column="is_avans" />
+            </call>
+          </if>
+        </column>
+      </select>
+      <from>
+        <query name="ipr_move_wsumm_fin" as="mvf">
+          <link name="kod_opl_period" />
+          <link name="kod_move_wsumm" as="mv">
+            <link name="kod_fact_wcompl_to">
+              <link name="kod_vip_dog_for_plan" as="kod_vip_dog">
+                <link name="kod_smet" />
+                <link name="kodzatrat" />
+              </link>
+            </link>
+            <link name="kod_doc" />
+            <link name="kod_titul_ip_to">
+              <elink name="ipr_ipr_data" exclude="1" />
+              <elink name="vv_ipr_ipr_data_extra">
+                <link name="kod_ipr_ext" as="ipr_ipr_data" />
+              </elink>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--по прочим затратам финансирование равно освоению-->
+    <query name="ipr_fin_kap_fact_dog_pr" class="1" timestamp="17.10.2017 20:29:34">
+      <select>
+        <column table="a" column="kod_schet_it" />
+        <column table="a" column="kod_schet" dimension="ipr_kod_schet" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" dimension="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" dimension="ipr_kod_doc_main" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="a" column="kod_vip_dog" dimension="ipr_kod_vip_dog" key="1" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <!--<const as="kod_ipr" type="number">null</const>
+        <const as="kod_ipr_dog" type="number">null</const>-->
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="a" column="kod_ip" dimension="ipr_kod_titul_ip" as="kod_titul_ip" />
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="a" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="a" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="a" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="a" column="year" />
+        <column table="a" column="period" />
+        <column table="a" column="ym" dimension="ipr_ym" />
+        <column table="a" column="dat_doc" as="dat" dimension="ipr_dat" />
+        <column table="a" column="nds" fact="ipr_kap_fact_nds_pr" agg="sum" />
+        <column table="a" column="vsego" fact="ipr_kap_fact_sum_nds_pr" agg="sum" />
+      </select>
+      <from>
+        <query name="isv_ip_vip_dog_for_plan" as="a">
+          <link name="kod_ip">
+            <elink name="ipr_ipr_data" exclude="1" />
+            <elink name="vv_ipr_ipr_data_extra">
+              <link name="kod_ipr_ext" as="ipr_ipr_data" />
+            </elink>
+          </link>
+          <link name="kod_smet" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <call function="nvl">
+              <column table="a" column="kod_dog" />
+              <const>-1</const>
+            </call>
+            <const>-1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_vvod_fact_dog" class="1" timestamp="16.08.2017 17:26:30">
+      <select>
+        <column table="ipr_works_vvod" column="kod_work_vvod" key="1" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" />
+        <usepart part="ipr_dogs-kod_dog_i-fact" />
+        <column table="kod_vip_dog" column="kod_vip_dog" dimension="ipr_kod_vip_dog" />
+        <const as="kod_vid_zatrat_titul">null</const>
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_tituls_object" column="kod_titul_ip" dimension="ipr_kod_titul_ip" />
+        <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="kod_vip_dog" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+        <column table="kod_vip_dog" column="kod_dog" dimension="ipr_kod_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vip_dog" column="kodzatrat" dimension="ipr_kod_zatrat" />
+        <column table="ipr_works_vvod" column="kod_doc" dimension="ipr_kod_doc_vvod" />
+        <column table="ipr_works_vvod" column="year" />
+        <column table="ipr_works_vvod" column="period" />
+        <column table="ipr_works_vvod" column="ym" dimension="ipr_ym" />
+        <column table="ipr_works_vvod" column="dat" dimension="ipr_dat" />
+        <column table="ipr_works_vvod" column="summ" fact="ipr_vvd_fact_sum" agg="sum" />
+      </select>
+      <from>
+        <query name="ipr_works_vvod">
+          <link name="kod_fact_wcompl">
+            <link name="kod_work_body">
+              <link name="kod_tituls_object">
+                <link name="kod_titul_ip" as="kod_ip">
+                  <elink name="ipr_ipr_data" exclude="1" />
+                  <elink name="vv_ipr_ipr_data_extra">
+                    <link name="kod_ipr_ext" as="ipr_ipr_data" />
+                  </elink>
+                </link>
+              </link>
+            </link>
+            <link name="kod_vip_dog_for_plan" as="kod_vip_dog">
+              <link name="kod_ip" exclude="1">
+                <elink name="ipr_ipr_data" />
+              </link>
+              <link name="kod_smet" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="is not null">
+            <column table="kod_ipr_dog" column="kod_ipr_dog"/>
+          </call>-->
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_steps" class="1" timestamp="05.02.2018 21:13:52">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" exclude="1" />
+        <column table="ipr_doc_by_ipr" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" exclude="1" />
+        <column table="ipr_doc_by_ipr" column="kod_ipr" />
+        <column table="a" column="kod_contr_steps_val" />
+        <column table="kod_doc" column="doc_date" as="dat_doc_steps" />
+        <const type="number" as="ipr_fin_steps">1</const>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a">
+          <link name="kod_doc">
+            <elink name="ipr_doc_by_ipr">
+              <link name="kod_ipr" as="kod_ipr1" />
+            </elink>
+          </link>
+          <link name="kod_ipr" exclude="1" />
+          <link name="kod_titul_ip">
+            <elink name="ipr_ipr_data" as="kod_ipr" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="kod_ipr1" column="kod_ipr" />
+          <column table="kod_ipr" column="kod_ipr" />
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_lim" class="1" timestamp="17.08.2016 03:48:34">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" />
+        <column table="a" column="year" />
+        <column table="a" column="kvartal" as="kvart" exclude="1" />
+        <call function="kv end mes" as="period">
+          <column table="a" column="kvartal" />
+        </call>
+        <column table="a" column="value_osv" />
+        <column table="a" column="value_fin_nds" />
+        <column table="a" column="value_vvod" />
+      </select>
+      <from>
+        <query name="ipr_finsrc_lim" as="a">
+          <link name="kod_ipr" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="in_titul" nvl="0" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--<query name="ipr_fin_steps_plan">
+      <select>
+        <column table="a" column="kod_ipr"/>
+        <column table="a" column="kod_contr_steps_val"/>
+        <column table="a" column="ep_year" as="year"/>
+        <column table="a" column="ep_period" as="period"/>
+        <column table="a" column="ep_ym" as="ym"/>
+        <call function="mes to kv" as="kvart">
+          <column table="this" column="period"/>
+        </call>
+        <const type="number" as="cnt">1</const>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a"/>
+      </from>
+    </query>
+
+
+    <query name="ipr_fin_steps_fact">
+      <select>
+        <column table="a" column="kod_ipr"/>
+        <column table="a" column="kod_contr_steps_val"/>
+        <column table="a" column="ef_year" as="year"/>
+        <column table="a" column="ef_period" as="period"/>
+        <column table="a" column="ef_ym" as="ym"/>
+        <call function="mes to kv" as="kvart">
+          <column table="this" column="period"/>
+        </call>
+        <const type="number" as="cnt">1</const>
+      </select>
+      <from>
+        <query name="ipr_contr_steps_val" as="a"/>
+      </from>
+    </query>-->
+    <query name="ipr_fin_doc" class="1" timestamp="17.08.2016 03:47:34">
+      <select>
+        <column table="a" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="kod_ipr" column="kod_titul_ip" />
+        <column table="kod_ipr" column="kod_main_titul" />
+        <column table="kod_ipr" column="kod_razdel" />
+        <column table="kod_ipr" column="kod_doc_osn" />
+        <column table="a" column="kod_ipr" dimension="kod_ipr" />
+        <column table="a" column="kod_doc" dimension="ipr_kod_doc" />
+        <column table="kod_doc" column="doc_date" />
+        <const type="number" as="ipr_fin_doc">1</const>
+      </select>
+      <from>
+        <query name="ipr_doc_by_ipr" as="a">
+          <link name="kod_doc" />
+          <link name="kod_ipr" />
+        </query>
+      </from>
+    </query>
+    <!--<query name="ipr_fin_vvod_fact_dog_mto" class="1">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" />
+        <column table="kod_vip_dog" column="kod_dog" />
+        <column table="ipr_ipr_data" column="kod_ipr_dog_pr" as="kod_ipr_dog">
+          <if>
+            <call function="is null or -1">
+              <column table="this" column="kod_dog" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_smet" column="kod_smet" />
+        <column table="kod_vip_dog" column="kodzatrat" />
+        <column table="ipr_works_vvod" column="year" />
+        <column table="ipr_works_vvod" column="period" />
+        <column table="ipr_works_vvod" column="ym" />
+        <column table="ipr_works_vvod" column="dat" />
+        <column table="ipr_works_vvod" column="summ" />
+        -->
+    <!--<call function="nvl" as="kod_ipr_dog">
+          <column table="kod_vip_dog" column="kod_ipr_dog"/>
+          <column table="ipr_ipr_data" column="kod_ipr_dog_pr"/>
+        </call>-->
+    <!--
+      </select>
+      <from>
+        <query name="ipr_move_wsumm" as="mv">
+          <link name="kod_fact_wcompl_to">
+            <elink name="ipr_works_vvod" />
+            <link name="kod_vip_dog_for_plan" as="kod_vip_dog">
+              <link name="kod_smet" />
+            </link>
+          </link>
+          <link name="kod_titul_ip_to">
+            <elink name="ipr_ipr_data" />
+          </link>
+          <link name="kod_doc" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="kod_smet" column="kod_parent" />
+          </call>
+        </call>
+      </where>
+    </query>-->
+    <query name="ipr_fin_phis_param" class="1" timestamp="17.08.2016 03:48:19">
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" as="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" />
+        <column table="phis_param" column="kod_doc" />
+        <column table="phis_param" column="kod_titul_ip" />
+        <column table="ipr_ipr_data" column="kod_ipr" />
+        <call function="year" as="year">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="date to ym2" as="ym">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="month" as="period">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <usepart part="ipr_fin_phis_param-val-num" title="Количествосиловых трансформаторов, шт">
+          <const>12</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val" title="Марка силовых трансформаторов">
+          <const>17</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val-num" title="Мощность, МВА">
+          <const>13</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val" title="Тип опор">
+          <const>1</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val" title="Марка кабеля">
+          <const>3</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val-num" title="ВЛ,км">
+          <const>14</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val-num" title="КЛ,км">
+          <const>18</const>
+        </usepart>
+        <usepart part="ipr_fin_phis_param-val-num" title="Иные объекты (др. единицы измерений)">
+          <const>16</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="ipv_phys_param_values" as="phis_param">
+          <link name="kod_titul_ip">
+            <elink name="ipr_ipr_data" />
+          </link>
+          <link name="kod_doc" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="phis_param" column="kod_doc" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_fin_kap_fact_move_to_8_3" class="1" timestamp="03.04.2018 19:58:40">
+      <select>
+        <call function="decode" type="number" as="kod_schet_it">
+          <column table="a" column="kr_sch_c" />
+          <const>'07'</const>
+          <const>6</const>
+          <const>'10'</const>
+          <const>7</const>
+        </call>
+        <column table="this" column="kod_schet_it" as="kod_schet" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr_ext" as="kod_ipr_ext" />
+        <column table="ipr_ipr_data" column="kod_main_titul" />
+        <column table="ipr_ipr_data" column="kod_razdel" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_doc_osn" />
+        <column table="vv_ipr_ipr_data_extra" column="kod_ipr" dimension="kod_ipr" />
+        <column table="kod_ip" column="kod_titul_ip" dimension="ipr_kod_titul_ip" as="kod_titul_ip">
+          <item />
+        </column>
+        <call function="()" type="number" as="kod_smet" is-private-dimension="ipr_kod_smet" is-final-dimension="ipr_kod_smet" dimension="ipr_kod_smet">
+          <const>3</const>
+        </call>
+        <call function="()" type="number" as="kod_schet_l" is-private-dimension="ipr_kod_schet" is-final-dimension="ipr_kod_schet" dimension="ipr_kod_schet">
+          <const>3</const>
+        </call>
+        <call function="()" type="number" as="kod_zatrat" is-private-dimension="ipr_kod_zatrat" is-final-dimension="ipr_kod_zatrat" dimension="ipr_kod_zatrat">
+          <const>null</const>
+        </call>
+        <column table="a" column="sum_akt" fact="ipr_kap_fact_sum_m83" agg="sum" />
+        <call function="*" as="nds_akt">
+          <column table="this" column="sum_akt" />
+          <const>0.18</const>
+        </call>
+        <call function="+nvl" as="sum_nds_akt">
+          <column table="this" column="sum_akt" />
+          <column table="this" column="nds_akt" />
+        </call>
+        <column table="a" column="dat_buh" as="dat" dimension="ipr_dat" />
+        <call function="month" as="period">
+          <column table="this" column="dat" />
+        </call>
+        <call function="year" as="year">
+          <column table="this" column="dat" />
+        </call>
+        <call function="date to ym2" as="ym" is-private-dimension="ipr_ym" is-final-dimension="ipr_ym" dimension="ipr_ym">
+          <column table="this" column="dat" />
+        </call>
+      </select>
+      <from>
+        <query name="buh_akt_move_to_8_3" as="a">
+          <link name="kod_titul_ip" as="kod_ip">
+            <elink name="vv_ipr_ipr_data_extra">
+              <link name="kod_ipr_ext" as="ipr_ipr_data" />
+            </elink>
+          </link>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

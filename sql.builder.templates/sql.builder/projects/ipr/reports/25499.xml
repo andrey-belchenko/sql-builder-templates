@@ -1,0 +1,1566 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="25499-dat-kod_titul_ip">
+      <call function="if" as="kod_titul_ip" group="1" type="number" agg="no">
+        <call function="or">
+          <call function="false" />
+          <call function="=1" optional="1">
+            <useparam name="pr_child" />
+          </call>
+        </call>
+        <column table="ipr_ipr_data" column="kod_titul_ip" agg="no" />
+        <column table="ipr_ipr_data" column="kod_main_titul" agg="no" />
+      </call>
+    </part>
+    <!--<part id="25499-dat-kod_titul_ip">
+      <call function="if" as="kod_titul_ip" group="1" type="number">
+        <call function="or">
+          <call function="false"/>
+          <call function="=1" optional="1">
+            <useparam name="pr_child"/>
+          </call>
+        </call>
+        <column table="ipr_ipr_data" column="kod_titul_ip"/>
+        <column table="ipr_ipr_data" column="kod_main_titul"/>
+      </call>
+    </part>-->
+    <part id="25499-columns">
+      <call function="if" as="format" type="string" agg="no">
+        <call function="is not null">
+          <column table="tree" column="kod_titul_ip" />
+        </call>
+        <column table="tree" column="itip" />
+        <call function="case">
+          <call function="when">
+            <call function="=">
+              <column table="tree" column="lvl" />
+              <const>1</const>
+            </call>
+            <const>'все'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="tree" column="lvl" />
+              <const>2</const>
+            </call>
+            <const>'1 уровень'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="tree" column="lvl" />
+              <const>3</const>
+            </call>
+            <const>'2 уровень'</const>
+          </call>
+          <call function="else">
+            <const>'раздел'</const>
+          </call>
+        </call>
+      </call>
+      <column table="tree" column="rwn" title="№пп" agg="no" />
+      <column table="tree" column="lvl" agg="no" />
+      <column table="tree" column="har" agg="no" />
+      <column table="tree" column="prog" agg="no" />
+      <column table="tree" column="razdel_abbr" title="№№" agg="no" />
+      <column table="tree" column="tit_num_new" agg="no" />
+      <column table="tree" column="kod_razdel_if_root" agg="no" />
+      <column table="tree" column="itip" agg="no" />
+      <!--<const as="har" type="string">'НС'</const>-->
+      <call function="||" as="full_name" agg="no">
+        <!--<call function="space">
+          <call function="*">
+            <call function="-">
+              <column table="tree" column="lvl"/>
+              <const>1</const>
+            </call>
+            <const>5</const>
+          </call>
+        </call>-->
+        <column table="tree" column="full_name" />
+      </call>
+      <column table="tree" column="kod_node" key="1" agg="no" />
+      <column table="tree" column="kod_parent_node" agg="no" />
+    </part>
+    <part id="25499-columns-sum-a">
+      <call function="smallest" as="summ_k_rasp" title="Полная стоимость строительства к распределению, млн. руб. с НДС" agg="sum">
+        <column table="a" column="summ" />
+        <column table="a" column="summ_10" />
+        <column table="a" column="summ_30" />
+      </call>
+      <call function="smallest" as="summ_k_rasp_bn" title="Полная стоимость строительства к распределению, млн. руб. без НДС" agg="sum">
+        <column table="a" column="summ_bn" />
+        <column table="a" column="summ_10_bn" />
+        <column table="a" column="summ_30_bn" />
+      </call>
+    </part>
+    <part id="25499-fields">
+      <field name="kod_doc" type="number" controlType="UICombo" title="Документ" mandatory="1">
+        <listquery>
+          <query name="25499-ipr_doc_main_list" />
+        </listquery>
+      </field>
+      <field name="kod_subject" type="number" controlType="UIList" title="Субъект Федерации" show-nulls="0">
+        <listquery>
+          <query name="ips_subjects" />
+        </listquery>
+      </field>
+      <field name="kod_direct" type="number" controlType="UIList" title="Подразделение" show-nulls="0">
+        <listquery>
+          <query name="25499-ipr_direct" />
+        </listquery>
+      </field>
+      <field name="kod_dirisp" type="number" controlType="UICombo" title="Заказчик/Исполнитель" mandatory="1">
+        <listquery>
+          <query name="is_spr_dirisp" />
+        </listquery>
+        <defaultquery>
+          <query name="is_spr_dirisp_def" />
+        </defaultquery>
+      </field>
+      <field name="pr_sbor" type="number" controlType="UICheck" title="Отображать сборные" />
+      <field name="pr_child" type="number" controlType="UICheck" title="Отображать дочерние" />
+    </part>
+    <part id="25499-detail-pars" timestamp="24.10.2016 11:18:27">
+      <param name="kod_doc">
+        <const>43383</const>
+      </param>
+      <param name="year">
+        <const>2014</const>
+      </param>
+      <param name="kod_subject" />
+      <param name="kod_direct" />
+      <param name="pr_sbor" />
+      <param name="pr_child">
+        <const>1</const>
+      </param>
+      <param name="kod_dirisp" />
+      <param name="pr_all_razdel" />
+      <param name="pr_dont_show_wfp" />
+      <param name="pr_zatrat">
+        <const>1</const>
+      </param>
+      <param name="pr_dog">
+        <const>1</const>
+      </param>
+      <param name="kod_ofz" />
+    </part>
+    <part id="25499-detail-wpars" timestamp="24.10.2016 11:18:42">
+      <useparam name="kod_doc" />
+      <useparam name="year" />
+      <useparam name="kod_subject" />
+      <useparam name="kod_direct" />
+      <useparam name="pr_sbor" />
+      <useparam name="pr_child" />
+      <useparam name="kod_dirisp" />
+      <useparam name="pr_all_razdel" />
+      <useparam name="pr_dont_show_wfp" />
+      <useparam name="pr_zatrat" />
+      <useparam name="pr_dog" />
+      <useparam name="kod_ofz" />
+    </part>
+    <part id="25499-wfp-cond">
+      <call function="and" optional="1">
+        <call function="=">
+          <useparam name="pr_dont_show_wfp" />
+          <const>1</const>
+        </call>
+        <call function="in">
+          <column table="a" column="kod_titul_ip" />
+          <query>
+            <select>
+              <column table="ttt" column="kod_titul_ip" />
+            </select>
+            <from>
+              <query name="25499-ipr-fp" as="ttt">
+                <withparams>
+                  <useparam name="kod_doc" />
+                  <useparam name="year" />
+                </withparams>
+              </query>
+            </from>
+          </query>
+        </call>
+      </call>
+    </part>
+  </parts>
+  <forms>
+    <form name="25499" timestamp="21.11.2016 14:26:45" with-behavior="0">
+      <content>
+        <field name="year" type="number" controlType="UICombo" title="Год" mandatory="1">
+          <listquery>
+            <query name="25499-year_list" />
+          </listquery>
+          <defaultquery>
+            <query name="25499-year_def" />
+          </defaultquery>
+        </field>
+        <usepart part="25499-fields" />
+        <field name="pr_all_razdel" type="number" controlType="UICheck" title="Выводить пустые разделы ИПР" checked="1" />
+        <field name="pr_dont_show_wfp" type="number" controlType="UICheck" title="Не выводить титулы без данных фин.плана" checked="1" />
+        <usefield field="ipr_kod_ofz" />
+      </content>
+    </form>
+    <form name="25499-1" timestamp="21.11.2016 14:26:46" with-behavior="0">
+      <content>
+        <field name="year" type="number" controlType="UICombo" title="Год" mandatory="1">
+          <listquery>
+            <query name="25499-year_list" />
+          </listquery>
+          <defaultquery>
+            <query name="25499-year_def" />
+          </defaultquery>
+        </field>
+        <usepart part="25499-fields" />
+        <field name="pr_zatrat" type="number" controlType="UICheck" title="Детализация по видам затрат" checked="1" />
+        <field name="pr_dog" type="number" controlType="UICheck" title="Детализация по договорам" checked="1" />
+        <field name="pr_all_razdel" type="number" controlType="UICheck" title="Выводить пустые разделы ИПР" checked="1" />
+        <field name="pr_dont_show_wfp" type="number" controlType="UICheck" title="Не выводить титулы без данных фин.плана" checked="1" />
+        <usefield field="ipr_kod_ofz" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="25499" title="Приложение 1.1." form="25499" folder="invpro" nogrid="1" timestamp="24.10.2016 11:19:12">
+      <params>
+        <param name="kod_doc" />
+        <param name="year" />
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor" />
+        <param name="pr_child" />
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="kod_ofz" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="25499.xml" title="Приложение 1.1" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <queries>
+        <query name="25499" as="a" title="1" calctree="1">
+          <!--<columns>
+            <column name="kod_node" />
+            <column name="format" agg="no" />
+            <column name="rwn" />
+            <column name="lvl" />
+            <column name="kod_main_titul" />
+            <column name="tip_obj" />
+            <column name="subject_name" />
+            <column name="direct_name" />
+            <column name="ispolnit_name" />
+            <column name="itip" />
+            <column name="kod_titul_ip" agg="no" />
+            <column name="kod_doc_osn" agg="no" />
+            <column name="razdel_abbr" />
+            <column name="tit_num_new" />
+            <column name="full_name" agg="no" />
+            <column name="har" agg="no" />
+            <band title="Тип объекта">
+              <column name="tip_obj1" agg="no" />
+              <column name="tip_obj2" agg="no" />
+              <column name="tip_obj3" agg="no" />
+              <column name="tip_obj0" agg="no" />
+            </band>
+            <column name="km" agg="sum" />
+            <column name="km_kl" agg="sum" />
+            <column name="pow" agg="sum" />
+            <column name="prog" agg="no" />
+            <column name="beg_year" agg="no" />
+            <column name="end_year" agg="no" />
+            <column name="summ_s" agg="sum" />
+            <column name="summ" agg="sum" />
+            <column name="summ_10" agg="sum" />
+            <column name="summ_30" agg="sum" />
+            <column name="summ_bn" agg="sum" />
+            <column name="summ_10_bn" agg="sum" />
+            <column name="summ_30_bn" agg="sum" />
+            <column name="summ_30_mva" agg="sum" />
+            <column name="summ_30_vl_km" agg="sum" />
+            <column name="summ_30_kl_km" agg="sum" />
+            <column name="summ_30_prch" agg="sum" />
+            <column name="fp_sum_nds_itog" agg="sum" />
+            <column name="kap_sum_itog" agg="sum" />
+            <column name="vvod_sum_itog" agg="sum" />
+            <column name="pow_mba_itog" agg="sum" />
+            <column name="pow_km_itog" agg="sum" />
+            <column name="pow_km_kl_itog" agg="sum" />
+            <column name="summ_k_rasp" agg="sum" />
+            <column name="summ_k_rasp_bn" agg="sum" />
+            <column name="ost_st_stro" agg="sum" />
+            <column name="ost_st_stro_kap" agg="sum" />
+            <column name="ost_st_stro_vvod" agg="sum" />
+            <column name="kz" agg="sum" />
+            <column name="dz" agg="sum" />
+            <column name="kredit_itog" agg="sum" />
+            <column name="debet_itog" agg="sum" />
+            <column name="kredit2_itog" agg="sum" />
+            <column name="debet2_itog" agg="sum" />
+            <column name="nzs_itog" agg="sum" />
+            <column name="nzs2_itog" agg="sum" />
+            <column name="pow_km_by_y" agg="sum" />
+            <column name="pow_km" agg="sum" />
+            <column name="pow_km_kl_by_y" agg="sum" />
+            <column name="pow_km_kl" agg="sum" />
+            <column name="pow_mba_by_y" agg="sum" />
+            <column name="pow_mba" agg="sum" />
+            <column name="kap_sum_by_y" agg="sum" />
+            <column name="kap_sum_sz_by_y" agg="sum" />
+            <column name="kap_sum" agg="sum" />
+            <column name="nzs_by_y" agg="sum" />
+            <column name="nzs2_by_y" agg="sum" />
+            <column name="fp_sum_nds_by_y" agg="sum" />
+            <column name="fp_sum_nds" agg="sum" />
+            <column name="vvod_sum_by_y" agg="sum" />
+            <column name="vvod_sum" agg="sum" />
+            <band dimension="ipr_year" title="">
+              <column name="kredit_by_y" agg="sum" />
+              <column name="debet_by_y" agg="sum" />
+              <column name="kredit2_by_y" agg="sum" />
+              <column name="debet2_by_y" agg="sum" />
+            </band>
+            <column name="energ_eff_kvt" agg="no" />
+            <column name="energ_eff_proc" agg="no" />
+            <column name="kriteria_name" agg="no" />
+            <column name="priority_name" agg="no" />
+            <column name="klass_name" agg="no" />
+            <column name="prin_sogl_name" agg="no" />
+            <column name="in_ozp_name" agg="no" />
+            <column name="prior_name" agg="no" />
+            <column name="soc_val_name" agg="no" />
+            <column name="kap_sum_itog_23" agg="sum" />
+            <column name="stadiya" agg="no" />
+          </columns>-->
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+        <query name="25499-title" as="b" title="2">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="25499-t" title="Приложение 1.1. test" form="25499" folder="invpro" visible="0">
+      <params>
+        <param name="kod_doc" />
+        <param name="year" />
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor" />
+        <param name="pr_child" />
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="kod_ofz" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="25499.xml" title="Приложение 1.1" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <queries>
+        <query name="25499-dat-test" as="a" title="1">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="25499-1" title="Приложение 1.1 с детализацией" form="25499-1" folder="invpro" nogrid="1" timestamp="24.10.2016 11:17:54">
+      <params>
+        <param name="kod_doc" />
+        <param name="year" />
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor" />
+        <param name="pr_child" />
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="pr_zatrat" />
+        <param name="pr_dog" />
+        <param name="kod_ofz" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="25499-1.xml" title="Приложение 1.1" print-proc="2" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <queries>
+        <query name="25499" as="a" calctree="1" title="По разделам и титулам">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="kod_ofz" />
+          </withparams>
+          <query name="25499-detail" as="a1" title="Детализация для титулов">
+            <withparams>
+              <usepart part="25499-detail-wpars" />
+            </withparams>
+            <call function="=">
+              <column table="a" column="kod_titul_ip" />
+              <column table="a1" column="kod_titul_ip" />
+            </call>
+          </query>
+          <query name="25499-detail-razdel" as="a2" title="Детализация для разделов">
+            <withparams>
+              <usepart part="25499-detail-wpars" />
+            </withparams>
+            <call function="=">
+              <column table="a" column="kod_razdel_if_root" />
+              <column table="a2" column="razdel_kod_root" />
+            </call>
+          </query>
+        </query>
+        <query name="25499-title" as="b" title="Доп. данные">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+        <query name="form:25499-1" as="p" title="Параметры" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="25499-title">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2014</const>
+        </param>
+      </params>
+      <select>
+        <call function="" as="year" type="number" key="1">
+          <useparam name="year" />
+        </call>
+        <call function="" as="kod_doc" type="number">
+          <useparam name="kod_doc" />
+        </call>
+        <call function="year" as="cur_year">
+          <const>sysdate</const>
+        </call>
+        <!--<column table="is_person_gen_dir" column="fio" />
+        <column table="is_person_gen_dir" column="dolgn" />-->
+        <call function="get_reports_const" as="fio">
+          <const>null</const>
+          <const>1</const>
+        </call>
+        <call function="get_reports_const" as="dolgn">
+          <const>null</const>
+          <const>2</const>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+        <!--<query name="is_person_gen_dir" join="cross"></query>-->
+      </from>
+    </query>
+    <query name="25499" order="rwn">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2014</const>
+        </param>
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor" />
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <usepart part="25499-columns" />
+        <call function="if" as="stadiya" type="string" title="Стадия реализации проекта С/П" agg="no">
+          <call function="between">
+            <useparam name="year" />
+            <column table="a" column="beg_year" />
+            <column table="a" column="end_year" />
+          </call>
+          <call function="if">
+            <call function="not 0">
+              <column table="a" column="kap_sum_itog_23" />
+            </call>
+            <const>'С'</const>
+            <const>'П'</const>
+          </call>
+          <const>null</const>
+        </call>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="25499-tree" as="tree">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="year" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+        <query name="25499-dat" as="a" join="left outer" grouplevel="1">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="pr_child" />
+            <undefined />
+            <useparam name="kod_ofz" />
+          </withparams>
+          <using>
+            <column column="kod_titul_ip" />
+          </using>
+        </query>
+      </from>
+    </query>
+    <query name="25499-detail" timestamp="03.06.2021 13:57:47">
+      <params>
+        <usepart part="25499-detail-pars" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="25499-dat" as="a">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="pr_child" />
+            <!--<useparam name="pr_dont_show_wfp" />-->
+            <undefined />
+            <useparam name="kod_ofz" />
+          </withparams>
+          <grsets>
+            <grset level="1,2" title="По статьям сметы" as="sm">
+              <where>
+                <usepart part="26630-smet-cond" />
+              </where>
+            </grset>
+            <grset level="1,4" title="По прочим затратам" as="zt">
+              <where>
+                <usepart part="26630-zt-cond" />
+              </where>
+            </grset>
+            <grset level="1" title="По договорам(итог)" as="dgi">
+              <where>
+                <usepart part="26630-dog-cond" />
+              </where>
+              <grset level="3" title="По договорам" as="dg" />
+            </grset>
+          </grsets>
+        </query>
+      </from>
+      <!--<where>
+        <call function="=">
+          <column table="t" column="tit_num_new"/>
+          <const>'10133374000'</const>
+        </call>
+      </where>-->
+    </query>
+    <query name="25499-detail-razdel">
+      <params>
+        <usepart part="25499-detail-pars" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+        <!--<column table="a" column="kredit2_itog"/>-->
+      </select>
+      <from>
+        <query name="25499-dat" as="a">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="pr_child" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="kod_ofz" />
+          </withparams>
+          <grsets>
+            <grset level="5,2" title="По статьям сметы" as="sm">
+              <where>
+                <usepart part="26630-smet-cond" />
+              </where>
+            </grset>
+            <grset level="5,4" title="По прочим затратам" as="zt" order="zatr_full_name">
+              <where>
+                <usepart part="26630-zt-cond" />
+              </where>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+      <!--<where>
+        <call function="=">
+          <column table="t" column="tit_num_new"/>
+          <const>'10133374000'</const>
+        </call>
+      </where>-->
+    </query>
+    <query name="25499-dat-test">
+      <params>
+        <usepart part="25499-detail-pars" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+        <!--<column table="a" column="dz"/>
+        <column table="a" column="kz"/>-->
+        <!--<column table="a" column="debet_by_y"/>
+        <column table="a" column="kredit_by_y"/>
+        <column table="a" column="kap_sum_itog_23"/>-->
+      </select>
+      <from>
+        <query name="25499-dat" as="a" grouplevel="1">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="pr_child" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+      </from>
+      <!--<where>
+        <call function="=">
+          <column table="a" column="kod_titul_ip"/>
+          <const>7788</const>
+        </call>
+      </where>-->
+    </query>
+    <query name="25499-dat" grouplevel="no" timestamp="03.06.2021 14:01:22">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2014</const>
+        </param>
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="pr_dont_show_wfp">
+          <const>1</const>
+        </param>
+        <param name="kod_ofz">
+          <const>1</const>
+        </param>
+      </params>
+      <select>
+        <usepart part="25499-dat-kod_titul_ip" />
+        <column table="kod_razdel" column="kod_root" as="razdel_kod_root" group="5" agg="no" />
+        <column table="a" column="kod_smet" group="2" agg="no" />
+        <column table="kod_smet" column="name" as="smet_name" group="kod_smet" agg="no" />
+        <column table="a" column="kodzatrat" group="4" agg="no" />
+        <column table="kodzatrat" column="full_name" as="zatr_full_name" group="kodzatrat" agg="no" />
+        <column table="kodzatrat" column="kod_parent" as="zatr_parent" group="kodzatrat" agg="no" />
+        <column table="a" column="kod_dog_i" group="3" agg="no" />
+        <column table="kod_dog_i" column="name_i" as="dog_i_name" group="kod_dog_i" agg="no" />
+        <column table="kod_dog_i" column="date_i" as="dog_i_date" group="kod_dog_i" agg="no" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" group="max" agg="no" />
+        <column table="ipr_ipr_data" column="pr_last" group="max" agg="no" />
+        <column table="kod_titul_ip" column="beg_year" group="min" agg="no" />
+        <column table="kod_titul_ip" column="end_year" group="max" agg="no" />
+        <column table="a" column="year" group="max" />
+        <call function="decode" as="summ_k_rasp" title="Полная стоимость строительства к распределению, млн. руб. с НДС" group="sum" agg="sum" type="number" mp="-6">
+          <column table="a" column="summ_k_rasp_id" />
+          <const>0</const>
+          <column table="a" column="summ" />
+          <const>1</const>
+          <column table="a" column="summ_10" />
+          <const>3</const>
+          <column table="a" column="summ_30" />
+        </call>
+        <call function="decode" as="summ_k_rasp_bn" title="Полная стоимость строительства к распределению, млн. руб. без НДС" group="sum" agg="sum" type="number" mp="-6">
+          <column table="a" column="summ_k_rasp_id" />
+          <const>0</const>
+          <column table="a" column="summ_bn" />
+          <const>1</const>
+          <column table="a" column="summ_10_bn" />
+          <const>3</const>
+          <column table="a" column="summ_30_bn" />
+        </call>
+        <call function="-nvl" as="ost_st_stro" title="Остаточная стоимость строительства по финансированию" group="sum" agg="sum">
+          <column table="this" column="summ_k_rasp" mp="-6" />
+          <column table="this" column="fp_sum_nds_itog" mp="-6" />
+        </call>
+        <call function="-nvl" as="ost_st_stro_kap" title="Остаточная стоимость строительства по освоению" group="sum" agg="sum">
+          <column table="this" column="summ_k_rasp_bn" mp="-6" />
+          <column table="this" column="kap_sum_itog" mp="-6" />
+        </call>
+        <call function="-nvl" as="ost_st_stro_vvod" title="Остаточная стоимость строительства по вводу" group="sum" agg="sum">
+          <column table="this" column="summ_k_rasp_bn" mp="-6" />
+          <column table="this" column="vvod_sum_itog" mp="-6" />
+        </call>
+        <column table="a" column="summ_s" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_10" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_30" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_bn" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_10_bn" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_30_bn" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_30_mva" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_30_vl_km" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_30_kl_km" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="summ_30_prch" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="dz" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="kz" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="nzs_saldo" group="sum" mp="-6" agg="sum" />
+        <column table="a" column="debet_itog" group="sum" mp="-6" if="do" title="Дебиторская задолженность на начало" agg="sum">
+          <section>
+            <call function="num to ym2">
+              <call function="-">
+                <useparam name="year" />
+                <const>1</const>
+              </call>
+              <const>12</const>
+            </call>
+          </section>
+        </column>
+        <column table="a" column="kredit_itog" group="sum" mp="-6" if="do" title="Кредиторская задолженность на начало" agg="sum" />
+        <column table="a" column="debet2_itog" group="sum" mp="-6" if="do1" title="Дебиторская задолженность на начало (с уч. заданной)" agg="sum">
+          <section nvl="first">
+            <call function="num to ym2">
+              <call function="-">
+                <useparam name="year" />
+                <const>1</const>
+              </call>
+              <const>12</const>
+            </call>
+          </section>
+        </column>
+        <column table="a" column="kredit2_itog" group="sum" mp="-6" if="do1" title="Кредиторская задолженность на начало (с уч. заданной)" agg="sum" />
+        <column table="a" column="nzs_itog" group="sum" mp="-6" if="do" title="Незавершенное строительство на начало" agg="sum" />
+        <column table="a" column="nzs2_itog" group="sum" mp="-6" if="do1" title="Незавершенное строительство на начало(с уч. заданной)" agg="sum" />
+        <column table="a" column="fp_sum_nds_itog" group="sum" mp="-6" if="do" title="Объем финансирования на начало c НДС" agg="sum" />
+        <column table="a" column="kap_sum_itog" group="sum" mp="-6" if="do" title="Объем капитальных вложений на начало без НДС" agg="sum" />
+        <column table="a" column="vvod_sum_itog" group="sum" mp="-6" if="do" title="Ввод мощностей в ОФ (руб.) на начало без НДС" agg="sum" />
+        <column table="a" column="pow_mba_itog" group="sum" if="do" title="Ввод мощностей в ОФ (МВа) на начало" agg="sum" />
+        <column table="a" column="pow_km_itog" group="sum" if="do" title="Ввод мощностей в ОФ ВЛ(км) на начало" agg="sum" />
+        <column table="a" column="pow_km_kl_itog" group="sum" if="do" title="Ввод мощностей в ОФ КЛ(км) на начало" agg="sum" />
+        <column table="a" column="kap_sum" title="Объем капитальных вложений" group="sum" mp="-6" if="all" agg="sum">
+          <if>
+            <call function="between">
+              <column table="this" column="year" group="" />
+              <useparam name="year" />
+              <call function="+">
+                <useparam name="year" />
+                <const>5</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="a" column="fp_sum_nds" title="Объем финансирования" group="sum" mp="-6" if="all" agg="sum" />
+        <column table="a" column="vvod_sum" title="Ввод мощностей в ОФ (руб.)" group="sum" mp="-6" if="all" agg="sum" />
+        <column table="a" column="pow_mba" group="sum" title="Ввод мощностей в ОФ (МВа)" if="all" agg="sum" />
+        <column table="a" column="pow_km" group="sum" title="Ввод мощностей в ОФ ВЛ (км)" if="all" agg="sum" />
+        <column table="a" column="pow_km_kl" group="sum" title="Ввод мощностей в ОФ КЛ (км)" if="all" agg="sum" />
+        <column table="a" column="kap_sum" as="kap_sum_by_y" title="Объем капитальных вложений по годам" group="sum" mp="-6" dimname="ipr_year" agg="sum">
+          <pivot>
+            <column table="this" column="year" group="" />
+            <query>
+              <select>
+                <column table="yl" column="god_ip" />
+                <column table="yl" column="name" />
+              </select>
+              <from>
+                <query name="25499-year_list" as="yl" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="yl" column="god_ip" />
+                  <useparam name="year" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>5</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <call function="if" as="kap_sum_sz_by_y" type="number" title="Объем капитальных вложений по годам(содержание заказчика)" group="sum" mp="-6" agg="sum" dimname="ipr_year">
+          <call function="=">
+            <column table="a" column="kodzatrat" />
+            <const>53</const>
+          </call>
+          <column table="a" column="kap_sum" />
+        </call>
+        <column table="a" column="fp_sum_nds" as="fp_sum_nds_by_y" title="Объем финансирования по годам" group="sum" mp="-6" dimname="ipr_year" agg="sum" />
+        <column table="a" column="vvod_sum" as="vvod_sum_by_y" title="Ввод мощностей в ОФ (руб.) по годам" group="sum" mp="-6" dimname="ipr_year" agg="sum" />
+        <column table="a" column="nzs_itog" as="nzs_by_y" title="Незавершенное строительcтво по годам" group="sum" mp="-6" dimname="ipr_year1" agg="sum">
+          <pivot>
+            <section>
+              <call function="num to ym2">
+                <column table="dim" column="god_ip" />
+                <const>12</const>
+              </call>
+            </section>
+            <query>
+              <select>
+                <column table="yl" column="god_ip" />
+                <column table="yl" column="name" />
+              </select>
+              <from>
+                <query name="25499-year_list" as="yl" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="yl" column="god_ip" />
+                  <useparam name="year" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>5</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="nzs2_itog" as="nzs2_by_y" title="Незавершенное строительcтво по годам (с уч. заданной)" group="sum" mp="-6" dimname="ipr_year1" agg="sum" />
+        <column table="a" column="debet_itog" as="debet_by_y" title="Дебиторская задолженность" group="sum" mp="-6" dimname="ipr_year1" agg="sum" />
+        <column table="a" column="kredit_itog" as="kredit_by_y" title="Кредиторская задолженность" group="sum" mp="-6" dimname="ipr_year1" agg="sum" />
+        <column table="a" column="debet2_itog" as="debet2_by_y" title="Дебиторская задолженность (с уч. заданной)" group="sum" mp="-6" dimname="ipr_year1" agg="sum" />
+        <column table="a" column="kredit2_itog" as="kredit2_by_y" title="Кредиторская задолженность (с уч. заданной)" group="sum" mp="-6" dimname="ipr_year1" agg="sum" />
+        <column table="a" column="pow_mba" as="pow_mba_by_y" group="sum" title="Ввод мощностей в ОФ (МВа) по годам" dimname="ipr_year" agg="sum" />
+        <column table="a" column="pow_km" as="pow_km_by_y" group="sum" title="Ввод мощностей в ОФ (км) по годам" dimname="ipr_year" agg="sum" />
+        <column table="a" column="pow_km_kl" as="pow_km_kl_by_y" group="sum" title="Ввод мощностей в ОФ (км) по годам" dimname="ipr_year" agg="sum" />
+        <column table="ipr_ipr_data" column="energ_eff_kvt" mp="-6" group="max" agg="no" />
+        <column table="ipr_ipr_data" column="energ_eff_proc" group="max" agg="no" />
+        <column table="kod_kriteria" column="abbr" as="kriteria_name" title="Критерии включения объектов ИПР" group="max" agg="no" />
+        <column table="kod_priority_insert_ip" column="abbr" as="priority_name" title="Приоритеты включения объектов ИПР" group="max" agg="no" />
+        <column table="kod_klass" column="abbr_num" as="klass_name" title="Принадлежность к важн. объектам, программам" group="max" agg="no" />
+        <column table="a" column="km" title="Проектная мощность/протяженность сетей ВЛ, км" group="sum" agg="sum" />
+        <column table="a" column="km_kl" title="Проектная мощность/протяженность сетей KЛ, км" group="sum" agg="sum" />
+        <column table="a" column="pow" title="Проектная мощность/протяженность сетей, МВА" mp="-6" group="sum" agg="sum" />
+        <call function="if" as="tip_obj1" title="ВЛ, км" group="sum" agg="no">
+          <call function="true" />
+          <call function="nvl">
+            <column table="a" column="km" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="if" as="tip_obj2" title="КЛ, км" group="sum" agg="no">
+          <call function="true" />
+          <call function="nvl">
+            <column table="a" column="km_kl" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="if" as="tip_obj3" type="string" title="ПС (+)" group="max" agg="no">
+          <call function="=">
+            <column table="kod_razdel" column="tip_obj" />
+            <const>3</const>
+          </call>
+          <const>'+'</const>
+        </call>
+        <call function="if" as="tip_obj0" type="string" title="Прочие (+)" group="max" agg="no">
+          <call function="is null">
+            <column table="kod_razdel" column="tip_obj" />
+          </call>
+          <const>'+'</const>
+        </call>
+        <column table="kod_direct" column="name" as="direct_name" group="max" agg="no" />
+        <column table="kod_ispolnit" column="name" as="ispolnit_name" group="max" agg="no" />
+        <column table="kod_subject" column="name" as="subject_name" group="max" agg="no" />
+        <column table="kod_razdel" column="tip_obj" group="max" agg="no" />
+        <column table="ipr_ipr_data" column="kod_main_titul" group="max" agg="no" />
+        <call function="decode" as="in_ozp_name" type="string" group="max" title="Участвует в подготовке к ОЗП" agg="no">
+          <column table="kod_titul_ip" column="in_ozp" />
+          <const>1</const>
+          <const>'+'</const>
+          <const>''</const>
+        </call>
+        <call function="decode" as="prin_sogl_name" type="string" group="max" title="Принадлежность к ФНБ" agg="no">
+          <column table="kod_main_titul" column="prin_sogl" />
+          <const>1</const>
+          <const>'+'</const>
+          <const>''</const>
+        </call>
+        <column table="kod_priority" column="name" as="prior_name" title="Степень важности" group="max" agg="no" />
+        <column table="kod_prin_soc_val" column="full_name" as="soc_val_name" title="Признак социально значимого объекта" group="max" agg="no" />
+        <column table="a" column="kap_sum_itog" as="kap_sum_itog_23" title="Плановые суммы освоения по виду затрат СМР,Оборудование на начало " group="sum" mp="-6" if="beg23" agg="sum">
+          <section>
+            <call function="num to ym2">
+              <call function="-">
+                <useparam name="year" />
+                <const>1</const>
+              </call>
+              <const>12</const>
+            </call>
+          </section>
+          <if>
+            <call function="in">
+              <column table="a" column="kod_smet" />
+              <array>2,3</array>
+            </call>
+          </if>
+        </column>
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <!--<withparams>
+            <const>15847</const>
+          </withparams>-->
+          <link name="kod_ipr" as="ipr_ipr_data">
+            <link name="kod_titul_ip">
+              <link name="kod_direct" />
+              <link name="kod_ispolnit" />
+            </link>
+            <link name="kod_main_titul">
+              <link name="kod_razdel" />
+              <link name="kod_subject" />
+            </link>
+            <link name="kod_kriteria" />
+            <link name="kod_priority_insert_ip" />
+            <link name="kod_priority" />
+            <link name="kod_prin_soc_val" />
+            <link name="kod_klass" />
+            <!--<link name="kod_ipr_dog_pr"/>-->
+          </link>
+          <link name="kod_smet" />
+          <link name="kodzatrat" />
+          <link name="kod_dog_i" />
+          <extendwhere push="0">
+            <call function="and">
+              <call function="=">
+                <column table="kod_ipr" column="kod_doc_osn" />
+                <useparam name="kod_doc" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_titul_ip1" column="pr_ofz" />
+                <useparam name="kod_ofz" />
+              </call>
+              <!--<call function="in">
+                <column table="*" column="kod_ipr"/>
+                <array>
+                  8305,
+                  8306,
+                  8307
+                </array>
+              </call>-->
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="=">
+            <column table="kod_titul_ip" column="tit_num_new" />
+            <const>10110238000</const>
+          </call>-->
+          <!--<call function="=">
+            <column table="ipr_ipr_data" column="kod_doc_osn" />
+            <useparam name="kod_doc" />
+          </call>-->
+          <call function="=">
+            <column table="ipr_ipr_data" column="pr_last" />
+            <const>1</const>
+          </call>
+          <call function="and" optional="1">
+            <call function="=">
+              <useparam name="pr_dont_show_wfp" />
+              <const>1</const>
+            </call>
+            <call function="=">
+              <column table="a" column="has_plan" />
+              <const>1</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="25499-ipr_doc_main_list" order="doc_date desc" description="Журнал «Документы» Условие: «Тип документа» = «Приказ о формировании ИПР» или «Распоряжение о начале формирования ИПР»">
+      <select>
+        <column table="a" column="kod_doc" />
+        <column table="a" column="full_name" />
+        <column table="a" column="doc_date" />
+      </select>
+      <from>
+        <query name="ipr_doc" as="a">
+          <link name="kod_doc_type" />
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="kod_doc_type" column="pr_main" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="25499-ipr_direct" order="name" timestamp="06.04.2018 15:14:02">
+      <select>
+        <column table="a" column="kod_direct" group="1" key="1" />
+        <column table="a" column="name" as="name_direct" fixed="1" group="1" />
+        <column table="a" column="name_kr" as="name_kr_direct" group="max" />
+      </select>
+      <from>
+        <query name="is_spr_direct" as="a">
+          <link name="puser_ext" as="ipr_rights" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="ipr_rights" column="puser" />
+            <const>user</const>
+          </call>
+          <call function="is null">
+            <column table="a" column="god" />
+          </call>
+          <call function="=">
+            <column table="a" column="invest_pr" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="25499-year_list" order="god_ip" timestamp="12.04.2017 17:09:16">
+      <select>
+        <column table="a" column="god_ip" group="1" />
+        <column table="a" column="god_ip" as="name" group="max" halign="left" />
+      </select>
+      <from>
+        <query name="ipr_ip_by_year" as="a" />
+      </from>
+    </query>
+    <query name="25499-year_def" description="Текущий год">
+      <select>
+        <call function="year" as="year">
+          <const>sysdate</const>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="25499-it-test" materialize="1">
+      <select>
+        <column table="r_root" column="full_name" />
+      </select>
+      <from>
+        <query name="ips_razdel_ip" as="a">
+          <link name="kod_root" as="r_root" />
+        </query>
+      </from>
+    </query>
+    <query name="25499-tree">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor">
+          <const>1</const>
+        </param>
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="year" />
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <call function="rownum" as="rwn" fixed="1" />
+        <call function="level" as="lvl" />
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="25499-tree-pre" as="a">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="year" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+      </from>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_node" prior="1" />
+          <column table="a" column="kod_parent_node" />
+        </call>
+      </connect>
+      <start>
+        <call function="is null">
+          <column table="a" column="kod_parent_node" />
+        </call>
+      </start>
+    </query>
+    <query name="25499-tree-pre" timestamp="24.10.2016 17:14:41">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor">
+          <const>1</const>
+        </param>
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="year" />
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <column table="kod_razdel" column="abbr" as="razdel_abbr" />
+        <column table="kod_razdel" column="kod_razdel" if="root">
+          <if pfx="_if_root">
+            <call function="is null">
+              <column table="kod_razdel" column="kod_parent" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <call function="if" as="itip" type="string" title="Тип титула">
+          <call function="=">
+            <column table="kod_titul_ip" column="itip" />
+            <const>'Одиночный/Дочерний'</const>
+          </call>
+          <call function="if">
+            <call function="gt">
+              <column table="kod_ipr" column="kod_parent" />
+              <const>0</const>
+            </call>
+            <const>'Дочерний'</const>
+            <const>'Одиночный'</const>
+          </call>
+          <column table="kod_titul_ip" column="itip" />
+        </call>
+        <column table="a" column="*" />
+        <call function="nvl" as="har" type="string" title="Характеристика объекта ТПИР/НС">
+          <column table="r_root" column="har" />
+          <column table="r_root1" column="har" />
+        </call>
+        <column table="r_root_pp" column="abbr" as="prog" title="Отнесение к Программам" />
+        <call function="coalesce" as="full_name" type="string">
+          <column table="kod_titul_ip" column="full_name" />
+          <column table="kod_razdel" column="full_name" />
+          <const>'Все элементы'</const>
+        </call>
+      </select>
+      <from>
+        <query name="ipr_tree" as="a">
+          <link name="kod_ipr" />
+          <link name="kod_razdel">
+            <link name="kod_root" as="r_root" />
+          </link>
+          <link name="kod_titul_ip">
+            <link name="kod_progpartner">
+              <link name="kod_root" as="r_root_pp" />
+            </link>
+            <link name="kod_main" as="t_root">
+              <link name="kod_razdel" as="kod_razdel1">
+                <link name="kod_root" as="r_root1" />
+              </link>
+            </link>
+          </link>
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="or">
+          <call function="in">
+            <column table="a" column="kod_node" />
+            <query>
+              <select>
+                <column table="filter" column="kod_node" />
+              </select>
+              <from>
+                <query name="25499-tree-filter" as="filter" hint="materialize">
+                  <withparams>
+                    <useparam name="kod_doc" />
+                    <useparam name="kod_subject" />
+                    <useparam name="kod_direct" />
+                    <useparam name="pr_sbor" />
+                    <useparam name="pr_child" />
+                    <useparam name="kod_dirisp" />
+                    <useparam name="pr_dont_show_wfp" />
+                    <useparam name="year" />
+                    <useparam name="kod_ofz" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </call>
+          <call function="and">
+            <call function="=">
+              <call function="nvlu">
+                <useparam name="pr_all_razdel" />
+                <const>0</const>
+              </call>
+              <const>1</const>
+            </call>
+            <call function="is null">
+              <column table="a" column="kod_titul_ip" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="25499-tree-filter" timestamp="24.10.2016 17:14:31">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor">
+          <const>1</const>
+        </param>
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="kod_dirisp" />
+        <param name="pr_dont_show_wfp" />
+        <param name="year" />
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <!--<call function="distinct" as="kod_node">
+          <column table="a" column="kod_node"/>
+        </call>-->
+        <column table="a" column="kod_node" group="1" />
+        <column table="a" column="kod_parent_node" group="1" />
+      </select>
+      <from>
+        <query name="ipr_tree" as="a">
+          <link name="kod_titul_ip">
+            <dlink name="ipr_ipr_data">
+              <link name="kod_main_titul" />
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="ipr_ipr_data" column="kod_doc_osn" />
+                    <useparam name="kod_doc" />
+                  </call>
+                  <call function="in" optional="1">
+                    <column table="kod_main_titul" column="kod_subject" />
+                    <useparam name="kod_subject" />
+                  </call>
+                </call>
+              </where>
+            </dlink>
+          </link>
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="pr_sbor" />
+            <const>1</const>
+          </withparams>
+          <!--<dlink name="ipr_tree_childs">
+          </dlink>-->
+        </query>
+      </from>
+      <where>
+        <call function="in" optional="1">
+          <column table="kod_titul_ip" column="pr_ofz" />
+          <useparam name="kod_ofz" />
+        </call>
+      </where>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_node" />
+          <column table="a" column="kod_parent_node" prior="1" />
+        </call>
+      </connect>
+      <start>
+        <call function="and">
+          <call function="is not null">
+            <column table="ipr_ipr_data" column="kod_ipr" dgroup="max" />
+          </call>
+          <call function="or" optional="1">
+            <call function="and">
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_direct" />
+                <useparam name="kod_direct" />
+              </call>
+              <call function="in">
+                <useparam name="kod_dirisp" />
+                <array>1,2</array>
+              </call>
+            </call>
+            <call function="and">
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_ispolnit" />
+                <useparam name="kod_direct" />
+              </call>
+              <call function="in">
+                <useparam name="kod_dirisp" />
+                <array>1,3</array>
+              </call>
+            </call>
+          </call>
+          <call function="!=nvl">
+            <column table="kod_titul_ip" column="is_head_tit" />
+            <const>1</const>
+          </call>
+          <usepart part="25499-wfp-cond" />
+          <!--<call function="=">
+            <call function="nvl0">
+              <column table="ipr_tree_childs" column="kod_node" dgroup="count"/>
+            </call>          
+            <const>0</const>
+          </call>-->
+        </call>
+      </start>
+    </query>
+    <query name="25499-ipr-fp" materialize="1">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2015</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_titul_ip" group="1" />
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <link name="kod_ipr" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="not 0">
+            <column table="a" column="kap_sum" />
+            <column table="a" column="vvod_sum" />
+            <column table="a" column="fp_sum" />
+            <column table="a" column="dz" />
+            <column table="a" column="kz" />
+            <column table="a" column="nzs_saldo" />
+          </call>
+          <call function="=">
+            <column table="kod_ipr" column="kod_doc_osn" />
+            <useparam name="kod_doc" />
+          </call>
+          <!--<call function="between">
+            <column table="a" column="year"/>
+            <useparam name="year"/>
+            <call function="+">
+              <useparam name="year"/>
+              <const>5</const>
+            </call>
+          </call>-->
+        </call>
+      </where>
+    </query>
+    <query name="25499-tree-pre-nofilter" timestamp="13.07.2017 14:08:11">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor">
+          <const>1</const>
+        </param>
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="year" />
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <column table="kod_razdel" column="abbr" as="razdel_abbr" />
+        <column table="kod_razdel" column="vid_full" as="razdel_vid_full" />
+        <column table="kod_razdel" column="kod_razdel" if="root">
+          <if pfx="_if_root">
+            <call function="is null">
+              <column table="kod_razdel" column="kod_parent" />
+            </call>
+          </if>
+        </column>
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <call function="if" as="itip" type="string" title="Тип титула">
+          <call function="=">
+            <column table="kod_titul_ip" column="itip" />
+            <const>'Одиночный/Дочерний'</const>
+          </call>
+          <call function="if">
+            <call function="gt">
+              <column table="kod_ipr" column="kod_parent" />
+              <const>0</const>
+            </call>
+            <const>'Дочерний'</const>
+            <const>'Одиночный'</const>
+          </call>
+          <column table="kod_titul_ip" column="itip" />
+        </call>
+        <column table="a" column="*" />
+        <call function="nvl" as="har" type="string" title="Характеристика объекта ТПИР/НС">
+          <column table="r_root" column="har" />
+          <column table="r_root1" column="har" />
+        </call>
+        <column table="r_root_pp" column="abbr" as="prog" title="Отнесение к Программам" />
+        <call function="coalesce" as="full_name" type="string">
+          <column table="kod_titul_ip" column="full_name" />
+          <column table="kod_razdel" column="full_name" />
+          <const>'Все элементы'</const>
+        </call>
+      </select>
+      <from>
+        <query name="ipr_tree" as="a">
+          <link name="kod_ipr">
+            <link name="kod_main_titul" />
+          </link>
+          <link name="kod_razdel">
+            <link name="kod_root" as="r_root" />
+          </link>
+          <link name="kod_titul_ip">
+            <link name="kod_progpartner">
+              <link name="kod_root" as="r_root_pp" />
+            </link>
+            <link name="kod_main" as="t_root">
+              <link name="kod_razdel" as="kod_razdel1">
+                <link name="kod_root" as="r_root1" />
+              </link>
+            </link>
+          </link>
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="or" exclude="1">
+          <call function="=1">
+            <column table="kod_titul_ip" column="is_sbor" />
+          </call>
+          <call function="and">
+            <call function="true" />
+            <call function="or" optional="1">
+              <call function="and">
+                <call function="in">
+                  <column table="kod_titul_ip" column="kod_direct" />
+                  <useparam name="kod_direct" />
+                </call>
+                <call function="in">
+                  <useparam name="kod_dirisp" />
+                  <array>1,2</array>
+                </call>
+              </call>
+              <call function="and">
+                <call function="in">
+                  <column table="kod_titul_ip" column="kod_ispolnit" />
+                  <useparam name="kod_direct" />
+                </call>
+                <call function="in">
+                  <useparam name="kod_dirisp" />
+                  <array>1,3</array>
+                </call>
+              </call>
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_main_titul" column="kod_subject" />
+              <useparam name="kod_subject" />
+            </call>
+          </call>
+        </call>
+        <call function="and">
+          <call function="true" />
+          <call function="or" optional="1">
+            <call function="and">
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_direct" />
+                <useparam name="kod_direct" />
+              </call>
+              <call function="in">
+                <useparam name="kod_dirisp" />
+                <array>1,2</array>
+              </call>
+            </call>
+            <call function="and">
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_ispolnit" />
+                <useparam name="kod_direct" />
+              </call>
+              <call function="in">
+                <useparam name="kod_dirisp" />
+                <array>1,3</array>
+              </call>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <call function="nvl">
+              <column table="kod_main_titul" column="kod_subject" />
+              <column table="kod_titul_ip" column="kod_subject" />
+            </call>
+            <useparam name="kod_subject" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

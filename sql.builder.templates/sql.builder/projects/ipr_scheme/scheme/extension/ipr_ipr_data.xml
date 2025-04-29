@@ -1,0 +1,622 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <!--<query name="ipr_ipr_data-test">
+      <select>
+        <column table="a" column="kod_kriteria1" />
+        <column table="a" column="kod_priority_insert_ip1" />
+        <column table="a" column="kod_klass1" />
+        <column table="a" column="kod_razdel1" />
+        <column table="a" column="kod_kriteria" />
+        <column table="a" column="kod_priority_insert_ip" />
+        <column table="a" column="kod_klass" />
+        <column table="a" column="kod_razdel" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a"/>
+      </from>
+    </query>-->
+    <query name="ipr_ipr_data_ext" class="1" extend="ipr_ipr_data" timestamp="07.12.2017 12:34:57">
+      <select>
+        <call function="||" as="kod_minenergo">
+          <const>'2-'</const>
+          <column table="this" column="kod_razdel" />
+          <const>'-'</const>
+          <call function="nvl" nvl="999">
+            <column table="kod_main_ipr_ipr_data" column="kod_krit_minenergo" />
+            <column table="this" column="kod_krit_minenergo" />
+          </call>
+        </call>
+        <call function="if" as="kod_razdel_rs">
+          <call function="is null">
+            <column table="this" column="kod_razdel" />
+          </call>
+          <call function="to_char">
+            <call function="nvl" nvl="999">
+              <column table="kod_main_klass" column="kod_parent" dgroup="max" />
+              <column table="kod_main_klass" column="kod_klass" dgroup="max" />
+            </call>
+          </call>
+          <call function="||">
+            <call function="to_char">
+              <column table="this" column="kod_razdel" />
+            </call>
+            <const>'-'</const>
+            <call function="to_char">
+              <call function="nvl" nvl="999">
+                <column table="kod_main_klass" column="kod_parent" dgroup="max" />
+                <column table="kod_main_klass" column="kod_klass" dgroup="max" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="if" as="pr_last" type="number">
+          <call function="=">
+            <column table="a" column="kod_ipr" />
+            <call function="over">
+              <call function="max">
+                <column table="a" column="kod_ipr" />
+              </call>
+              <call function="partition by">
+                <column table="a" column="kod_titul_ip" />
+                <column table="a" column="kod_doc_osn" />
+              </call>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="pr_last_for_tit" type="number">
+          <call function="=">
+            <column table="a" column="kod_ipr" />
+            <call function="over">
+              <call function="max">
+                <column table="a" column="kod_ipr" />
+              </call>
+              <call function="partition by">
+                <column table="a" column="kod_titul_ip" />
+              </call>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="ipr_energy_eff" column="energ_eff_kvt" />
+        <column table="ipr_energy_eff" column="energ_eff_proc" />
+        <!--<column table="ipr_ip_by_year" column="kod_kriteria" as="kod_kriteria1" dgroup="max"/>
+        <column table="ipr_ip_by_year" column="kod_priority_insert_ip"  as="kod_priority_insert_ip1" dgroup="max"/>
+        <column table="ipr_ip_by_year" column="kod_klass"  as="kod_klass1" dgroup="max"/>
+        <column table="ipr_ip_by_year" column="kod_razdel"  as="kod_razdel1" dgroup="max"/>-->
+        <!--[13.10.14 14:30] [Гагарский Алексей] 277 - PSD
+            278 - UTVPSD
+            106 - USR
+            107 - PSD_10
+            283 - PSD_30-->
+        <!--<column table="ipr_smet_struct_titul_USR" column="summ_nds" as="summ_106" dgroup="sum" title="Сумма УРС"/>
+        <column table="ipr_smet_struct_titul_USR" column="summ_10_nds" as="summ_10_106" dgroup="sum" title="Сумма УРС-10%"/>
+        <column table="ipr_smet_struct_titul_USR" column="summ_30_nds" as="summ_30_106" dgroup="sum" title="Сумма УРС-30%"/>
+        <column table="ipr_smet_struct_titul_UTVPSD" column="summ_nds" as="summ_278" dgroup="sum" title="ПСД в ценах УТВ"/>
+        <column table="ipr_smet_struct_titul_PSD" column="summ_nds" as="summ_277" dgroup="sum" title="ПСД в тек. ценах"/>
+        <column table="ipr_smet_struct_titul_PSD_10" column="summ_nds" as="summ_107" dgroup="sum" title="ПСД в тек. ценах -10%"/>
+        <column table="ipr_smet_struct_titul_PSD_30" column="summ_nds" as="summ_283" dgroup="sum" title="ПСД в тек. ценах -30%"/>-->
+        <!--<column table="ipr_vid_zatrat_titul_y" column="plan_sum_finplan"  dgroup="sum"/>-->
+        <!--<column table="ipr_vid_zatrat_titul_y" column="debet"  dgroup="sum"/>-->
+        <!--<column table="ipr_doc_by_ipr_urs" column="kod_doc" as="kod_doc_urs" dgroup="max"/>
+       
+        <column table="kod_doc_urs" column="full_name" dgroup="max"/>
+        
+        <column table="ipr_smet_struct_titul_urs" column="summ" dgroup="sum"/>
+        <column table="ipr_doc_by_ipr_ssr" column="kod_doc" as="kod_doc_ssr" dgroup="max"/>
+        <column table="kod_doc_ssr" column="full_name" as="full_name_ssr" dgroup="max"/>
+        <column table="ipr_smet_struct_titul_ssr" column="summ" as="summ_ssr" dgroup="sum"/>
+        <column table="kod_doc_urs1" column="full_name" as="full_name1"/>
+        <column table="ipr_smet_struct_titul" column="summ" dgroup="sum"/>
+       
+        <usepart part="ipr_ipr_data-doc" as="kod_doc_urs">
+          <const>106</const>
+        </usepart>-->
+        <!--<const as="km" type="number">1</const>-->
+        <column table="val14" column="nvalue" dgroup="max" as="km" title="Протяженность ВЛ, км" type="number" />
+        <column table="val18" column="nvalue" dgroup="max" as="km_kl" title="Протяженность КЛ, км" type="number" />
+        <column table="val13" column="nvalue" dgroup="max" as="pow" type="number" title="Мощность, МВА" />
+        <column table="val12" column="nvalue" dgroup="max" as="kvo_tr" type="number" title="Кол-во трансформаторов (шт)" />
+        <column table="val17" column="value" dgroup="max" as="mark_tr" type="string" title="Марка силовых трансформаторов" />
+        <column table="val16" column="nvalue" dgroup="max" as="other" type="number" title="Прочие, шт" />
+        <column table="val3" column="value" dgroup="max" as="mark_kb" type="string" title="Марка кабеля" />
+        <column table="val1" column="value" dgroup="max" as="tip_op" type="string" title="Тип опор" />
+        <column table="val15" column="nvalue" dgroup="max" as="h_ps_tp" type="number" title="ПС ТП, шт" />
+        <column table="val4" column="value" dgroup="max" as="h_ru_110" type="string" title="Тип РУ 110 кВ" />
+        <column table="val5" column="value" dgroup="max" as="h_ru_35" type="string" title="Тип РУ 35 кВ" />
+        <column table="val6" column="value" dgroup="max" as="h_ru_10" type="string" title="Тип РУ 10 кВ" />
+        <column table="val7" column="value" dgroup="max" as="h_ru_6" type="string" title="Тип РУ 6 кВ" />
+        <column table="val8" column="nvalue" dgroup="max" as="h_cnt_110" type="number" title="Количество ячеек 110 кВ" />
+        <column table="val9" column="nvalue" dgroup="max" as="h_cnt_35" type="number" title="Количество ячеек 35 кВ" />
+        <column table="val10" column="nvalue" dgroup="max" as="h_cnt_10" type="number" title="Количество ячеек 10 кВ" />
+        <column table="val11" column="nvalue" dgroup="max" as="h_cnt_6" type="number" title="Количество ячеек 6 кВ" />
+        <column table="val14" column="old_value" dgroup="max" as="km_do" title="Протяженность ВЛ,  км" type="number" />
+        <column table="val18" column="old_value" dgroup="max" as="km_kl_do" title="Протяженность КЛ,  км" type="number" />
+        <column table="val13" column="old_value" dgroup="max" as="pow_do" type="number" title="Мощность, МВА" />
+        <column table="val12" column="old_value" dgroup="max" as="kvo_tr_do" type="number" title="Кол-во трансформаторов (шт)" />
+        <column table="val17" column="old_value" dgroup="max" as="mark_tr_do" type="string" title="Марка силовых трансформаторов" />
+        <column table="val16" column="old_value" dgroup="max" as="other_do" type="number" title="Прочие, шт" />
+        <column table="val3" column="old_value" dgroup="max" as="mark_kb_do" type="string" title="Марка кабеля" />
+        <column table="val1" column="old_value" dgroup="max" as="tip_op_do" type="string" title="Тип опор" />
+        <column table="val14" column="value_dem" dgroup="max" as="km_del" title="Протяженность ВЛ, км" type="number" />
+        <column table="val18" column="value_dem" dgroup="max" as="km_kl_del" title="Протяженность КЛ, км" type="number" />
+        <column table="val13" column="value_dem" dgroup="max" as="pow_del" type="number" title="Мощность, МВА" />
+        <column table="val16" column="value_dem" dgroup="max" as="other_del" type="number" title="Прочие, шт" />
+        <!--<call function="ipr_ipr_data.val" as="km" type="number" title="Протяженность, км">
+          <const>14</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="pow" type="number" title="Мощность, МВА">
+          <const>13</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="kvo_tr" type="number" title="Кол-во трансформаторов (шт)">
+          <const>12</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="mark_tr"  type="string"  title="Марка силовых трансформаторов">
+          <const>17</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="other" type="number" title="Прочие, шт">
+          <const>16</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="mark_kb"  type="string"  title="Марка кабеля">
+          <const>3</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="tip_op"  type="string"  title="Тип опор">
+          <const>1</const>
+          <column table="a" column="kod_ipr"/>
+          <const>2</const>
+          <const>0</const>
+        </call>-->
+        <!--<call function="ipr_ipr_data.val" as="km_do" type="number" title="Протяженность, км">
+          <const>14</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="pow_do" type="number" title="Мощность, МВА">
+          <const>13</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="kvo_tr_do" type="number" title="Кол-во трансформаторов (шт)">
+          <const>12</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="mark_tr_do"  type="string"  title="Марка силовых трансформаторов">
+          <const>17</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="other_do" type="number" title="Прочие, шт">
+          <const>16</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="mark_kb_do"  type="string"  title="Марка кабеля">
+          <const>3</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="tip_op_do"  type="string"  title="Тип опор">
+          <const>1</const>
+          <column table="a" column="kod_ipr"/>
+          <const>1</const>
+          <const>0</const>
+        </call>-->
+        <!--<call function="ipr_ipr_data.val" as="km_del" type="number" title="Протяженность, км">
+          <const>14</const>
+          <column table="a" column="kod_ipr"/>
+          <const>5</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="pow_del" type="number" title="Мощность, МВА">
+          <const>13</const>
+          <column table="a" column="kod_ipr"/>
+          <const>5</const>
+          <const>1</const>
+        </call>
+        <call function="ipr_ipr_data.val" as="other_del" type="number" title="Прочие, шт">
+          <const>16</const>
+          <column table="a" column="kod_ipr"/>
+          <const>5</const>
+          <const>1</const>
+        </call>-->
+        <call function="-nvl" as="km_change" title="Протяженность ВЛ, км">
+          <column table="this" column="km" />
+          <column table="this" column="km_del" />
+        </call>
+        <call function="-nvl" as="km_kl_change" title="Протяженность КЛ, км">
+          <column table="this" column="km_kl" />
+          <column table="this" column="km_kl_del" />
+        </call>
+        <call function="-nvl" as="pow_change" title="Мощность, МВА">
+          <column table="this" column="pow" />
+          <column table="this" column="pow_del" />
+        </call>
+        <call function="-nvl" as="other_change" title="Прочие, шт">
+          <column table="this" column="other" />
+          <column table="this" column="other_del" />
+        </call>
+        <call function="nvl" as="kod_main_titul" type="number">
+          <call function="nullif">
+            <column table="a" column="kod_parent" />
+            <const>-1</const>
+          </call>
+          <column table="a" column="kod_titul_ip" />
+        </call>
+        <call function="if" as="kod_child_titul" type="number">
+          <call function="is not null">
+            <call function="nullif">
+              <column table="a" column="kod_parent" />
+              <const>-1</const>
+            </call>
+          </call>
+          <column table="a" column="kod_titul_ip" />
+        </call>
+        <!--договор с прочими затратами-->
+        <column table="ipr_dogs_pr" column="kod_ipr_dog" as="kod_ipr_dog_pr" dgroup="max" />
+        <call function="if" as="itip" type="string" title="Тип титула">
+          <call function="=">
+            <column table="kod_titul_ip" column="itip" />
+            <const>'Одиночный/Дочерний'</const>
+          </call>
+          <call function="if">
+            <call function="gt">
+              <column table="this" column="kod_parent" />
+              <const>0</const>
+            </call>
+            <const>'Дочерний'</const>
+            <const>'Одиночный'</const>
+          </call>
+          <column table="kod_titul_ip" column="itip" />
+        </call>
+        <call function="over" as="kod_kurator_last" is-fact="1" fact="ipr_ipr_data_kod_kurator_last" agg="max" type="number" exclude="1">
+          <call function="first_value ignore nulls">
+            <column table="a" column="kod_kurator" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_titul_ip" />
+          </call>
+          <call function="order by rows * *">
+            <call function="desc">
+              <column table="kod_doc_osn" column="doc_date" />
+            </call>
+          </call>
+        </call>
+        <call function="over" as="fio_kurator_last" is-fact="1" fact="ipr_ipr_data_fio_kurator_last" agg="max" type="string" exclude="1">
+          <call function="first_value ignore nulls">
+            <column table="kod_kurator" column="fio" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_titul_ip" />
+          </call>
+          <call function="order by rows * *">
+            <call function="desc">
+              <column table="kod_doc_osn" column="doc_date" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ipr_energy_eff" as="ipr_energy_eff" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ipr" />
+            <column table="ipr_energy_eff" column="kod_ipr" />
+          </call>
+        </query>
+        <query name="ips_kriteria" as="kod_kriteria" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_kriteria" />
+            <column table="kod_kriteria" column="kod_kriteria" />
+          </call>
+        </query>
+        <query name="ips_kriteria" as="kod_priority_insert_ip" dname="ipr_ipr_data_prior_ins_ip" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_priority_insert_ip" />
+            <column table="kod_priority_insert_ip" column="kod_kriteria" />
+          </call>
+        </query>
+        <query name="ips_klass_titul" as="kod_klass" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_klass" />
+            <column table="kod_klass" column="kod_klass" />
+          </call>
+        </query>
+        <query name="ips_vid_zajavki" as="kod_vid_zajavki" join="left outer" title="Направление инвестиций">
+          <call function="=">
+            <column table="this" column="kod_vid_zajavki" />
+            <column table="kod_vid_zajavki" column="kod_vid_z" />
+          </call>
+        </query>
+        <query name="ipv_razdel_rs" as="kod_razdel_rs" join="left outer">
+          <call function="=">
+            <column table="kod_razdel_rs" column="kod_klass" />
+            <column table="this" column="kod_razdel_rs" />
+          </call>
+        </query>
+        <query name="ipv_razdel_mn" as="kod_minenergo" join="left outer">
+          <call function="=">
+            <column table="kod_minenergo" column="kod_minenergo" />
+            <column table="this" column="kod_minenergo" />
+          </call>
+        </query>
+        <query name="ipr_titul_ip" as="kod_main_titul" dname="ipr_ipr_data_main" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_main_titul" />
+            <column table="kod_main_titul" column="kod_titul_ip" />
+          </call>
+        </query>
+        <query name="ipr_ipr_data" as="kod_main_ipr_ipr_data" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="kod_main_ipr_ipr_data" column="kod_titul_ip" />
+              <column table="this" column="kod_main_titul" />
+            </call>
+            <call function="=">
+              <column table="kod_main_ipr_ipr_data" column="kod_doc_osn" />
+              <column table="a" column="kod_doc_osn" />
+            </call>
+          </call>
+          <link name="kod_klass" as="kod_main_klass" />
+        </query>
+        <query name="ipr_titul_ip" as="kod_child_titul" dname="ipr_ipr_data_main" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_child_titul" />
+            <column table="kod_child_titul" column="kod_titul_ip" />
+          </call>
+        </query>
+        <!--<query name="ipr_dogs" as="kod_ipr_dog_pr" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_ipr_dog_pr"></column>
+            <column table="kod_ipr_dog_pr" column="kod_ipr_dog"></column>
+          </call>
+        </query>-->
+      </from>
+      <links>
+        <!--<dlink name="ipr_ip_by_year"/>-->
+        <usepart part="ipr_ipr_data-val_link">
+          <const>14</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>18</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>13</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>12</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>17</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>16</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>3</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>1</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>15</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>4</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>5</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>6</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>7</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>8</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>9</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>10</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-val_link">
+          <const>11</const>
+        </usepart>
+        <!--старый вариант-->
+        <!--<link name="kod_titul_ip"/>
+        <usepart part="ipr_ipr_data-doc">
+          <const>106</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-doc">
+          <const>277</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-doc">
+          <const>107</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-doc">
+          <const>283</const>
+        </usepart>
+        <usepart part="ipr_ipr_data-doc">
+          <const>278</const>
+        </usepart>-->
+        <!--13.10.14 14:30] [Гагарский Алексей] 277 - PSD
+            278 - UTVPSD
+            106 - USR
+            107 - PSD_10
+            283 - PSD_30-->
+        <dlink name="ipr_dogs" as="ipr_dogs_pr">
+          <where>
+            <call function="and">
+              <call function="=">
+                <call function="nvl">
+                  <column table="ipr_dogs_pr" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+              <call function="in">
+                <column table="ipr_dogs_pr" column="kod_dog_type" />
+                <array>52,56</array>
+              </call>
+            </call>
+          </where>
+        </dlink>
+        <dlink name="vr_tree_ipr">
+          <link name="kod_tree" dimension="1" />
+        </dlink>
+        <dlink name="ipr_report_dop" dimension="1" />
+        <dlink name="ipr_sost_del" />
+        <link name="kod_titul_ip">
+          <dimlink name="kod_dop_contract" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_reestr_44164" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="ipr_pr_data-test" class="1" timestamp="17.10.2017 01:04:44">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data" as="a" />
+      </from>
+      <!--<where>
+        <call function="=">
+          <column table="this" column="pr_last"/>
+          <const>1</const>
+        </call>
+      </where>-->
+    </query>
+    <query name="ipr_ipr_data_simple_list" class="1">
+      <params>
+        <param name="doc_osn" type="array" />
+        <param type="array" name="kod_titul_ip_sbor" />
+        <param type="array" name="kod_titul_ip_head" />
+      </params>
+      <select>
+        <column table="ipr_ipr_data" column="kod_ipr" />
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <column table="kod_titul_ip" column="full_name" title="Наименование титула" />
+        <column table="kod_doc_osn" column="full_name" title="Документ" as="doc_name" />
+        <column table="ipr_ipr_data" column="itip" />
+        <column table="kod_parent_sbor" column="tit_num_new" as="sbor_tit_num_new" title="Код сборного титула" />
+        <column table="kod_parent" column="tit_num_new" as="head_tit_num_new" title="Код головного титула" />
+      </select>
+      <from>
+        <query name="ipr_ipr_data">
+          <link name="kod_doc_osn" />
+          <link name="kod_titul_ip" />
+          <link name="kod_parent" />
+          <link name="kod_main_titul">
+            <link name="kod_parent_sbor" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_titul_ip" column="is_simple" />
+            <const>1</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="ipr_ipr_data" column="kod_doc_osn" />
+            <useparam name="doc_osn" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_main_titul" column="kod_parent_sbor" />
+            <useparam name="kod_titul_ip_sbor" />
+          </call>
+          <call function="in" optional="1">
+            <column table="ipr_ipr_data" column="kod_parent" />
+            <useparam name="kod_titul_ip_head" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ipr_ipr_data_extra" timestamp="29.05.2017 17:29:13" inherit="ipr_ipr_data">
+      <select>
+        <!--<fact column="byt_col_chel"/>-->
+      </select>
+      <!--<where>
+        <call function="=">
+          <column table="a" column="kod_obj" />
+          <const>500215809</const>
+        </call>
+      </where>-->
+    </query>
+  </queries>
+  <parts>
+    <!--старый вариант-->
+    <!--<part id="ipr_ipr_data-doc">
+      <params>
+        <param name="kod_target"/>
+      </params>
+      <dlink name="ipr_doc_by_ipr_by_t_last" as="ipr_doc_by_ipr_by_t_last_[:kod_target]">
+        <link name="kod_doc_by_ipr" as="kod_doc_by_ipr_[:kod_target]">
+          <link name="kod_doc" as="kod_doc_[:kod_target]">
+            <dlink name="ipr_smet_struct_titul" as="ipr_smet_struct_titul_[:kod_target]">
+              <link name="kod_smet"/>
+              <where>
+                <call function="is null">
+                  <column table="kod_smet" column="kod_parent"></column>
+                </call>
+              </where>
+            </dlink>
+          </link>
+        </link>
+        <where>
+          <call function="=">
+            <column table="ipr_doc_by_ipr_by_t_last_[:kod_target]" column="kod_doc_target"></column>
+            <useparam name="kod_target"/>
+          </call>
+        </where>
+      </dlink>
+    </part>-->
+    <!--13.10.14 14:30] [Гагарский Алексей] 277 - PSD
+    278 - UTVPSD
+    106 - USR
+    107 - PSD_10
+    283 - PSD_30-->
+    <part id="ipr_ipr_data-val_link">
+      <params>
+        <param name="kod_phis_param" />
+      </params>
+      <dlink name="ipv_phys_param_values" as="val[:kod_phis_param]">
+        <where>
+          <call function="=">
+            <column table="val[:kod_phis_param]" column="kod_phis_param" />
+            <useparam name="kod_phis_param" />
+          </call>
+        </where>
+      </dlink>
+    </part>
+  </parts>
+</root>

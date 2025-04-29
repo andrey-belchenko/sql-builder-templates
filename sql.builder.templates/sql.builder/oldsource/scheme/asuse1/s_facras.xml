@@ -1,0 +1,249 @@
+<root>
+  <queries>
+    <query name="s_facras">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_ras" type="number">
+        </column>
+        <column table="a" column="kod_sf" type="number">
+        </column>
+        <column table="a" column="vid_t" type="number">
+        </column>
+        <column table="a" column="edizm" type="number">
+        </column>
+        <column table="a" column="nachisl" type="number" title="Начислено без НДС, руб.">
+        </column>
+        <column table="a" column="ktu" type="number" title="Код точки учета"/>
+        <column table="a" column="kodg" type="number" title="Код тарифа"/>
+        <column table="a" column="nds" type="number" title="НДС">
+        </column>
+        <column table="a" column="price" type="number" title="Ставка тарифа">
+        </column>
+        <column table="a" column="cust" type="number" title="Начислено (нат. пок.)">
+        </column>
+        <call function="+nvl" as="summa" type="number" title="Начислено (руб)">
+          <column table="a" column="nachisl">
+          </column>
+          <column table="a" column="nds">
+          </column>
+        </call>
+        <call function="+" as="rym" type="number">
+          <column table="a" column="god" />
+          <call function="/">
+            <column table="a" column="mes" />
+            <const>100</const>
+          </call>
+        </call>
+        <call function="ym to char" as="rym_name" title="Период перерасчета">
+          <usepart part="gm to ym">
+            <const>a</const>
+          </usepart>
+        </call>
+        <column table="v" column="kod_deb">
+        </column>
+        <column table="v" column="vid_real">
+        </column>
+        <column table="v" column="vid_real_pl">
+        </column>
+        <column table="v" column="vid_real_fname">
+        </column>
+        <column table="v" column="kodp">
+        </column>
+        <column table="v" column="nom_sf">
+        </column>
+        <column table="v" column="dat_sf">
+        </column>
+        <column table="v" column="dat_bzad_nvl">
+        </column>
+        <column table="v" column="ym">
+        </column>
+        <column table="v" column="ym_name">
+        </column>
+        <column table="v" column="name" as="sf_name">
+        </column>
+        <column table="vn" column="name" as="vid_t_name" title="Вид начисления">
+        </column>
+        <column table="vn" column="name_e" as="vid_t_name_e" title="Вид начисления">
+        </column>
+        <column table="ei" column="name" as="edizm_name">
+        </column>
+        <column table="v" column="kod_ist">
+        </column>
+        <column table="v" column="kod_otrasl">
+        </column>
+        <column table="v" column="payer_name">
+        </column>
+        <column table="v" column="adres">
+        </column>
+        <column table="v" column="ist_fin_name">
+        </column>
+        <column table="v" column="otrasl_fname">
+        </column>
+        <column table="v" column="otrasl_fl_fname">
+        </column>
+        <column table="v" column="voda_par">
+        </column>
+        <column table="v" column="inn">
+        </column>
+        <column table="v" column="voda_par_name">
+        </column>
+        <column table="v" column="dat_udal">
+        </column>
+        <column table="v" column="ym_end_dolg">
+        </column>
+        <column table="v" column="ym_spis">
+        </column>
+        <column table="v" column="ym_uch">
+        </column>
+        <column table="v" column="ar_name">
+        </column>
+        <column table="v" column="rtc_name">
+        </column>
+        <column table="v" column="station_name">
+        </column>
+        <column table="fo" column="oplf">
+        </column>
+        <call function="-nvl" as="dolg">
+          <call function="+nvl">
+            <column table="a" column="nachisl">
+            </column>
+            <column table="a" column="nds">
+            </column>
+          </call>
+          <column table="fo" column="oplf">
+          </column>
+        </call>
+        <call function="nvl" as="ndog" type="string" title="Номер договора">
+          <column table="v" column="ndog_dat_abon"/>
+          <call function="if">
+            <call function="is not null">
+              <column table="a" column="ndog"/>
+            </call>
+            <call function="||">
+              <call function="trim">
+                <column table="a" column="ndog"/>
+              </call>
+              <const>' от '</const>
+              <call function="date to char">
+                <column table="a" column="datdog"/>
+              </call>
+            </call>
+            <const>''</const>
+          </call>
+        </call>
+        <column table="fo" column="datao">
+        </column>
+      </select>
+      <from>
+        <table name="s_facras" as="a">
+        </table>
+        <query name="s_facvip" as="v" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="v" column="kod_sf">
+            </column>
+          </call>
+        </query>
+        <query name="s_nachisl" as="vn" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_t">
+            </column>
+            <column table="vn" column="k_vid">
+            </column>
+          </call>
+        </query>
+        <query name="s_edizm" as="ei" join="left outer">
+          <call function="=">
+            <column table="a" column="edizm">
+            </column>
+            <column table="ei" column="kod">
+            </column>
+          </call>
+        </query>
+        <query name="s_facras.s_facopl" as="fo" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_ras">
+            </column>
+            <column table="fo" column="kod_ras">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="not in">
+            <column table="a" column="vid_t">
+            </column>
+            <call function="array">
+              <const>71</const>
+              <const>81</const>
+            </call>
+          </call>
+          <usepart part="ext-cond">
+            <const>v</const>
+            <useparam name="kodp_cond">
+            </useparam>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="s_facvip.s_facras">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_sf" group="1" />
+        <column table="a" column="oplf" group="sum" />
+        <column table="a" column="summa" group="sum" />
+        <column table="a" column="dolg" group="sum" />
+        <column table="a" column="datao" group="max" />
+        <column table="a" column="voda_par" group="max" />
+        <column table="a" column="ym" as="ym_opl" group="max" />
+      </select>
+      <from>
+        <query name="s_facras" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <const>1</const>
+            <const>1</const>
+          </call>
+          <usepart part="ext-cond">
+            <const>a</const>
+            <useparam name="kodp_cond">
+            </useparam>
+          </usepart>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

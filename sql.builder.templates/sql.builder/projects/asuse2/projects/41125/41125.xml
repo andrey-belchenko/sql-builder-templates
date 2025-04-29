@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="41125" use-temp="1" timestamp="30.08.2017 17:00:49">
+      <content>
+        <usefield field="asuse_dep" column-visible="0" />
+        <fieldgroup title="Адрес">
+          <field name="kod_adr_m_pre" type="number" rows-limit="100" controlType="UIList" title="Населенный пункт">
+            <listquery>
+              <query name="41125-adr_m-list" />
+            </listquery>
+            <defaultquery>
+              <query name="41125-adr_m-default" />
+            </defaultquery>
+          </field>
+          <field name="kod_adr_m" type="number" rows-limit="100" controlType="UIList" title="Населенный пункт(с дочерними)" column-visible="0">
+            <listquery>
+              <query name="adr_m_list" />
+            </listquery>
+            <defaultquery>
+              <query name="41125-adr_m-all-default" />
+            </defaultquery>
+          </field>
+          <usefield field="asuse_adr_m" exclude="1">
+            <defaultquery>
+              <query name="41125-adr_m-default" />
+            </defaultquery>
+          </usefield>
+          <usefield field="asuse_k_house_chet" />
+          <usefield field="asuse_k_strits" />
+          <usefield field="asuse_k_house" />
+          <usefield field="cmn_integer" title="Индекс" name="index" />
+        </fieldgroup>
+        <usefield field="cmn_list_yesno" name="sx_mkd" title="Наличие схемы МКД">
+          <defaultquery>
+            <query name="one" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="kod_point_pu" title="Счётчики ОДПУ" type="number" rows-limit="100" exclude="1">
+          <listquery>
+            <query name="hr_point_pu_list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_string" name="nom_pu" title="Номер счётчика ОДПУ" type="number" rows-limit="100" />
+        <usefield field="cmn_list" name="src_id" title="Центры питания" type="number" name-field-name="dnum" rows-limit="100">
+          <listquery>
+            <query name="hv_eosrc-list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_list" name="eo_id" title="Источники питания" type="number" name-field-name="dnum" rows-limit="100">
+          <listquery>
+            <query name="hv_eosrc-list2" />
+          </listquery>
+        </usefield>
+        <usefield field="asuse_kod_f23" title="Типы объектов на адресе">
+          <defaultquery>
+            <query name="41125-kod_f23-default" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="id_spec" title="Ответственные специалисты" type="number">
+          <listquery>
+            <query name="tr_izv_selection-list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_list_yesno" name="pr_rasch" title="Наличие расчёта в текущем периоде" />
+      </content>
+      <select>
+        <column table="a" column="*" />
+        <call function="rownum" as="key" key="1" />
+      </select>
+      <from>
+        <query name="hv_mkd_adr" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="or" optional="1">
+            <call function="is null">
+              <column table="a" column="dep" />
+            </call>
+            <call function="in">
+              <column table="a" column="dep" />
+              <useparam name="dep" />
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_m" />
+            <useparam name="kod_adr_m" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_s" />
+            <useparam name="kod_street" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_chet" />
+            <useparam name="kod_chet" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodd" />
+            <useparam name="kodd" />
+          </call>
+          <call function="=" optional="1">
+            <column table="a" column="ind" />
+            <call function="to_char">
+              <useparam function="||" name="index" />
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="sx_mkd" />
+            <useparam name="sx_mkd" />
+          </call>
+          <call function="in" optional="1" exclude="1">
+            <column table="a" column="kod_point_pu" />
+            <useparam name="kod_point_pu" />
+          </call>
+          <call function="contains" optional="1">
+            <column table="a" column="nom_pu" />
+            <useparam name="nom_pu" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="src_id" />
+            <useparam name="src_id" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="eo_id" />
+            <useparam name="eo_id" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_f23" />
+            <useparam name="kod_f23" />
+          </call>
+          <call function="or" optional="1">
+            <call function="in">
+              <column table="a" column="id_spec_kodd" />
+              <useparam name="id_spec" />
+            </call>
+            <call function="in">
+              <column table="a" column="id_spec_kod_s" />
+              <useparam name="id_spec" />
+            </call>
+            <call function="in">
+              <column table="a" column="id_spec_kod_m" />
+              <useparam name="id_spec" />
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="pr_rasch" />
+            <useparam name="pr_rasch" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="41125-adr_m-default" timestamp="30.08.2017 16:13:54">
+      <select>
+        <column table="a" column="kod_m" />
+        <column table="a" column="name_p" />
+        <column table="a" column="k_npw" />
+      </select>
+      <from>
+        <query name="adr_m_list" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_m" />
+          <const type="number">31</const>
+        </call>
+      </where>
+      <start exclude="1">
+        <call function="=">
+          <column table="a" column="kod_m" />
+          <const type="number">31</const>
+        </call>
+      </start>
+      <connect exclude="1">
+        <call function="=">
+          <column table="a" column="kod_m" prior="1" />
+          <column table="a" column="k_npw" />
+        </call>
+      </connect>
+    </query>
+    <query name="41125-adr_m-all-default" timestamp="30.08.2017 16:13:25">
+      <params>
+        <param type="array" name="kod_adr_m_pre" />
+      </params>
+      <select>
+        <column table="a" column="kod_m" group="1" />
+        <column table="a" column="name_p" group="max" />
+        <column table="a" column="k_npw" group="max" />
+      </select>
+      <from>
+        <query name="adr_m_list" as="a" />
+      </from>
+      <start>
+        <call function="in">
+          <column table="a" column="kod_m" />
+          <useparam name="kod_adr_m_pre" />
+        </call>
+      </start>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_m" prior="1" />
+          <column table="a" column="k_npw" />
+        </call>
+      </connect>
+    </query>
+    <query name="41125-adr_m-list" timestamp="30.08.2017 16:30:39">
+      <select>
+        <column table="a" column="kod_m" />
+        <call function="trim" as="name_p">
+          <column table="a" column="name_p" />
+        </call>
+      </select>
+      <from>
+        <query name="adr_m" as="a" />
+      </from>
+    </query>
+    <query name="41125-kod_f23-default" timestamp="30.08.2017 17:02:04">
+      <select>
+        <column table="a" column="kod_f23" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="hs_23" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_f23" />
+          <const type="number">87</const>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

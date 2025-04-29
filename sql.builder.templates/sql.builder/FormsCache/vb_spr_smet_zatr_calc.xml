@@ -1,0 +1,1699 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vb_spr_smet_zatr_calc" timestamp="05.07.2019 14:01:52" title="Статьи затрат по статьям калькуляции" file="sql.builder.templates\sql.builder\projects\mped\forms\vb_spr_smet_zatr_calc.xml" elid="702" ord="702" leaf="0" lvl="2" pelid="">
+    <grid table="szc" auto-filter="1" show-toolbar="1" id="57455902">
+      <toolbar id="23483491">
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="43511752" />
+        <uicommand action-type="custom" button-type="custom-commit" editable="szc_has_changes" name="custom-commit" icon="Commit_24" title="Сохранить" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="376" ord="376" leaf="1" lvl="2" pelid="" id="22399725">
+          <useaction action-type="save" id="66430970" />
+          <useaction action-type="call-plsql" name="vb_refs.ins_spr_smet_zatr_calc" id="42026805" />
+          <useaction action-type="refresh-form" object="szc" column="kod_spr_smet_zatr" id="11487916" />
+        </uicommand>
+      </toolbar>
+      <columns id="41455430">
+        <field table="szc" name="smet_code" title="Статья затрат" width="106" controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="63582825" />
+        <field table="szc" name="smet_name" title="Наименование статьи затрат" width="168" controlType="UIText" rows-limit="100" id="39344105" />
+        <field table="szc" name="kod_spr_smet_calc" title="Статья калькуляции" width="262" controlType="UICombo" rows-limit="100" id="32170355" />
+        <field table="szc" name="period_s" title="Срок действия &quot;С_&quot;" width="119" controlType="UICombo" rows-limit="100" id="54706208" />
+        <field table="szc" name="period_po" title="Срок действия &quot;По_&quot;" width="125" controlType="UICombo" rows-limit="100" id="41478122" />
+        <field table="szc" name="storn" title="Сторнировать в следующем периоде" width="164" controlType="UICombo" rows-limit="100" id="14151178" />
+        <field table="szc" name="valid_storn" title="" controlType="UIText" rows-limit="100" id="9865824" />
+        <field table="szc" name="valid_smet" title="" controlType="UIText" rows-limit="100" id="61833132" />
+        <field table="szc" name="valid_po" title="" controlType="UIText" rows-limit="100" id="13184656" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="szc_has_changes" parname="szc_has_changes" />
+    </fields>
+    <table name="szc" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="vb_spr_smet_zatr_calc" key="kod_spr_smet_zatr" is-ms-upd="1" is-top="1" key-dimension="vb_spr_smet_zatr_calc">
+      <select-text>
+--
+select szc.smet_code as smet_code, /*Статья затрат*//*number*/
+szc.smet_name as smet_name, /*Наименование статьи затрат*//*string*/
+szc.kod_spr_smet_calc as kod_spr_smet_calc, /*Статья калькуляции*//*number*/
+szc.period_s as period_s, /*Срок действия "С_"*//*number*/
+szc.period_po as period_po, /*Срок действия "По_"*//*number*/
+szc.storn as storn, /*Сторнировать в следующем периоде*//*number*/
+szc.valid_storn as valid_storn, /*string*/
+szc.valid_smet as valid_smet, /*string*/
+szc.valid_po as valid_po, /*string*/
+kod_spr_smet_calc_x_n.smet_calc_name as kod_spr_smet_calc_x_n, /*Статья калькуляции*//*string*/
+period_s_x_n.name as period_s_x_n, /*Срок действия "С_"*//*string*/
+period_po_x_n.name as period_po_x_n, /*Срок действия "По_"*//*string*/
+storn_x_n.name as storn_x_n, /*Сторнировать в следующем периоде*//*string*/
+szc.is_new as is_new, /*number*/
+szc.is_not_new as is_not_new, /*number*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.smet_code as smet_code, /**//*number*/
+a.smet_name as smet_name, /**//*string*/
+a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*/
+a.period_s as period_s, /*number*/
+a.period_po as period_po, /*number*/
+a.storn as storn, /**//*number*/
+ case  when ((a.storn is not null )  and (a.period_po is null ) )  then '[inf]Признак не может быть заполнен, если срок ПО пустой. Значение будет удалено' end  as valid_storn, /*string*/
+ case  when (( count( a.kod_spr_smet_zatr )  over(  partition by a.smet_code )  &gt; 1)  and ( nvl( ( case  when (( lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or ( lead( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or (a.period_s between  lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  and  lag( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_s ) )  or (( nvl( a.period_po , 9999.99 ) )  between  lead( a.period_s )  over(  partition by a.smet_code order by a.period_po )  and  lead( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_po ) ) )  then 1 else 0 end )  ,0)=1 ) )  then '[inf]Более одной одинаковой статьи затрат в один промежуток времени' end  as valid_smet, /*string*/
+ case  when ((a.period_po &lt; a.period_s) )  then '[inf]Срок По не может быть меньше срока С. Значение срока ПО будет приравнено сроку С' end  as valid_po, /*string*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from vb_spr_smet_zatr_calc
+a
+--\vb_spr_smet_zatr_calc
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_yes_no
+select a.id as id, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+--mped_yes_no_pre
+select u.id as id, /*number*//*key*/
+u.name as name/*string*/
+
+from (
+(
+(
+--
+select 0 as id, /*number*//*key*/
+'Нет' as name/*string*/
+
+from dual
+
+--\dual
+)
+--\
+union all
+(
+--
+select 1, /*key*/
+'Да'
+
+from dual
+
+--\dual
+)
+--\
+)
+--\
+)
+u
+--\
+)
+a
+--\mped_yes_no_pre
+)
+storn_x_n on szc.storn = storn_x_n.id--\mped_yes_no
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_po_x_n on szc.period_po = period_po_x_n.ym--\mped_spr_time_ym
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_s_x_n on szc.period_s = period_s_x_n.ym--\mped_spr_time_ym
+left outer join
+(
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.smet_calc_name as smet_calc_name/**//*string*/
+
+from vb_spr_smet_calc
+a
+--\vb_spr_smet_calc
+)
+kod_spr_smet_calc_x_n on szc.kod_spr_smet_calc = kod_spr_smet_calc_x_n.kod_spr_smet_calc--\vb_spr_smet_calc
+
+order by smet_code, period_s, period_po--\
+</select-text>
+      <columns>
+        <column name="smet_code" table="szc" type="number" title="Статья затрат" ColumnEditable="1" is-user-editable="1" ColumnMandatory="1" ClientValid="valid_smet" is-updateable="1" is-updateable-ext="1" update-target="smet_code" temp-col-name="n1">
+          <dep-refresh-cmd>
+            <root table="szc">
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_smet as valid_smet, /*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+ case  when (( count( a.kod_spr_smet_zatr )  over(  partition by a.smet_code )  &gt; 1)  and ( nvl( ( case  when (( lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or ( lead( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or (a.period_s between  lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  and  lag( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_s ) )  or (( nvl( a.period_po , 9999.99 ) )  between  lead( a.period_s )  over(  partition by a.smet_code order by a.period_po )  and  lead( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_po ) ) )  then 1 else 0 end )  ,0)=1 ) )  then '[inf]Более одной одинаковой статьи затрат в один промежуток времени' end  as valid_smet/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.smet_code as smet_code,a.period_s as period_s,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n1 as smet_code,t.n3 as period_s,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.smet_code as smet_code,a.period_s as period_s,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n1 as smet_code,t.n3 as period_s,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="valid_smet" table="szc" />
+          </dependants>
+        </column>
+        <column name="smet_name" table="szc" type="string" title="Наименование статьи затрат" ColumnEditable="1" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="smet_name" temp-col-name="s1" />
+        <column name="kod_spr_smet_calc" table="szc" type="number" title="Статья калькуляции" ColumnEditable="1" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_spr_smet_calc" temp-col-name="n2">
+          <sel-list-compiled>
+            <root>
+              <query class="1" timestamp="16.08.2019 17:31:45" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_smet_calc.xml" elid="649" ord="649" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_spr_smet_calc" as="kod_spr_smet_calc" title="" key="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod_spr_smet_calc" into="n1">a.kod_spr_smet_calc as kod_spr_smet_calc, /**//*number*//*key*/
+</column><column table="a" column="smet_calc_name" as="smet_calc_name" title="" key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="smet_calc_name" into="s1">a.smet_calc_name as smet_calc_name/**//*string*/
+</column></select>
+                <from>
+from <query name="vb_spr_smet_calc" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--vb_spr_smet_calc
+select <column table="a" column="kod_spr_smet_calc" type="number" column-mandatory="1" as="kod_spr_smet_calc" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod_spr_smet_calc" used="1">a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+</column><column table="a" column="smet_calc_name" type="string" data-size="300" title="" vid="1" is-name="1" as="smet_calc_name" key="0" sourcetable="./a/a" sourcecolumn="smet_calc_name" used="1">a.smet_calc_name as smet_calc_name/**//*string*/
+</column></select><from>
+from <table name="vb_spr_smet_calc" as="a" used="1">vb_spr_smet_calc
+a
+--\vb_spr_smet_calc
+</table></from>)
+a
+--\vb_spr_smet_calc
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_spr_smet_calc" as="kod_spr_smet_calc" title="" key="1" thissrc="kod_spr_smet_calc">a.kod_spr_smet_calc</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_spr_smet_calc" as="kod_spr_smet_calc" title="" key="1" thissrc="kod_spr_smet_calc">a.kod_spr_smet_calc</column><text txtype="func"> ) like lower( </text><const><text>:kod_spr_smet_calc_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="smet_calc_name" as="smet_calc_name" title="" thissrc="smet_calc_name">a.smet_calc_name</column><text txtype="func"> ) like lower( </text><const><text>:smet_calc_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" timestamp="16.08.2019 17:31:45" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_smet_calc.xml" elid="649" ord="649" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" timestamp="16.08.2019 17:31:45" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_smet_calc.xml" elid="649" ord="649" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_spr_smet_calc_filter" type="string" />
+                    <param name="smet_calc_name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_spr_smet_calc" as="kod_spr_smet_calc" title="" key="1" />
+                    <column table="a" column="smet_calc_name" as="smet_calc_name" title="" />
+                  </select>
+                  <from>
+                    <query name="vb_spr_smet_calc" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_spr_smet_calc" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_spr_smet_calc" />
+                        <useparam name="kod_spr_smet_calc_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="smet_calc_name" />
+                        <useparam name="smet_calc_name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_spr_smet_calc_filter" />
+                    <useparam name="smet_calc_name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_spr_smet_calc_filter" type="string">
+                  <const>:kod_spr_smet_calc_filter </const>
+                </param>
+                <param name="smet_calc_name_filter" type="string">
+                  <const>:smet_calc_name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="szc">
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_spr_smet_calc_x_n.smet_calc_name as kod_spr_smet_calc_x_n, /*Статья калькуляции*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.kod_spr_smet_calc as kod_spr_smet_calc/*number*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.kod_spr_smet_calc as kod_spr_smet_calc  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n2 as kod_spr_smet_calc  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.kod_spr_smet_calc as kod_spr_smet_calc  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n2 as kod_spr_smet_calc  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.smet_calc_name as smet_calc_name/**//*string*/
+
+from vb_spr_smet_calc
+a
+--\vb_spr_smet_calc
+)
+kod_spr_smet_calc_x_n on szc.kod_spr_smet_calc = kod_spr_smet_calc_x_n.kod_spr_smet_calc--\vb_spr_smet_calc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_spr_smet_calc_x_n" table="szc" />
+          </dependants>
+        </column>
+        <column name="period_s" table="szc" type="number" title="Срок действия &quot;С_&quot;" ColumnEditable="1" is-user-editable="1" ColumnDefault="spr_time_ym_cur" ColumnMandatory="1" is-updateable="1" is-updateable-ext="1" update-target="period_s" temp-col-name="n3">
+          <sel-list-compiled>
+            <root>
+              <query class="1" order="ym desc" timestamp="30.08.2019 16:34:59" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="ym">ym</column>
+                </order>
+                <select>--a
+select <column table="a" column="ym" key="1" as="ym" used="1" type="number" into="n1">a.ym as ym, /*number*//*key*/
+</column><column table="a" column="name" vid="1" is-name="1" as="name" key="0" used="1" type="string" title="Период" into="s1">a.name as name/*Период*//*string*/
+</column></select>
+                <from>
+from <query name="spr_time_ym_pre" as="a" path="./a/a" order="ym" haskeys="1" used="1">(
+<order notext="1"><column column="ym">ym</column></order><select>--spr_time_ym_pre
+select <call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text> as ym, /*number*//*key*/
+</call><call function="ym to char" as="name" title="Период" key="0" group="max" pth="" type="string" used="1">max(<text txtype="func"> trim(to_char( </text><call function="date to ym" as="ym" key="1" pth="" type="number" thissrc="ym">(<text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>) </call><text txtype="func"> ,'9999.99')) </text>)  as name/*Период*//*string*/
+</call></select><from>
+from <table name="vv_day" as="a" used="1">vv_day
+a
+--\vv_day
+</table></from><group> group by
+<call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>/*number*//*key*/
+</call></group><order>
+order by ym</order>)
+a
+--\spr_time_ym_pre
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> and </text><call function="between" pth="" type="bool">(<call function="trunc" pth="" type="number">(<text txtype="func"> trunc( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> ) </text>) </call><text txtype="func"> between </text><call function="-" pth="" type="number">(<call function="year" pth="" type="number">(<text txtype="func"> to_number(to_char( </text><call function="sysdate" pth="" type="date">(<text txtype="func"> sysdate </text>) </call><text txtype="func"> ,'YYYY')) </text>) </call><text txtype="func"> - </text><const><text>4</text></const>) </call><text txtype="func"> and </text><call function="year" pth="" type="number">(<text txtype="func"> to_number(to_char( </text><call function="sysdate" pth="" type="date">(<text txtype="func"> sysdate </text>) </call><text txtype="func"> ,'YYYY')) </text>) </call>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> in </text><const><text>:obj_name </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> ) like lower( </text><const><text>:ym_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by ym desc</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" order="ym desc" timestamp="30.08.2019 16:34:59" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" order="ym desc" timestamp="30.08.2019 16:34:59" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="obj_name" type="array" />
+                    <param name="ym_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="ym" key="1" as="ym" />
+                    <column table="a" column="name" vid="1" is-name="1" as="name" />
+                  </select>
+                  <from>
+                    <query name="spr_time_ym_pre" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="between">
+                        <call function="trunc">
+                          <column table="this" column="ym" />
+                        </call>
+                        <call function="-">
+                          <call function="year">
+                            <call function="sysdate" />
+                          </call>
+                          <const>4</const>
+                        </call>
+                        <call function="year">
+                          <call function="sysdate" />
+                        </call>
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="obj_name" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="ym_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="obj_name" />
+                    <useparam name="ym_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="obj_name" type="array">
+                  <const>:obj_name </const>
+                </param>
+                <param name="ym_filter" type="string">
+                  <const>:ym_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="szc">
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_smet as valid_smet, /*string*/
+szc.valid_po as valid_po, /*string*/
+period_s_x_n.name as period_s_x_n, /*Срок действия "С_"*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.period_s as period_s, /*number*/
+ case  when (( count( a.kod_spr_smet_zatr )  over(  partition by a.smet_code )  &gt; 1)  and ( nvl( ( case  when (( lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or ( lead( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or (a.period_s between  lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  and  lag( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_s ) )  or (( nvl( a.period_po , 9999.99 ) )  between  lead( a.period_s )  over(  partition by a.smet_code order by a.period_po )  and  lead( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_po ) ) )  then 1 else 0 end )  ,0)=1 ) )  then '[inf]Более одной одинаковой статьи затрат в один промежуток времени' end  as valid_smet, /*string*/
+ case  when ((a.period_po &lt; a.period_s) )  then '[inf]Срок По не может быть меньше срока С. Значение срока ПО будет приравнено сроку С' end  as valid_po/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_s as period_s,a.smet_code as smet_code,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n3 as period_s,t.n1 as smet_code,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_s as period_s,a.smet_code as smet_code,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n3 as period_s,t.n1 as smet_code,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_s_x_n on szc.period_s = period_s_x_n.ym--\mped_spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="valid_smet" table="szc" />
+            <dependant name="valid_po" table="szc" />
+            <dependant name="period_s_x_n" table="szc" />
+          </dependants>
+        </column>
+        <column name="period_po" table="szc" type="number" title="Срок действия &quot;По_&quot;" parname="po_not_null" ColumnEditable="1" is-user-editable="1" ClientValid="valid_po" is-updateable="1" is-updateable-ext="1" update-target="period_po" temp-col-name="n4">
+          <sel-list-compiled>
+            <root>
+              <query class="1" order="ym desc" timestamp="30.08.2019 16:34:59" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="ym">ym</column>
+                </order>
+                <select>--a
+select <column table="a" column="ym" key="1" as="ym" used="1" type="number" into="n1">a.ym as ym, /*number*//*key*/
+</column><column table="a" column="name" vid="1" is-name="1" as="name" key="0" used="1" type="string" title="Период" into="s1">a.name as name/*Период*//*string*/
+</column></select>
+                <from>
+from <query name="spr_time_ym_pre" as="a" path="./a/a" order="ym" haskeys="1" used="1">(
+<order notext="1"><column column="ym">ym</column></order><select>--spr_time_ym_pre
+select <call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text> as ym, /*number*//*key*/
+</call><call function="ym to char" as="name" title="Период" key="0" group="max" pth="" type="string" used="1">max(<text txtype="func"> trim(to_char( </text><call function="date to ym" as="ym" key="1" pth="" type="number" thissrc="ym">(<text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>) </call><text txtype="func"> ,'9999.99')) </text>)  as name/*Период*//*string*/
+</call></select><from>
+from <table name="vv_day" as="a" used="1">vv_day
+a
+--\vv_day
+</table></from><group> group by
+<call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>/*number*//*key*/
+</call></group><order>
+order by ym</order>)
+a
+--\spr_time_ym_pre
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> and </text><call function="between" pth="" type="bool">(<call function="trunc" pth="" type="number">(<text txtype="func"> trunc( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> ) </text>) </call><text txtype="func"> between </text><call function="-" pth="" type="number">(<call function="year" pth="" type="number">(<text txtype="func"> to_number(to_char( </text><call function="sysdate" pth="" type="date">(<text txtype="func"> sysdate </text>) </call><text txtype="func"> ,'YYYY')) </text>) </call><text txtype="func"> - </text><const><text>4</text></const>) </call><text txtype="func"> and </text><call function="year" pth="" type="number">(<text txtype="func"> to_number(to_char( </text><call function="sysdate" pth="" type="date">(<text txtype="func"> sysdate </text>) </call><text txtype="func"> ,'YYYY')) </text>) </call>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> in </text><const><text>:obj_name </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> ) like lower( </text><const><text>:ym_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by ym desc</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" order="ym desc" timestamp="30.08.2019 16:34:59" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" order="ym desc" timestamp="30.08.2019 16:34:59" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="obj_name" type="array" />
+                    <param name="ym_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="ym" key="1" as="ym" />
+                    <column table="a" column="name" vid="1" is-name="1" as="name" />
+                  </select>
+                  <from>
+                    <query name="spr_time_ym_pre" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="between">
+                        <call function="trunc">
+                          <column table="this" column="ym" />
+                        </call>
+                        <call function="-">
+                          <call function="year">
+                            <call function="sysdate" />
+                          </call>
+                          <const>4</const>
+                        </call>
+                        <call function="year">
+                          <call function="sysdate" />
+                        </call>
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="obj_name" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="ym_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="obj_name" />
+                    <useparam name="ym_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="obj_name" type="array">
+                  <const>:obj_name </const>
+                </param>
+                <param name="ym_filter" type="string">
+                  <const>:ym_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="szc">
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_storn as valid_storn, /*string*/
+szc.valid_smet as valid_smet, /*string*/
+szc.valid_po as valid_po, /*string*/
+period_po_x_n.name as period_po_x_n, /*Срок действия "По_"*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.period_po as period_po, /*number*/
+ case  when ((a.storn is not null )  and (a.period_po is null ) )  then '[inf]Признак не может быть заполнен, если срок ПО пустой. Значение будет удалено' end  as valid_storn, /*string*/
+ case  when (( count( a.kod_spr_smet_zatr )  over(  partition by a.smet_code )  &gt; 1)  and ( nvl( ( case  when (( lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or ( lead( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or (a.period_s between  lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  and  lag( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_s ) )  or (( nvl( a.period_po , 9999.99 ) )  between  lead( a.period_s )  over(  partition by a.smet_code order by a.period_po )  and  lead( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_po ) ) )  then 1 else 0 end )  ,0)=1 ) )  then '[inf]Более одной одинаковой статьи затрат в один промежуток времени' end  as valid_smet, /*string*/
+ case  when ((a.period_po &lt; a.period_s) )  then '[inf]Срок По не может быть меньше срока С. Значение срока ПО будет приравнено сроку С' end  as valid_po/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_po as period_po,a.storn as storn,a.smet_code as smet_code,a.period_s as period_s  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n4 as period_po,t.n5 as storn,t.n1 as smet_code,t.n3 as period_s  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_po as period_po,a.storn as storn,a.smet_code as smet_code,a.period_s as period_s  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n4 as period_po,t.n5 as storn,t.n1 as smet_code,t.n3 as period_s  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_po_x_n on szc.period_po = period_po_x_n.ym--\mped_spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="valid_storn" table="szc" />
+            <dependant name="valid_smet" table="szc" />
+            <dependant name="valid_po" table="szc" />
+            <dependant name="period_po_x_n" table="szc" />
+          </dependants>
+        </column>
+        <column name="storn" table="szc" type="number" title="Сторнировать в следующем периоде" ClientEditable="po_not_null" is-user-editable="1" ClientValid="valid_storn" is-updateable="1" is-updateable-ext="1" update-target="storn" temp-col-name="n5">
+          <sel-list-compiled>
+            <root>
+              <query class="1" order="id" timestamp="04.07.2019 15:08:11" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="id">id</column>
+                </order>
+                <select>--a
+select <column table="a" column="id" key="1" as="id" used="1" type="number" into="n1">a.id as id, /*number*//*key*/
+</column><column table="a" column="name" vid="1" is-name="1" as="name" key="0" used="1" type="string" into="s1">a.name as name/*string*/
+</column></select>
+                <from>
+from <query name="mped_yes_no_pre" as="a" path="./a/a" used="1">(
+<select>--mped_yes_no_pre
+select <column table="u" column="id" as="id" type="number" key="1" fixed="1" used="1">u.id as id, /*number*//*key*/
+</column><column table="u" column="name" as="name" type="string" key="0" used="1">u.name as name/*string*/
+</column></select><from>
+from <query as="u" used="1" path="./a/a/u">(
+<query used="1" path="./a/a/u">(
+<query haskeys="1" union="1" used="1" path="./a/a/u">(
+<select>--
+select <const as="id" type="number" key="1" fixed="1" used="1"><text>0</text> as id, /*number*//*key*/
+</const><const as="name" type="string" key="0" used="1"><text>'Нет'</text> as name/*string*/
+</const></select><from>
+from <table name="dual" used="1">dual
+
+--\dual
+</table></from>)
+--\
+</query><query union="1" used="1" path="./a/a/u">union all
+(
+<select>--
+select <const used="1" key="1"><text>1</text>, /*key*/
+</const><const used="1" key="0"><text>'Да'</text>
+</const></select><from>
+from <table name="dual" used="1">dual
+
+--\dual
+</table></from>)
+--\
+</query>)
+--\
+</query>)
+u
+--\
+</query></from>)
+a
+--\mped_yes_no_pre
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="id" key="1" as="id" thissrc="id">a.id</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> in </text><const><text>:obj_name </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="id" key="1" as="id" thissrc="id">a.id</column><text txtype="func"> ) like lower( </text><const><text>:id_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by id</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" order="id" timestamp="04.07.2019 15:08:11" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" order="id" timestamp="04.07.2019 15:08:11" file="sql.builder.templates\sql.builder\projects\mped\data\queries.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="obj_name" type="array" />
+                    <param name="id_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="id" key="1" as="id" />
+                    <column table="a" column="name" vid="1" is-name="1" as="name" />
+                  </select>
+                  <from>
+                    <query name="mped_yes_no_pre" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="id" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="obj_name" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="id" />
+                        <useparam name="id_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="id" />
+                  </order>
+                  <order>
+                    <column column="id" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="obj_name" />
+                    <useparam name="id_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="obj_name" type="array">
+                  <const>:obj_name </const>
+                </param>
+                <param name="id_filter" type="string">
+                  <const>:id_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="szc">
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_storn as valid_storn, /*string*/
+storn_x_n.name as storn_x_n, /*Сторнировать в следующем периоде*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.storn as storn, /**//*number*/
+ case  when ((a.storn is not null )  and (a.period_po is null ) )  then '[inf]Признак не может быть заполнен, если срок ПО пустой. Значение будет удалено' end  as valid_storn/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.storn as storn,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n5 as storn,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.storn as storn,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n5 as storn,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_yes_no
+select a.id as id, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+--mped_yes_no_pre
+select u.id as id, /*number*//*key*/
+u.name as name/*string*/
+
+from (
+(
+(
+--
+select 0 as id, /*number*//*key*/
+'Нет' as name/*string*/
+
+from dual
+
+--\dual
+)
+--\
+union all
+(
+--
+select 1, /*key*/
+'Да'
+
+from dual
+
+--\dual
+)
+--\
+)
+--\
+)
+u
+--\
+)
+a
+--\mped_yes_no_pre
+)
+storn_x_n on szc.storn = storn_x_n.id--\mped_yes_no
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="valid_storn" table="szc" />
+            <dependant name="storn_x_n" table="szc" />
+          </dependants>
+        </column>
+        <column name="valid_storn" table="szc" type="string" title="" parname="valid_storn" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_storn as valid_storn, /*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+ case  when ((a.storn is not null )  and (a.period_po is null ) )  then '[inf]Признак не может быть заполнен, если срок ПО пустой. Значение будет удалено' end  as valid_storn/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.storn as storn,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n5 as storn,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.storn as storn,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n5 as storn,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="valid_smet" table="szc" type="string" title="" parname="valid_smet" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_smet as valid_smet, /*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+ case  when (( count( a.kod_spr_smet_zatr )  over(  partition by a.smet_code )  &gt; 1)  and ( nvl( ( case  when (( lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or ( lead( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or (a.period_s between  lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  and  lag( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_s ) )  or (( nvl( a.period_po , 9999.99 ) )  between  lead( a.period_s )  over(  partition by a.smet_code order by a.period_po )  and  lead( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_po ) ) )  then 1 else 0 end )  ,0)=1 ) )  then '[inf]Более одной одинаковой статьи затрат в один промежуток времени' end  as valid_smet/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.smet_code as smet_code,a.period_s as period_s,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n1 as smet_code,t.n3 as period_s,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.smet_code as smet_code,a.period_s as period_s,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n1 as smet_code,t.n3 as period_s,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="valid_po" table="szc" type="string" title="" parname="valid_po" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select szc.valid_po as valid_po, /*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+ case  when ((a.period_po &lt; a.period_s) )  then '[inf]Срок По не может быть меньше срока С. Значение срока ПО будет приравнено сроку С' end  as valid_po/*string*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_po as period_po,a.period_s as period_s  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n4 as period_po,t.n3 as period_s  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_po as period_po,a.period_s as period_s  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n4 as period_po,t.n3 as period_s  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_spr_smet_calc_x_n" table="szc.kod_spr_smet_calc" type="string" title="Статья калькуляции" text-source-for="kod_spr_smet_calc" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_spr_smet_calc_x_n.smet_calc_name as kod_spr_smet_calc_x_n, /*Статья калькуляции*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.kod_spr_smet_calc as kod_spr_smet_calc/*number*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.kod_spr_smet_calc as kod_spr_smet_calc  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n2 as kod_spr_smet_calc  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.kod_spr_smet_calc as kod_spr_smet_calc  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n2 as kod_spr_smet_calc  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.smet_calc_name as smet_calc_name/**//*string*/
+
+from vb_spr_smet_calc
+a
+--\vb_spr_smet_calc
+)
+kod_spr_smet_calc_x_n on szc.kod_spr_smet_calc = kod_spr_smet_calc_x_n.kod_spr_smet_calc--\vb_spr_smet_calc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="period_s_x_n" table="szc.period_s" type="string" title="Срок действия &quot;С_&quot;" text-source-for="period_s" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select period_s_x_n.name as period_s_x_n, /*Срок действия "С_"*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.period_s as period_s/*number*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_s as period_s  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n3 as period_s  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_s as period_s  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n3 as period_s  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_s_x_n on szc.period_s = period_s_x_n.ym--\mped_spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="period_po_x_n" table="szc.period_po" type="string" title="Срок действия &quot;По_&quot;" text-source-for="period_po" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select period_po_x_n.name as period_po_x_n, /*Срок действия "По_"*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.period_po as period_po/*number*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.period_po as period_po  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n4 as period_po  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_po_x_n on szc.period_po = period_po_x_n.ym--\mped_spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="storn_x_n" table="szc.storn" type="string" title="Сторнировать в следующем периоде" text-source-for="storn" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select storn_x_n.name as storn_x_n, /*Сторнировать в следующем периоде*//*string*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.storn as storn/**//*number*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.storn as storn  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n5 as storn  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.storn as storn  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n5 as storn  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_yes_no
+select a.id as id, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+--mped_yes_no_pre
+select u.id as id, /*number*//*key*/
+u.name as name/*string*/
+
+from (
+(
+(
+--
+select 0 as id, /*number*//*key*/
+'Нет' as name/*string*/
+
+from dual
+
+--\dual
+)
+--\
+union all
+(
+--
+select 1, /*key*/
+'Да'
+
+from dual
+
+--\dual
+)
+--\
+)
+--\
+)
+u
+--\
+)
+a
+--\mped_yes_no_pre
+)
+storn_x_n on szc.storn = storn_x_n.id--\mped_yes_no
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="szc" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="szc" type="number" title="" is-user-editable="1" />
+        <column name="kod_spr_smet_zatr" table="szc" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_spr_smet_zatr" temp-col-name="n6" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:smet_code as smet_code 
+,:smet_name as smet_name 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+,:period_s as period_s 
+,:period_po as period_po 
+,:storn as storn 
+,:kod_spr_smet_zatr as kod_spr_smet_zatr 
+ 
+from dual ) 
+ 
+loop 
+insert into vb_spr_smet_zatr_calc 
+(smet_code 
+,smet_name 
+,kod_spr_smet_calc 
+,period_s 
+,period_po 
+,storn 
+,kod_spr_smet_zatr 
+) 
+ values  
+(r.smet_code 
+,r.smet_name 
+,r.kod_spr_smet_calc 
+,r.period_s 
+,r.period_po 
+,r.storn 
+,r.kod_spr_smet_zatr 
+) 
+ returning  
+kod_spr_smet_zatr into :kod_spr_smet_zatr; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vb_spr_smet_zatr_calc where kod_spr_smet_zatr=:kod_spr_smet_zatr</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='szc' 
+and 
+names=:form_id 
+and 
+f2=:kod_spr_smet_zatr; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:smet_code as smet_code 
+,:smet_name as smet_name 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+,:period_s as period_s 
+,:period_po as period_po 
+,:storn as storn 
+,:kod_spr_smet_zatr as kod_spr_smet_zatr 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,s1 
+,n2 
+,n3 
+,n4 
+,n5 
+,n6 
+) 
+ values  
+('szc' 
+,:form_id 
+,:kod_spr_smet_zatr 
+,:row_state_id 
+,r.smet_code 
+,r.smet_name 
+,r.kod_spr_smet_calc 
+,r.period_s 
+,r.period_po 
+,r.storn 
+,r.kod_spr_smet_zatr 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:smet_code as smet_code 
+,:smet_name as smet_name 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+,:period_s as period_s 
+,:period_po as period_po 
+,:storn as storn 
+,:kod_spr_smet_zatr as kod_spr_smet_zatr 
+ 
+from vb_spr_smet_zatr_calc a  where kod_spr_smet_zatr=:kod_spr_smet_zatr) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,s1 
+,n2 
+,n3 
+,n4 
+,n5 
+,n6 
+) 
+ values  
+('szc' 
+,:form_id 
+,:kod_spr_smet_zatr 
+,:row_state_id 
+,r.smet_code 
+,r.smet_name 
+,r.kod_spr_smet_calc 
+,r.period_s 
+,r.period_po 
+,r.storn 
+,r.kod_spr_smet_zatr 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='szc' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vb_spr_smet_zatr_calc set  
+(smet_code 
+,smet_name 
+,kod_spr_smet_calc 
+,period_s 
+,period_po 
+,storn 
+,kod_spr_smet_zatr 
+) 
+= 
+ ( select  
+:smet_code as smet_code 
+,:smet_name as smet_name 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+,:period_s as period_s 
+,:period_po as period_po 
+,:storn as storn 
+,:kod_spr_smet_zatr as kod_spr_smet_zatr 
+ 
+from dual ) 
+ 
+where 
+kod_spr_smet_zatr=:kod_spr_smet_zatr 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vb_spr_smet_zatr_calc" as="szc">
+          <columns>
+            <column name="smet_code" type="number" format="F0" edit-mask="F0" title="Статья затрат" />
+            <column name="smet_name" type="string" title="Наименование статьи затрат" />
+            <column name="kod_spr_smet_calc" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="period_s" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="period_po" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="storn" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="valid_storn" type="string" title="" visible="0" />
+            <column name="valid_smet" type="string" title="" visible="0" />
+            <column name="valid_po" type="string" title="" visible="0" />
+            <column name="kod_spr_smet_calc_x_n" type="string" title="Статья калькуляции" />
+            <column name="period_s_x_n" type="string" title="Срок действия &quot;С_&quot;" />
+            <column name="period_po_x_n" type="string" title="Срок действия &quot;По_&quot;" />
+            <column name="storn_x_n" type="string" title="Сторнировать в следующем периоде" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_spr_smet_zatr" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="smet_code" type="number" format="F0" edit-mask="F0" title="Статья затрат" />
+            <column name="smet_name" type="string" title="Наименование статьи затрат" />
+            <column name="kod_spr_smet_calc_x_n" type="string" title="Статья калькуляции" />
+            <column name="kod_spr_smet_calc" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="period_s_x_n" type="string" title="Срок действия &quot;С_&quot;" />
+            <column name="period_s" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="period_po_x_n" type="string" title="Срок действия &quot;По_&quot;" />
+            <column name="period_po" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="storn_x_n" type="string" title="Сторнировать в следующем периоде" />
+            <column name="storn" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="valid_storn" type="string" title="" visible="0" />
+            <column name="valid_smet" type="string" title="" visible="0" />
+            <column name="valid_po" type="string" title="" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_spr_smet_zatr" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_spr_smet_zatr_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select szc.smet_code as smet_code, /*Статья затрат*//*number*/
+szc.smet_name as smet_name, /*Наименование статьи затрат*//*string*/
+szc.kod_spr_smet_calc as kod_spr_smet_calc, /*Статья калькуляции*//*number*/
+szc.period_s as period_s, /*Срок действия "С_"*//*number*/
+szc.period_po as period_po, /*Срок действия "По_"*//*number*/
+szc.storn as storn, /*Сторнировать в следующем периоде*//*number*/
+szc.valid_storn as valid_storn, /*string*/
+szc.valid_smet as valid_smet, /*string*/
+szc.valid_po as valid_po, /*string*/
+kod_spr_smet_calc_x_n.smet_calc_name as kod_spr_smet_calc_x_n, /*Статья калькуляции*//*string*/
+period_s_x_n.name as period_s_x_n, /*Срок действия "С_"*//*string*/
+period_po_x_n.name as period_po_x_n, /*Срок действия "По_"*//*string*/
+storn_x_n.name as storn_x_n, /*Сторнировать в следующем периоде*//*string*/
+szc.is_new as is_new, /*number*/
+szc.is_not_new as is_not_new, /*number*/
+szc.kod_spr_smet_zatr as kod_spr_smet_zatr/*number*//*key*/
+
+from (
+--vb_spr_smet_zatr_calc
+select a.kod_spr_smet_zatr as kod_spr_smet_zatr, /*number*//*key*/
+a.smet_code as smet_code, /**//*number*/
+a.smet_name as smet_name, /**//*string*/
+a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*/
+a.period_s as period_s, /*number*/
+a.period_po as period_po, /*number*/
+a.storn as storn, /**//*number*/
+ case  when ((a.storn is not null )  and (a.period_po is null ) )  then '[inf]Признак не может быть заполнен, если срок ПО пустой. Значение будет удалено' end  as valid_storn, /*string*/
+ case  when (( count( a.kod_spr_smet_zatr )  over(  partition by a.smet_code )  &gt; 1)  and ( nvl( ( case  when (( lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or ( lead( a.period_s )  over(  partition by a.smet_code order by a.period_s )  between a.period_s and ( nvl( a.period_po , 9999.99 ) ) )  or (a.period_s between  lag( a.period_s )  over(  partition by a.smet_code order by a.period_s )  and  lag( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_s ) )  or (( nvl( a.period_po , 9999.99 ) )  between  lead( a.period_s )  over(  partition by a.smet_code order by a.period_po )  and  lead( ( nvl( a.period_po , 9999.99 ) )  )  over(  partition by a.smet_code order by a.period_po ) ) )  then 1 else 0 end )  ,0)=1 ) )  then '[inf]Более одной одинаковой статьи затрат в один промежуток времени' end  as valid_smet, /*string*/
+ case  when ((a.period_po &lt; a.period_s) )  then '[inf]Срок По не может быть меньше срока С. Значение срока ПО будет приравнено сроку С' end  as valid_po, /*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.smet_code as smet_code,a.smet_name as smet_name,a.kod_spr_smet_calc as kod_spr_smet_calc,a.period_s as period_s,a.period_po as period_po,a.storn as storn,0 as is_new,1 as is_not_new  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n1 as smet_code,t.s1 as smet_name,t.n2 as kod_spr_smet_calc,t.n3 as period_s,t.n4 as period_po,t.n5 as storn,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+a
+--\(select a.kod_spr_smet_zatr as kod_spr_smet_zatr,a.smet_code as smet_code,a.smet_name as smet_name,a.kod_spr_smet_calc as kod_spr_smet_calc,a.period_s as period_s,a.period_po as period_po,a.storn as storn,0 as is_new,1 as is_not_new  from vb_spr_smet_zatr_calc a where not exists (select * from rr_temp t where t.skod ='szc' and t.names=:form_id  and a.kod_spr_smet_zatr=t.f2 ) and   a.kod_spr_smet_zatr in :kod_spr_smet_zatr_prm   union all  select t.n6 as kod_spr_smet_zatr,t.n1 as smet_code,t.s1 as smet_name,t.n2 as kod_spr_smet_calc,t.n3 as period_s,t.n4 as period_po,t.n5 as storn,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='szc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_zatr_prm )
+)
+szc
+--\vb_spr_smet_zatr_calc
+left outer join
+(
+--mped_yes_no
+select a.id as id, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+--mped_yes_no_pre
+select u.id as id, /*number*//*key*/
+u.name as name/*string*/
+
+from (
+(
+(
+--
+select 0 as id, /*number*//*key*/
+'Нет' as name/*string*/
+
+from dual
+
+--\dual
+)
+--\
+union all
+(
+--
+select 1, /*key*/
+'Да'
+
+from dual
+
+--\dual
+)
+--\
+)
+--\
+)
+u
+--\
+)
+a
+--\mped_yes_no_pre
+)
+storn_x_n on szc.storn = storn_x_n.id--\mped_yes_no
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_po_x_n on szc.period_po = period_po_x_n.ym--\mped_spr_time_ym
+left outer join
+(
+--mped_spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+where
+( trunc( a.ym ) )  between (( to_number(to_char( ( sysdate )  ,'YYYY')) )  - 4)  and ( to_number(to_char( ( sysdate )  ,'YYYY')) ) )
+period_s_x_n on szc.period_s = period_s_x_n.ym--\mped_spr_time_ym
+left outer join
+(
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.smet_calc_name as smet_calc_name/**//*string*/
+
+from vb_spr_smet_calc
+a
+--\vb_spr_smet_calc
+)
+kod_spr_smet_calc_x_n on szc.kod_spr_smet_calc = kod_spr_smet_calc_x_n.kod_spr_smet_calc--\vb_spr_smet_calc
+
+order by smet_code, period_s, period_po--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

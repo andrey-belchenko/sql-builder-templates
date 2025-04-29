@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="45862_vb_fdr_change" timestamp="28.12.2023 14:38:57" title="Изменить список фидеров" file="sql.builder.templates\sql.builder\projects\45862\form\forms.xml" elid="61" ord="61" leaf="0" lvl="2" pelid="">
+    <grid table="a" show-toolbar="1" show-checkbox="1" auto-filter="1" id="59756007">
+      <toolbar id="17455476">
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="365" ord="365" leaf="1" lvl="2" pelid="" title="" id="12380598" />
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="52191933" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="367" ord="367" leaf="1" lvl="2" pelid="" title="" id="14709064" />
+        <uicommand action-type="custom" title="Привязать выбранные" button-type="custom-ok" name="custom-ok" icon="Ok_24" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="381" ord="381" leaf="1" lvl="2" pelid="" id="31984473">
+          <useaction action-type="save" id="41382928" />
+          <useaction title="Обновить настройки КГ" name="vb_kol_gr_pack.upd_kg_nastr" id="37000776">
+            <useparam name="kod_nastr" id="45811567" />
+            <useparam name="ym" id="12093972" />
+          </useaction>
+          <useaction title="Обновить имя КГ" name="vb_kol_gr_pack.upd_kg_name" id="50659585">
+            <useparam name="kod_nastr" id="14884096" />
+          </useaction>
+          <useaction action-type="close" id="603480" />
+        </uicommand>
+      </toolbar>
+      <columns id="4843083">
+        <field table="a" name="pwrc_fdrid" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="42962681" />
+        <field table="a" name="entire_fdr" title="Включить фидер целиком" controlType="UICheck" rows-limit="100" id="48156690" />
+        <field table="a" name="pwrc_fdrname" title="Фидер" width="120" controlType="UIText" rows-limit="100" id="3257706" />
+        <field table="a" name="pwrcname" title="ПС" width="337" controlType="UIText" rows-limit="100" id="16094805" />
+        <field table="a" name="kod_kol_gr_pwrc" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="36680928" />
+      </columns>
+      <events id="56840491">
+        <useaction event-name="checked-row-save" action-type="custom" id="37792406">
+          <useaction action-type="execute-add" call="vb_add_fdr" id="58958493">
+            <useparam name="pwrc_fdrid" id="55356858" />
+            <useparam name="kod_kol_gr_pwrc" id="48232341" />
+            <useparam name="entire_fdr" id="6177244" />
+          </useaction>
+        </useaction>
+      </events>
+    </grid>
+  </form>
+  <params>
+    <param name="kod_nastr" type="number" />
+    <param name="ym" type="number" />
+  </params>
+  <dataset>
+    <params>
+      <param name="kod_nastr" type="number" />
+      <param name="ym" type="number" />
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="vb_nastr_fdr_list" column-editable="0" key="pk" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select a.pwrc_fdrid as pwrc_fdrid, /*number*/
+a.entire_fdr as entire_fdr, /*Включить фидер целиком*//*number*/
+a.pwrc_fdrname as pwrc_fdrname, /*Фидер*//*string*/
+a.pwrcname as pwrcname, /*ПС*//*string*/
+a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*number*/
+pwrc_fdrid_x_n.kod_kol_gr_pwrc as pwrc_fdrid_x_n, /*Код настройки ПС*//*number*/
+a.pk as pk/*string*//*key*/
+
+from (
+--vb_nastr_fdr_list
+select pwrc_id.kod_kol_gr_pwrc || '-' || a.pwrc_fdrid as pk, /*string*//*key*/
+a.pwrc_fdrid as pwrc_fdrid, /*number*/
+a.pwrc_fdrname as pwrc_fdrname, /*Фидер*//*string*/
+a.pwrcname as pwrcname, /*ПС*//*string*/
+pwrc_id.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*number*/
+pwrc_fdrid.entire_fdr as entire_fdr/*number*/
+
+from (
+--hv_eopwrc_fdrs
+select a.pwrc_fdrid as pwrc_fdrid, /**//*number*//*key*/
+a.pwrc_fdrname as pwrc_fdrname, /*Фидер*//*string*/
+a.pwrc_id as pwrc_id, /**//*number*/
+a.pwrcname as pwrcname/*ПС*//*string*/
+
+from hv_eopwrc_fdrs
+a
+--\hv_eopwrc_fdrs
+)
+a
+--\hv_eopwrc_fdrs
+left outer join
+(
+--vb_kol_gr_pwrc
+select a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*number*//*key*/
+a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*Код настройки кольцевой группы*//*number*/
+a.pwrc_id as pwrc_id/*Код ПС*//*number*/
+
+from vb_kol_gr_pwrc
+a
+--\vb_kol_gr_pwrc
+)
+pwrc_id on a.pwrc_id = pwrc_id.pwrc_id--\vb_kol_gr_pwrc
+left outer join
+(
+--vb_kol_gr_fdr
+select a.kod_kol_gr_fdr as kod_kol_gr_fdr, /*number*//*key*/
+a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*Код настройки ПС*//*number*/
+a.pwrc_fdrid as pwrc_fdrid, /*Код фидера*//*number*/
+a.entire_fdr as entire_fdr/**//*number*/
+
+from vb_kol_gr_fdr
+a
+--\vb_kol_gr_fdr
+)
+pwrc_fdrid on (a.pwrc_fdrid = pwrc_fdrid.pwrc_fdrid)  and (pwrc_id.kod_kol_gr_pwrc = pwrc_fdrid.kod_kol_gr_pwrc) --\vb_kol_gr_fdr
+left outer join
+(
+--vb_nastr_fdr_list_exclude
+select vb_kol_gr_fdr.pwrc_fdrid as pwrc_fdrid/*Код фидера*//*number*//*key*/
+
+from (
+--vb_kol_gr_fdr
+select a.kod_kol_gr_fdr as kod_kol_gr_fdr, /*number*//*key*/
+a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*Код настройки ПС*//*number*/
+a.pwrc_fdrid as pwrc_fdrid/*Код фидера*//*number*/
+
+from vb_kol_gr_fdr
+a
+--\vb_kol_gr_fdr
+)
+vb_kol_gr_fdr
+--\vb_kol_gr_fdr
+left outer join
+(
+--vb_kol_gr_pwrc
+select a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*number*//*key*/
+a.kod_kol_gr_nastr as kod_kol_gr_nastr/*Код настройки кольцевой группы*//*number*/
+
+from vb_kol_gr_pwrc
+a
+--\vb_kol_gr_pwrc
+)
+kod_kol_gr_pwrc on vb_kol_gr_fdr.kod_kol_gr_pwrc = kod_kol_gr_pwrc.kod_kol_gr_pwrc--\vb_kol_gr_pwrc
+left outer join
+(
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.s as s, /*Период с*//*number*/
+a.po as po/*Период по*//*number*/
+
+from vb_kol_gr_nastr
+a
+--\vb_kol_gr_nastr
+)
+kod_kol_gr_nastr on kod_kol_gr_pwrc.kod_kol_gr_nastr = kod_kol_gr_nastr.kod_kol_gr_nastr--\vb_kol_gr_nastr
+left outer join
+(
+--vb_kol_gr_tp
+select a.kod_kol_gr_tp as kod_kol_gr_tp, /*number*//*key*/
+a.kod_kol_gr_fdr as kod_kol_gr_fdr/*Код настройки фидеров*//*number*/
+
+from vb_kol_gr_tp
+a
+--\vb_kol_gr_tp
+)
+vb_kol_gr_tp on vb_kol_gr_tp.kod_kol_gr_fdr = vb_kol_gr_fdr.kod_kol_gr_fdr--\vb_kol_gr_tp
+where
+((kod_kol_gr_nastr.po is null )  or (kod_kol_gr_nastr.po &gt;= :ym ) )  and (kod_kol_gr_nastr.s &lt;= :ym )  and (vb_kol_gr_tp.kod_kol_gr_tp is null )  group by
+vb_kol_gr_fdr.pwrc_fdrid/*Код фидера*//*number*//*key*/
+)
+pwrc_fdrid_exclude on a.pwrc_fdrid = pwrc_fdrid_exclude.pwrc_fdrid--\vb_nastr_fdr_list_exclude
+where
+(pwrc_id.kod_kol_gr_nastr = :kod_nastr )  and (pwrc_id.kod_kol_gr_pwrc is not null )  and (pwrc_fdrid.kod_kol_gr_fdr is null )  and (pwrc_fdrid_exclude.pwrc_fdrid is null ) )
+a
+--\vb_nastr_fdr_list
+left outer join
+(
+--vb_kol_gr_fdr
+select a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*Код настройки ПС*//*number*/
+a.pwrc_fdrid as pwrc_fdrid/*Код фидера*//*number*/
+
+from vb_kol_gr_fdr
+a
+--\vb_kol_gr_fdr
+)
+pwrc_fdrid_x_n on (a.pwrc_fdrid = pwrc_fdrid_x_n.pwrc_fdrid)  and (a.kod_kol_gr_pwrc = pwrc_fdrid_x_n.kod_kol_gr_pwrc) --\vb_kol_gr_fdr
+
+order by pwrcname, pwrc_fdrname--\
+</select-text>
+      <columns>
+        <column name="pwrc_fdrid" table="a" type="number" title="" parname="pwrc_fdrid" ColumnVisible="0" is-refreshed="1" />
+        <column name="entire_fdr" table="a" type="number" title="Включить фидер целиком" parname="entire_fdr" ClientEditable="1" is-user-editable="1" is-updateable-ext="1" is-refreshed="1" update-target="entire_fdr" temp-col-name="n1" />
+        <column name="pwrc_fdrname" table="a" type="string" title="Фидер" is-user-editable="1" is-refreshed="1" />
+        <column name="pwrcname" table="a" type="string" title="ПС" is-user-editable="1" is-refreshed="1" />
+        <column name="kod_kol_gr_pwrc" table="a" type="number" title="" parname="kod_kol_gr_pwrc" ColumnVisible="0" is-refreshed="1" />
+        <column name="pwrc_fdrid_x_n" table="a.pwrc_fdrid" type="number" title="" text-source-for="pwrc_fdrid" is-refreshed="1" />
+        <column name="pk" table="a" type="string" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+ 
+from dual ) 
+ 
+loop 
+insert into vb_nastr_fdr_list 
+() 
+ values  
+() 
+ returning  
+pk into :pk; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vb_nastr_fdr_list where pk=:pk</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:pk; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:entire_fdr as entire_fdr 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+) 
+ values  
+('a' 
+,:form_id 
+,:pk 
+,:row_state_id 
+,r.entire_fdr 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:entire_fdr as entire_fdr 
+ 
+from vb_nastr_fdr_list a  where pk=:pk) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+) 
+ values  
+('a' 
+,:form_id 
+,:pk 
+,:row_state_id 
+,r.entire_fdr 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vb_nastr_fdr_list set  
+() 
+= 
+ ( select  
+ 
+from dual ) 
+ 
+where 
+pk=:pk 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vb_nastr_fdr_list" as="a">
+          <columns>
+            <column name="pwrc_fdrid" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="entire_fdr" type="number" title="Включить фидер целиком" />
+            <column name="pwrc_fdrname" type="string" title="Фидер" />
+            <column name="pwrcname" type="string" title="ПС" />
+            <column name="kod_kol_gr_pwrc" type="number" title="" visible="0" />
+            <column name="pwrc_fdrid_x_n" type="number" title="" visible="0" />
+            <column name="pk" type="string" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="pwrc_fdrid_x_n" type="number" title="" visible="0" />
+            <column name="pwrc_fdrid" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="entire_fdr" type="number" title="Включить фидер целиком" />
+            <column name="pwrc_fdrname" type="string" title="Фидер" />
+            <column name="pwrcname" type="string" title="ПС" />
+            <column name="kod_kol_gr_pwrc" type="number" title="" visible="0" />
+            <column name="pk" type="string" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+    </table>
+  </dataset>
+</root>

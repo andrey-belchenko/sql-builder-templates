@@ -1,0 +1,898 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="20.08.2023 15:53:59">
+  <query name="sr_opl_norm_av" comment="Уменьшение начислений авансов чтобы они не превышали осн реал. для сверхнорм" use-repository="1" intrval="FREQ=DAILY; INTERVAL=1" timestamp="20.08.2023 15:34:01" file="sql.builder.templates\sql.builder\projects\asuse2\reports\33654.xml" elid="1026" ord="1026" leaf="0" lvl="2" pelid="" path="." noname="1" used="1">
+    <select>
+      <column table="a" column="kod_opl" as="kod_opl" keypath=".kod_opl" used="1" key="1" type="number" sourcetable="./a/kod_opl_sf" sourcecolumn="kod_opl" reference="sr_opl_sf" refcol="kod_opl" />
+      <column table="a" column="opl_osn_v2" as="opl_osn" used="1" key="0" type="number" title="Оплата начислений" agg="sum" format="F2" sourcetable="./a/kod_sf" sourcecolumn="kod_sf" />
+      <column table="a" column="opl_av_v2" as="opl_av" used="1" key="0" type="number" title="Оплата начислений" agg="sum" format="F2" sourcetable="./a/kod_sf" sourcecolumn="kod_sf" />
+      <column table="a" column="dat_dolg_norm" as="dat_dolg_norm" used="1" key="0" type="date" title="Отчетный период начисления" format="F2" />
+      <column table="a" column="ym" as="ym_sf" used="1" key="0" type="number" title="Отчетный период начисления" format="F2" sourcetable="./a/kod_sf" sourcecolumn="ym" />
+      <column table="a" column="opl_osn_v2" comment="Набор выражений с суффиксом v2 заведен для проверки новой версии алгоритма по заявке 67698. Сейчас не используются, алгоритм применен для основных выражений. Оставил этот набор на случай если понадобится организовать аналогичную проверку в будущем" as="opl_osn_v2" used="1" key="0" type="number" title="Оплата начислений" agg="sum" format="F2" sourcetable="./a/kod_sf" sourcecolumn="kod_sf" />
+      <column table="a" column="opl_av_v2" as="opl_av_v2" used="1" key="0" type="number" title="Оплата начислений" agg="sum" format="F2" sourcetable="./a/kod_sf" sourcecolumn="kod_sf" />
+    </select>
+    <from>
+      <query name="sr_opl_norm_av1" as="a" path="./a" used="1">
+        <select>
+          <column table="kod_sf" column="dat_dolg_norm" as="dat_dolg_norm" used="1" key="0" type="date" title="Отчетный период начисления" format="F2" />
+          <column table="kod_sf" column="ym" as="ym" used="1" key="0" type="number" title="Отчетный период начисления" format="F2" sourcetable="./a/kod_sf" sourcecolumn="ym" />
+          <column table="kod_opl_sf" column="kod_opl" as="kod_opl" reference="sr_opl_sf" refcol="kod_opl" keypath=".kod_opl" used="1" key="1" type="number" sourcetable="./a/kod_opl_sf" sourcecolumn="kod_opl" />
+          <call function="if" as="opl_osn_v2" pth="" used="1" key="0" type="number" title="Оплата начислений" agg="sum" format="F2" sourcetable="./a/kod_sf" sourcecolumn="kod_sf">
+            <text txtype="func"> case </text>
+            <text txtype="func"> when </text>
+            <call function="or" pth="1" type="bool">
+              <call function="gt" pth="" type="bool">
+                <call function="-nvl" as="opl_osn_itog_v2" pth="" type="number">
+                  <text txtype="func"> nvl( </text>
+                  <call function="over" as="opl_itog" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <call function="order by rows * 0" pth="0" type="order">
+                      <text txtype="func"> order by </text>
+                      <column table="kod_opl_sf" column="dat_uch" />
+                      <text txtype="func"> ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW </text>
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0) </text>
+                  <text txtype="func"> -nvl( </text>
+                  <call function="over" as="nach_av_v2" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0) </text>
+                </call>
+                <text txtype="func"> &gt; </text>
+                <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+              </call>
+              <text txtype="func"> or </text>
+              <call function="=0" pth="" type="bool">
+                <text txtype="func"> nvl( </text>
+                <call function="over" as="nach_av_v2" pth="0">
+                  <call function="sum" pth="0" type="aggregate">
+                    <text txtype="func"> sum( </text>
+                    <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> over( </text>
+                  <call function="partition by" pth="0" type="partition">
+                    <text txtype="func"> partition by </text>
+                    <column table="kod_sf" column="kod_sf" />
+                  </call>
+                  <text txtype="func"> ) </text>
+                </call>
+                <text txtype="func"> ,0)=0 </text>
+              </call>
+            </call>
+            <text txtype="func"> then </text>
+            <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+            <text txtype="func"> else </text>
+            <call function="if" pth="">
+              <text txtype="func"> case </text>
+              <text txtype="func"> when </text>
+              <call function="gt" pth="" type="bool">
+                <call function="-nvl" as="opl_osn_itog_v2" pth="" type="number">
+                  <text txtype="func"> nvl( </text>
+                  <call function="over" as="opl_itog" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <call function="order by rows * 0" pth="0" type="order">
+                      <text txtype="func"> order by </text>
+                      <column table="kod_opl_sf" column="dat_uch" />
+                      <text txtype="func"> ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW </text>
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0) </text>
+                  <text txtype="func"> -nvl( </text>
+                  <call function="over" as="nach_av_v2" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0) </text>
+                </call>
+                <text txtype="func"> &gt; </text>
+                <const>
+                  <text>0</text>
+                </const>
+              </call>
+              <text txtype="func"> then </text>
+              <call function="-nvl" as="opl_osn_itog_v2" pth="" type="number">
+                <text txtype="func"> nvl( </text>
+                <call function="over" as="opl_itog" pth="0">
+                  <call function="sum" pth="0" type="aggregate">
+                    <text txtype="func"> sum( </text>
+                    <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> over( </text>
+                  <call function="partition by" pth="0" type="partition">
+                    <text txtype="func"> partition by </text>
+                    <column table="kod_sf" column="kod_sf" />
+                  </call>
+                  <call function="order by rows * 0" pth="0" type="order">
+                    <text txtype="func"> order by </text>
+                    <column table="kod_opl_sf" column="dat_uch" />
+                    <text txtype="func"> ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW </text>
+                  </call>
+                  <text txtype="func"> ) </text>
+                </call>
+                <text txtype="func"> ,0) </text>
+                <text txtype="func"> -nvl( </text>
+                <call function="over" as="nach_av_v2" pth="0">
+                  <call function="sum" pth="0" type="aggregate">
+                    <text txtype="func"> sum( </text>
+                    <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> over( </text>
+                  <call function="partition by" pth="0" type="partition">
+                    <text txtype="func"> partition by </text>
+                    <column table="kod_sf" column="kod_sf" />
+                  </call>
+                  <text txtype="func"> ) </text>
+                </call>
+                <text txtype="func"> ,0) </text>
+              </call>
+              <text txtype="func"> end </text>
+            </call>
+            <text txtype="func"> end </text>
+          </call>
+          <call function="-nvl" as="opl_av_v2" pth="" type="number" used="1" key="0" title="Оплата начислений" agg="sum" format="F2" sourcetable="./a/kod_sf" sourcecolumn="kod_sf">
+            <text txtype="func"> nvl( </text>
+            <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+            <text txtype="func"> ,0) </text>
+            <text txtype="func"> -nvl( </text>
+            <call function="if" as="opl_osn_v2" pth="">
+              <text txtype="func"> case </text>
+              <text txtype="func"> when </text>
+              <call function="or" pth="1" type="bool">
+                <call function="gt" pth="" type="bool">
+                  <call function="-nvl" as="opl_osn_itog_v2" pth="" type="number">
+                    <text txtype="func"> nvl( </text>
+                    <call function="over" as="opl_itog" pth="0">
+                      <call function="sum" pth="0" type="aggregate">
+                        <text txtype="func"> sum( </text>
+                        <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                        <text txtype="func"> ) </text>
+                      </call>
+                      <text txtype="func"> over( </text>
+                      <call function="partition by" pth="0" type="partition">
+                        <text txtype="func"> partition by </text>
+                        <column table="kod_sf" column="kod_sf" />
+                      </call>
+                      <call function="order by rows * 0" pth="0" type="order">
+                        <text txtype="func"> order by </text>
+                        <column table="kod_opl_sf" column="dat_uch" />
+                        <text txtype="func"> ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW </text>
+                      </call>
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> ,0) </text>
+                    <text txtype="func"> -nvl( </text>
+                    <call function="over" as="nach_av_v2" pth="0">
+                      <call function="sum" pth="0" type="aggregate">
+                        <text txtype="func"> sum( </text>
+                        <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                        <text txtype="func"> ) </text>
+                      </call>
+                      <text txtype="func"> over( </text>
+                      <call function="partition by" pth="0" type="partition">
+                        <text txtype="func"> partition by </text>
+                        <column table="kod_sf" column="kod_sf" />
+                      </call>
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> ,0) </text>
+                  </call>
+                  <text txtype="func"> &gt; </text>
+                  <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                </call>
+                <text txtype="func"> or </text>
+                <call function="=0" pth="" type="bool">
+                  <text txtype="func"> nvl( </text>
+                  <call function="over" as="nach_av_v2" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0)=0 </text>
+                </call>
+              </call>
+              <text txtype="func"> then </text>
+              <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+              <text txtype="func"> else </text>
+              <call function="if" pth="">
+                <text txtype="func"> case </text>
+                <text txtype="func"> when </text>
+                <call function="gt" pth="" type="bool">
+                  <call function="-nvl" as="opl_osn_itog_v2" pth="" type="number">
+                    <text txtype="func"> nvl( </text>
+                    <call function="over" as="opl_itog" pth="0">
+                      <call function="sum" pth="0" type="aggregate">
+                        <text txtype="func"> sum( </text>
+                        <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                        <text txtype="func"> ) </text>
+                      </call>
+                      <text txtype="func"> over( </text>
+                      <call function="partition by" pth="0" type="partition">
+                        <text txtype="func"> partition by </text>
+                        <column table="kod_sf" column="kod_sf" />
+                      </call>
+                      <call function="order by rows * 0" pth="0" type="order">
+                        <text txtype="func"> order by </text>
+                        <column table="kod_opl_sf" column="dat_uch" />
+                        <text txtype="func"> ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW </text>
+                      </call>
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> ,0) </text>
+                    <text txtype="func"> -nvl( </text>
+                    <call function="over" as="nach_av_v2" pth="0">
+                      <call function="sum" pth="0" type="aggregate">
+                        <text txtype="func"> sum( </text>
+                        <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                        <text txtype="func"> ) </text>
+                      </call>
+                      <text txtype="func"> over( </text>
+                      <call function="partition by" pth="0" type="partition">
+                        <text txtype="func"> partition by </text>
+                        <column table="kod_sf" column="kod_sf" />
+                      </call>
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> ,0) </text>
+                  </call>
+                  <text txtype="func"> &gt; </text>
+                  <const>
+                    <text>0</text>
+                  </const>
+                </call>
+                <text txtype="func"> then </text>
+                <call function="-nvl" as="opl_osn_itog_v2" pth="" type="number">
+                  <text txtype="func"> nvl( </text>
+                  <call function="over" as="opl_itog" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column table="qube" column="sr_opl_opl_sf1" as="opl" is-fact-use="1" thissrc="opl" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <call function="order by rows * 0" pth="0" type="order">
+                      <text txtype="func"> order by </text>
+                      <column table="kod_opl_sf" column="dat_uch" />
+                      <text txtype="func"> ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW </text>
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0) </text>
+                  <text txtype="func"> -nvl( </text>
+                  <call function="over" as="nach_av_v2" pth="0">
+                    <call function="sum" pth="0" type="aggregate">
+                      <text txtype="func"> sum( </text>
+                      <column column="sr_facvip_norm_av_av_nach_v21" table="qube" as="sr_facvip_norm_av_av_nach_v21" />
+                      <text txtype="func"> ) </text>
+                    </call>
+                    <text txtype="func"> over( </text>
+                    <call function="partition by" pth="0" type="partition">
+                      <text txtype="func"> partition by </text>
+                      <column table="kod_sf" column="kod_sf" />
+                    </call>
+                    <text txtype="func"> ) </text>
+                  </call>
+                  <text txtype="func"> ,0) </text>
+                </call>
+                <text txtype="func"> end </text>
+              </call>
+              <text txtype="func"> end </text>
+            </call>
+            <text txtype="func"> ,0) </text>
+          </call>
+        </select>
+        <from>
+          <query haskeys="1" as="qube" path="./a/qube" used="1">
+            <select>
+              <column table="qube" column="kod_sf" group="1" as="kod_sf" key="1" fixed="1" used="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" />
+              <column table="qube" column="kod_opl_sf" group="1" as="kod_opl_sf" key="1" fixed="1" used="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_opl" />
+              <column table="qube" column="sr_opl_opl_sf1" is-fact-use="1" as="sr_opl_opl_sf1" group="sum" key="0" used="1" type="number" title="Оплата начислений" agg="sum" />
+              <column table="qube" column="sr_facvip_norm_av_av_nach_v21" as="sr_facvip_norm_av_av_nach_v21" group="sum" key="0" used="1" title="Отчетный период начисления" agg="sum" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" />
+            </select>
+            <from>
+              <query as="qube" path="./a/qube/qube" used="1">
+                <select>
+                  <column table="qube" column="kod_sf" as="kod_sf" used="1" key="0" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" />
+                  <column table="qube" column="kod_opl_sf" as="kod_opl_sf" keypath=".kod_opl_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_opl" />
+                  <column table="qube" column="sr_facvip_norm_av_av_nach_v21" as="sr_facvip_norm_av_av_nach_v21" used="1" key="0" title="Отчетный период начисления" agg="sum" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" />
+                  <column table="qube" column="sr_opl_opl_sf1" as="sr_opl_opl_sf1" used="1" key="0" type="number" title="Оплата начислений" agg="sum" />
+                </select>
+                <from>
+                  <query as="qube" path="./a/qube/qube/qube" used="1">
+                    <query path="./a/qube/qube/qube" used="1">
+                      <query as="qube" union="1" path="./a/qube/qube/qube/qube" used="1">
+                        <select>
+                          <const as="kod_opl_sf" used="1" key="1">
+                            <text>null</text>
+                          </const>
+                          <column table="qube" column="kod_sf" as="kod_sf" used="1" key="0" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" />
+                          <column table="qube" column="sr_facvip_norm_av_av_nach_v21" as="sr_facvip_norm_av_av_nach_v21" used="1" key="0" title="Отчетный период начисления" agg="sum" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" />
+                          <const type="number" as="sr_opl_opl_sf1" used="1" key="0">
+                            <text>null</text>
+                          </const>
+                        </select>
+                        <from>
+                          <query as="qube" path="./a/qube/qube/qube/qube/qube" used="1">
+                            <select>
+                              <column table="un" column="kod_sf" group="1" as="kod_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" />
+                              <column table="un" column="sr_facvip_norm_av_av_nach_v21" group="sum" as="sr_facvip_norm_av_av_nach_v21" used="1" key="0" title="Отчетный период начисления" agg="sum" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" />
+                            </select>
+                            <from>
+                              <query as="un" path="./a/qube/qube/qube/qube/qube/un" used="1">
+                                <query path="./a/qube/qube/qube/qube/qube/un" used="1">
+                                  <query dimension="kod_sf_norm_av_av" multiplicate-point="1" as="un" union="1" path="./a/qube/qube/qube/qube/qube/un/un" used="1">
+                                    <select>
+                                      <column table="sr_facvip_norm_av_av_a_d" column="kod_sf" as="kod_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" />
+                                      <column table="sr_facvip_norm_av_av_a_d" column="nach_av_norm_v2" as="sr_facvip_norm_av_av_nach_v21" used="1" key="0" title="Отчетный период начисления" agg="sum" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" />
+                                    </select>
+                                    <from>
+                                      <query name="sr_facvip_norm_av_av" dimension="kod_sf_norm_av_av" as="sr_facvip_norm_av_av_a_d" path="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d" haskeys="1" used="1">
+                                        <select>
+                                          <column table="a" column="kod_sf" key="1" as="kod_sf" used="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" />
+                                          <column table="a" column="nach_av_norm_v2" fact="sr_facvip_norm_av_av_nach_v2" agg="sum" as="nach_av_norm_v2" key="0" used="1" title="Отчетный период начисления" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" />
+                                        </select>
+                                        <from>
+                                          <query name="sr_facvip_norm_av" comment="Уменьшение начислений авансов чтобы они не превышали осн реал. для сверхнорм" use-repository="1" intrval="FREQ=HOURLY; INTERVAL=1" class="1" timestamp="20.08.2023 15:32:49" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\sr_facvip_norm.xml" elid="2428" ord="2428" leaf="0" lvl="2" pelid="" path="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" noname="1" as="a" used="1">
+                                            <select>
+                                              <column table="st" column="kod_sf" as="kod_sf" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="kod_sf" used="1" key="1" />
+                                              <column table="st" column="nach_av_norm_v2" as="nach_av_norm_v2" title="Отчетный период начисления" agg="max" format="F2" sourcetable="./a/qube/qube/qube/qube/qube/un/un/sr_facvip_norm_av_av_a_d/a" sourcecolumn="nach_av_norm_v2" used="1" key="0" />
+                                            </select>
+                                            <from>
+                                              <table name="vv_sr_facvip_norm_av" as="st" used="1" />
+                                            </from>
+                                          </query>
+                                        </from>
+                                      </query>
+                                      <query name="sr_facvip" dimension="kod_sf" as="kod_sf" join="left outer" path="./a/qube/qube/qube/qube/qube/un/un/kod_sf" haskeys="1" used="1">
+                                        <select>
+                                          <column table="a" column="kod_sf" type="number" key-dimension="kod_sf" as="kod_sf" key="1" fixed="1" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_sf" sourcecolumn="kod_sf" used="1" />
+                                          <column table="a" column="vid_real" type="number" fact="sf_vid_real" agg="max" as="vid_real" reference="sk_vid_real" refcol="vid_real" key="0" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_sf" sourcecolumn="vid_real" used="1" />
+                                        </select>
+                                        <from>
+                                          <table name="sr_facvip" as="a" dimension="kod_sf" used="1" />
+                                        </from>
+                                        <where>
+                                          <call function="not in" pth="" type="bool">
+                                            <column table="a" column="vid_sf" />
+                                            <text txtype="func"> not in </text>
+                                            <call function="array" pth="">
+                                              <const>
+                                                <text>2</text>
+                                              </const>
+                                              <text txtype="func"> , </text>
+                                              <const>
+                                                <text>9</text>
+                                              </const>
+                                            </call>
+                                          </call>
+                                        </where>
+                                        <call function="=" type="bool">
+                                          <column table="sr_facvip_norm_av_av_a_d" column="kod_sf" />
+                                          <text txtype="func"> = </text>
+                                          <column table="kod_sf" column="kod_sf" />
+                                        </call>
+                                      </query>
+                                      <query name="sk_vid_real" dimension="vid_real" as="vid_real" join="left outer" path="./a/qube/qube/qube/qube/qube/un/un/vid_real" haskeys="1" used="1">
+                                        <select>
+                                          <column table="a" column="vid_real" type="number" title="" as="vid_real" key="1" fixed="1" sourcetable="./a/qube/qube/qube/qube/qube/un/un/vid_real" sourcecolumn="vid_real" used="1" />
+                                        </select>
+                                        <from>
+                                          <table name="sk_vid_real" as="a" title="Вид реализации" dimension="vid_real" used="1" />
+                                        </from>
+                                        <call function="=" type="bool">
+                                          <column table="kod_sf" column="vid_real" />
+                                          <text txtype="func"> = </text>
+                                          <column table="vid_real" column="vid_real" />
+                                        </call>
+                                      </query>
+                                      <qubecontent>
+                                        <where>
+                                          <call function="and" condsource="sr_opl_norm_av1">
+                                            <call function="in">
+                                              <column table="vid_real" column="vid_real" />
+                                              <call function="array">
+                                                <const>2</const>
+                                                <const>3</const>
+                                              </call>
+                                            </call>
+                                          </call>
+                                        </where>
+                                      </qubecontent>
+                                    </from>
+                                    <where>
+                                      <call function="and" pth="" type="bool">
+                                        <call function="in" pth="" type="bool">
+                                          <column table="vid_real" column="vid_real" />
+                                          <text txtype="func"> in </text>
+                                          <call function="array" pth="">
+                                            <const>
+                                              <text>2</text>
+                                            </const>
+                                            <text txtype="func"> , </text>
+                                            <const>
+                                              <text>3</text>
+                                            </const>
+                                          </call>
+                                        </call>
+                                      </call>
+                                    </where>
+                                  </query>
+                                </query>
+                              </query>
+                            </from>
+                          </query>
+                        </from>
+                      </query>
+                      <query as="qube" union="1" path="./a/qube/qube/qube/qube" used="1">
+                        <select>
+                          <column table="qube" column="kod_opl_sf" as="kod_opl_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_opl" />
+                          <column table="qube" column="kod_sf" as="kod_sf" used="1" key="0" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_sf" reference="sr_facvip" refcol="kod_sf" />
+                          <const type="" as="sr_facvip_norm_av_av_nach_v21" used="1" key="0">
+                            <text>null</text>
+                          </const>
+                          <column table="qube" column="sr_opl_opl_sf1" as="sr_opl_opl_sf1" used="1" key="0" type="number" title="Оплата начислений" agg="sum" />
+                        </select>
+                        <from>
+                          <query as="qube" path="./a/qube/qube/qube/qube/qube" used="1">
+                            <select>
+                              <column table="un" column="kod_opl_sf" group="1" as="kod_opl_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_opl" />
+                              <column table="un" column="kod_sf" group="1" as="kod_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_sf" reference="sr_facvip" refcol="kod_sf" />
+                              <column table="un" column="sr_opl_opl_sf1" group="sum" as="sr_opl_opl_sf1" used="1" key="0" type="number" title="Оплата начислений" agg="sum" />
+                            </select>
+                            <from>
+                              <query as="un" path="./a/qube/qube/qube/qube/qube/un" used="1">
+                                <query path="./a/qube/qube/qube/qube/qube/un" used="1">
+                                  <query dimension="kod_opl_sf" multiplicate-point="1" as="un" union="1" path="./a/qube/qube/qube/qube/qube/un/un" used="1">
+                                    <select>
+                                      <column table="kod_opl_sf" column="kod_opl" as="kod_opl_sf" used="1" key="1" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_opl" />
+                                      <column table="kod_opl_sf" column="kod_sf" as="kod_sf" used="1" key="0" type="number" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_sf" reference="sr_facvip" refcol="kod_sf" />
+                                      <column table="kod_opl_sf" column="opl_sf" as="sr_opl_opl_sf1" used="1" key="0" type="number" title="Оплата начислений" agg="sum" />
+                                    </select>
+                                    <from>
+                                      <query name="sr_opl_sf" dimension="kod_opl_sf" as="kod_opl_sf" path="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" haskeys="1" used="1">
+                                        <select>
+                                          <column table="a" column="kod_opl" type="number" key-dimension="kod_opl" as="kod_opl" key="1" fixed="1" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_opl" used="1" />
+                                          <column table="a" column="kod_sf" type="number" as="kod_sf" reference="sr_facvip" refcol="kod_sf" key="0" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_opl_sf" sourcecolumn="kod_sf" used="1" />
+                                          <call function="+nvl" as="opl_sf" agg="sum" title="Оплата начислений" key="0" pth="" type="number" thissrc="oplf" used="1">
+                                            <text txtype="func"> nvl( </text>
+                                            <column table="a" column="opl" />
+                                            <text txtype="func"> ,0) </text>
+                                            <text txtype="func"> +nvl( </text>
+                                            <column table="a" column="opls" />
+                                            <text txtype="func"> ,0) </text>
+                                          </call>
+                                        </select>
+                                        <from>
+                                          <table name="sr_opl" as="a" dimension="kod_opl_sf" used="1" />
+                                        </from>
+                                        <where>
+                                          <call function="in" pth="" type="bool">
+                                            <column table="a" column="kod_type_opl" type="number" as="kod_type_opl" key="0" thissrc="kod_type_opl" />
+                                            <text txtype="func"> in </text>
+                                            <call function="array" pth="">
+                                              <const>
+                                                <text>0</text>
+                                              </const>
+                                              <text txtype="func"> , </text>
+                                              <const>
+                                                <text>2</text>
+                                              </const>
+                                              <text txtype="func"> , </text>
+                                              <const>
+                                                <text>3</text>
+                                              </const>
+                                              <text txtype="func"> , </text>
+                                              <const>
+                                                <text>4</text>
+                                              </const>
+                                            </call>
+                                          </call>
+                                        </where>
+                                      </query>
+                                      <query name="sr_facvip" dimension="kod_sf" as="kod_sf" join="left outer" path="./a/qube/qube/qube/qube/qube/un/un/kod_sf" haskeys="1" used="1">
+                                        <select>
+                                          <column table="a" column="kod_sf" type="number" key-dimension="kod_sf" as="kod_sf" key="1" fixed="1" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_sf" sourcecolumn="kod_sf" used="1" />
+                                          <column table="a" column="vid_real" type="number" fact="sf_vid_real" agg="max" as="vid_real" reference="sk_vid_real" refcol="vid_real" key="0" sourcetable="./a/qube/qube/qube/qube/qube/un/un/kod_sf" sourcecolumn="vid_real" used="1" />
+                                        </select>
+                                        <from>
+                                          <table name="sr_facvip" as="a" dimension="kod_sf" used="1" />
+                                        </from>
+                                        <where>
+                                          <call function="not in" pth="" type="bool">
+                                            <column table="a" column="vid_sf" />
+                                            <text txtype="func"> not in </text>
+                                            <call function="array" pth="">
+                                              <const>
+                                                <text>2</text>
+                                              </const>
+                                              <text txtype="func"> , </text>
+                                              <const>
+                                                <text>9</text>
+                                              </const>
+                                            </call>
+                                          </call>
+                                        </where>
+                                        <call function="=" type="bool">
+                                          <column table="kod_opl_sf" column="kod_sf" />
+                                          <text txtype="func"> = </text>
+                                          <column table="kod_sf" column="kod_sf" />
+                                        </call>
+                                      </query>
+                                      <query name="sk_vid_real" dimension="vid_real" as="vid_real" join="left outer" path="./a/qube/qube/qube/qube/qube/un/un/vid_real" haskeys="1" used="1">
+                                        <select>
+                                          <column table="a" column="vid_real" type="number" title="" as="vid_real" key="1" fixed="1" sourcetable="./a/qube/qube/qube/qube/qube/un/un/vid_real" sourcecolumn="vid_real" used="1" />
+                                        </select>
+                                        <from>
+                                          <table name="sk_vid_real" as="a" title="Вид реализации" dimension="vid_real" used="1" />
+                                        </from>
+                                        <call function="=" type="bool">
+                                          <column table="kod_sf" column="vid_real" />
+                                          <text txtype="func"> = </text>
+                                          <column table="vid_real" column="vid_real" />
+                                        </call>
+                                      </query>
+                                      <qubecontent>
+                                        <where>
+                                          <call function="and" condsource="sr_opl_norm_av1">
+                                            <call function="in">
+                                              <column table="vid_real" column="vid_real" />
+                                              <call function="array">
+                                                <const>2</const>
+                                                <const>3</const>
+                                              </call>
+                                            </call>
+                                          </call>
+                                        </where>
+                                      </qubecontent>
+                                    </from>
+                                    <where>
+                                      <call function="and" pth="" type="bool">
+                                        <call function="in" pth="" type="bool">
+                                          <column table="vid_real" column="vid_real" />
+                                          <text txtype="func"> in </text>
+                                          <call function="array" pth="">
+                                            <const>
+                                              <text>2</text>
+                                            </const>
+                                            <text txtype="func"> , </text>
+                                            <const>
+                                              <text>3</text>
+                                            </const>
+                                          </call>
+                                        </call>
+                                      </call>
+                                    </where>
+                                  </query>
+                                </query>
+                              </query>
+                            </from>
+                          </query>
+                        </from>
+                      </query>
+                    </query>
+                  </query>
+                </from>
+              </query>
+            </from>
+          </query>
+          <query name="sr_opl_sf" dimension="kod_opl_sf" link-mp-point="1" as="kod_opl_sf" join="left outer" path="./a/kod_opl_sf" haskeys="1" used="1">
+            <select>
+              <column table="a" column="kod_opl" type="number" key-dimension="kod_opl" as="kod_opl" key="1" fixed="1" sourcetable="./a/kod_opl_sf" sourcecolumn="kod_opl" used="1" />
+              <column table="a" column="dat_uch" type="date" title="" as="dat_uch" dimension="dat_dolg_uved_kaz_el" key="0" sourcetable="./a/kod_opl_sf" sourcecolumn="dat_uch" used="1" />
+            </select>
+            <from>
+              <table name="sr_opl" as="a" dimension="kod_opl_sf" used="1" />
+            </from>
+            <where>
+              <call function="in" pth="" type="bool">
+                <column table="a" column="kod_type_opl" type="number" as="kod_type_opl" key="0" thissrc="kod_type_opl" />
+                <text txtype="func"> in </text>
+                <call function="array" pth="">
+                  <const>
+                    <text>0</text>
+                  </const>
+                  <text txtype="func"> , </text>
+                  <const>
+                    <text>2</text>
+                  </const>
+                  <text txtype="func"> , </text>
+                  <const>
+                    <text>3</text>
+                  </const>
+                  <text txtype="func"> , </text>
+                  <const>
+                    <text>4</text>
+                  </const>
+                </call>
+              </call>
+            </where>
+            <call function="=" type="bool">
+              <column table="kod_opl_sf" column="kod_opl" />
+              <text txtype="func"> = </text>
+              <column table="qube" column="kod_opl_sf" />
+            </call>
+          </query>
+          <query name="sr_facvip" dimension="kod_sf" link-mp-point="1" as="kod_sf" join="left outer" path="./a/kod_sf" haskeys="1" used="1">
+            <select>
+              <column table="a" column="kod_sf" type="number" key-dimension="kod_sf" as="kod_sf" key="1" fixed="1" sourcetable="./a/kod_sf" sourcecolumn="kod_sf" used="1" />
+              <column table="a" column="ym" type="number" title="Отчетный период начисления" dimension="ym" format="F2" as="ym" key="0" sourcetable="./a/kod_sf" sourcecolumn="ym" used="1" />
+              <call as="dat_dolg_norm" function="if" type="date" key="0" pth="" used="1" title="Отчетный период начисления" format="F2">
+                <text txtype="func"> case </text>
+                <text txtype="func"> when </text>
+                <call function="=" pth="" type="bool">
+                  <column table="a" column="vid_real" type="number" fact="sf_vid_real" agg="max" as="vid_real" reference="sk_vid_real" refcol="vid_real" key="0" thissrc="vid_real" />
+                  <text txtype="func"> = </text>
+                  <const>
+                    <text>0</text>
+                  </const>
+                </call>
+                <text txtype="func"> then </text>
+                <call function="ym end time" pth="" type="date">
+                  <text txtype="func"> LAST_DAY(to_date( </text>
+                  <column table="kod_sf_dop" column="rym" dgroup="min" dimension="ym_vozn2" as="rym" key="0" thissrc="rym" />
+                  <text txtype="func"> *100,'YYYYMM'))+(1-1/24/60/60) </text>
+                </call>
+                <text txtype="func"> else </text>
+                <call type="" function="if" pth="">
+                  <text txtype="func"> case </text>
+                  <text txtype="func"> when </text>
+                  <call function="=" pth="" type="bool">
+                    <column table="a" column="dat_zadol" type="date" comment="конечная дата расчета пени по авансам (для эх)" as="dat_zadol" key="0" thissrc="dat_zadol" />
+                    <text txtype="func"> = </text>
+                    <call function="to_date" pth="" type="date">
+                      <text txtype="func"> to_date( </text>
+                      <call function="||" pth="" type="string">
+                        <const>
+                          <text>'31.12.'</text>
+                        </const>
+                        <text txtype="func"> || </text>
+                        <call function="year" pth="" type="number">
+                          <text txtype="func"> to_number(to_char( </text>
+                          <column table="a" column="dat_sf" type="date" title="Дата документа начисления" as="dat_sf" key="0" thissrc="dat_sf" />
+                          <text txtype="func"> ,'YYYY')) </text>
+                        </call>
+                      </call>
+                      <text txtype="func"> , </text>
+                      <const>
+                        <text>'DD.MM.YYYY'</text>
+                      </const>
+                      <text txtype="func"> ) </text>
+                    </call>
+                  </call>
+                  <text txtype="func"> then </text>
+                  <call function="ym end time" pth="" type="date">
+                    <text txtype="func"> LAST_DAY(to_date( </text>
+                    <call function="date to ym" pth="" type="number">
+                      <text txtype="func"> to_number(to_char( </text>
+                      <column table="a" column="dat_zadol" type="date" comment="конечная дата расчета пени по авансам (для эх)" as="dat_zadol" key="0" thissrc="dat_zadol" />
+                      <text txtype="func"> ,'YYYYMM'))/100 </text>
+                    </call>
+                    <text txtype="func"> *100,'YYYYMM'))+(1-1/24/60/60) </text>
+                  </call>
+                  <text txtype="func"> else </text>
+                  <call function="if" as="" type="" pth="">
+                    <text txtype="func"> case </text>
+                    <text txtype="func"> when </text>
+                    <call function="and" pth="" type="bool">
+                      <call function="=" pth="" type="bool">
+                        <call function="if" type="number" as="ym_vozn" key="0" pth="" thissrc="ym_vozn">
+                          <text txtype="func"> case </text>
+                          <text txtype="func"> when </text>
+                          <call function="=" pth="" type="bool">
+                            <column table="a" column="vid_real" type="number" fact="sf_vid_real" agg="max" as="vid_real" reference="sk_vid_real" refcol="vid_real" key="0" thissrc="vid_real" />
+                            <text txtype="func"> = </text>
+                            <const>
+                              <text>0</text>
+                            </const>
+                          </call>
+                          <text txtype="func"> then </text>
+                          <column table="kod_sf_dop" column="rym" dgroup="min" dimension="ym_vozn2" as="rym" key="0" thissrc="rym" />
+                          <text txtype="func"> else </text>
+                          <call function="nvl" pth="">
+                            <text txtype="func"> nvl( </text>
+                            <column table="kod_sf_old_neg" column="ym" />
+                            <text txtype="func"> , </text>
+                            <column table="a" column="ym" type="number" title="Отчетный период начисления" dimension="ym" format="F2" as="ym" key="0" thissrc="ym" />
+                            <text txtype="func"> ) </text>
+                          </call>
+                          <text txtype="func"> end </text>
+                        </call>
+                        <text txtype="func"> = </text>
+                        <column table="a" column="ym" type="number" title="Отчетный период начисления" dimension="ym" format="F2" as="ym" key="0" thissrc="ym" />
+                      </call>
+                      <text txtype="func"> and </text>
+                      <call function="or" pth="1" type="bool">
+                        <call function="gt" pth="" type="bool">
+                          <column table="kod_sf_dop" column="nachisl" />
+                          <text txtype="func"> &gt; </text>
+                          <const>
+                            <text>0</text>
+                          </const>
+                        </call>
+                        <text txtype="func"> or </text>
+                        <call function="is not null" pth="" type="bool">
+                          <column table="a" column="kod_sf_first" type="number" comment="при перерасчете самый исходный kod_sf" as="kod_sf_first" reference="sr_facvip" refcol="kod_sf" key="0" thissrc="kod_sf_first" />
+                          <text txtype="func"> is not null </text>
+                        </call>
+                      </call>
+                    </call>
+                    <text txtype="func"> then </text>
+                    <call function="ym end time" pth="" type="date">
+                      <text txtype="func"> LAST_DAY(to_date( </text>
+                      <call function="ym add month" pth="" type="number">
+                        <!--to_number(to_char(ADD_MONTHS((to_date(to_char(2014.08*10000+01),'YYYYMMDD')),1),'YYYYMM'))/100-->
+                        <text txtype="func"> to_number(to_char(ADD_MONTHS( </text>
+                        <text txtype="func"> (to_date(to_char( </text>
+                        <column table="a" column="ym" type="number" title="Отчетный период начисления" dimension="ym" format="F2" as="ym" key="0" thissrc="ym" />
+                        <text txtype="func"> *10000+01),'YYYYMMDD') </text>
+                        <text txtype="func"> ) </text>
+                        <text txtype="func"> , </text>
+                        <const>
+                          <text>1</text>
+                        </const>
+                        <text txtype="func"> ) </text>
+                        <text txtype="func"> ,'YYYYMM'))/100 </text>
+                      </call>
+                      <text txtype="func"> *100,'YYYYMM'))+(1-1/24/60/60) </text>
+                    </call>
+                    <text txtype="func"> else </text>
+                    <call function="ym end time" pth="" type="date">
+                      <text txtype="func"> LAST_DAY(to_date( </text>
+                      <column table="a" column="ym" type="number" title="Отчетный период начисления" dimension="ym" format="F2" as="ym" key="0" thissrc="ym" />
+                      <text txtype="func"> *100,'YYYYMM'))+(1-1/24/60/60) </text>
+                    </call>
+                    <text txtype="func"> end </text>
+                  </call>
+                  <text txtype="func"> end </text>
+                </call>
+                <text txtype="func"> end </text>
+              </call>
+            </select>
+            <from>
+              <table name="sr_facvip" as="a" dimension="kod_sf" used="1" />
+              <query name="sr_facvip_dop" timestamp="27.12.2018 19:41:14" class="1" intrval="FREQ=DAILY; INTERVAL=1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\sr_facvip.xml" elid="2072" ord="2072" leaf="0" lvl="2" pelid="" path="./a/kod_sf/kod_sf_dop" noname="1" haskeys="1" as="kod_sf_dop" join="left outer" used="1">
+                <select>
+                  <column table="st" column="kod_sf" as="kod_sf" type="number" key="1" sourcetable="./a/kod_sf/kod_sf_dop" sourcecolumn="kod_sf" used="1" />
+                  <column table="st" column="rym" as="rym" type="number" key="0" sourcetable="./a/kod_sf/kod_sf_dop" sourcecolumn="rym" used="1" />
+                  <column table="st" column="nachisl" as="nachisl" title="Начислено" agg="sum" type="number" key="0" sourcetable="./a/kod_sf/kod_sf_dop" sourcecolumn="nachisl" used="1" />
+                </select>
+                <from>
+                  <table name="vv_sr_facvip_dop" as="st" used="1" />
+                </from>
+                <call function="=" type="bool">
+                  <column table="a" column="kod_sf" />
+                  <text txtype="func"> = </text>
+                  <column table="kod_sf_dop" column="kod_sf" />
+                </call>
+              </query>
+              <query name="vv_sr_facvip_rec_info_m" as="kod_sf_rec_info" join="left outer" path="./a/kod_sf/kod_sf_rec_info" haskeys="1" used="1">
+                <select>
+                  <column table="a" column="kod_sf" type="number" as="kod_sf" key="1" fixed="1" sourcetable="./a/kod_sf/kod_sf_rec_info" sourcecolumn="kod_sf" used="1" />
+                  <column table="a" column="kod_sf_old_neg" type="number" as="kod_sf_old_neg" reference="sr_facvip" refcol="kod_sf" key="0" sourcetable="./a/kod_sf/kod_sf_rec_info" sourcecolumn="kod_sf_old_neg" used="1" />
+                </select>
+                <from>
+                  <table name="vv_sr_facvip_rec_info_m" as="a" used="1" />
+                </from>
+                <call function="=" type="bool">
+                  <column table="a" column="kod_sf" />
+                  <text txtype="func"> = </text>
+                  <column table="kod_sf_rec_info" column="kod_sf" />
+                </call>
+              </query>
+              <query name="sr_facvip" as="kod_sf_old_neg" join="left outer" path="./a/kod_sf/kod_sf_old_neg" haskeys="1" used="1">
+                <select>
+                  <column table="a" column="kod_sf" type="number" key-dimension="kod_sf" as="kod_sf" key="1" fixed="1" sourcetable="./a/kod_sf/kod_sf_old_neg" sourcecolumn="kod_sf" used="1" />
+                  <column table="a" column="ym" type="number" title="Отчетный период начисления" dimension="ym" format="F2" as="ym" key="0" sourcetable="./a/kod_sf/kod_sf_old_neg" sourcecolumn="ym" used="1" />
+                </select>
+                <from>
+                  <table name="sr_facvip" as="a" used="1" />
+                </from>
+                <where>
+                  <call function="not in" pth="" type="bool">
+                    <column table="a" column="vid_sf" />
+                    <text txtype="func"> not in </text>
+                    <call function="array" pth="">
+                      <const>
+                        <text>2</text>
+                      </const>
+                      <text txtype="func"> , </text>
+                      <const>
+                        <text>9</text>
+                      </const>
+                    </call>
+                  </call>
+                </where>
+                <call function="=" type="bool">
+                  <column table="kod_sf_rec_info" column="kod_sf_old_neg" />
+                  <text txtype="func"> = </text>
+                  <column table="kod_sf_old_neg" column="kod_sf" />
+                </call>
+              </query>
+            </from>
+            <where>
+              <call function="not in" pth="" type="bool">
+                <column table="a" column="vid_sf" />
+                <text txtype="func"> not in </text>
+                <call function="array" pth="">
+                  <const>
+                    <text>2</text>
+                  </const>
+                  <text txtype="func"> , </text>
+                  <const>
+                    <text>9</text>
+                  </const>
+                </call>
+              </call>
+            </where>
+            <call function="=" type="bool">
+              <column table="kod_sf" column="kod_sf" />
+              <text txtype="func"> = </text>
+              <column table="qube" column="kod_sf" />
+            </call>
+          </query>
+        </from>
+      </query>
+    </from>
+    <where>
+      <call function="and" pth="" type="bool">
+        <call function="is not null" pth="" type="bool">
+          <column table="a" column="kod_opl" />
+          <text txtype="func"> is not null </text>
+        </call>
+      </call>
+    </where>
+  </query>
+</root>

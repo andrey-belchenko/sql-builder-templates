@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="45862_vb_pwrc_change" timestamp="28.12.2023 14:39:08" title="Изменить список ПС" file="sql.builder.templates\sql.builder\projects\45862\form\forms.xml" elid="66" ord="66" leaf="0" lvl="2" pelid="">
+    <grid table="a" show-toolbar="1" show-checkbox="1" auto-filter="1" id="37601182">
+      <toolbar id="29207169">
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="365" ord="365" leaf="1" lvl="2" pelid="" title="" id="16370750" />
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="62343384" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="367" ord="367" leaf="1" lvl="2" pelid="" title="" id="15865042" />
+        <uicommand action-type="custom" title="Привязать выбранные" button-type="custom-ok" name="custom-ok" icon="Ok_24" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="381" ord="381" leaf="1" lvl="2" pelid="" id="52465482">
+          <useaction action-type="save" id="35540885" />
+          <useaction title="Обновить настройки КГ" name="vb_kol_gr_pack.upd_kg_nastr" id="22005286">
+            <useparam name="kod_nastr" id="4618731" />
+            <useparam name="ym" id="43466163" />
+          </useaction>
+          <useaction title="Обновить имя КГ" name="vb_kol_gr_pack.upd_kg_name" id="5585201">
+            <useparam name="kod_nastr" id="25429480" />
+          </useaction>
+          <useaction action-type="close" id="27580219" />
+        </uicommand>
+      </toolbar>
+      <columns id="45976918">
+        <field table="a" name="pwrc_id" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="35906528" />
+        <field table="a" name="pwrcname" title="ПС" width="322" controlType="UIText" rows-limit="100" id="52537684" />
+      </columns>
+      <events id="37429400">
+        <useaction event-name="checked-row-save" action-type="custom" id="18433084">
+          <useaction action-type="execute-add" call="vb_add_pwrc" id="2880204">
+            <useparam name="pwrc_id" id="20857571" />
+            <useparam name="kod_nastr" id="31709468" />
+          </useaction>
+        </useaction>
+      </events>
+    </grid>
+  </form>
+  <params>
+    <param name="kod_fl" type="number" />
+    <param name="kod_nastr" type="number" />
+    <param name="ym" type="number" />
+  </params>
+  <dataset>
+    <params>
+      <param name="kod_fl" type="number" />
+      <param name="kod_nastr" type="number" />
+      <param name="ym" type="number" />
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="vb_nastr_pwrc_list" column-editable="0" key="pwrc_id" is-ms-upd="0" is-top="1">
+      <select-text>
+--
+select a.pwrc_id as pwrc_id, /*number*/
+a.pwrcname as pwrcname, /*ПС*//*string*/
+pwrc_id_x_n.kod_kol_gr_nastr as pwrc_id_x_n/*Код настройки кольцевой группы*//*number*/
+
+from (
+--vb_nastr_pwrc_list
+select a.pwrc_id as pwrc_id, /*number*/
+a.pwrcname as pwrcname/*ПС*//*string*/
+
+from (
+--hv_eopwrc_list_def
+select a.pwrc_id as pwrc_id, /*number*/
+a.pwrcname as pwrcname/**//*string*/
+
+from (
+--hv_eopwrc
+select a.pwrc_id as pwrc_id, /**//*number*/
+a.pwrcname as pwrcname, /**//*string*/
+a.bal_id as bal_id/**//*number*/
+
+from (
+--hv_eopwrc_istest_0
+select a.pwrc_id as pwrc_id, /**//*number*/
+a.pwrcname as pwrcname, /**//*string*/
+a.bal_id as bal_id/**//*number*/
+
+from (
+--hv_eopwrc_full
+select a.pwrc_id as pwrc_id, /**//*number*/
+a.pwrcname as pwrcname, /**//*string*/
+a.bal_id as bal_id, /**//*number*/
+a.is_test as is_test/**//*number*/
+
+from hv_eopwrc
+a
+--\hv_eopwrc
+)
+a
+--\hv_eopwrc_full
+where
+a.is_test = 0)
+a
+--\hv_eopwrc_istest_0
+)
+a
+--\hv_eopwrc
+where
+( 0=1 )  {  or (a.bal_id = :kod_fl )  } 
+order by pwrcname)
+a
+--\hv_eopwrc_list_def
+left outer join
+(
+--vb_kol_gr_pwrc
+select a.kod_kol_gr_pwrc as kod_kol_gr_pwrc, /*number*//*key*/
+a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*Код настройки кольцевой группы*//*number*/
+a.pwrc_id as pwrc_id/*Код ПС*//*number*/
+
+from vb_kol_gr_pwrc
+a
+--\vb_kol_gr_pwrc
+)
+pwrc_id on (a.pwrc_id = pwrc_id.pwrc_id)  and (pwrc_id.kod_kol_gr_nastr = :kod_nastr ) --\vb_kol_gr_pwrc
+where
+pwrc_id.kod_kol_gr_pwrc is null )
+a
+--\vb_nastr_pwrc_list
+left outer join
+(
+--vb_kol_gr_pwrc
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*Код настройки кольцевой группы*//*number*/
+a.pwrc_id as pwrc_id/*Код ПС*//*number*/
+
+from vb_kol_gr_pwrc
+a
+--\vb_kol_gr_pwrc
+)
+pwrc_id_x_n on (a.pwrc_id = pwrc_id_x_n.pwrc_id)  and (pwrc_id_x_n.kod_kol_gr_nastr = :kod_nastr ) --\vb_kol_gr_pwrc
+
+order by pwrcname--\
+</select-text>
+      <columns>
+        <column name="pwrc_id" table="a" type="number" title="" parname="pwrc_id" ColumnVisible="0" ColumnMandatory="1" is-refreshed="1" />
+        <column name="pwrcname" table="a" type="string" title="ПС" is-user-editable="1" is-refreshed="1" />
+        <column name="pwrc_id_x_n" table="a.pwrc_id" type="number" title="" text-source-for="pwrc_id" is-refreshed="1" />
+      </columns>
+      <scheme>
+        <table name="vb_nastr_pwrc_list" as="a">
+          <columns>
+            <column name="pwrc_id" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="pwrcname" type="string" title="ПС" />
+            <column name="pwrc_id_x_n" type="number" title="" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="pwrc_id_x_n" type="number" title="" visible="0" />
+            <column name="pwrc_id" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="pwrcname" type="string" title="ПС" />
+          </viewcolumns>
+        </table>
+      </scheme>
+    </table>
+  </dataset>
+</root>

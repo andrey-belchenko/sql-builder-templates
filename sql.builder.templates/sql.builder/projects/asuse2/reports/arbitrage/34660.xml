@@ -1,0 +1,417 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="34660-params" timestamp="27.09.2016 20:02:03">
+      <param name="ym">
+        <const>2016.08</const>
+      </param>
+      <param name="dep">
+        <const>102276623</const>
+      </param>
+      <param name="tip_delo">
+        <const>1</const>
+      </param>
+      <param name="kod_group_cust_parent" />
+      <param name="kod_group_cust" />
+    </part>
+    <part id="34660-withparams" timestamp="20.05.2016 17:04:31">
+      <withparams>
+        <useparam name="ym" />
+        <useparam name="dep" />
+        <useparam name="tip_delo" />
+        <useparam name="kod_group_cust_parent" />
+        <useparam name="kod_group_cust" />
+      </withparams>
+    </part>
+  </parts>
+  <forms>
+    <form name="34660" timestamp="21.11.2016 14:27:29" with-behavior="0">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <content>
+        <usefield field="asuse_ym" />
+        <usefield field="asuse_dep" />
+        <field name="tip_delo" controlType="UIList" title="Судебные дела" exclude="1">
+          <listquery>
+            <query name="34660-tip_delo" />
+          </listquery>
+        </field>
+        <field name="tip_delo" controlType="UICombo" title="Судебные дела" mandatory="1">
+          <listquery>
+            <query name="34660-tip_delo" />
+          </listquery>
+        </field>
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="34660" form="34660" title="Отчет по оплате по судебным решениям" folder="ur_reports" edit-columns="2" nogrid="1" timestamp="27.09.2016 19:38:07">
+      <params>
+        <usepart part="34660-params" />
+      </params>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="34660.xml" title="Отчет по оплате по судебным решениям" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="34660-data" as="a">
+          <usepart part="34660-withparams" />
+        </query>
+        <query name="34660-title" as="t">
+          <usepart part="34660-withparams" />
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="34660-tip_delo1">
+      <select>
+        <column table="a" column="id" />
+        <column table="a" column="name" title="1" />
+      </select>
+      <from>
+        <query name="34660-tip_delo" as="a" />
+      </from>
+    </query>
+    <query name="34660-tip_delo">
+      <const as="id" type="number">1</const>
+      <const as="name" type="string" title="1">'Юридические лица'</const>
+      <const>2</const>
+      <const>'Физические лица'</const>
+    </query>
+    <query name="34660-title">
+      <params>
+        <usepart part="34660-params" />
+      </params>
+      <select>
+        <call function="if" as="deps_name" type="string" title="Отделения">
+          <call function="is not null">
+            <column table="a" column="name" group="stragg_dist" />
+          </call>
+          <call function="||">
+            <const>'по отделениям: '</const>
+            <column table="a" column="sname" group="stragg_dist" />
+          </call>
+          <const>'по всем отделениям'</const>
+        </call>
+        <call function="if" as="name" type="string">
+          <call function="=">
+            <useparam name="tip_delo" />
+            <const>1</const>
+          </call>
+          <const>'юридическими лицами'</const>
+          <const>'физическими лицами'</const>
+        </call>
+        <call function="mes-name" as="mes">
+          <call function="mes">
+            <useparam name="ym" />
+          </call>
+        </call>
+        <call function="year" as="year">
+          <call function="ym begin time">
+            <useparam name="ym" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="kr_org" as="a"></query>
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="34660-data" as="a" timestamp="26.10.2016 19:20:52">
+      <params>
+        <usepart part="34660-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="34660" as="a">
+          <usepart part="34660-withparams" />
+          <grsets>
+            <grset level="" title="госпошлина всего" as="ai1">
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="a" column="vid_real" />
+                    <const>9</const>
+                  </call>
+                </call>
+              </where>
+              <grset level="1" title="госпошлина" as="a1" order="dat_opl" />
+            </grset>
+            <grset level="" title="проценты всего" as="ai2">
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="a" column="vid_real" />
+                    <const>7</const>
+                  </call>
+                  <call function="!=nvl">
+                    <column table="a" column="vid_t" />
+                    <const>44</const>
+                  </call>
+                </call>
+              </where>
+              <grset level="1" title="проценты" as="a2" order="dat_opl" />
+            </grset>
+            <grset level="" title="проценты за несвоевременное исполнение всего" as="ai3">
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="a" column="vid_real" />
+                    <const>7</const>
+                  </call>
+                  <call function="=">
+                    <column table="a" column="vid_t" />
+                    <const>44</const>
+                  </call>
+                </call>
+              </where>
+              <grset level="1" title="проценты за несвоевременное исполнение" as="a3" order="dat_opl" />
+            </grset>
+          </grsets>
+        </query>
+      </from>
+      <where>
+        <call function="!=0">
+          <column table="a" column="opl" />
+        </call>
+      </where>
+    </query>
+    <query name="34660" grouplevel="no" timestamp="26.10.2016 20:06:35">
+      <params>
+        <usepart part="34660-params" />
+      </params>
+      <select>
+        <call function="||" as="gr_key" group="1">
+          <column table="kod_opl" column="vid_real" />
+          <call function="decode">
+            <column table="kod_sf" column="vid_t" />
+            <const>44</const>
+            <const>44</const>
+            <const>1</const>
+          </call>
+          <column table="kodp" column="name" as="name_p" />
+          <column table="kod_opl" column="dat_opl" />
+          <column table="kod_opl" column="num_opl" />
+          <column table="kod_mat" column="num_delo" />
+        </call>
+        <column table="kod_opl" column="vid_real" group="max" />
+        <column table="kod_sf" column="vid_t" group="max" />
+        <call function="if" as="tip_delo" type="number" group="max">
+          <call function="like">
+            <column table="this" column="num_delo" />
+            <const>'%65-%'</const>
+          </call>
+          <const>1</const>
+          <const>2</const>
+        </call>
+        <column table="kodp" column="name" as="name_p" group="max" />
+        <column table="kod_group_cust_parent" column="name" as="name_group_cust_parent" group="max" title="Группа потребителей" />
+        <column table="kod_group_cust" column="name" as="name_group_cust" group="max" title="Подгруппа потребителей" />
+        <column table="kod_opl" column="dat_opl" group="max" />
+        <column table="kod_opl" column="num_opl" group="max" />
+        <column table="kod_link" column="remark" group="max" title="Назначение платежа" />
+        <fact column="opl" group="sum" exclude="1" />
+        <fact column="ur_opl_posl_resh" group="sum" as="opl" />
+        <column table="kod_mat" column="num_delo" group="max" />
+        <call function="||" as="name_bpol" type="string" title="Источник оплаты" group="max">
+          <column table="kodbpol" column="rs" />
+          <const>' '</const>
+          <column table="kodb" column="name" />
+        </call>
+        <call function="over" as="opl_sum" group="sum" exclude="1">
+          <call function="sum">
+            <column table="this" column="opl" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="dat_opl" />
+            <column table="this" column="num_opl" />
+            <column table="this" column="name_p" />
+            <column table="this" column="num_delo" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_opl">
+            <link name="kod_sf" />
+            <link name="kod_link">
+              <link name="kodbpol">
+                <link name="kodb" />
+              </link>
+            </link>
+            <link name="vid_real" />
+            <link name="kod_dog">
+              <link name="kodp" />
+              <link name="kod_dog_dop">
+                <link name="kod_group_cust">
+                  <link name="kod_group_cust_parent" />
+                </link>
+              </link>
+            </link>
+          </link>
+          <link name="kod_mat">
+            <link name="kod_folders" />
+          </link>
+          <link name="dat_ur" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_opl" column="vid_real" />
+                <array>7,9</array>
+              </call>
+              <call function="=">
+                <call function="date to ym">
+                  <column table="kod_opl" column="dat_uch" exclude="1" />
+                  <column table="dat_ur" column="val" />
+                </call>
+                <useparam name="ym" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="=">
+                <column table="kod_folders" column="kod_sdp" />
+                <const>1</const>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust_parent" column="kod_group_cust" />
+                <useparam name="kod_group_cust_parent" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust" column="kod_group_cust" />
+                <useparam name="kod_group_cust" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="this" column="tip_delo" />
+            <useparam name="tip_delo" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="34660_test" grouplevel="no" timestamp="27.09.2016 20:01:25">
+      <params>
+        <usepart part="34660-params" />
+      </params>
+      <select>
+        <column table="kod_dog" column="dep" group="max" />
+        <column table="kod_opl" column="kod_opl" group="1" />
+        <column table="kod_opl" column="vid_real" group="max" />
+        <column table="kod_sf" column="vid_t" group="max" />
+        <call function="if" as="tip_delo" type="number" exclude="1">
+          <call function="like">
+            <column table="this" column="num_delo" />
+            <const>'%65-%'</const>
+          </call>
+          <const>1</const>
+          <const>2</const>
+        </call>
+        <column table="kodp" column="name" as="name_p" group="max" />
+        <column table="kod_group_cust_parent" column="name" as="name_group_cust_parent" group="max" title="Группа потребителей" />
+        <column table="kod_group_cust" column="name" as="name_group_cust" group="max" title="Подгруппа потребителей" />
+        <column table="kod_opl" column="dat_opl" group="kod_opl" />
+        <column table="kod_opl" column="num_opl" group="kod_opl" />
+        <column table="kod_link" column="remark" group="max" title="Назначение платежа" />
+        <fact column="opl" group="sum" exclude="1" />
+        <fact column="ur_opl_posl_resh" group="sum" as="opl" />
+        <fact column="sr_opl_kred_ur" group="sum" />
+        <column table="kod_mat" column="num_delo" group="max" />
+        <call function="||" as="name_bpol" type="string" title="Источник оплаты" group="max">
+          <column table="kodbpol" column="rs" />
+          <const>' '</const>
+          <column table="kodb" column="name" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_opl">
+            <link name="kod_sf" />
+            <link name="kod_link">
+              <link name="kodbpol">
+                <link name="kodb" />
+              </link>
+            </link>
+            <link name="vid_real" />
+            <link name="kod_dog">
+              <link name="kodp" />
+              <link name="kod_dog_dop">
+                <link name="kod_group_cust">
+                  <link name="kod_group_cust_parent" />
+                </link>
+              </link>
+            </link>
+          </link>
+          <link name="kod_mat">
+            <link name="kod_folders" />
+          </link>
+          <link name="dat_ur" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_opl" column="vid_real" />
+                <array>7,9</array>
+              </call>
+              <call function="=">
+                <call function="date to ym">
+                  <column table="kod_opl" column="dat_uch" exclude="1" />
+                  <column table="dat_ur" column="val" />
+                </call>
+                <useparam name="ym" />
+              </call>
+              <call function="in" optional="1" exclude="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="=">
+                <column table="kod_folders" column="kod_sdp" />
+                <const>1</const>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust_parent" column="kod_group_cust" />
+                <useparam name="kod_group_cust_parent" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust" column="kod_group_cust" />
+                <useparam name="kod_group_cust" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where exclude="1">
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="this" column="tip_delo" />
+            <useparam name="tip_delo" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

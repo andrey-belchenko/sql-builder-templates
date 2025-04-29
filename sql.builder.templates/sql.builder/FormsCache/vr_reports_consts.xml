@@ -1,0 +1,374 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vr_reports_consts" title="Настраиваемые поля в отчетах" timestamp="28.12.2023 14:57:30" is-report="1" folder="invpro" class="1" with-behavior="0" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_reports_consts.xml" elid="292" ord="292" leaf="0" lvl="2" pelid="">
+    <grid table="a" show-toolbar="1" id="43076324">
+      <toolbar id="39769436">
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="27512307" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="367" ord="367" leaf="1" lvl="2" pelid="" title="" id="48866156" />
+      </toolbar>
+      <columns id="65389214">
+        <field table="a" name="kod_type" title="Название константы" controlType="UICombo" rows-limit="100" id="27405324" />
+        <field table="a" name="value" title="Значение" controlType="UIText" rows-limit="100" id="4942199" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="vr_reports_consts" key="kod_const" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select a.kod_type as kod_type, /*Название константы*//*number*/
+a.value as value, /*Значение*//*string*/
+kod_type_x_n.name as kod_type_x_n, /*Название константы*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_const as kod_const/*number*//*key*/
+
+from (
+--vr_reports_consts
+select a.kod_const as kod_const, /*number*//*key*/
+a.kod_type as kod_type, /*number*/
+a.value as value, /*string*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from vr_reports_consts
+a
+--\vr_reports_consts
+)
+a
+--\vr_reports_consts
+left outer join
+(
+--vr_reports_consts_types
+select a.kod_type as kod_type, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod_type, 'Виза 1: ФИО' as name from dual
+      union all
+      select 2 , 'Виза 1: Должность' from dual
+    )a
+--\vr_reports_consts_types
+)
+kod_type_x_n on a.kod_type = kod_type_x_n.kod_type--\vr_reports_consts_types
+--\
+</select-text>
+      <columns>
+        <column name="kod_type" table="a" type="number" title="Название константы" ColumnEditable="0" ColumnMandatory="1" is-updateable="1" is-updateable-ext="1" update-target="kod_type" temp-col-name="n1">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_const_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_const_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_type_x_n.name as kod_type_x_n, /*Название константы*//*string*/
+a.kod_const as kod_const/*number*//*key*/
+
+from (
+--vr_reports_consts
+select a.kod_const as kod_const, /*number*//*key*/
+a.kod_type as kod_type/*number*/
+
+from (select a.kod_const as kod_const,a.kod_type as kod_type  from vr_reports_consts a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_const=t.f2 ) and   a.kod_const in :kod_const_prm   union all  select t.n2 as kod_const,t.n1 as kod_type  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_const_prm )
+a
+--\(select a.kod_const as kod_const,a.kod_type as kod_type  from vr_reports_consts a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_const=t.f2 ) and   a.kod_const in :kod_const_prm   union all  select t.n2 as kod_const,t.n1 as kod_type  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_const_prm )
+)
+a
+--\vr_reports_consts
+left outer join
+(
+--vr_reports_consts_types
+select a.kod_type as kod_type, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod_type, 'Виза 1: ФИО' as name from dual
+      union all
+      select 2 , 'Виза 1: Должность' from dual
+    )a
+--\vr_reports_consts_types
+)
+kod_type_x_n on a.kod_type = kod_type_x_n.kod_type--\vr_reports_consts_types
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_type_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="value" table="a" type="string" title="Значение" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="value" temp-col-name="s1" />
+        <column name="kod_type_x_n" table="a.kod_type" type="string" title="Название константы" text-source-for="kod_type" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_const_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_const_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_type_x_n.name as kod_type_x_n, /*Название константы*//*string*/
+a.kod_const as kod_const/*number*//*key*/
+
+from (
+--vr_reports_consts
+select a.kod_const as kod_const, /*number*//*key*/
+a.kod_type as kod_type/*number*/
+
+from (select a.kod_const as kod_const,a.kod_type as kod_type  from vr_reports_consts a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_const=t.f2 ) and   a.kod_const in :kod_const_prm   union all  select t.n2 as kod_const,t.n1 as kod_type  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_const_prm )
+a
+--\(select a.kod_const as kod_const,a.kod_type as kod_type  from vr_reports_consts a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_const=t.f2 ) and   a.kod_const in :kod_const_prm   union all  select t.n2 as kod_const,t.n1 as kod_type  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_const_prm )
+)
+a
+--\vr_reports_consts
+left outer join
+(
+--vr_reports_consts_types
+select a.kod_type as kod_type, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod_type, 'Виза 1: ФИО' as name from dual
+      union all
+      select 2 , 'Виза 1: Должность' from dual
+    )a
+--\vr_reports_consts_types
+)
+kod_type_x_n on a.kod_type = kod_type_x_n.kod_type--\vr_reports_consts_types
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="kod_const" table="a" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_const" temp-col-name="n2" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_type as kod_type 
+,:value as value 
+,:kod_const as kod_const 
+ 
+from dual ) 
+ 
+loop 
+insert into vr_reports_consts 
+(kod_type 
+,value 
+,kod_const 
+) 
+ values  
+(r.kod_type 
+,r.value 
+,r.kod_const 
+) 
+ returning  
+kod_const into :kod_const; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vr_reports_consts where kod_const=:kod_const</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_const; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_type as kod_type 
+,:value as value 
+,:kod_const as kod_const 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,s1 
+,n2 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_const 
+,:row_state_id 
+,r.kod_type 
+,r.value 
+,r.kod_const 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_type as kod_type 
+,:value as value 
+,:kod_const as kod_const 
+,a.repname 
+,a.u_m 
+,a.d_m 
+ 
+from vr_reports_consts a  where kod_const=:kod_const) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,s1 
+,n2 
+,s2 
+,s3 
+,d1 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_const 
+,:row_state_id 
+,r.kod_type 
+,r.value 
+,r.kod_const 
+,r.repname 
+,r.u_m 
+,r.d_m 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vr_reports_consts set  
+(kod_type 
+,value 
+,kod_const 
+) 
+= 
+ ( select  
+:kod_type as kod_type 
+,:value as value 
+,:kod_const as kod_const 
+ 
+from dual ) 
+ 
+where 
+kod_const=:kod_const 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vr_reports_consts" as="a">
+          <columns>
+            <column name="kod_type" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="value" type="string" title="Значение" />
+            <column name="kod_type_x_n" type="string" title="Название константы" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_const" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="kod_type_x_n" type="string" title="Название константы" />
+            <column name="kod_type" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="value" type="string" title="Значение" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_const" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_const_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_const_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select a.kod_type as kod_type, /*Название константы*//*number*/
+a.value as value, /*Значение*//*string*/
+kod_type_x_n.name as kod_type_x_n, /*Название константы*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_const as kod_const/*number*//*key*/
+
+from (
+--vr_reports_consts
+select a.kod_const as kod_const, /*number*//*key*/
+a.kod_type as kod_type, /*number*/
+a.value as value, /*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_const as kod_const,a.kod_type as kod_type,a.value as value,0 as is_new,1 as is_not_new  from vr_reports_consts a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_const=t.f2 ) and   a.kod_const in :kod_const_prm   union all  select t.n2 as kod_const,t.n1 as kod_type,t.s1 as value,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_const_prm )
+a
+--\(select a.kod_const as kod_const,a.kod_type as kod_type,a.value as value,0 as is_new,1 as is_not_new  from vr_reports_consts a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_const=t.f2 ) and   a.kod_const in :kod_const_prm   union all  select t.n2 as kod_const,t.n1 as kod_type,t.s1 as value,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_const_prm )
+)
+a
+--\vr_reports_consts
+left outer join
+(
+--vr_reports_consts_types
+select a.kod_type as kod_type, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod_type, 'Виза 1: ФИО' as name from dual
+      union all
+      select 2 , 'Виза 1: Должность' from dual
+    )a
+--\vr_reports_consts_types
+)
+kod_type_x_n on a.kod_type = kod_type_x_n.kod_type--\vr_reports_consts_types
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

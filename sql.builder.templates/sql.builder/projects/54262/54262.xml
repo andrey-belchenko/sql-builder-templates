@@ -1,0 +1,687 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T01:41:11.1977386+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="54262-main" timestamp="24.01.2020 00:56:29" materialize="1" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml" haskeys="1">
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="dogs" type="array">
+          <const>(800002922,800005516,800015274,1800000950,1800001433,1800002433,1800002578,1800002592,1800002617,1800002620,2000291070,2000291072,2000296825,2000296829,2000296831,2000296835,2000296853,2000296854,2000296880,2000296890,2000296898,2000296936,2000296937,2000296939,2000296957,2000296968,2000296970,2000296971,2000296981,2000296983,2000297001,2000297004,2000297015,2000297018,2000297019,2000297023,2000297027,2000297028,2000297030,2000297033,2000297038,2000297039,2000297040,2000297041,2000297043,2000297045,2000297046,2000297048,2000297051,2000297053,2000297054,2000297055,2000297056,2000297058,2000297059,2000297061,2000297065,2000297067,2000297069,2000297071,2000297082,2000297088,2000297092,2000297093,2000297096,2000297098,2000297100,2000297101,2000297102,2000297103,2000297104,2000297105,2000297107,2000297108,2000297109,2000297110,2000297114,2000297115,2000297117,2000297118,2000297123,2000297124,2000297125,2000297131,2000297132,2000297133,2000297134,2000297135,2000297136,2000297137,2000297142,2000297145,2000297147,2000297153,2000297154,2000297156,2000297157,2000297158,2000297159,2000297160,2000297162,2000297163,2000297164,2000297165,2000297166,2000297167,2000297168,2000297170,2000297177,2000297180,2000297199,2000297222,2000297230,2000297232,2000297243,2000297245,2000297247,2000297249,2000297252,2000297268,2000297286,2000297288,2000297290,2000297294,2000297304,2000297311,2000297317,2000297326,2000297328,2000297331,2000297333,2000297346,2000297350,2000297351,2000297357,2000297360,2000297366,2000297367,2000297368,2000297369,2000297371,2000297373,2000297378,2000297385,2000297386,2000297396,2000297397,2000297420,2000297431,2000297441,2000297442,2000297444,2000297449,2000297463,2000297465,2000297475,2000297479,2000297532,2000297634,2000297656,2000297746,2000297958,2000298319,2000298365,2000298410,2000298411,2000298433,2000298434,2000298438,2000298553,2000300829,2000300904,2000301594,2000301600,2000301988,2000302114,2000302716,2000303729,2000303982,2000304289,2000304307,2000304669,2000304748,2000304838,2000304956,2000304962,2000305178,2000305348,2000305388,2000305422,2000305461,2000305703,2000306007,2000307025,2000307036,2000307059,2000307099,2000307127,2000307151,2000307154,2000307158,2000307159,2000307161,2000307169,2000307223,2000307224,2000307231,2000307290,2000307351,2000307352,2000307353,2000307355,2000307356,2000307417,2000307418,2000307421,2000307432,2000307436,2000307613,2000308151,2000308503,2000308543,2000308622,2000308705,2000308862,2000308974,2000308987,2000309385,2000309744,2000309798,2000310052,2000310055,2000310059,2000310222,2000310232,2000310250,2000310285,2000311349,2000311431,2000311470,2000311571,2000312039,2000312709,2000312720,2000312721,2000312722)</const>
+        </param>
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" as="kod_dog" key="1" fixed="1" />
+        <call function="||" as="dep_ndog" key="0">
+          <column table="dep" column="sname" />
+          <const>' '</const>
+          <column table="kr_dogovor" column="ndog" />
+        </call>
+        <column table="kodp" column="name" as="name" key="0" />
+        <column table="kodp" column="inn" as="inn" key="0" />
+        <column table="kr_dogovor" column="ndog" as="ndog" key="0" />
+        <column table="kr_dogovor" column="dat_dog" as="dat_dog" key="0" />
+        <column table="kr_dogovor" column="dat_fin" as="dat_fin" key="0" />
+        <column table="kodp_uch" column="sname" as="uch_sname" key="0" />
+        <column table="dep" column="sname" as="dep_sname" key="0" />
+        <column table="main_data_months" column="rym_string" as="rym_string" key="0" />
+        <column table="spr_time_ym" column="ym" as="ym" reference="54262-data" refcol="ym" key="0" />
+        <column table="main_data" column="nach" as="nach" key="0" is-fact-use="1" />
+        <column table="main_data" column="opl" as="opl" key="0" />
+        <column table="main_data" column="cur_opl" as="cur_opl" key="0" />
+        <call function="over" as="dolg" type="number" agg="" key="0">
+          <call function="last_value ignore nulls">
+            <column table="main_data" column="sld_deb" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+          <call function="order by rows * 0">
+            <column table="spr_time_ym" column="ym" />
+          </call>
+        </call>
+        <call function="if" as="cur_dolg" title="Долг в месяц отчета" key="0">
+          <call function="=">
+            <column table="spr_time_ym" column="ym" />
+            <call function="date to ym">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <column table="this" column="dolg" />
+        </call>
+        <call function="over" as="dolg_2months_before" type="number" agg="" key="0">
+          <call function="last_value ignore nulls">
+            <column table="main_data" column="dolg_2months_before" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+          <call function="order by rows * 0">
+            <column table="spr_time_ym" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="opl_1month_before" type="number" agg="" key="0">
+          <call function="last_value ignore nulls">
+            <column table="main_data" column="opl_1month_before" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+        </call>
+        <call function="over" as="av_1month_before" type="number" agg="" key="0">
+          <call function="last_value ignore nulls">
+            <column table="main_data" column="av_1month_before" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dog" />
+          </call>
+        </call>
+        <call function="if" as="ym_beg_dolg" key="0">
+          <call function="and">
+            <call function="=">
+              <column table="spr_time_ym" column="ym" />
+              <call function="date to ym">
+                <useparam name="dat" />
+              </call>
+            </call>
+            <call function="gt">
+              <call function="-nvl">
+                <call function="+nvl">
+                  <column table="this" column="dolg_2months_before" />
+                  <column table="this" column="av_1month_before" />
+                </call>
+                <column table="this" column="opl_1month_before" />
+              </call>
+              <const>0</const>
+            </call>
+          </call>
+          <call function="-nvl">
+            <call function="+nvl">
+              <column table="this" column="dolg_2months_before" />
+              <column table="this" column="av_1month_before" />
+            </call>
+            <column table="this" column="opl_1month_before" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="kr_dogovor" as="kr_dogovor" title="Договор">
+          <link name="kodp" as="kodp" table="kr_payer" child="kr_dogovor" field="kodp" parent="kr_payer" back="kr_dogovor" title="Абонент" />
+          <link name="dep" as="dep" table="kr_org" child="kr_dogovor" field="dep" parent="kr_org" back="kr_dog_dep" />
+          <link name="kodp_uch" as="kodp_uch" table="kr_org" child="kr_dogovor" field="kodp_uch" parent="kr_org" back="kr_dogovor" />
+        </query>
+        <query join="cross" name="spr_time_ym" as="spr_time_ym" />
+        <query name="54262-data" as="main_data" join="left outer" dname="54262-main">
+          <call function="and">
+            <call function="=">
+              <column table="spr_time_ym" column="ym" />
+              <column table="main_data" column="ym" />
+            </call>
+            <call function="=">
+              <column table="kr_dogovor" column="kod_dog" />
+              <column table="main_data" column="kod_dog" />
+            </call>
+          </call>
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat" />
+            <useparam name="dogs" />
+          </withparams>
+        </query>
+        <query name="54262-data_debt_months" as="main_data_months" join="left outer" dname="54262-main">
+          <call function="=">
+            <column table="kr_dogovor" column="kod_dog" />
+            <column table="main_data_months" column="kod_dog" />
+          </call>
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat" />
+            <useparam name="dogs" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="kr_dogovor" column="kod_dog" />
+            <useparam name="dogs" />
+          </call>
+          <call function="ge">
+            <column table="spr_time_ym" column="ym" />
+            <const type="number">2017.01</const>
+          </call>
+          <call function="le">
+            <column table="spr_time_ym" column="ym" />
+            <call function="date to ym">
+              <useparam name="dat" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="54262-data" timestamp="24.01.2020 00:36:00" materialize="1" comment="по месяцам" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="dogs" type="array">
+          <const>(800002922,800005516,800015274,1800000950,1800001433,1800002433,1800002578,1800002592,1800002617,1800002620,2000291070,2000291072,2000296825,2000296829,2000296831,2000296835,2000296853,2000296854,2000296880,2000296890,2000296898,2000296936,2000296937,2000296939,2000296957,2000296968,2000296970,2000296971,2000296981,2000296983,2000297001,2000297004,2000297015,2000297018,2000297019,2000297023,2000297027,2000297028,2000297030,2000297033,2000297038,2000297039,2000297040,2000297041,2000297043,2000297045,2000297046,2000297048,2000297051,2000297053,2000297054,2000297055,2000297056,2000297058,2000297059,2000297061,2000297065,2000297067,2000297069,2000297071,2000297082,2000297088,2000297092,2000297093,2000297096,2000297098,2000297100,2000297101,2000297102,2000297103,2000297104,2000297105,2000297107,2000297108,2000297109,2000297110,2000297114,2000297115,2000297117,2000297118,2000297123,2000297124,2000297125,2000297131,2000297132,2000297133,2000297134,2000297135,2000297136,2000297137,2000297142,2000297145,2000297147,2000297153,2000297154,2000297156,2000297157,2000297158,2000297159,2000297160,2000297162,2000297163,2000297164,2000297165,2000297166,2000297167,2000297168,2000297170,2000297177,2000297180,2000297199,2000297222,2000297230,2000297232,2000297243,2000297245,2000297247,2000297249,2000297252,2000297268,2000297286,2000297288,2000297290,2000297294,2000297304,2000297311,2000297317,2000297326,2000297328,2000297331,2000297333,2000297346,2000297350,2000297351,2000297357,2000297360,2000297366,2000297367,2000297368,2000297369,2000297371,2000297373,2000297378,2000297385,2000297386,2000297396,2000297397,2000297420,2000297431,2000297441,2000297442,2000297444,2000297449,2000297463,2000297465,2000297475,2000297479,2000297532,2000297634,2000297656,2000297746,2000297958,2000298319,2000298365,2000298410,2000298411,2000298433,2000298434,2000298438,2000298553,2000300829,2000300904,2000301594,2000301600,2000301988,2000302114,2000302716,2000303729,2000303982,2000304289,2000304307,2000304669,2000304748,2000304838,2000304956,2000304962,2000305178,2000305348,2000305388,2000305422,2000305461,2000305703,2000306007,2000307025,2000307036,2000307059,2000307099,2000307127,2000307151,2000307154,2000307158,2000307159,2000307161,2000307169,2000307223,2000307224,2000307231,2000307290,2000307351,2000307352,2000307353,2000307355,2000307356,2000307417,2000307418,2000307421,2000307432,2000307436,2000307613,2000308151,2000308503,2000308543,2000308622,2000308705,2000308862,2000308974,2000308987,2000309385,2000309744,2000309798,2000310052,2000310055,2000310059,2000310222,2000310232,2000310250,2000310285,2000311349,2000311431,2000311470,2000311571,2000312039,2000312709,2000312720,2000312721,2000312722)</const>
+        </param>
+      </params>
+      <expressions>
+        <call as="is_peni_sud" function="in">
+          <column table="vid_t" column="vid_t" />
+          <call function="array">
+            <const>-44</const>
+            <const>44</const>
+          </call>
+        </call>
+        <call as="is_peni_other" function="in">
+          <column table="vid_t" column="vid_t" />
+          <call function="array">
+            <const>-48</const>
+            <const>48</const>
+            <const>47</const>
+          </call>
+        </call>
+        <call group="sum" function="()" type="number" as="opl_peni_other">
+          <fact column="sr_facopl_opl" condition="is_peni_other" />
+        </call>
+        <call function="()" type="number" group="sum" as="ob_deb">
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call group="sum" function="()" type="number" as="opl_peni_sud">
+          <fact column="sr_facopl_opl" condition="is_peni_sud" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" agg="" as="kod_dog" />
+        <column table="ym" column="val" as="ym" agg="" />
+        <fact column="fin_ul_nachisl_osn" as="nach" agg="" nvl="0" title="Начислено" is-fact-use="1" />
+        <fact column="fin_ul_nachisl_av" agg="" nvl="0" as="fin_ul_nachisl_av" is-fact-use="1" />
+        <call function="over" as="sld_deb" type="number" agg="" title="Долг">
+          <call function="sum">
+            <fact column="ob_deb" />
+          </call>
+          <call function="partition by">
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+          <call function="order by rows * 0">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="-" as="opl" title="Оплачено">
+          <fact column="opl" />
+          <call function="+">
+            <fact column="fin_ul_opl_gp" nvl="0" />
+            <fact column="opl_peni_sud" nvl="0" />
+            <fact column="opl_peni_other" nvl="0" />
+          </call>
+        </call>
+        <call function="if" as="cur_opl" title="Оплачено в месяц отчета">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="date to ym">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <column table="this" column="opl" />
+        </call>
+        <call function="if" as="cur_dolg" title="Долг в месяц отчета">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="date to ym">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <column table="this" column="sld_deb" />
+        </call>
+        <call function="if" as="dolg_2months_before" title="Долг за месяц отчета -2" comment="не null все до предпоследнего месяца">
+          <call function="le">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <call function="date to ym">
+                <useparam name="dat" />
+              </call>
+              <const>-2</const>
+            </call>
+          </call>
+          <column table="this" column="sld_deb" />
+        </call>
+        <call function="if" as="opl_1month_before" title="Оплата за месяц отчета -1" comment="не null только нужный месяц">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <call function="date to ym">
+                <useparam name="dat" />
+              </call>
+              <const>-1</const>
+            </call>
+          </call>
+          <column table="this" column="opl" />
+        </call>
+        <call function="if" as="av_1month_before" title="Начислено аванс за месяц отчета -1" comment="не null только нужный месяц">
+          <call function="=">
+            <column table="ym" column="val" />
+            <call function="ym add month">
+              <call function="date to ym">
+                <useparam name="dat" />
+              </call>
+              <const>-1</const>
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" agg="" nvl="0" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="ym" as="ym" />
+          <link name="kod_dog_fin" as="kod_dog" />
+          <link name="dat" only-for-cond="1" />
+          <where>
+            <call function="in">
+              <column table="kod_dog" column="kod_dog" />
+              <useparam name="dogs" />
+            </call>
+            <call function="le" dont-push="1">
+              <column table="dat" column="val" />
+              <useparam name="dat" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="54262-main_pivot" timestamp="24.01.2020 00:56:36" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml" haskeys="1">
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="dogs" type="array">
+          <const>(800002922,800005516,800015274,1800000950,1800001433,1800002433,1800002578,1800002592,1800002617,1800002620,2000291070,2000291072,2000296825,2000296829,2000296831,2000296835,2000296853,2000296854,2000296880,2000296890,2000296898,2000296936,2000296937,2000296939,2000296957,2000296968,2000296970,2000296971,2000296981,2000296983,2000297001,2000297004,2000297015,2000297018,2000297019,2000297023,2000297027,2000297028,2000297030,2000297033,2000297038,2000297039,2000297040,2000297041,2000297043,2000297045,2000297046,2000297048,2000297051,2000297053,2000297054,2000297055,2000297056,2000297058,2000297059,2000297061,2000297065,2000297067,2000297069,2000297071,2000297082,2000297088,2000297092,2000297093,2000297096,2000297098,2000297100,2000297101,2000297102,2000297103,2000297104,2000297105,2000297107,2000297108,2000297109,2000297110,2000297114,2000297115,2000297117,2000297118,2000297123,2000297124,2000297125,2000297131,2000297132,2000297133,2000297134,2000297135,2000297136,2000297137,2000297142,2000297145,2000297147,2000297153,2000297154,2000297156,2000297157,2000297158,2000297159,2000297160,2000297162,2000297163,2000297164,2000297165,2000297166,2000297167,2000297168,2000297170,2000297177,2000297180,2000297199,2000297222,2000297230,2000297232,2000297243,2000297245,2000297247,2000297249,2000297252,2000297268,2000297286,2000297288,2000297290,2000297294,2000297304,2000297311,2000297317,2000297326,2000297328,2000297331,2000297333,2000297346,2000297350,2000297351,2000297357,2000297360,2000297366,2000297367,2000297368,2000297369,2000297371,2000297373,2000297378,2000297385,2000297386,2000297396,2000297397,2000297420,2000297431,2000297441,2000297442,2000297444,2000297449,2000297463,2000297465,2000297475,2000297479,2000297532,2000297634,2000297656,2000297746,2000297958,2000298319,2000298365,2000298410,2000298411,2000298433,2000298434,2000298438,2000298553,2000300829,2000300904,2000301594,2000301600,2000301988,2000302114,2000302716,2000303729,2000303982,2000304289,2000304307,2000304669,2000304748,2000304838,2000304956,2000304962,2000305178,2000305348,2000305388,2000305422,2000305461,2000305703,2000306007,2000307025,2000307036,2000307059,2000307099,2000307127,2000307151,2000307154,2000307158,2000307159,2000307161,2000307169,2000307223,2000307224,2000307231,2000307290,2000307351,2000307352,2000307353,2000307355,2000307356,2000307417,2000307418,2000307421,2000307432,2000307436,2000307613,2000308151,2000308503,2000308543,2000308622,2000308705,2000308862,2000308974,2000308987,2000309385,2000309744,2000309798,2000310052,2000310055,2000310059,2000310222,2000310232,2000310250,2000310285,2000311349,2000311431,2000311470,2000311571,2000312039,2000312709,2000312720,2000312721,2000312722)</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" as="kod_dog" key="1" fixed="1" />
+        <column table="a" column="dep_ndog" as="dep_ndog" key="0" />
+        <column table="a" column="name" as="name" key="0" />
+        <column table="a" column="inn" as="inn" key="0" />
+        <column table="a" column="ndog" as="ndog" key="0" />
+        <column table="a" column="dat_dog" as="dat_dog" key="0" />
+        <column table="a" column="dat_fin" as="dat_fin" key="0" />
+        <column table="a" column="uch_sname" as="uch_sname" key="0" />
+        <column table="a" column="dep_sname" as="dep_sname" key="0" />
+        <column table="a" column="rym_string" as="rym_string" key="0" />
+        <column table="a" column="nach" dimname="ym" group="sum" as="nach" key="0" pivot="1" is-fact-use="1">
+          <pivot title="по месяцам">
+            <column table="a" column="ym" as="ym" />
+            <query order="ym">
+              <select>
+                <column table="y1" column="ym" as="ym" />
+                <column table="y1" column="name" as="name" />
+              </select>
+              <from>
+                <query name="spr_time_ym" as="y1" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="ge">
+                    <column table="y1" column="ym" />
+                    <const type="number">2017.01</const>
+                  </call>
+                  <call function="lt">
+                    <column table="y1" column="ym" />
+                    <call function="date to ym">
+                      <useparam name="dat" />
+                    </call>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="dolg" dimname="ym" group="sum" as="dolg" key="0" pivot="1">
+          <pivot title="по месяцам">
+            <column table="a" column="ym" as="ym" />
+            <query order="ym">
+              <select>
+                <column table="y2" column="ym" as="ym" />
+                <column table="y2" column="name" as="name" />
+              </select>
+              <from>
+                <query name="spr_time_ym" as="y2" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="ge">
+                    <column table="y2" column="ym" />
+                    <const type="number">2017.01</const>
+                  </call>
+                  <call function="lt">
+                    <column table="y2" column="ym" />
+                    <call function="date to ym">
+                      <useparam name="dat" />
+                    </call>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="opl" dimname="ym" group="sum" as="opl" key="0" pivot="1">
+          <pivot title="по месяцам">
+            <column table="a" column="ym" as="ym" />
+            <query order="ym">
+              <select>
+                <column table="y3" column="ym" as="ym" />
+                <column table="y3" column="name" as="name" />
+              </select>
+              <from>
+                <query name="spr_time_ym" as="y3" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="ge">
+                    <column table="y3" column="ym" />
+                    <const type="number">2017.01</const>
+                  </call>
+                  <call function="lt">
+                    <column table="y3" column="ym" />
+                    <call function="date to ym">
+                      <useparam name="dat" />
+                    </call>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="cur_opl" group="sum" as="cur_opl" key="0" />
+        <column table="a" column="cur_dolg" group="sum" as="cur_dolg" key="0" />
+        <column table="a" column="ym_beg_dolg" group="sum" as="ym_beg_dolg" key="0" />
+      </select>
+      <from>
+        <query name="54262-main" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat" />
+            <useparam name="dogs" />
+          </withparams>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog" />
+        <grset as="dog" order="dep_ndog">
+          <group>
+            <column table="a" column="dep_sname" />
+            <column table="a" column="uch_sname" />
+            <column table="a" column="dat_fin" />
+            <column table="a" column="dat_dog" />
+            <column table="a" column="ndog" />
+            <column table="a" column="inn" />
+            <column table="a" column="name" />
+            <column table="a" column="dep_ndog" />
+            <column table="a" column="kod_dog" />
+            <column table="a" column="rym_string" />
+          </group>
+        </grset>
+        <grset as="uch" order="dep_sname,uch_sname">
+          <group>
+            <column table="a" column="dep_sname" />
+            <column table="a" column="uch_sname" />
+          </group>
+        </grset>
+      </grouping>
+    </query>
+    <query name="54262-params" timestamp="23.01.2020 01:48:54" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date" />
+      </params>
+      <select>
+        <call function="to_char" as="dat" key="0">
+          <useparam name="dat" />
+          <const>'YYYY-MM-DD'</const>
+        </call>
+        <call function="to_char" as="dat_ym_first" key="0">
+          <call function="ym begin time">
+            <call function="date to ym">
+              <useparam name="dat" />
+            </call>
+          </call>
+          <const>'YYYY-MM-DD'</const>
+        </call>
+        <call function="to_char" as="month" key="0">
+          <useparam name="dat" />
+          <const>'month','NLS_DATE_LANGUAGE=RUSSIAN'</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="dual" />
+      </from>
+    </query>
+    <query name="54262-data_debt_months_cube" timestamp="23.01.2020 22:36:02" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml">
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="dogs" type="array" />
+      </params>
+      <select>
+        <column table="kod_dog" column="kod_dog" agg="" as="kod_dog" />
+        <column table="kod_sf" column="kod_sf" agg="" as="kod_sf" />
+        <column table="kod_sf" column="rym" agg="" as="rym" />
+        <fact column="fin_ul_ob_osn" as="fin_ul_ob_osn" is-fact-use="1" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog_fin" as="kod_dog" />
+          <link name="kod_sf" />
+          <link name="dat" only-for-cond="1" />
+          <where>
+            <call function="in">
+              <column table="kod_dog" column="kod_dog" />
+              <useparam name="dogs" />
+            </call>
+            <call function="le" dont-push="1">
+              <column table="dat" column="val" />
+              <useparam name="dat" />
+            </call>
+            <call function="=">
+              <column table="kod_sf" column="vid_real" />
+              <const>2</const>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="54262-data_debt_months" timestamp="23.01.2020 22:47:38" materialize="1" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml" haskeys="1">
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date">
+          <const>sysdate</const>
+        </param>
+        <param name="dogs" type="array">
+          <const>(800002922,800005516,800015274,1800000950,1800001433,1800002433,1800002578,1800002592,1800002617,1800002620,2000291070,2000291072,2000296825,2000296829,2000296831,2000296835,2000296853,2000296854,2000296880,2000296890,2000296898,2000296936,2000296937,2000296939,2000296957,2000296968,2000296970,2000296971,2000296981,2000296983,2000297001,2000297004,2000297015,2000297018,2000297019,2000297023,2000297027,2000297028,2000297030,2000297033,2000297038,2000297039,2000297040,2000297041,2000297043,2000297045,2000297046,2000297048,2000297051,2000297053,2000297054,2000297055,2000297056,2000297058,2000297059,2000297061,2000297065,2000297067,2000297069,2000297071,2000297082,2000297088,2000297092,2000297093,2000297096,2000297098,2000297100,2000297101,2000297102,2000297103,2000297104,2000297105,2000297107,2000297108,2000297109,2000297110,2000297114,2000297115,2000297117,2000297118,2000297123,2000297124,2000297125,2000297131,2000297132,2000297133,2000297134,2000297135,2000297136,2000297137,2000297142,2000297145,2000297147,2000297153,2000297154,2000297156,2000297157,2000297158,2000297159,2000297160,2000297162,2000297163,2000297164,2000297165,2000297166,2000297167,2000297168,2000297170,2000297177,2000297180,2000297199,2000297222,2000297230,2000297232,2000297243,2000297245,2000297247,2000297249,2000297252,2000297268,2000297286,2000297288,2000297290,2000297294,2000297304,2000297311,2000297317,2000297326,2000297328,2000297331,2000297333,2000297346,2000297350,2000297351,2000297357,2000297360,2000297366,2000297367,2000297368,2000297369,2000297371,2000297373,2000297378,2000297385,2000297386,2000297396,2000297397,2000297420,2000297431,2000297441,2000297442,2000297444,2000297449,2000297463,2000297465,2000297475,2000297479,2000297532,2000297634,2000297656,2000297746,2000297958,2000298319,2000298365,2000298410,2000298411,2000298433,2000298434,2000298438,2000298553,2000300829,2000300904,2000301594,2000301600,2000301988,2000302114,2000302716,2000303729,2000303982,2000304289,2000304307,2000304669,2000304748,2000304838,2000304956,2000304962,2000305178,2000305348,2000305388,2000305422,2000305461,2000305703,2000306007,2000307025,2000307036,2000307059,2000307099,2000307127,2000307151,2000307154,2000307158,2000307159,2000307161,2000307169,2000307223,2000307224,2000307231,2000307290,2000307351,2000307352,2000307353,2000307355,2000307356,2000307417,2000307418,2000307421,2000307432,2000307436,2000307613,2000308151,2000308503,2000308543,2000308622,2000308705,2000308862,2000308974,2000308987,2000309385,2000309744,2000309798,2000310052,2000310055,2000310059,2000310222,2000310232,2000310250,2000310285,2000311349,2000311431,2000311470,2000311571,2000312039,2000312709,2000312720,2000312721,2000312722)</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" as="kod_dog" key="1" fixed="1" />
+        <call function="vg_period.ym_enum_str_to_ym_ranges_str" as="rym_string" key="0">
+          <column table="a" column="rym" group="stragg_dist" />
+        </call>
+      </select>
+      <from>
+        <query name="54262-data_debt_months_cube" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat" />
+            <useparam name="dogs" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="gt">
+          <call function="nvl0">
+            <column table="a" column="fin_ul_ob_osn" />
+          </call>
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+    <query name="54262-dogs_list" timestamp="23.01.2020 23:14:41" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml" haskeys="1">
+      <params>
+        <param name="dep" type="array" />
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" agg="" as="kod_dog" key="1" fixed="1" />
+        <column table="kr_dogovor" column="ndog" agg="" as="ndog" key="0" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="kr_dogovor" title="Договор" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="like">
+            <column table="kr_dogovor" column="ndog" />
+            <const>'%ОД%'</const>
+          </call>
+          <call function="=">
+            <column table="kr_dogovor" column="kod_dog" />
+            <column table="kr_dogovor" column="kod_dog_fin" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kr_dogovor" column="dep" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="form:54262" haskeys="1">
+      <select>
+        <column table="u" column="title" title="Параметр" as="title" />
+        <column table="u" column="name" key="1" as="name" />
+        <column table="u" column="text" title="Значение" as="text" />
+      </select>
+      <from>
+        <query as="u">
+          <union>
+            <query>
+              <select>
+                <const type="string" as="title">'Отделение'</const>
+                <const type="string" as="name">'dep'</const>
+                <const type="string" as="text">NULL</const>
+              </select>
+              <from>
+                <table name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const>'Дата'</const>
+                <const>'dat'</const>
+                <const>NULL</const>
+              </select>
+              <from>
+                <table name="dual" />
+              </from>
+            </query>
+          </union>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="54262" timestamp="24.01.2020 16:23:30" form="54262" title="Информация о задолженности по ОДН на первое число месяца и на текущую дату по периодам в разрезе ОКО" nogrid="1" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml">
+      <print-templates>
+        <excel>
+          <template name="54262.xlsx" title="Информация о задолженности по ОДН на первое число месяца и на текущую дату по периодам в разрезе ОКО" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <params>
+        <param name="dep" type="array" />
+        <param name="dat" type="date" />
+        <param name="dogs" type="array" />
+      </params>
+      <queries>
+        <query name="54262-main_pivot" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat" />
+            <useparam name="dogs" />
+          </withparams>
+        </query>
+        <query name="54262-params" as="p">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="54262" timestamp="23.01.2020 23:46:04" file="sql.builder.templates\sql.builder\projects\54262\all\all.xml">
+      <content>
+        <field name="dep" controlType="UIList" title="Отделение" type="number" timestamp="13.05.2019 13:13:44" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml" visible="1">
+          <listquery>
+            <query name="kr_dep" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_dep_current" />
+          </defaultquery>
+        </field>
+        <field controlType="UIDate" type="date" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" title="Дата" name="dat" mandatory="1" visible="1">
+          <defaultquery>
+            <query name="today" />
+          </defaultquery>
+        </field>
+        <field controlType="UIList" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" name="dogs" type="number" visible="0">
+          <defaultquery>
+            <query name="54262-dogs_list" />
+          </defaultquery>
+          <listquery>
+            <query name="54262-dogs_list" />
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

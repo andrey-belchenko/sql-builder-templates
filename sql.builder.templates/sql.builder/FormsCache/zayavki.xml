@@ -1,0 +1,445 @@
+﻿<root>
+  <form name="zayavki" title="Заявки" timestamp="10.03.2016 18:51:03" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\zayavka.xml" elid="586" ord="586" leaf="0" lvl="2" pelid="">
+    <grid table="zayavka" id="67078387">
+      <columns id="38773333">
+        <field table="zayavka" name="name" title="№" controlType="UIText" rows-limit="100" id="52997883" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="zayavka_has_changes" parname="zayavka_has_changes" />
+    </fields>
+    <table name="zayavka" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="zayavka" key="nomer" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select zayavka.name as name, /*№*//*string*/
+zayavka.is_new as is_new, /*number*/
+zayavka.is_not_new as is_not_new, /*number*/
+zayavka.nomer as nomer/*number*//*key*/
+
+from (
+--zayavka
+select a.nomer as nomer, /**//*number*//*key*/
+a.name as name, /*№*//*string*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from zayavka
+a
+--\zayavka
+)
+zayavka
+--\zayavka
+--\
+</select-text>
+      <columns>
+        <column name="name" table="zayavka" type="string" title="№" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="name" temp-col-name="s1" />
+        <column name="is_new" table="zayavka" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="zayavka" type="number" title="" is-user-editable="1" />
+        <column name="nomer" table="zayavka" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="nomer" temp-col-name="n1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:name as name 
+,:nomer as nomer 
+ 
+from dual ) 
+ 
+loop 
+insert into zayavka 
+(name 
+,nomer 
+) 
+ values  
+(r.name 
+,r.nomer 
+) 
+ returning  
+nomer into :nomer; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from zayavka where nomer=:nomer</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='zayavka' 
+and 
+names=:form_id 
+and 
+f2=:nomer; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:name as name 
+,:nomer as nomer 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n1 
+) 
+ values  
+('zayavka' 
+,:form_id 
+,:nomer 
+,:row_state_id 
+,r.name 
+,r.nomer 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:name as name 
+,:nomer as nomer 
+,a.sostoyanie 
+,a.zagol 
+,a.opisan 
+,a.vazhn 
+,a.data_vnes 
+,a.konsult 
+,a.zakazchik 
+,a.kontakt 
+,a.trud_fact 
+,a.data_vipoln 
+,a.otch_ispoln 
+,a.otch_testir 
+,a.prich_zakr 
+,a.vers 
+,a.testir 
+,a.tc_nomer 
+,a.ispolnit 
+,a.export_v_tc 
+,a.data_plan 
+,a.postanovshik 
+,a.tc_sostoyanie 
+,a.trud_plan 
+,a.srok_plan 
+,a.data_izmen 
+,a.user_izmen 
+,a.tc_data_fact 
+,a.sluzh_zapiska 
+,a.sluzh_perep 
+,a.vid_sopr 
+,a.curator 
+,a.vnositel 
+,a.otch_analiz 
+,a.data_treb 
+,a.parent 
+,a.assoc_type 
+,a.tip_zayavki 
+,a.tip_vnositel 
+,a.deyst_history 
+,a.rassm_otv 
+,a.otch_konsult 
+,a.kurator 
+,a.status_podtv 
+,a.status_vipoln 
+,a.spos_vip 
+,a.treb_test 
+,a.vers_plan 
+,a.data_vipusk_plan 
+,a.otch_ispoln_publ 
+,a.zadan_testir 
+,a.treb_opis 
+,a.slozhnost 
+,a.tc_proekt 
+,a.proveren_isp 
+,a.proveren_test 
+,a.zakr_aktom 
+,a.data_sozd 
+,a.proveren_zak 
+,a.vers_rep 
+,a.wrong_tc_num 
+,a.has_assoc 
+,a.val_kachestvo 
+,a.val_skorost 
+,a.data_rassm 
+,a.data_tc_sync 
+,a.data_vipusk 
+,a.versiya1 
+,a.data_utochn 
+,a.data_vrab 
+,a.data_otv 
+,a.sost_v_sist_zak 
+,a.vip 
+,a.col_problem 
+,a.sverhsrochn 
+,a.child_index 
+,a.nomer_parent 
+,a.trud_neopl 
+,a.auto_trud 
+,a.status_tz 
+,a.tc_nomer1 
+,a.tfs_nomer 
+ 
+from zayavka a  where nomer=:nomer) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n1 
+,n2 
+,s2 
+,s3 
+,n3 
+,d1 
+,n4 
+,n5 
+,s4 
+,n6 
+,d2 
+,s5 
+,s6 
+,s7 
+,n7 
+,n8 
+,s8 
+,n9 
+,n10 
+,d3 
+,n11 
+,s9 
+,n12 
+,n13 
+,d4 
+,n14 
+,d5 
+,s10 
+,s11 
+,n15 
+,n16 
+,n17 
+,s12 
+,d6 
+,n18 
+,n19 
+,n20 
+,n21 
+,n22 
+,n23 
+,s13 
+,n24 
+,n25 
+,n26 
+,n27 
+,n28 
+,n29 
+,d7 
+,s14 
+,s15 
+,n30 
+,n31 
+,n32 
+,n33 
+,n34 
+,n35 
+,d8 
+,n36 
+,n37 
+,n38 
+,n39 
+,n40 
+,n41 
+,d9 
+,d10 
+,d11 
+,n42 
+,d12 
+,d13 
+,d14 
+,n43 
+,n44 
+,n45 
+,n46 
+,n47 
+,n48 
+,n49 
+,n50 
+,n51 
+,s16 
+,s17 
+) 
+ values  
+('zayavka' 
+,:form_id 
+,:nomer 
+,:row_state_id 
+,r.name 
+,r.nomer 
+,r.sostoyanie 
+,r.zagol 
+,r.opisan 
+,r.vazhn 
+,r.data_vnes 
+,r.konsult 
+,r.zakazchik 
+,r.kontakt 
+,r.trud_fact 
+,r.data_vipoln 
+,r.otch_ispoln 
+,r.otch_testir 
+,r.prich_zakr 
+,r.vers 
+,r.testir 
+,r.tc_nomer 
+,r.ispolnit 
+,r.export_v_tc 
+,r.data_plan 
+,r.postanovshik 
+,r.tc_sostoyanie 
+,r.trud_plan 
+,r.srok_plan 
+,r.data_izmen 
+,r.user_izmen 
+,r.tc_data_fact 
+,r.sluzh_zapiska 
+,r.sluzh_perep 
+,r.vid_sopr 
+,r.curator 
+,r.vnositel 
+,r.otch_analiz 
+,r.data_treb 
+,r.parent 
+,r.assoc_type 
+,r.tip_zayavki 
+,r.tip_vnositel 
+,r.deyst_history 
+,r.rassm_otv 
+,r.otch_konsult 
+,r.kurator 
+,r.status_podtv 
+,r.status_vipoln 
+,r.spos_vip 
+,r.treb_test 
+,r.vers_plan 
+,r.data_vipusk_plan 
+,r.otch_ispoln_publ 
+,r.zadan_testir 
+,r.treb_opis 
+,r.slozhnost 
+,r.tc_proekt 
+,r.proveren_isp 
+,r.proveren_test 
+,r.zakr_aktom 
+,r.data_sozd 
+,r.proveren_zak 
+,r.vers_rep 
+,r.wrong_tc_num 
+,r.has_assoc 
+,r.val_kachestvo 
+,r.val_skorost 
+,r.data_rassm 
+,r.data_tc_sync 
+,r.data_vipusk 
+,r.versiya1 
+,r.data_utochn 
+,r.data_vrab 
+,r.data_otv 
+,r.sost_v_sist_zak 
+,r.vip 
+,r.col_problem 
+,r.sverhsrochn 
+,r.child_index 
+,r.nomer_parent 
+,r.trud_neopl 
+,r.auto_trud 
+,r.status_tz 
+,r.tc_nomer1 
+,r.tfs_nomer 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='zayavka' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update zayavka set  
+(name 
+,nomer 
+) 
+= 
+ ( select  
+:name as name 
+,:nomer as nomer 
+ 
+from dual ) 
+ 
+where 
+nomer=:nomer 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="zayavka" as="zayavka">
+          <columns>
+            <column name="name" type="string" title="№" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="nomer" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="name" type="string" title="№" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="nomer" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="nomer_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="nomer_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select zayavka.name as name, /*№*//*string*/
+zayavka.is_new as is_new, /*number*/
+zayavka.is_not_new as is_not_new, /*number*/
+zayavka.nomer as nomer/*number*//*key*/
+
+from (
+--zayavka
+select a.nomer as nomer, /**//*number*//*key*/
+a.name as name, /*№*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.nomer as nomer,a.name as name,0 as is_new,1 as is_not_new  from zayavka a where not exists (select * from rr_temp t where t.skod ='zayavka' and t.names=:form_id  and a.nomer=t.f2 ) and   a.nomer in :nomer_prm   union all  select t.n1 as nomer,t.s1 as name,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='zayavka' and t.names=:form_id  and t.f3!=3  and t.f2 in :nomer_prm )
+a
+--\(select a.nomer as nomer,a.name as name,0 as is_new,1 as is_not_new  from zayavka a where not exists (select * from rr_temp t where t.skod ='zayavka' and t.names=:form_id  and a.nomer=t.f2 ) and   a.nomer in :nomer_prm   union all  select t.n1 as nomer,t.s1 as name,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='zayavka' and t.names=:form_id  and t.f3!=3  and t.f2 in :nomer_prm )
+)
+zayavka
+--\zayavka
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

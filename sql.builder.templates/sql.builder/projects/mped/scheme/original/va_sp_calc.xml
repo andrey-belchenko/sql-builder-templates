@@ -1,0 +1,441 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="va_sp_calc" class="1" timestamp="05.09.2019 18:02:10">
+      <select>
+        <column table="a" column="kod_sp_calc" type="number" column-mandatory="1" />
+        <column table="a" column="vid_dey_kod" type="number" title="" />
+        <column table="a" column="vid_dey_name" type="string" data-size="300" title="" />
+        <column table="a" column="ob_gen_kod" type="string" data-size="30" title="" />
+        <column table="a" column="ob_gen_name" type="string" data-size="300" title="" />
+        <column table="a" column="period" type="number" title="" />
+        <column table="a" column="subject_fed_kod" type="number" title="" controlType="UICombo">
+          <listquery>
+            <query name="vb_spr_fed_subject_kod_subj" />
+          </listquery>
+        </column>
+        <column table="a" column="subject_fed_name" type="string" data-size="300" title="" controlType="UICombo">
+          <listquery>
+            <query name="vb_spr_fed_subject_name" />
+          </listquery>
+        </column>
+        <column table="a" column="zakaz_kod" type="string" data-size="30" title="" />
+        <column table="a" column="zakaz_name" type="string" data-size="300" title="" />
+        <column table="a" column="mb3_kod" type="string" data-size="30" title="" />
+        <column table="a" column="mb3_name" type="string" data-size="300" title="" />
+        <column table="a" column="mvp_partner_kod" type="string" data-size="30" title="" />
+        <column table="a" column="mvp_partner_name" type="string" data-size="300" title="" />
+        <column table="a" column="el_zatr_kod" type="number" title="" />
+        <column table="a" column="el_zatr_name" type="string" data-size="300" title="" />
+        <column table="a" column="mvp_kod" type="string" data-size="30" title="" />
+        <column table="a" column="mvp_name" type="string" data-size="300" title="" />
+        <column table="a" column="vyruchka" type="number" title="" />
+        <column table="a" column="vol_sbyt" type="number" title="" />
+        <column table="a" column="zatr" type="number" title="" />
+        <column table="a" column="tut" type="number" title="" />
+        <column table="a" column="rash_vod_m3" type="number" title="" />
+        <column table="a" column="rash_vod_t" type="number" title="" />
+        <column table="a" column="rez_tepl_nag" type="number" title="" />
+        <column table="a" column="pris_tep_nag" type="number" title="" />
+        <column table="a" column="kod_direct" type="number" />
+        <column table="a" column="tip_bud_kod" type="number" />
+        <column table="a" column="tip_bud_name" type="string" />
+        <column table="vb_spr_smet_zatr_calc" column="kod_spr_smet_zatr" />
+        <column table="kod_spr_smet_calc" column="schet_no_mb3" />
+        <call as="kod_schet_mb3" function="nvl" type="number" format="F0">
+          <call function="to_number">
+            <call function="substr">
+              <column table="a" column="mb3_kod" />
+              <const>5</const>
+              <const>1</const>
+            </call>
+          </call>
+          <column table="this" column="schet_no_mb3" />
+        </call>
+        <call table="ur_mat_reminder" column="kod_mat" dgroup="count" as="color" function="case" title="Цвет" type="string">
+          <call function="when">
+            <call function="and">
+              <call function="is null">
+                <column table="a" column="mb3_kod" dgroup="max" />
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="this" column="schet_no_mb3" dgroup="max" />
+                </call>
+                <call function="is null">
+                  <column table="this" column="mvp_kod" dgroup="max" />
+                </call>
+              </call>
+              <call function="is null">
+                <column table="this" column="kod_spr_smet_zatr" dgroup="max" />
+              </call>
+            </call>
+            <use-color color="rebeccapurple" />
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="is null">
+                <column table="a" column="mb3_kod" dgroup="max" />
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="this" column="schet_no_mb3" dgroup="max" />
+                </call>
+                <call function="is null">
+                  <column table="this" column="mvp_kod" dgroup="max" />
+                </call>
+              </call>
+            </call>
+            <use-color color="darkred" />
+          </call>
+          <call function="when">
+            <call function="is null">
+              <column table="this" column="kod_spr_smet_zatr" dgroup="max" />
+            </call>
+            <use-color color="darkyellow" />
+          </call>
+        </call>
+        <column table="kod_spr_od_nd" column="od_nd_name" exclude="1" />
+        <call as="od_nd_name" title="ОД - НД" type="string" function="if">
+          <call function="is null">
+            <column table="this" column="vid_dey_kod" />
+          </call>
+          <const>'НД'</const>
+          <column table="kod_spr_od_nd" column="od_nd_name" />
+        </call>
+        <call as="tip_bud_kod_str" function="to_char">
+          <column table="this" column="tip_bud_kod" />
+          <const>'099'</const>
+        </call>
+      </select>
+      <from>
+        <table name="va_sp_calc" as="a" />
+        <query name="vb_spr_smet_zatr_calc" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="el_zatr_kod" />
+              <column table="vb_spr_smet_zatr_calc" column="smet_code" />
+            </call>
+            <call function="between">
+              <column table="a" column="period" />
+              <column table="vb_spr_smet_zatr_calc" column="period_s" />
+              <call function="nvl">
+                <column table="vb_spr_smet_zatr_calc" column="period_po" />
+                <const>9999.99</const>
+              </call>
+            </call>
+          </call>
+          <link name="kod_spr_smet_calc" />
+        </query>
+        <query name="vb_spr_vid_dey" join="left outer" as="vd">
+          <call function="=">
+            <column table="a" column="vid_dey_kod" />
+            <column table="vd" column="vid_dey_sap_code" />
+          </call>
+          <link name="kod_spr_vid_energ">
+            <link name="kod_spr_od_nd" />
+          </link>
+        </query>
+        <query name="is_spr_direct" as="kod_direct" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_direct" />
+            <column table="kod_direct" column="kod_direct" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="mvp_kod1" join="left outer">
+          <call function="=">
+            <column table="a" column="mvp_kod" />
+            <column table="mvp_kod1" column="mvp_code" />
+          </call>
+        </query>
+        <query name="vb_spr_smet_to_sap_agg" as="sap_code_agg" join="left outer">
+          <call function="=">
+            <call function="to_char">
+              <column table="a" column="el_zatr_kod" />
+            </call>
+            <column table="sap_code_agg" column="sap_code" />
+          </call>
+        </query>
+        <query name="vb_spr_smet_to_sap" as="sap_code" join="left outer">
+          <call function="and">
+            <call function="=">
+              <call function="to_char">
+                <column table="a" column="el_zatr_kod" />
+              </call>
+              <column table="sap_code" column="sap_code" />
+            </call>
+            <call function="is null">
+              <column table="sap_code" column="period_po" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="va_sp_calc_rep" class="1" timestamp="23.08.2019 10:55:44">
+      <select>
+        <column table="a" column="kod_sp_calc" type="number" column-mandatory="1" key="1" />
+        <column table="a" column="vid_dey_kod" type="number" title="" />
+        <column table="a" column="vid_dey_name" type="string" data-size="300" title="" />
+        <column table="a" column="ob_gen_kod" type="string" data-size="30" title="" />
+        <column table="a" column="ob_gen_name" type="string" data-size="300" title="" />
+        <column table="a" column="period" type="number" title="" is-private-dimension="ym" is-final-dimension="ym" dimension="ym" />
+        <column table="a" column="subject_fed_kod" type="number" title="" />
+        <column table="a" column="subject_fed_name" type="string" data-size="300" title="" />
+        <column table="a" column="zakaz_kod" type="string" data-size="30" title="" />
+        <column table="a" column="zakaz_name" type="string" data-size="300" title="" />
+        <column table="a" column="mb3_kod" type="string" data-size="30" title="" />
+        <column table="a" column="mb3_name" type="string" data-size="300" title="" />
+        <column table="a" column="mvp_partner_kod" type="string" data-size="30" title="" />
+        <column table="a" column="mvp_partner_name" type="string" data-size="300" title="" />
+        <column table="a" column="el_zatr_kod" type="number" title="" />
+        <column table="a" column="el_zatr_name" type="string" data-size="300" title="" />
+        <column table="a" column="mvp_kod" type="string" data-size="30" title="" />
+        <column table="a" column="mvp_name" type="string" data-size="300" title="" />
+        <column table="a" column="vyruchka" type="number" title="" />
+        <column table="a" column="vol_sbyt" type="number" title="" />
+        <column table="a" column="zatr" type="number" />
+        <column table="a" column="tut" type="number" title="" />
+        <column table="a" column="rash_vod_m3" type="number" title="" />
+        <column table="a" column="rash_vod_t" type="number" title="" />
+        <column table="a" column="rez_tepl_nag" type="number" title="" />
+        <column table="a" column="pris_tep_nag" type="number" title="" />
+        <column column="kod_direct" table="a" type="number" as="kod_direct_load" />
+        <column table="a" column="tip_bud_kod" type="number" />
+        <column table="a" column="tip_bud_name" type="string" />
+        <call as="summa_ft" type="number" function="if" is-fact="1" agg="sum" title="Доходы расходы (факт)">
+          <call function="and">
+            <call function="=">
+              <call function="upper">
+                <column table="this" column="tip_bud_name" />
+              </call>
+              <const>'ФАКТ'</const>
+            </call>
+            <call function="!=0">
+              <call function="nvl0">
+                <column table="this" column="zatr" />
+              </call>
+            </call>
+          </call>
+          <column table="this" column="zatr" as="" type="" />
+        </call>
+        <call title="Доходы и расходы (ЭЭ)" as="dr_ee" function="if" type="number" is-fact="1" agg="sum">
+          <call function="=">
+            <column table="this" column="kod_spr_vid_energ" />
+            <const>2</const>
+          </call>
+          <column table="this" column="summa_ft" />
+        </call>
+        <call title="Доходы и расходы (Тепло)" as="dr_te" function="if" type="number" is-fact="1" agg="sum">
+          <call function="=">
+            <column table="this" column="kod_spr_vid_energ" />
+            <const>3</const>
+          </call>
+          <column table="this" column="summa_ft" />
+        </call>
+        <call title="Доходы и расходы (НД)" as="dr_nd" function="if" type="number" is-fact="1" agg="sum">
+          <call function="=">
+            <column table="this" column="kod_spr_vid_energ" />
+            <const>1</const>
+          </call>
+          <column table="this" column="summa_ft" />
+        </call>
+        <column table="vb_spr_vid_dey" column="kod_spr_vid_energ" />
+        <call as="mes" function="mes" is-private-dimension="month" is-final-dimension="month" dimension="month">
+          <column table="this" column="period" />
+        </call>
+        <call as="god" function="trunc" is-private-dimension="year" is-final-dimension="year" dimension="year">
+          <column table="this" column="period" />
+        </call>
+        <call as="kod_direct" function="coalesce" type="number">
+          <column table="mb3" column="kod_direct" />
+          <column table="mvp1" column="kod_direct" />
+          <column table="mvp2" column="kod_direct" />
+        </call>
+        <column table="vb_spr_smet_zatr_calc" column="kod_spr_smet_zatr" is-private-dimension="vb_spr_smet_zatr_calc" is-final-dimension="vb_spr_smet_zatr_calc" dimension="vb_spr_smet_zatr_calc" />
+        <column table="vb_spr_smet_zatr_calc" column="kod_spr_smet_calc" is-private-dimension="vb_spr_smet_calc" is-final-dimension="vb_spr_smet_calc" dimension="vb_spr_smet_calc" />
+        <column table="vb_spr_smet_calc" column="schet_no_mb3" />
+        <call as="kod_schet_mb3" function="nvl" type="number" format="F0">
+          <call function="to_number">
+            <call function="substr">
+              <column table="a" column="mb3_kod" />
+              <const>5</const>
+              <const>1</const>
+            </call>
+          </call>
+          <column table="this" column="schet_no_mb3" />
+        </call>
+        <column table="vb_spr_schet_calc" column="kod_spr_schet" is-private-dimension="vb_spr_schet_calc" is-final-dimension="vb_spr_schet_calc" dimension="vb_spr_schet_calc" />
+        <column table="mvp2" column="kod_direct" as="kod_direct2" />
+        <call as="kod_direct3" function="nvl" type="number">
+          <column table="mvp1" column="kod_direct" />
+          <column table="mvp3" column="kod_direct" />
+        </call>
+        <column table="vb_spr_vid_energ" column="kod_spr_od_nd" />
+        <call as="zatr_rasp_otr" function="if" type="number" is-fact="1" agg="sum">
+          <call function="!=">
+            <column table="this" column="mvp_kod" />
+            <call function="nvl">
+              <call function="substr">
+                <column table="this" column="mb3_kod" />
+                <const>1</const>
+                <const>4</const>
+              </call>
+              <column table="this" column="mvp_partner_kod" />
+            </call>
+          </call>
+          <call function="*">
+            <column table="this" column="zatr" />
+            <const>-1</const>
+          </call>
+        </call>
+        <column table="vb_spr_rasp_zatr" column="kod_spr_rasp_zatr" is-private-dimension="vb_spr_rasp_zatr" is-final-dimension="vb_spr_rasp_zatr" dimension="vb_spr_rasp_zatr" />
+      </select>
+      <from>
+        <query name="va_sp_calc" as="a" />
+        <query join="left outer" name="vb_spr_vid_dey" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column column="vid_dey_kod" table="this" />
+            <column column="vid_dey_sap_code" table="vb_spr_vid_dey" />
+          </call>
+        </query>
+        <query join="left outer" name="vb_spr_vid_energ" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column column="kod_spr_vid_energ" table="this" />
+            <column column="kod_spr_vid_energ" table="vb_spr_vid_energ" />
+          </call>
+        </query>
+        <query join="left outer" name="vb_spr_od_nd" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column column="kod_spr_od_nd" table="this" />
+            <column column="kod_spr_od_nd" table="vb_spr_od_nd" />
+          </call>
+        </query>
+        <query name="is_spr_direct_mask" as="mb3" join="left outer">
+          <call function="like2">
+            <column table="this" column="mb3_kod" />
+            <column table="mb3" column="mb3_code" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="mvp1" join="left outer">
+          <call function="=">
+            <call function="substr">
+              <column table="this" column="mb3_kod" />
+              <const>1</const>
+              <const>4</const>
+            </call>
+            <column table="mvp1" column="mvp_code" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="mvp2" join="left outer">
+          <call function="=">
+            <column table="this" column="mvp_kod" />
+            <column table="mvp2" column="mvp_code" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="mvp3" join="left outer">
+          <call function="=">
+            <column table="this" column="mvp_partner_kod" />
+            <column table="mvp3" column="mvp_code" />
+          </call>
+        </query>
+        <query name="va_direct" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_direct" />
+            <column table="va_direct" column="kod_direct" />
+          </call>
+        </query>
+        <query name="va_direct2" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_direct2" />
+            <column table="va_direct2" column="kod_direct" />
+          </call>
+        </query>
+        <query name="va_direct3" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_direct3" />
+            <column table="va_direct3" column="kod_direct" />
+          </call>
+        </query>
+        <query name="vb_spr_smet_to_sap" join="left outer">
+          <call function="and">
+            <call function="=">
+              <call function="to_char">
+                <column table="a" column="el_zatr_kod" />
+              </call>
+              <column table="vb_spr_smet_to_sap" column="sap_code" />
+            </call>
+          </call>
+        </query>
+        <query name="vb_spr_smet_zatr_calc" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="el_zatr_kod" />
+              <column table="vb_spr_smet_zatr_calc" column="smet_code" />
+            </call>
+            <call function="between">
+              <column table="this" column="period" />
+              <column table="vb_spr_smet_zatr_calc" column="period_s" />
+              <call function="nvl">
+                <column table="vb_spr_smet_zatr_calc" column="period_po" />
+                <const>9999.99</const>
+              </call>
+            </call>
+          </call>
+        </query>
+        <query name="vb_spr_smet_calc" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_spr_smet_calc" />
+            <column table="vb_spr_smet_calc" column="kod_spr_smet_calc" />
+          </call>
+        </query>
+        <query name="vb_spr_schet_calc" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_schet_mb3" />
+            <column table="vb_spr_schet_calc" column="kod_schet" />
+          </call>
+        </query>
+        <query name="vb_spr_fed_subject" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="subject_fed_kod" />
+            <column table="vb_spr_fed_subject" column="kod_subj" />
+          </call>
+        </query>
+        <query name="vbr_calculation_mode" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="in">
+            <column table="vbr_calculation_mode" column="id" />
+            <const>(1,2)</const>
+          </call>
+        </query>
+        <query name="vb_spr_rasp_zatr" join="left outer">
+          <call function="and">
+            <call function="=">
+              <call function="nvl" exclude="1">
+                <column table="mb3" column="kod_direct" />
+                <column table="mvp1" column="kod_direct" />
+              </call>
+              <column table="mvp3" column="kod_direct" />
+              <column table="vb_spr_rasp_zatr" column="kod_direct" />
+            </call>
+            <call function="between">
+              <column table="a" column="period" />
+              <column table="vb_spr_rasp_zatr" column="period_s" />
+              <call function="nvl">
+                <column table="vb_spr_rasp_zatr" column="period_po" />
+                <const>9999.99</const>
+              </call>
+            </call>
+            <call function="=">
+              <column table="vb_spr_rasp_zatr" column="rasp_calc" />
+              <const>1</const>
+            </call>
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="vb_spr_smet_to_sap" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <link name="kod_spr_smet" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+      </links>
+    </query>
+  </queries>
+</root>

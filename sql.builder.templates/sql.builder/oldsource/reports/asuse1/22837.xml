@@ -1,0 +1,2209 @@
+<root>
+  <forms>
+    <form name="22837">
+      <content>
+        <field name="ym" controlType="UICombo" title="Период">
+          <listquery>
+            <query name="n_calc_dist">
+            </query>
+          </listquery>
+          <defaultquery>
+            <query name="n_calc_max">
+            </query>
+          </defaultquery>
+        </field>
+        <field name="voda_par" controlType="UIList" title="Вода/Пар">
+          <!--<properties>
+            <property name="Height">60</property>
+            <property name="MainView.OptionsView.ShowColumnHeaders">false</property>
+          </properties>-->
+          <listquery>
+            <query name="voda_par">
+            </query>
+          </listquery>
+          <!--<return>
+            <call function="in">
+              <column table="this" column="voda_par" />
+              <fieldvalue />
+            </call>
+          </return>-->
+        </field>
+        <field name="kodp" controlType="UIList" title="Абоненты">
+          <!--<properties>
+            <property name="MainView.OptionsView.ShowAutoFilterRow">true</property>
+          </properties>-->
+          <listquery>
+            <query name="d_payer%tbl">
+            </query>
+          </listquery>
+          <return>
+            <call function="in">
+              <column table=":table-pname" column="kodp" />
+              <fieldvalue />
+            </call>
+          </return>
+        </field>
+      </content>
+    </form>
+
+    
+    <form name="22837-opl">
+      <content>
+        <field name="ym" controlType="UICombo" title="Период">
+          <listquery>
+            <query name="n_calc_dist">
+            </query>
+          </listquery>
+          <defaultquery>
+            <query name="n_calc_max">
+            </query>
+          </defaultquery>
+        </field>
+        <field name="voda_par" controlType="UIList" title="Вода/Пар">
+          <!--<properties>
+            <property name="Height">60</property>
+            <property name="MainView.OptionsView.ShowColumnHeaders">false</property>
+          </properties>-->
+          <listquery>
+            <query name="voda_par">
+            </query>
+          </listquery>
+          <!--<return>
+            <call function="in">
+              <column table="this" column="voda_par" />
+              <fieldvalue />
+            </call>
+          </return>-->
+        </field>
+        <field name="kodp" controlType="UIList" title="Абоненты">
+          <!--<properties>
+            <property name="MainView.OptionsView.ShowAutoFilterRow">true</property>
+          </properties>-->
+          <listquery>
+            <query name="d_payer%tbl">
+            </query>
+          </listquery>
+          <return>
+            <call function="in">
+              <column table=":table-pname" column="kodp" />
+              <fieldvalue />
+            </call>
+          </return>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="22837" title="Оборотная ведомость по видам товара" form="22837" folder="oborot">
+      <customers>
+        <customer id="2" />
+      </customers>
+      
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="kodp">
+          <undefined />
+        </param>
+        <param name="voda_par">
+          <undefined />
+        </param>
+      </params>
+      <queries>
+        <query name="22837" as="a">
+          <columns>
+            <column table="a" name="voda_par_name" />
+            <column table="a" name="kodp" title="Код абонента" />
+            <column table="a" name="dat_udal" />
+            <column table="a" name="inn" title="ИНН" />
+            <column table="a" name="payer_name" title="Наименование абонента" />
+            <column table="a" name="ist_fin_name" title="Источник финансирования" />
+            <column table="a" name="otrasl_fname" title="Отрасль" />
+            <column table="a" name="dolg_full_beg" title="Задолженнность на начало периода" />
+            <column table="a" name="dolg_deb_beg" title="Деб. задолженнность на начало периода" />
+            <column table="a" name="dolg_spis_beg" title="В т.ч. списанная задолженность на начало периода" />
+            <column table="a" name="dolg_kred_beg" title="Кред. задолженнность на начало периода" />
+            <band table="b" column="summa">
+            </band>
+            <band table="c" column="summa">
+            </band>
+            <column table="a" name="nt_summa" title="Начислено (руб)&#xD;&#xA;всего" />
+            <column table="a" name="nach_spis" title="Списано (руб)" />
+            <band table="b" column="cust">
+            </band>
+            <band table="c" column="cust">
+            </band>
+            <column table="a" name="ot_oplf" title="Оплата начислений (руб)" />
+            <column table="a" name="otkr_oplf" title="Оплата авансов и переплат (руб)" />
+            <column table="a" name="storno" title="Сторно авансов и переплат (руб)" />
+            <column table="a" name="dolg_full" title="Задолженнность на конец периода" />
+            <column table="a" name="dolg_deb" title="Деб. задолженнность на конец периода" />
+            <column table="a" name="dolg_spis" title="В т.ч. списанная задолженность на конец периода" />
+            <column table="a" name="dolg_kred" title="Кред. задолженнность на конец периода" />
+          </columns>
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="voda_par" />
+            <part>
+              <params>
+                <param name="table-pname">
+                </param>
+              </params>
+              <call function="and">
+                <usepart part="1=1" />
+                <useparam name="kodp" />
+              </call>
+            </part>
+            <nodes>
+              <usepart part="22837-cols-for-group" />
+            </nodes>
+            <nodes>
+              <usepart part="22837-cols-main" />
+            </nodes>
+          </withparams>
+          <query name="22837-nachisl" as="b">
+            <withparams>
+              <useparam name="ym" />
+              <useparam name="voda_par" />
+              <part>
+                <params>
+                  <param name="table-pname">
+                  </param>
+                </params>
+                <call function="and">
+                  <usepart part="1=1" />
+                  <useparam name="kodp" />
+                </call>
+              </part>
+              <nodes>
+                <usepart part="22837-cols-for-group" />
+              </nodes>
+            </withparams>
+            <transpose>
+              <dimension>
+                <column column="vid_t" title="vid_t_name_e">
+                </column>
+              </dimension>
+              <values>
+                <column column="summa">
+                </column>
+                <column column="cust">
+                </column>
+              </values>
+            </transpose>
+            <call function="=">
+              <column table="a" column="kodp">
+              </column>
+              <column table="b" column="kodp">
+              </column>
+            </call>
+          </query>
+          <query name="22837-nachisl-edizm" as="c">
+            <withparams>
+              <useparam name="ym" />
+              <useparam name="voda_par" />
+              <part>
+                <params>
+                  <param name="table-pname">
+                  </param>
+                </params>
+                <call function="and">
+                  <usepart part="1=1" />
+                  <useparam name="kodp" />
+                </call>
+              </part>
+              <nodes>
+                <usepart part="22837-cols-for-group" />
+              </nodes>
+            </withparams>
+            <transpose>
+              <dimension>
+                <column column="edizm" title="edizm_name">
+                </column>
+              </dimension>
+              <values>
+                <column column="summa">
+                </column>
+                <column column="cust">
+                </column>
+              </values>
+            </transpose>
+            <call function="=">
+              <column table="a" column="kodp">
+              </column>
+              <column table="c" column="kodp">
+              </column>
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+    
+    
+    <report name="22837-sf" title="Оборотная ведомость по видам товара (детализация по СФ)" form="22837" folder="old_version">
+      <customers>
+        <customer id="2" />
+      </customers>
+      <columns>
+        <column table="a" name="voda_par_name" />
+        <column table="a" name="kodp" title="Код абонента" />
+        <column table="a" name="dat_udal" />
+        <column table="a" name="payer_name" title="Наименование абонента" />
+        <column table="a" name="sf_name" />
+        <column table="a" name="ym_name" />
+        <column table="a" name="dolg_deb_beg" title="Деб. задолженнность на начало периода" />
+        <column table="a" name="dolg_spis_beg" title="В т.ч. списанная задолженность на начало периода" />
+        <band table="b" column="summa">
+        </band>
+        <band table="c" column="summa">
+        </band>
+        <column table="a" name="nt_summa" title="Начислено (руб)&#xD;&#xA;всего" />
+        <column table="a" name="nach_spis" title="Списано (руб)" />
+        <band table="b" column="cust">
+        </band>
+        <band table="c" column="cust">
+        </band>
+        <column table="a" name="ot_oplf" title="Оплата начислений (руб)" />
+        <column table="a" name="dolg_deb" title="Деб. задолженнность на конец периода" />
+        <column table="a" name="dolg_spis" title="В т.ч. списанная задолженность на конец периода" />
+      </columns>
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="kodp">
+          <undefined />
+        </param>
+        <param name="voda_par">
+          <undefined />
+        </param>
+      </params>
+      <queries>
+        <query name="22837-sf" as="a">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="voda_par" />
+            <part>
+              <params>
+                <param name="table-pname">
+                </param>
+              </params>
+              <call function="and">
+                <usepart part="1=1" />
+                <!-- плохое решение придумать что-нибудь-->
+                <useparam name="kodp" />
+              </call>
+            </part>
+            <nodes>
+              <usepart part="22837-cols-for-group-sf" />
+            </nodes>
+            <nodes>
+              <usepart part="22837-cols-main-sf" />
+            </nodes>
+          </withparams>
+          <query name="22837-nachisl" as="b">
+            <withparams>
+              <useparam name="ym" />
+              <useparam name="voda_par" />
+              <part>
+                <params>
+                  <param name="table-pname">
+                  </param>
+                </params>
+                <call function="and">
+                  <usepart part="1=1" />
+                  <useparam name="kodp" />
+                </call>
+              </part>
+              <nodes>
+                <usepart part="22837-cols-for-group-sf" />
+              </nodes>
+            </withparams>
+            <transpose>
+              <dimension>
+                <column column="vid_t" title="vid_t_name_e">
+                </column>
+              </dimension>
+              <values>
+                <column column="summa">
+                </column>
+                <column column="cust">
+                </column>
+              </values>
+            </transpose>
+            <usepart part="add-join">
+              <nodes>
+                <usepart part="22837-cols-for-group-sf" />
+              </nodes>
+              <const>a</const>
+              <const>b</const>
+            </usepart>
+          </query>
+          <query name="22837-nachisl-edizm" as="c">
+            <withparams>
+              <useparam name="ym" />
+              <useparam name="voda_par" />
+              <part>
+                <params>
+                  <param name="table-pname">
+                  </param>
+                </params>
+                <call function="and">
+                  <usepart part="1=1" />
+                  <useparam name="kodp" />
+                </call>
+              </part>
+              <nodes>
+                <usepart part="22837-cols-for-group-sf" />
+              </nodes>
+            </withparams>
+            <transpose>
+              <dimension>
+                <column column="edizm" title="edizm_name">
+                </column>
+              </dimension>
+              <values>
+                <column column="summa">
+                </column>
+                <column column="cust">
+                </column>
+              </values>
+            </transpose>
+            <usepart part="add-join">
+              <nodes>
+                <usepart part="22837-cols-for-group-sf" />
+              </nodes>
+              <const>a</const>
+              <const>c</const>
+            </usepart>
+          </query>
+        </query>
+      </queries>
+    </report>
+    
+    
+    <report name="22837-opl" title="Оборотная ведомость (детализация по оплатам)" form="22837" folder="oborot">
+      <customers>
+        <customer id="2" />
+      </customers>
+      <columns>
+        <column table="a" name="voda_par_name" />
+        <column table="a" name="kodp" title="Код абонента" />
+        <column table="a" name="dat_udal" />
+        <column table="a" name="payer_name" title="Наименование абонента" />
+        <column table="a" name="datao" />
+        <column table="a" name="num_opl" />
+        <column table="a" name="dolg_kred_beg" title="Кред. задолженнность на начало периода" />
+        <column table="a" name="ot_oplf" title="Оплата начислений (руб)" />
+        <column table="a" name="otkr_oplf" title="Оплата авансов и переплат (руб)" />
+        <column table="a" name="storno" title="Сторно авансов и переплат (руб)" />
+        <column table="a" name="dolg_kred" title="Кред. задолженнность на конец периода" />
+      </columns>
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="kodp">
+          <undefined />
+        </param>
+        <param name="voda_par">
+          <undefined />
+        </param>
+      </params>
+      <queries>
+        <query name="22837-opl" as="a">
+          <withparams>
+            <useparam name="ym" />
+            <useparam name="voda_par" />
+            <part>
+              <params>
+                <param name="table-pname">
+                </param>
+              </params>
+              <call function="and">
+                <usepart part="1=1" />
+                <!-- плохое решение придумать что-нибудь-->
+                <useparam name="kodp" />
+              </call>
+            </part>
+            <nodes>
+              <usepart part="22837-cols-for-group-opl" />
+            </nodes>
+            <nodes>
+              <usepart part="22837-cols-main-opl" />
+            </nodes>
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <parts>
+    <part id="22837-cols-for-group">
+      <column column="kodp" />
+      <!--<column column="kod_sf"/>-->
+    </part>
+    <part id="22837-cols-main">
+      <column column="voda_par_name" group="max" />
+      <column column="inn" group="max" />
+      <column column="payer_name" group="max" />
+      <column column="ist_fin_name" group="max">
+      </column>
+      <column column="otrasl_fname" group="max">
+      </column>
+      <column column="dat_udal" group="max">
+      </column>
+    </part>
+    <part id="22837-cols-for-group-sf">
+      <column column="kodp" />
+      <column column="kod_sf" />
+    </part>
+    <part id="22837-cols-for-group-opl">
+      <column column="kodp" />
+      <column column="kod_opl" />
+    </part>
+    <part id="22837-cols-main-sf">
+      <column column="voda_par_name" group="max" />
+      <column column="inn" group="max" />
+      <column column="ym_name" group="max" />
+      <column column="sf_name" group="max" />
+      <column column="payer_name" group="max" />
+      <column column="ist_fin_name" group="max">
+      </column>
+      <column column="otrasl_fname" group="max">
+      </column>
+      <column column="dat_udal" group="max">
+      </column>
+    </part>
+    <part id="22837-cols-main-opl">
+      <column column="voda_par_name" group="max" />
+      <column column="inn" group="max" />
+      <column column="ym_name" group="max" />
+      <column column="datao" group="max" />
+      <column column="num_opl" group="max" />
+      <column column="payer_name" group="max" />
+      <column column="ist_fin_name" group="max">
+      </column>
+      <column column="otrasl_fname" group="max">
+      </column>
+      <column column="dat_udal" group="max">
+      </column>
+    </part>
+    <part id="22837-cols-nachisl">
+      <column column="summa" group="sum">
+      </column>
+      <column column="cust" group="sum">
+      </column>
+    </part>
+    <part id="22837-cols-opl">
+      <column column="oplf" group="sum">
+      </column>
+    </part>
+    <part id="22837-main-cond">
+      <params>
+        <param name="table-pname">
+        </param>
+      </params>
+      <call function="and">
+        <usepart part="22837-main-cond-cmn">
+          <useparam name="table-pname">
+          </useparam>
+        </usepart>
+        <call function="in">
+          <column table=":table-pname" column="vid_real_pl">
+          </column>
+          <call function="array">
+            <const>2</const>
+          </call>
+        </call>
+      </call>
+    </part>
+    <part id="22837-main-nachisl-cond">
+      <params>
+        <param name="table-pname">
+        </param>
+        <param name="ym">
+        </param>
+      </params>
+      <call function="and">
+        <call function="and">
+          <call function="=">
+            <column table=":table-pname" column="ym">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <call function="=">
+            <column table=":table-pname" column="vid_real_pl">
+            </column>
+            <const>2</const>
+          </call>
+        </call>
+        <!-- <call function="and">
+          <call function="=">
+            <column table=":table-pname" column="ym_uch"></column>
+            <useparam name="ym"/>
+          </call>
+          <call function="ls">
+            <column table=":table-pname" column="summa"></column>
+            <const>0</const>
+          </call>
+          <call function="=">
+            <column table=":table-pname" column="vid_real"></column>
+            <const>8</const>
+          </call>
+        </call>-->
+      </call>
+    </part>
+    <part id="22837-main-cond-cmn">
+      <params>
+        <param name="table-pname">
+        </param>
+      </params>
+      <call function="=">
+        <const>1</const>
+        <const>1</const>
+      </call>
+    </part>
+  </parts>
+  <parts>
+    <part id="22837-dolg-deb">
+      <column table="a" column="dolg" as="dolg_deb" />
+    </part>
+    <part id="22837-dolg-full">
+      <call function="-nvl" as="dolg_full">
+        <usepart part="22837-dolg-deb">
+        </usepart>
+        <column table="a" column="dolg_kred" />
+      </call>
+    </part>
+    <part id="22837-dolg-deb-beg">
+      <call function="-nvl" as="dolg_deb_beg">
+        <usepart part="22837-dolg-deb">
+        </usepart>
+        <call function="-nvl">
+          <column table="a" column="nt_summa" />
+          <column table="a" column="ot_oplf" />
+        </call>
+      </call>
+    </part>
+    <part id="22837-dolg-spis-beg">
+      <call function="-nvl" as="dolg_spis_beg">
+        <column table="a" column="dolg_spis" />
+        <column table="a" column="nach_spis" />
+      </call>
+    </part>
+    <part id="22837-dolg-kred-beg">
+      <call function="-nvl" as="dolg_kred_beg">
+        <column table="a" column="dolg_kred" />
+        <call function="+nvl">
+          <column table="a" column="otkr_oplf" />
+          <column table="a" column="otstor_oplf" />
+        </call>
+      </call>
+    </part>
+    <part id="22837-dolg-full-beg">
+      <call function="-nvl" as="dolg_full_beg">
+        <usepart part="22837-dolg-deb-beg">
+        </usepart>
+        <usepart part="22837-dolg-kred-beg">
+        </usepart>
+      </call>
+    </part>
+  </parts>
+  <queries>
+    <query name="22837-test">
+      <select>
+        <column table="k" column="kod_fopl">
+        </column>
+        <column table="k" column="voda_par">
+        </column>
+      </select>
+      <from>
+        <query name="s_facopl" as="k">
+          <withparams>
+            <call function="date">
+              <const>'01.01.2013'</const>
+            </call>
+            <node>
+              <call function="in">
+                <column table="this" column="voda_par" />
+                <call function="array">
+                  <const>1</const>
+                </call>
+              </call>
+            </node>
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="22837-test1">
+      <select>
+        <column table="o" column="kodp" group="1">
+        </column>
+        <column table="o" column="oplf" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="s_facopl" as="o" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls">
+            <column table="o" column="ym">
+            </column>
+            <const>2014.01</const>
+          </call>
+          <call function="in">
+            <column table="o" column="kodp">
+            </column>
+            <call function="array">
+              <const>'722600047'</const>
+              <const>'722600048'</const>
+              <const>'514600330'</const>
+              <const>'514600348'</const>
+            </call>
+          </call>
+          <call function="in">
+            <column table="o" column="vid_real">
+            </column>
+            <call function="array">
+              <const>2</const>
+              <const>8</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="22837-test1">
+      <select>
+        <column table="o" column="kodp" group="1">
+        </column>
+        <column table="o" column="oplf" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="s_facopl" as="o" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls">
+            <column table="o" column="ym">
+            </column>
+            <const>2014.01</const>
+          </call>
+          <call function="in">
+            <column table="o" column="kodp">
+            </column>
+            <call function="array">
+              <const>'722600047'</const>
+              <const>'722600048'</const>
+              <const>'514600330'</const>
+              <const>'514600348'</const>
+            </call>
+          </call>
+          <call function="in">
+            <column table="o" column="vid_real">
+            </column>
+            <call function="array">
+              <const>2</const>
+              <const>8</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="22837-backbone-n">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+        <param name="cols-main">
+          <undefined />
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="voda_par" group="1"/>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-main">
+          </useparam>
+          <const>a</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_facras" as="a">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <!--<where>
+        <call function="and">
+          <usepart part="22837-main-cond">
+            <const>a</const>
+          </usepart>
+        </call>
+      </where>-->
+    </query>
+    <query name="22837-backbone-o">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+        <param name="cols-main">
+          <undefined />
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-main">
+          </useparam>
+          <const>a</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_opl" as="a">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <!--<where>
+        <call function="and">
+          <usepart part="22837-main-cond">
+            <const>a</const>
+          </usepart>
+        </call>
+      </where>-->
+    </query>
+    <query name="22837-dat_end_dolg_opl">
+      <select>
+        <column table="a" column="kod_opl">
+        </column>
+        <column table="a" column="dat_end_dolg">
+        </column>
+      </select>
+      <from>
+        <query name="s_opl" as="a">
+          <withparams>
+            <call function="date">
+              <const>sysdate</const>
+            </call>
+            <!--<part>
+              <params>
+                <param name="table-pname"></param>
+              </params>
+              <call function="in">
+                <column table=":table-pname" column="kodp"></column>
+                <call function="array">
+                  <const>'722600047'</const>
+                </call>
+              </call>
+            </part>-->
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_type_opl">
+          </column>
+          <call function="array">
+            <const>1</const>
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="22837-dat_end_dolg_sf">
+      <select>
+        <column table="a" column="kod_sf">
+        </column>
+        <column table="a" column="ym_end_dolg_c">
+        </column>
+      </select>
+      <from>
+        <query name="s_facvip" as="a">
+          <withparams>
+            <call function="date">
+              <const>sysdate-100</const>
+            </call>
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="22837-dat_end_dolg_deb">
+      <select>
+        <column table="a" column="kod_deb">
+        </column>
+        <column table="a" column="dat_end_dolg_c">
+        </column>
+      </select>
+      <from>
+        <query name="s_debet" as="a">
+          <withparams>
+            <call function="date">
+              <const>sysdate</const>
+            </call>
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="22837-nachisl" order="edizm_name">
+      <params>
+        <param name="ym">
+          <const>2013.01</const>
+        </param>
+        <param name="voda_par"/>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <nodes>
+            <usepart part="22837-cols-nachisl" />
+          </nodes>
+          <const>a</const>
+        </usepart>
+        <column table="a" column="vid_t" group="1">
+        </column>
+        <column table="a" column="edizm_name" group="max">
+        </column>
+        <column table="a" column="vid_t_name_e" group="max">
+        </column>
+      </select>
+      <from>
+        <query name="s_facras" as="a">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="and">
+            <usepart part="22837-main-nachisl-cond">
+              <const>a</const>
+              <useparam name="ym" />
+            </usepart>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="voda_par"/> 
+            <useparam name="voda_par"/>
+          </call>
+        </call>
+      </where>
+    </query>
+    
+    <query name="22837-nachisl-edizm" order="edizm_name">
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="voda_par"/>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <nodes>
+            <usepart part="22837-cols-nachisl" />
+          </nodes>
+          <const>a</const>
+        </usepart>
+        <column table="a" column="edizm" group="1">
+        </column>
+        <column table="a" column="edizm_name" group="max">
+        </column>
+      </select>
+      <from>
+        <query name="s_facras" as="a">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="and">
+            <usepart part="22837-main-nachisl-cond">
+              <const>a</const>
+              <useparam name="ym" />
+            </usepart>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="voda_par"/>
+            <useparam name="voda_par"/>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="22837">
+ 
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="voda_par"/>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+        <param name="cols-main">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-main">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="22837-dolg-full-beg" />
+        <usepart part="22837-dolg-deb-beg" />
+        <usepart part="22837-dolg-spis-beg" />
+        <usepart part="22837-dolg-kred-beg" />
+        <usepart part="22837-dolg-full" />
+        <usepart part="22837-dolg-deb" />
+        <call function="0-" as="storno">
+          <column table="a" column="otstor_oplf" />
+        </call>
+        <column table="a" column="dolg_kred" />
+        <column table="a" column="dolg_spis" />
+        <column table="a" column="nach_spis" />
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>okr</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-nachisl" />
+          </nodes>
+          <const>a</const>
+          <const>nt</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>ot</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>otkr</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>otstor</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="22837-main" as="a">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <nodes>
+              <usepart part="22837-cols-nachisl" />
+            </nodes>
+            <nodes>
+              <usepart part="22837-cols-opl" />
+            </nodes>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+      <!-- <where>
+        <call function="not 0">
+          <usepart part="22837-dolg-ked-beg"/>
+          <usepart part="22837-dolg-deb-beg"/>
+          <column table="a" column="dolg_kred"/>
+          <usepart part="22837-dolg-deb"/>
+          <column table="a" column="ot_oplf"/>
+          <column table="a" column="nt_summa"/>
+          <column table="a" column="otkr_oplf"/>
+        </call>
+      </where>-->
+      <where>
+        <call function="and">
+          <call function="true"/>
+          <call function="in" optional="1">
+            <column table="a" column="voda_par"/>
+            <useparam name="voda_par"/>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="22837-sf">
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="voda_par"/>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+        <param name="cols-main">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-main">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="22837-dolg-deb-beg" />
+        <usepart part="22837-dolg-spis-beg" />
+        <usepart part="22837-dolg-deb" />
+        <column table="a" column="dolg_spis" />
+        <column table="a" column="nach_spis" />
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-nachisl" />
+          </nodes>
+          <const>a</const>
+          <const>nt</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>ot</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="22837-main-sf" as="a">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <nodes>
+              <usepart part="22837-cols-nachisl" />
+            </nodes>
+            <nodes>
+              <usepart part="22837-cols-opl" />
+            </nodes>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="not 0">
+          <usepart part="22837-dolg-deb-beg" />
+          <usepart part="22837-dolg-deb" />
+          <column table="a" column="ot_oplf" />
+          <column table="a" column="nt_summa" />
+        </call>
+      </where>--&gt;
+    </query>
+    <query name="22837-opl">
+      <params>
+        <param name="ym">
+          <undefined />
+        </param>
+        <param name="voda_par"/>
+        <param name="cond">
+          <undefined />
+        </param>
+        <param name="cols-for-group">
+          <undefined />
+        </param>
+        <param name="cols-main">
+          <undefined />
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-main">
+          </useparam>
+          <const>a</const>
+        </usepart>
+        <usepart part="22837-dolg-kred-beg" />
+        <call function="0-" as="storno">
+          <column table="a" column="otstor_oplf" />
+        </call>
+        <column table="a" column="dolg_kred" />
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>okr</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>ot</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>otkr</const>
+        </usepart>
+        <usepart part="add-cols-use-pref">
+          <nodes>
+            <usepart part="22837-cols-opl" />
+          </nodes>
+          <const>a</const>
+          <const>otstor</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="22837-main-opl" as="a">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <nodes>
+              <usepart part="22837-cols-nachisl" />
+            </nodes>
+            <nodes>
+              <usepart part="22837-cols-opl" />
+            </nodes>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="not 0">
+          <usepart part="22837-dolg-kred-beg" />
+          <column table="a" column="dolg_kred" />
+          <column table="a" column="ot_oplf" />
+          <column table="a" column="otkr_oplf" />
+          <column table="a" column="otstor_oplf" />
+        </call>
+      </where>
+    </query>
+    <query name="22837-main">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="voda_par"/>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group" />
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-main" />
+          <const>a</const>
+        </usepart>
+        <column table="n" column="dolg" />
+        <column table="nspis" column="dolg_spis">
+        </column>
+        <column table="ntspis" column="nach_spis" />
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>okr</const>
+        </usepart>
+        <column table="okr" column="dolg" as="dolg_kred" />
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-nachisl" />
+          <const>nt</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>ot</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>otkr</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>otstor</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="22837-backbone-n" as="a">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+        </query>
+        <query name="22837-dolg-deb" as="n" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>n</const>
+          </usepart>
+        </query>
+        <query name="22837-dolg-kred" as="okr" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>okr</const>
+          </usepart>
+        </query>
+        <query name="22837-nach" as="nt" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>nt</const>
+          </usepart>
+        </query>
+        <query name="22837-all-spis" as="nspis" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>nspis</const>
+          </usepart>
+        </query>
+        <query name="22837-tek-spis" as="ntspis" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>ntspis</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-nach" as="ot" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>ot</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-kred" as="otkr" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>otkr</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-stor" as="otstor" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>otstor</const>
+          </usepart>
+        </query>
+      </from>
+    </query>
+    <query name="22837-main-sf">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group" />
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-main" />
+          <const>a</const>
+        </usepart>
+        <column table="n" column="dolg" />
+        <column table="nspis" column="dolg_spis">
+        </column>
+        <column table="ntspis" column="nach_spis" />
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-nachisl" />
+          <const>nt</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>ot</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="22837-backbone-n" as="a">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+        </query>
+        <query name="22837-dolg-deb" as="n" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>n</const>
+          </usepart>
+        </query>
+        <query name="22837-nach" as="nt" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>nt</const>
+          </usepart>
+        </query>
+        <query name="22837-all-spis" as="nspis" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>nspis</const>
+          </usepart>
+        </query>
+        <query name="22837-tek-spis" as="ntspis" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>ntspis</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-nach" as="ot" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>ot</const>
+          </usepart>
+        </query>
+      </from>
+    </query>
+    <query name="22837-main-opl">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group" />
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-main" />
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>okr</const>
+        </usepart>
+        <column table="okr" column="dolg" as="dolg_kred" />
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>ot</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>otkr</const>
+        </usepart>
+        <usepart part="add-cols-with-pref">
+          <useparam name="cols-opl" />
+          <const>otstor</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="22837-backbone-o" as="a">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+        </query>
+        <query name="22837-dolg-kred" as="okr" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>okr</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-nach" as="ot" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>ot</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-kred" as="otkr" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>otkr</const>
+          </usepart>
+        </query>
+        <query name="22837-opl-stor" as="otstor" join="left outer">
+          <withparams>
+            <useparam name="ym">
+            </useparam>
+            <useparam name="cols-for-group">
+            </useparam>
+            <useparam name="cols-main">
+            </useparam>
+            <useparam name="cols-nachisl">
+            </useparam>
+            <useparam name="cols-opl">
+            </useparam>
+            <useparam name="cond">
+            </useparam>
+          </withparams>
+          <usepart part="add-join">
+            <useparam name="cols-for-group" />
+            <const>a</const>
+            <const>otstor</const>
+          </usepart>
+        </query>
+      </from>
+    </query>
+    <query name="22837-dolg-deb">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <column table="n" column="dolg" as="dolg" group="sum">
+        </column>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>n</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_facvip" as="n">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls=">
+            <column table="n" column="ym">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <usepart part="22837-main-cond">
+            <const>n</const>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="22837-dolg-kred">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>o</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-opl" />
+          <const>o</const>
+        </usepart>
+        <column table="o" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="s_opl" as="o">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls=">
+            <column table="o" column="ym">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <call function="in">
+            <column table="o" column="kod_type_opl">
+            </column>
+            <call function="array">
+              <const>1</const>
+              <const>2</const>
+            </call>
+          </call>
+          <usepart part="22837-main-cond-cmn">
+            <const>o</const>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="22837-nach">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>n</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-nachisl" />
+          <const>n</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_facras" as="n">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <usepart part="22837-main-nachisl-cond">
+            <const>n</const>
+            <useparam name="ym" />
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="22837-all-spis">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>n</const>
+        </usepart>
+        <column table="n" column="dolg" as="dolg_spis" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="s_facvip" as="n">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls=">
+            <column table="n" column="ym_spis">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <usepart part="22837-main-cond">
+            <const>n</const>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="22837-tek-spis">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>n</const>
+        </usepart>
+        <column table="n" column="dolg" as="nach_spis" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="s_facvip" as="n">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="n" column="ym_spis">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <usepart part="22837-main-cond">
+            <const>n</const>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="22837-opl-nach">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>o</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-opl" />
+          <const>o</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_opl" as="o">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="o" column="ym">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <usepart part="22837-main-cond">
+            <const>o</const>
+          </usepart>
+        </call>
+      </where>
+      <usepart part="add-join">
+        <useparam name="cols-for-group" />
+        <const>a</const>
+        <const>ot</const>
+      </usepart>
+    </query>
+    <query name="22837-opl-kred">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>o</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-opl" />
+          <const>o</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_opl" as="o">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="o" column="ym">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <call function="in">
+            <column table="o" column="kod_type_opl">
+            </column>
+            <call function="array">
+              <const>1</const>
+              <const>2</const>
+            </call>
+          </call>
+          <usepart part="22837-main-cond-cmn">
+            <const>o</const>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="22837-opl-stor" as="otstor" join="left outer">
+      <params>
+        <param name="ym">
+        </param>
+        <param name="cols-for-group">
+        </param>
+        <param name="cols-main">
+        </param>
+        <param name="cols-nachisl">
+        </param>
+        <param name="cols-opl">
+        </param>
+        <param name="cond">
+        </param>
+      </params>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group" />
+          <const>o</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-opl" />
+          <const>o</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="s_opl" as="o">
+          <withparams>
+            <call function="ym end time">
+              <useparam name="ym" />
+            </call>
+            <useparam name="cond" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="o" column="ym">
+            </column>
+            <useparam name="ym" />
+          </call>
+          <call function="in">
+            <column table="o" column="kod_type_opl">
+            </column>
+            <call function="array">
+              <const>5</const>
+              <const>6</const>
+            </call>
+          </call>
+          <usepart part="22837-main-cond-cmn">
+            <const>o</const>
+          </usepart>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

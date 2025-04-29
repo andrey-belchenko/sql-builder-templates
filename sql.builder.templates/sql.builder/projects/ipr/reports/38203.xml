@@ -1,0 +1,927 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="38203" form="38203" title="Отчет к селектору у ГД с выделением периодов" edit-columns="2" folder="invpro" nogrid="1" timestamp="12.09.2016 17:32:09">
+      <params>
+        <usepart part="38203-params" />
+      </params>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="38203.xml" print-proc="2" title="Отчет к селектору у ГД с выделением периодов" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="38203-detail" as="a">
+          <withparams>
+            <usepart part="38203-withparams" />
+          </withparams>
+        </query>
+        <query name="38203-title" as="b">
+          <withparams>
+            <usepart part="38203-withparams" />
+          </withparams>
+        </query>
+        <query name="form:38203" as="p" title="Параметры" />
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="38203" timestamp="06.04.2017 16:01:51" with-behavior="0">
+      <content>
+        <field name="date" type="date" controlType="UIDate" title="На дату" mandatory="1" exclude="1" />
+        <field name="year" type="number" controlType="UICombo" title="Год" mandatory="1">
+          <listquery>
+            <query name="25499-year_list" />
+          </listquery>
+          <defaultquery>
+            <query name="25499-year_def" />
+          </defaultquery>
+        </field>
+        <fieldgroup title="Для плана и факта">
+          <field name="mon2" type="number" controlType="UICombo" title="Месяц" mandatory="1">
+            <listquery>
+              <query name="spr_time_mes" />
+            </listquery>
+            <defaultquery>
+              <query name="38203_mon_def" />
+            </defaultquery>
+          </field>
+          <field name="period" type="number" controlType="UIList" title="Выделять периоды" show-nulls="0">
+            <listquery>
+              <query name="38203_time_intervals" />
+            </listquery>
+            <defaultquery>
+              <query name="38203_time_intervals" />
+            </defaultquery>
+          </field>
+        </fieldgroup>
+        <fieldgroup title="Для ожидаемого факта">
+          <field name="mon2w" type="number" controlType="UICombo" title="Месяц" mandatory="1">
+            <listquery>
+              <query name="spr_time_mes" />
+            </listquery>
+            <defaultquery>
+              <query name="38203_mon_def" />
+            </defaultquery>
+          </field>
+          <field name="periodw" type="number" controlType="UIList" title="Выделять периоды" show-nulls="0">
+            <listquery>
+              <query name="38203_time_intervals_w" />
+            </listquery>
+            <defaultquery>
+              <query name="38203_time_intervals_w" />
+            </defaultquery>
+          </field>
+        </fieldgroup>
+        <field name="pr_aip" type="number" controlType="UICheck" title="Включать объекты АИП" checked="1" />
+        <field name="kod_doc" type="number" controlType="UICombo" title="Документ" mandatory="1">
+          <listquery>
+            <query name="25499-ipr_doc_main_list" />
+          </listquery>
+        </field>
+        <usefield field="ipr_kod_direct" />
+        <usefield field="ipr_kod_dirisp_all" name="kod_dirisp" />
+        <usefield field="ipr_subject" exclude="1" />
+        <field name="mp" type="number" controlType="UICombo" title="Денежная единица" mandatory="1">
+          <listquery>
+            <query name="26630-mp" />
+          </listquery>
+          <defaultquery>
+            <query name="26630-mp-default" />
+          </defaultquery>
+        </field>
+        <field name="nvalue" type="string" title="Величина процента для форматирования" mandatory="1" controlType="UIText" valuequery="n-const" />
+        <usefield field="ipr_kod_titul_ip" />
+        <field name="pr_ip" type="number" controlType="UICheck" title="Детализация по титулам КС" />
+        <field name="pr_aip_detail" type="number" controlType="UICheck" title="Детализация по титулам АИП" />
+        <field name="pr_sbor" type="number" controlType="UICheck" title="Отображать головные и  сборные" />
+        <field name="colsets" type="string" controlType="UIList" title="Показатели" special-type="colsets" mandatory="1">
+          <defaultquery>
+            <query name="29319-cols" />
+          </defaultquery>
+        </field>
+        <usefield field="ipr_kod_ofz" />
+        <field name="pr_no_zero" type="number" controlType="UICheck" title="Не отображать титулы с нулевыми данными" />
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="38203_time_intervals" timestamp="14.09.2016 15:18:23" order="date_end, date_begin desc">
+      <params>
+        <param name="year" type="number">
+          <const>2016</const>
+        </param>
+        <param name="mon2" type="number">
+          <const>6</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod" />
+        <call type="string" function="decode" as="name" title="Интервал">
+          <column table="a" column="time_type" title="" />
+          <const>'Год'</const>
+          <const>'Итог с начала года'</const>
+          <column table="a" column="name" />
+        </call>
+        <column table="a" column="kod_parent" />
+        <column table="a" column="time_type" title="" />
+        <column table="a" column="in_year_id" />
+        <!--<column table="a" column="period_id"/>-->
+        <column table="a" column="date_begin" />
+        <call type="date" function="decode" as="date_end">
+          <column table="a" column="time_type" title="" />
+          <const>'Год'</const>
+          <call function="ym2 end time">
+            <call function="num to ym2">
+              <useparam name="year" />
+              <useparam name="mon2" />
+            </call>
+          </call>
+          <column table="a" column="date_end" />
+        </call>
+      </select>
+      <from>
+        <query name="spr_time_intervals1" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <column table="a" column="date_begin" />
+            </call>
+            <useparam name="year" />
+          </call>
+          <call function="or">
+            <call function="le">
+              <call function="date to ym2">
+                <column table="a" column="date_end" />
+              </call>
+              <call function="num to ym2">
+                <useparam name="year" />
+                <useparam name="mon2" />
+              </call>
+            </call>
+            <call function="=">
+              <column table="a" column="time_type" />
+              <const>'Год'</const>
+            </call>
+          </call>
+          <call function="or">
+            <call function="in">
+              <column table="a" column="time_type" />
+              <array>'Год','Месяц','Полугодие','9 месяцев','Квартал'</array>
+            </call>
+            <call function="in" exclude="1">
+              <column table="a" column="name" />
+              <array>'I квартал'</array>
+            </call>
+          </call>
+          <call function="!=" exclude="1">
+            <column table="a" column="time_type" />
+            <const>'Год'</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="38203-detail" timestamp="03.05.2018 04:28:28">
+      <params>
+        <usepart part="38203-params" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="38203" as="a">
+          <withparams>
+            <usepart part="38203-withparams" />
+          </withparams>
+          <grsets>
+            <grset level="" title="Всего" as="itog" />
+            <grset level="2" title="По СПб и ЛО" as="itog_spb_lo" />
+            <grset level="1" title="По филиалам" as="ispoln">
+              <grset level="2" title="По субъекту" as="spb">
+                <grset level="3" title="По признаку АИП" as="spb_aip">
+                  <grset level="5" as="sbor" title="Сборный титул" order="tit_num_new_sbor">
+                    <grset level="" as="sborinfo" title="Сборный титул(информация)">
+                      <where>
+                        <call function="and">
+                          <call function="is not null">
+                            <column table="a" column="kod_titul_ip_sbor" />
+                          </call>
+                          <call function="=">
+                            <call function="nvlu">
+                              <useparam name="pr_sbor" />
+                              <const>0</const>
+                            </call>
+                            <const>1</const>
+                          </call>
+                        </call>
+                      </where>
+                    </grset>
+                    <grset level="6" as="main" title="Головной/ одиночный титул" order="tit_num_new_main">
+                      <where>
+                        <call function="and">
+                          <call function="=0">
+                            <column table="a" column="is_sbor_main" />
+                          </call>
+                        </call>
+                      </where>
+                      <grset level="" as="head" title="Головной титул">
+                        <where>
+                          <call function="and">
+                            <call function="=">
+                              <column table="a" column="is_head_tit" />
+                              <const>1</const>
+                            </call>
+                            <call function="=">
+                              <call function="nvlu">
+                                <useparam name="pr_sbor" />
+                                <const>0</const>
+                              </call>
+                              <const>1</const>
+                            </call>
+                          </call>
+                        </where>
+                      </grset>
+                      <grset level="" as="single" title="Одиночный титул">
+                        <where>
+                          <call function="!=nvl">
+                            <column table="a" column="is_head_tit" />
+                            <const>1</const>
+                          </call>
+                        </where>
+                      </grset>
+                      <grset level="7" as="child" title="Дочерний титул" order="tit_num_new">
+                        <where>
+                          <call function="and">
+                            <call function="is not null">
+                              <column table="a" column="kod_child_titul" />
+                            </call>
+                          </call>
+                        </where>
+                      </grset>
+                    </grset>
+                  </grset>
+                  <grset level="4" title="По титулам" as="tit" exclude="1">
+                    <where>
+                      <call function="or">
+                        <call function="false" />
+                        <call function="and" optional="1">
+                          <call function="=">
+                            <call function="nvlu">
+                              <useparam name="pr_ip" />
+                              <const>0</const>
+                            </call>
+                            <const>1</const>
+                          </call>
+                          <call function="=">
+                            <column table="a" column="kod_aip" />
+                            <const>0</const>
+                          </call>
+                        </call>
+                        <call function="and" optional="1">
+                          <call function="=">
+                            <call function="nvlu">
+                              <useparam name="pr_aip_detail" />
+                              <const>0</const>
+                            </call>
+                            <const>1</const>
+                          </call>
+                          <call function="=">
+                            <column table="a" column="kod_aip" />
+                            <const>1</const>
+                          </call>
+                        </call>
+                        <!--<call function="=">
+                          <call function="nvlu">
+                            <useparam name="pr_ip" />
+                            <const>0</const>
+                          </call>
+                          <const>1</const>
+                        </call>
+                        <call function="or">
+                          <call function="and">
+                            <call function="=">
+                              <call function="nvlu">
+                                <useparam name="pr_aip_detail" />
+                                <const>0</const>
+                              </call>
+                              <const>0</const>
+                            </call>
+                            <call function="=">
+                              <column table="a" column="kod_aip"/>
+                              <const>0</const>
+                            </call>
+                          </call>
+                          <call function="and">
+                            <call function="=">
+                              <call function="nvlu">
+                                <useparam name="pr_aip_detail" />
+                                <const>0</const>
+                              </call>
+                              <const>1</const>
+                            </call>
+                            <call function="ge">
+                              <column table="a" column="kod_aip"/>
+                              <const>0</const>
+                            </call>
+                          </call>
+                        </call>-->
+                      </call>
+                    </where>
+                  </grset>
+                </grset>
+              </grset>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+      <where>
+        <call function="or">
+          <call function="is null">
+            <column table="a" column="kod_titul_ip_sbor" />
+            <column table="a" column="kod_main_titul" />
+            <column table="a" column="kod_child_titul" />
+          </call>
+          <call function="and" optional="1">
+            <call function="=">
+              <call function="nvlu">
+                <useparam name="pr_ip" />
+                <const>0</const>
+              </call>
+              <const>1</const>
+            </call>
+            <call function="=">
+              <column table="a" column="kod_aip_min" />
+              <const>0</const>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="=">
+              <call function="nvlu">
+                <useparam name="pr_aip_detail" />
+                <const>0</const>
+              </call>
+              <const>1</const>
+            </call>
+            <call function="=">
+              <column table="a" column="kod_aip_max" />
+              <const>1</const>
+            </call>
+          </call>
+          <!--<call function="=">
+                          <call function="nvlu">
+                            <useparam name="pr_ip" />
+                            <const>0</const>
+                          </call>
+                          <const>1</const>
+                        </call>
+                        <call function="or">
+                          <call function="and">
+                            <call function="=">
+                              <call function="nvlu">
+                                <useparam name="pr_aip_detail" />
+                                <const>0</const>
+                              </call>
+                              <const>0</const>
+                            </call>
+                            <call function="=">
+                              <column table="a" column="kod_aip"/>
+                              <const>0</const>
+                            </call>
+                          </call>
+                          <call function="and">
+                            <call function="=">
+                              <call function="nvlu">
+                                <useparam name="pr_aip_detail" />
+                                <const>0</const>
+                              </call>
+                              <const>1</const>
+                            </call>
+                            <call function="ge">
+                              <column table="a" column="kod_aip"/>
+                              <const>0</const>
+                            </call>
+                          </call>
+                        </call>-->
+        </call>
+      </where>
+    </query>
+    <query name="38203" grouplevel="no" timestamp="08.01.2018 19:14:07">
+      <params>
+        <usepart part="38203-params" />
+      </params>
+      <select>
+        <column table="kod_main_titul" column="kod_sbor_titul" group="5" exclude="1" />
+        <column table="kod_titul_ip_sbor" column="kod_titul_ip" as="kod_sbor_titul" group="5" />
+        <column table="kod_titul_ip_sbor" column="kod_titul_ip" as="kod_titul_ip_sbor" group="kod_sbor_titul" />
+        <column table="kod_titul_ip_sbor" column="tit_num_new_n" as="tit_num_new_sbor" group="kod_sbor_titul" title="Номер сборного" />
+        <column table="kod_titul_ip_sbor" column="full_name" as="+_sbor" group="kod_sbor_titul" title="Наименование сборного титула" />
+        <column table="kod_ipr" column="kod_main_titul" group="6" />
+        <column table="kod_main_titul" column="tit_num_new_n" as="tit_num_new_main" group="kod_main_titul" title="Номер головного/одиночного титула" />
+        <column table="kod_main_titul" column="full_name" as="full_name_main" group="kod_main_titul" title="Наименование головного/одиночного титула" />
+        <column table="kod_main_titul" column="is_head_tit" group="kod_main_titul" />
+        <column table="kod_main_titul" column="is_sbor" as="is_sbor_main" group="kod_main_titul" />
+        <column table="kod_titul_ip" column="is_head_tit" as="is_head_tit1" />
+        <column table="kod_ipr" column="kod_child_titul" group="7" />
+        <column table="kod_titul_ip" column="is_sbor" group="kod_child_titul" />
+        <column table="kod_titul_ip" column="tit_num_new_n" group="kod_child_titul" title="Номер дочернего титула" as="tit_num_new" />
+        <column table="kod_titul_ip" column="full_name" group="kod_child_titul" title="Наименование дочернего титула" />
+        <column table="kod_titul_ip" column="kod_ispolnit" group="1" />
+        <column table="kod_ispolnit" column="name" as="ispolnit_name" group="kod_ispolnit" />
+        <column table="kod_subject" column="kod_subject" group="2" />
+        <column table="kod_subject" column="name" as="subject_name" group="kod_subject" />
+        <column table="kod_titul_ip" column="kod_aip" group="3" />
+        <!--<column table="kod_titul_ip" column="name_aip" group="kod_aip" />-->
+        <call function="decode" as="name_aip" group="kod_aip" type="string">
+          <column table="kod_titul_ip" column="kod_aip" />
+          <const>0</const>
+          <call function="||">
+            <column table="kod_titul_ip" column="name_aip" />
+            <column table="kod_ispolnit" column="name" />
+          </call>
+          <column table="kod_titul_ip" column="name_aip" />
+        </call>
+        <column table="kod_titul_ip" column="kod_titul_ip" group="4" exclude="1" />
+        <column table="kod_titul_ip" column="tit_num_new_n" group="kod_titul_ip" as="tit_num_new" exclude="1" />
+        <column table="kod_titul_ip" column="name" group="kod_titul_ip" exclude="1" />
+        <column table="kod_titul_ip" column="kod_aip" group="max" as="kod_aip_max" title="1 - есть аип" />
+        <column table="kod_titul_ip" column="kod_aip" group="max" as="kod_aip_min" title="0 - есть капстрой" />
+        <column table="a" column="period" group="max" />
+        <call function="()" type="number" as="dummy1" dimname="per" group="sum">
+          <pivot title=" по периодам">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym1" />
+              <column table="dim" column="ym2" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="in_year_id" />
+                <column table="a" column="name" />
+                <call function="date to ym2" as="ym1">
+                  <column table="a" column="date_begin" />
+                </call>
+                <call function="date to ym2" as="ym2">
+                  <column table="a" column="date_end" />
+                </call>
+              </select>
+              <from>
+                <query name="38203_time_intervals" as="a">
+                  <withparams>
+                    <useparam name="year" />
+                    <call function="greatest">
+                      <useparam name="mon2" />
+                      <useparam name="mon2w" />
+                    </call>
+                  </withparams>
+                </query>
+              </from>
+              <where>
+                <call function="or">
+                  <call function="in">
+                    <column table="a" column="kod" />
+                    <useparam name="period" />
+                  </call>
+                  <call function="in">
+                    <column table="a" column="kod" />
+                    <useparam name="periodw" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+          <const>0</const>
+        </call>
+        <!--Освоение-->
+        <column table="a" column="kap_sum" as="kap_sum_god" group="sum" mp="[:mp]" colset="освоение" />
+        <column table="a" column="kap_sum" as="kap_sum" group="sum" dimname="per1" mp="[:mp]" colset="освоение">
+          <pivot title=" по периодам">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym1" />
+              <column table="dim" column="ym2" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="in_year_id" />
+                <column table="a" column="name" />
+                <call function="date to ym2" as="ym1">
+                  <column table="a" column="date_begin" />
+                </call>
+                <call function="date to ym2" as="ym2">
+                  <column table="a" column="date_end" />
+                </call>
+              </select>
+              <from>
+                <query name="38203_time_intervals" as="a">
+                  <withparams>
+                    <useparam name="year" />
+                    <useparam name="mon2" />
+                  </withparams>
+                </query>
+              </from>
+              <where>
+                <call function="in">
+                  <column table="a" column="kod" />
+                  <useparam name="period" />
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="kap_sum_fact_a" group="sum" mp="[:mp]" as="kap_sum_fact" dimname="per1" colset="освоение" exclude="1" />
+        <column table="a" column="kap_sum_fact_d" group="sum" mp="[:mp]" as="kap_sum_fact" dimname="pern1" colset="освоение">
+          <pivot title=" по периодам">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym1" />
+              <column table="dim" column="ym2" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="in_year_id" />
+                <column table="a" column="name" />
+                <call function="date to ym2" as="ym1">
+                  <column table="a" column="date_begin" />
+                </call>
+                <call function="date to ym2" as="ym2">
+                  <column table="a" column="date_end" />
+                </call>
+              </select>
+              <from>
+                <query name="38203_time_intervals" as="a">
+                  <withparams>
+                    <useparam name="year" />
+                    <useparam name="mon2" />
+                  </withparams>
+                </query>
+              </from>
+              <where>
+                <call function="and">
+                  <call function="in">
+                    <column table="a" column="kod" />
+                    <useparam name="period" />
+                  </call>
+                  <call function="lt">
+                    <column table="a" column="date_end" />
+                    <const>DATE'2017-10-01'</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="kap_sum_fact_n" group="sum" mp="[:mp]" as="kap_sum_fact_n" dimname="pern2" colset="освоение">
+          <pivot title=" по периодам">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym1" />
+              <column table="dim" column="ym2" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="in_year_id" />
+                <column table="a" column="name" />
+                <call function="date to ym2" as="ym1">
+                  <column table="a" column="date_begin" />
+                </call>
+                <call function="date to ym2" as="ym2">
+                  <column table="a" column="date_end" />
+                </call>
+              </select>
+              <from>
+                <query name="38203_time_intervals" as="a">
+                  <withparams>
+                    <useparam name="year" />
+                    <useparam name="mon2" />
+                  </withparams>
+                </query>
+              </from>
+              <where>
+                <call function="and">
+                  <call function="in">
+                    <column table="a" column="kod" />
+                    <useparam name="period" />
+                  </call>
+                  <call function="ge">
+                    <column table="a" column="date_end" />
+                    <const>DATE'2017-10-01'</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="kap_sum_wait" group="sum" mp="[:mp]" dimname="per2" colset="освоение">
+          <pivot title=" по периодам">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym1" />
+              <column table="dim" column="ym2" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="in_year_id" />
+                <column table="a" column="name" />
+                <call function="date to ym2" as="ym1">
+                  <column table="a" column="date_begin" />
+                </call>
+                <call function="date to ym2" as="ym2">
+                  <column table="a" column="date_end" />
+                </call>
+              </select>
+              <from>
+                <query name="38203_time_intervals_w" as="a">
+                  <withparams>
+                    <useparam name="year" />
+                    <useparam name="mon2w" />
+                  </withparams>
+                </query>
+              </from>
+              <where>
+                <call function="in">
+                  <column table="a" column="kod" />
+                  <useparam name="periodw" />
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <!--Финансирование-->
+        <column table="a" column="fp_sum_nds" as="fp_sum_god" group="sum" mp="[:mp]" colset="финансирование" />
+        <column table="a" column="fp_sum_nds" group="sum" mp="[:mp]" as="fp_sum" dimname="per1" colset="финансирование" />
+        <column table="a" column="fp_sum_nds_fact_a" group="sum" mp="[:mp]" as="fp_sum_fact" dimname="per1" colset="финансирование" exclude="1" />
+        <column table="a" column="fp_sum_nds_fact_b" group="sum" mp="[:mp]" as="fp_sum_fact" dimname="per1" colset="финансирование" />
+        <column table="a" column="fp_sum_nds_wait" group="sum" mp="[:mp]" as="fp_sum_wait" dimname="per2" colset="финансирование" />
+        <!--Ввод-->
+        <column table="a" column="vvod_sum" as="vvod_sum_god" group="sum" mp="[:mp]" colset="ввод в ОФ" />
+        <column table="a" column="vvod_sum" group="sum" dimname="per1" mp="[:mp]" colset="ввод в ОФ" />
+        <column table="a" column="vvod_sum_fact" group="sum" mp="[:mp]" dimname="per1" colset="ввод в ОФ" />
+        <column table="a" column="vvod_sum_wait" group="sum" mp="[:mp]" dimname="per2" colset="ввод в ОФ" />
+        <!--МВА-->
+        <column table="a" column="pow_mba" as="pow_mba_god" group="sum" colset="МВА" />
+        <column table="a" column="pow_mba" group="sum" dimname="per1" colset="МВА" />
+        <column table="a" column="pow_mba_fact_date" as="pow_mba_fact" group="sum" dimname="per1" colset="МВА" />
+        <column table="a" column="pow_mba_wait" group="sum" dimname="per2" colset="МВА" />
+        <!--КМ-->
+        <column table="a" column="pow_km_all" as="pow_km_god" group="sum" colset="км" />
+        <column table="a" column="pow_km_all" as="pow_km" group="sum" dimname="per1" colset="км" />
+        <column table="a" column="pow_km_all_fact_date" as="pow_km_fact" group="sum" dimname="per1" colset="км" />
+        <column table="a" column="pow_km_all_wait" as="pow_km_wait" group="sum" dimname="per2" colset="км" />
+        <column table="a" column="ipr_fin_ipr" group="sum" />
+        <call function="case" as="pr_check_plan_fact" title="Группа" type="number">
+          <call function="when">
+            <call function="is not null">
+              <column table="check_pl_ft" column="pr_plan" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="is null">
+                <column table="check_pl_ft" column="pr_plan" />
+              </call>
+              <call function="is not null">
+                <column table="check_pl_ft" column="pr_fact" />
+              </call>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="is null">
+                <column table="check_pl_ft" column="pr_plan" />
+              </call>
+              <call function="is null">
+                <column table="check_pl_ft" column="pr_fact" />
+              </call>
+            </call>
+            <const>3</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <link name="kod_ipr">
+            <link name="kod_titul_ip">
+              <link name="kod_ispolnit" />
+            </link>
+            <link name="kod_main_titul">
+              <link name="kod_subject" />
+              <link name="kod_sbor_titul">
+                <link name="kod_titul_ip" as="kod_titul_ip_sbor" />
+              </link>
+            </link>
+          </link>
+          <link name="check_pl_ft" />
+          <extendwhere>
+            <call function="and">
+              <call function="true" />
+              <call function="=" selective="1">
+                <useparam name="year" />
+                <column table="*" column="year" />
+              </call>
+              <call function="le" selective="1" exclude="1">
+                <call function="date to ym2">
+                  <column table="*" column="dat" />
+                </call>
+                <call function="num to ym2">
+                  <useparam name="year" />
+                  <useparam name="mon2" />
+                </call>
+              </call>
+              <call function="or" optional="1">
+                <call function="in">
+                  <column table="kod_sbor_titul1" column="kod_titul_ip" />
+                  <useparam name="kod_titul_ip" />
+                </call>
+                <call function="in">
+                  <column table="kod_main_titul1" column="kod_titul_ip" />
+                  <useparam name="kod_titul_ip" />
+                </call>
+                <call function="in">
+                  <column table="kod_titul_ip1" column="kod_titul_ip" />
+                  <useparam name="kod_titul_ip" />
+                </call>
+              </call>
+              <call function="or" optional="1">
+                <call function="and">
+                  <call function="in">
+                    <column table="kod_titul_ip1" column="kod_direct" />
+                    <useparam name="kod_direct" />
+                  </call>
+                  <call function="in">
+                    <useparam name="kod_dirisp" />
+                    <array>1,2</array>
+                  </call>
+                </call>
+                <call function="and">
+                  <call function="in">
+                    <column table="kod_titul_ip1" column="kod_ispolnit" />
+                    <useparam name="kod_direct" />
+                  </call>
+                  <call function="in">
+                    <useparam name="kod_dirisp" />
+                    <array>1,3</array>
+                  </call>
+                </call>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_titul_ip1" column="pr_ofz" />
+                <useparam name="kod_ofz" />
+              </call>
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kod_ipr" column="kod_doc_osn" />
+            <useparam name="kod_doc" />
+          </call>
+          <call function="or">
+            <call function="=">
+              <call function="nvlu">
+                <useparam name="pr_aip" />
+                <const>0</const>
+              </call>
+              <const>1</const>
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="kod_titul_ip" column="kod_aip" />
+              </call>
+              <const>0</const>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="=1">
+              <useparam name="pr_no_zero" />
+            </call>
+            <call function="!=">
+              <column table="this" column="pr_check_plan_fact" />
+              <const>3</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="38203-title" timestamp="14.09.2016 14:29:46">
+      <params>
+        <usepart part="38203-params" />
+      </params>
+      <select>
+        <call function="()" as="nyear" type="number">
+          <useparam name="year" />
+        </call>
+        <call function="mes-name-rp" as="ddate" type="string">
+          <useparam name="mon2" />
+        </call>
+        <call function="mes-name-rp" as="ddatew" type="string">
+          <useparam name="mon2w" />
+        </call>
+        <call function="mes to kv" as="num_kv" type="number">
+          <useparam name="mon2" />
+        </call>
+        <call function="/" as="nvalue">
+          <useparam name="nvalue" />
+          <const>100</const>
+        </call>
+        <column table="a" column="name" as="name_mp" />
+        <call function="add_month" as="month_next" type="date">
+          <call function="sysdate" />
+        </call>
+        <call function="()" as="month" type="date">
+          <call function="sysdate" />
+        </call>
+        <const as="kap_exists" type="number" colset="освоение" comment="чтобы удалять колонки без переменных">1</const>
+        <const as="fp_exists" type="number" colset="финансирование" comment="чтобы удалять колонки без переменных">1</const>
+        <const as="vvod_exists" type="number" colset="ввод в ОФ" comment="чтобы удалять колонки без переменных">1</const>
+        <const as="pow_exists" type="number" colset="МВА" comment="чтобы удалять колонки без переменных">1</const>
+        <const as="pow_km_exists" type="number" colset="км" comment="чтобы удалять колонки без переменных">1</const>
+      </select>
+      <from>
+        <query name="26630-mp" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_mp" />
+          <useparam name="mp" />
+        </call>
+      </where>
+    </query>
+    <query name="38203_mon_def" timestamp="13.09.2016 15:18:49">
+      <select>
+        <call function="month" as="mon">
+          <call function="sysdate" />
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="38203_time_intervals_w" timestamp="14.09.2016 14:06:50" order="date_end, date_begin desc">
+      <params>
+        <param name="year" type="number" />
+        <param name="mon2w" type="number" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+        <!--<column table="a" column="period_id"/>-->
+      </select>
+      <from>
+        <query name="38203_time_intervals" as="a">
+          <withparams>
+            <useparam name="year" />
+            <useparam name="mon2w" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <parts>
+    <part id="38203-params" timestamp="06.04.2017 15:59:27">
+      <param name="year" />
+      <param name="mon2" />
+      <param name="period" />
+      <param name="mon2w" />
+      <param name="periodw" />
+      <param name="pr_aip" />
+      <param name="kod_doc" />
+      <param name="mp" />
+      <param name="pr_ip" />
+      <param name="pr_aip_detail" />
+      <param name="kod_direct" />
+      <param name="kod_dirisp" />
+      <param name="pr_sbor" />
+      <param name="nvalue" />
+      <param name="kod_ofz" />
+      <param name="kod_titul_ip" />
+      <param name="pr_no_zero" />
+    </part>
+    <part id="38203-withparams" timestamp="06.04.2017 15:59:45">
+      <useparam name="year" />
+      <useparam name="mon2" />
+      <useparam name="period" />
+      <useparam name="mon2w" />
+      <useparam name="periodw" />
+      <useparam name="pr_aip" />
+      <useparam name="kod_doc" />
+      <useparam name="mp" />
+      <useparam name="pr_ip" />
+      <useparam name="pr_aip_detail" />
+      <useparam name="kod_direct" />
+      <useparam name="kod_dirisp" />
+      <useparam name="pr_sbor" />
+      <useparam name="nvalue" />
+      <useparam name="kod_ofz" />
+      <useparam name="kod_titul_ip" />
+      <useparam name="pr_no_zero" />
+    </part>
+  </parts>
+</root>

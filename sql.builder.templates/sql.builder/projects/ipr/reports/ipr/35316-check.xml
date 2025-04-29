@@ -1,0 +1,621 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="35316-check1" order="ofz_npp" timestamp="21.11.2016 14:20:57" edit-columns="2" is-report="1" folder="invpro_ofz" inherit="35316-cmn" title="Сверка данных с 1С для ОФЗ" dx-export="1" with-behavior="0">
+      <content>
+        <usefield field="cmn_date" name="dat_dolg" title="Дата учета задолженности" checked="1" mandatory="1">
+          <defaultquery>
+            <query name="35316-dat-def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="ipr_mp" />
+      </content>
+      <params exclude="1">
+        <param name="mp" type="number">
+          <const>-3</const>
+        </param>
+        <param name="dat_dolg" type="date">
+          <const>to_date ('01.01.2016','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <columns>
+        <column name="kod_titul_ip" />
+        <column name="dat" />
+        <column name="mp" />
+        <column name="ofz_npp" agg="no" />
+        <column name="isp_name" />
+        <column name="tit_num_new" />
+        <column name="name" />
+        <column name="nzs_color" />
+        <column name="dlg_color" />
+        <band title="НЗС">
+          <column name="nzs_on_dat" title="ИнвестPRO" />
+          <column name="ipr_ofz_1c_data_nzs" title="1C" />
+          <column name="nzs_razn" title="Расхождение" />
+        </band>
+        <band title="Кредит">
+          <column name="kredit_on_dat" title="ИнвестPRO" />
+          <column name="ipr_ofz_1c_data_dlg" title="1C" />
+          <column name="dolg_razn" title="Расхождение" />
+        </band>
+      </columns>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates exclude="1">
+        <excel>
+          <template name="35316-2.xml" title="Приложение 2 к соглашению Минэнерго" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <select>
+        <column table="kod_titul_ip" column="kod_titul_ip" />
+        <call function="()" as="dat" type="date">
+          <useparam name="dat_dolg" />
+        </call>
+        <call function="()" as="mp" type="number">
+          <useparam name="mp" />
+        </call>
+        <column table="kod_titul_ip" column="ofz_npp" title="№" agg="no" format="F0" />
+        <column table="kod_ispolnit" column="name" title="Исполнитель" as="isp_name" />
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <column table="kod_titul_ip" column="name" />
+        <fact column="nzs_on_dat" title="НЗС (ИнвестPRO)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_ofz_1c_data_nzs" title="НЗС (1C)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" mp="[:mp]" />
+        <call function="-nvl" as="nzs_razn" title="НЗС расх" color="nzs_color" format="{0:n2}">
+          <column table="this" column="nzs_on_dat" />
+          <column table="this" column="ipr_ofz_1c_data_nzs" />
+        </call>
+        <fact column="kredit_on_dat" title="Кредит (ИнвестPRO)" nullif="0" color="dlg_color" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_ofz_1c_data_dlg" title="Кредит (1C)" nullif="0" colset="ИнвестPRO" color="dlg_color" format="{0:n2}" mp="[:mp]" />
+        <call function="-nvl" as="dolg_razn" title="Кредит расх" color="dlg_color" format="{0:n2}">
+          <column table="this" column="kredit_on_dat" />
+          <column table="this" column="ipr_ofz_1c_data_dlg" />
+        </call>
+        <call function="if" as="nzs_color" type="string">
+          <call function="!=0">
+            <column table="this" column="nzs_razn" />
+          </call>
+          <use-color color="pink" />
+        </call>
+        <call function="if" as="dlg_color" type="string">
+          <call function="!=0">
+            <column table="this" column="dolg_razn" />
+          </call>
+          <use-color color="pink" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="in" exclude="1">
+                <column table="kod_titul_ip" column="kod_titul_ip" />
+                <array>20380</array>
+              </call>
+              <call function="gt">
+                <column table="kod_titul_ip" column="pr_ofz" />
+                <const>0</const>
+              </call>
+              <call function="in" optional="1" exclude="1">
+                <column table="kod_titul_ip" column="pr_ofz" />
+                <useparam name="kod_ofz" />
+              </call>
+            </call>
+          </where>
+          <link name="ipr_kod_titul_ip" as="kod_titul_ip">
+            <link name="kod_ispolnit" />
+            <link name="pr_ofz" />
+          </link>
+        </qube>
+      </from>
+      <events>
+        <useaction action-type="open-report" call="35316-check1-detail" event-name="double-click">
+          <column table="this" column="dat" />
+          <column table="this" column="kod_titul_ip" />
+          <column table="this" column="mp" />
+        </useaction>
+      </events>
+    </query>
+    <query name="35316-check1-detail" order="dat" timestamp="21.11.2016 14:20:58" edit-columns="2" is-report="1" folder="invpro" form="empty" inherit="35316-cmn" title="Сверка данных с 1С для ОФЗ (детализация)" dx-export="1" visible="0" with-behavior="0">
+      <params>
+        <param name="dat_dolg" type="date" />
+        <param name="kod_tit" type="number" />
+        <param name="mp" type="number" />
+        <param name="kod_zatrat" type="number" />
+      </params>
+      <columns>
+        <column name="id" />
+        <column name="kod_titul_ip" />
+        <column name="tit_num_new" />
+        <column name="dat" />
+        <band title="Вид затрат">
+          <column name="smet_name" title="  " />
+          <column name="zatr_name" title="  " />
+        </band>
+        <band title="Освоение">
+          <column name="num_doc" />
+          <column name="dat_doc" />
+          <column name="ipr_kap_fact_sum" title="без НДС" />
+          <column name="ipr_kap_fact_sum_sp" title="списано без НДС" />
+          <column name="ipr_kap_fact_sum_nds" title="c НДС (без прочих затрат)" />
+        </band>
+        <band title="Финансирование">
+          <column name="num_rno" />
+          <column name="dat_opl" />
+          <column name="ipr_fin_fact_sum_nds_npr" title="с НДС" table="fin" />
+        </band>
+        <band title="Ввод">
+          <column name="doc_num" />
+          <column name="doc_date_c" />
+          <column name="ipr_vvd_fact_sum" title="без НДС" />
+        </band>
+        <band title="Оборот">
+          <column name="nzs" />
+          <column name="saldo" />
+        </band>
+      </columns>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="kod_titul_ip" column="kod_titul_ip" />
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <column table="ipr_dat" column="val" as="dat" title="Дата операции" format="d" />
+        <column table="kod_smet" column="name" as="smet_name" />
+        <column table="ipr_kod_zatrat" column="full_name" as="zatr_name" />
+        <column table="ipr_kod_vip_dog" column="num_doc" />
+        <column table="ipr_kod_vip_dog" column="dat_doc" format="d" />
+        <fact column="ipr_kap_fact_sum" title="Освоение без НДС" table="kap" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_kap_fact_sum_sp" title="Освоение списано без НДС" table="kap" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_kap_fact_sum_nds" title="Освоение c НДС" table="kap_np" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <column table="ipr_kod_opl_period" column="num_rno" />
+        <column table="ipr_kod_opl_period" column="dat_opl" format="d" />
+        <fact column="ipr_fin_fact_sum_nds_npr" title="Финансирование с НДС" table="fin" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <column table="ipr_kod_doc_vvod" column="doc_num" />
+        <column table="ipr_kod_doc_vvod" column="doc_date_c" format="d" />
+        <fact column="ipr_vvd_fact_sum" table="vvod" title="Ввод без НДС" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <call function="-nvl" as="nzs" title="НЗС" nullif="0">
+          <column column="ipr_kap_fact_sum" table="this" />
+          <column column="ipr_kap_fact_sum_sp" table="this" />
+          <column column="ipr_vvd_fact_sum" table="this" />
+        </call>
+        <call function="-nvl" title="Кредит" as="saldo" nullif="0">
+          <column column="ipr_kap_fact_sum_nds" table="this" />
+          <column column="ipr_fin_fact_sum_nds_npr" table="this" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_titul_ip" />
+                <useparam name="kod_tit" />
+              </call>
+              <call function="in" optional="1">
+                <column table="ipr_kod_zatrat" column="kodzatrat" />
+                <useparam name="kod_zatrat" />
+              </call>
+              <call function="!=0" exclude="1">
+                <column table="kod_titul_ip" column="pr_ofz" />
+              </call>
+              <call function="lt">
+                <column table="ipr_dat" column="val" />
+                <useparam name="dat_dolg" />
+              </call>
+            </call>
+          </where>
+          <link name="ipr_kod_titul_ip" as="kod_titul_ip">
+            <link name="kod_ispolnit" />
+            <link name="pr_ofz" />
+          </link>
+          <link name="ipr_dat" />
+          <link name="ipr_kod_zatrat">
+            <link name="kod_smet" />
+          </link>
+          <dimset as="vvod">
+            <link name="ipr_kod_doc_vvod" />
+          </dimset>
+          <dimset as="kap">
+            <where exclude="1">
+              <call function="!=">
+                <call function="nvl">
+                  <column table="ipr_kod_vip_dog" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+            </where>
+            <link name="ipr_kod_vip_dog" />
+          </dimset>
+          <dimset as="kap_np">
+            <where>
+              <call function="!=">
+                <call function="nvl">
+                  <column table="ipr_kod_vip_dog" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+            </where>
+            <link name="ipr_kod_vip_dog" />
+          </dimset>
+          <dimset as="fin">
+            <link name="ipr_kod_opl_period" />
+          </dimset>
+        </qube>
+      </from>
+    </query>
+    <query name="35316-check2" order="tit_num_new" timestamp="18.01.2017 20:19:23" edit-columns="2" is-report="1" folder="invpro_ofz" inherit="35316-cmn" title="Сверка данных с 1С" dx-export="1" with-behavior="0">
+      <content>
+        <usefield field="cmn_date" name="dat_dolg" title="Дата учета задолженности" checked="1" mandatory="1">
+          <defaultquery>
+            <query name="35316-dat-def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="ipr_mp" />
+      </content>
+      <columns>
+        <column name="id" />
+        <column name="kod_titul_ip" />
+        <column name="dat" />
+        <column name="mp" />
+        <column name="ofz_npp" agg="no" exclude="1" />
+        <column name="isp_name" />
+        <column name="tit_num_new" />
+        <column name="name" />
+        <column name="nzs_color" />
+        <column name="dlg_color" exclude="1" />
+        <band title="НЗС">
+          <column name="nzs_on_dat" title="ИнвестPRO" />
+          <column name="ipr_ofz_1c_data_nzs" title="1C" />
+          <column name="nzs_razn" title="Расхождение" />
+        </band>
+        <band title="Кредит" exclude="1">
+          <column name="kredit_on_dat" title="ИнвестPRO" />
+          <column name="ipr_ofz_1c_data_dlg" title="1C" />
+          <column name="dolg_razn" title="Расхождение" />
+        </band>
+      </columns>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="kod_titul_ip" column="kod_titul_ip" />
+        <call function="()" as="dat" type="date">
+          <useparam name="dat_dolg" />
+        </call>
+        <call function="()" as="mp" type="number">
+          <useparam name="mp" />
+        </call>
+        <column table="kod_titul_ip" column="ofz_npp" title="№" agg="no" exclude="1" />
+        <column table="kod_ispolnit" column="name" title="Исполнитель" as="isp_name" />
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <column table="kod_titul_ip" column="name" />
+        <fact column="nzs_on_dat" title="НЗС (ИнвестPRO)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_1c_data_nzs" title="НЗС (1C)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" as="ipr_ofz_1c_data_nzs" mp="[:mp]" />
+        <call function="-nvl" as="nzs_razn" title="НЗС расх" color="nzs_color" format="{0:n2}">
+          <column table="this" column="nzs_on_dat" />
+          <column table="this" column="ipr_ofz_1c_data_nzs" />
+        </call>
+        <fact column="kredit_on_dat" title="Кредит (ИнвестPRO)" nullif="0" color="dlg_color" format="{0:n2}" exclude="1" />
+        <fact column="ipr_1c_data_nzs" title="НЗС (1C)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" as="ipr_ofz_1c_data_dlg" exclude="1" />
+        <call function="-nvl" as="dolg_razn" title="Кредит расх" color="dlg_color" format="{0:n2}" exclude="1">
+          <column table="this" column="kredit_on_dat" />
+          <column table="this" column="ipr_ofz_1c_data_dlg" />
+        </call>
+        <call function="if" as="nzs_color" type="string">
+          <call function="!=0">
+            <column table="this" column="nzs_razn" />
+          </call>
+          <use-color color="pink" />
+        </call>
+        <call function="if" as="dlg_color" type="string" exclude="1">
+          <call function="!=0">
+            <column table="this" column="dolg_razn" />
+          </call>
+          <use-color color="pink" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="is not null">
+                <column table="kod_titul_ip" column="pr_ipt_summ_1c" />
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_titul_ip" column="kod_titul_ip" />
+                <array>20380</array>
+              </call>
+              <call function="gt" exclude="1">
+                <column table="kod_titul_ip" column="pr_ofz" />
+                <const>0</const>
+              </call>
+              <call function="in" optional="1" exclude="1">
+                <column table="kod_titul_ip" column="pr_ofz" />
+                <useparam name="kod_ofz" />
+              </call>
+            </call>
+          </where>
+          <link name="ipr_kod_titul_ip" as="kod_titul_ip">
+            <link name="kod_ispolnit" />
+            <link name="pr_ofz" />
+          </link>
+        </qube>
+      </from>
+      <events>
+        <useaction action-type="open-report" call="35316-check2-detail-zatrat" event-name="double-click">
+          <column table="this" column="dat" />
+          <column table="this" column="kod_titul_ip" />
+          <column table="this" column="mp" />
+        </useaction>
+      </events>
+      <menu>
+        <uicommand action-type="open-report" call="35316-check2-detail" title="Детализация НЗС, КЗ по документам ИнвестPRO">
+          <column table="this" column="dat" />
+          <column table="this" column="kod_titul_ip" />
+          <column table="this" column="mp" />
+        </uicommand>
+        <uicommand action-type="open-report" call="35316-check2-detail-zatrat" title="Детализация по видам затрат">
+          <column table="this" column="dat" />
+          <column table="this" column="kod_titul_ip" />
+          <column table="this" column="mp" />
+        </uicommand>
+      </menu>
+    </query>
+    <query name="35316-check2-detail-zatrat" order="tit_num_new" timestamp="21.11.2016 14:20:58" edit-columns="2" is-report="1" folder="invpro_ofz" inherit="35316-cmn" title="Сверка данных с 1С (детализация по видам затрат)" dx-export="1" form="empty" visible="0" with-behavior="0">
+      <params>
+        <param name="dat_dolg" type="date" />
+        <param name="kod_tit" type="number" />
+        <param name="mp" type="number" />
+      </params>
+      <columns>
+        <column name="id" />
+        <column name="kod_titul_ip" />
+        <column name="kodzatrat" />
+        <column name="dat" />
+        <column name="mp" />
+        <column name="ofz_npp" agg="no" exclude="1" />
+        <column name="isp_name" />
+        <column name="tit_num_new" />
+        <column name="name" />
+        <column name="nzs_color" />
+        <column name="dlg_color" exclude="1" />
+        <band title="Вид затрат">
+          <column name="smet_name" title="  " />
+          <column name="zatr_name" title="  " />
+        </band>
+        <band title="НЗС">
+          <column name="nzs_on_dat" title="ИнвестPRO" />
+          <column name="ipr_ofz_1c_data_nzs" title="1C" />
+          <column name="nzs_razn" title="Расхождение" />
+        </band>
+        <band title="Кредит" exclude="1">
+          <column name="kredit_on_dat" title="ИнвестPRO" />
+          <column name="ipr_ofz_1c_data_dlg" title="1C" />
+          <column name="dolg_razn" title="Расхождение" />
+        </band>
+      </columns>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="ipr_kod_zatrat" column="kodzatrat" />
+        <column table="kod_titul_ip" column="kod_titul_ip" />
+        <call function="()" as="dat" type="date">
+          <useparam name="dat_dolg" />
+        </call>
+        <call function="()" type="number" as="mp">
+          <useparam name="mp" />
+        </call>
+        <column table="kod_titul_ip" column="ofz_npp" title="№" agg="no" exclude="1" />
+        <column table="kod_ispolnit" column="name" title="Исполнитель" as="isp_name" />
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <column table="kod_titul_ip" column="name" />
+        <column table="kod_smet" column="name" as="smet_name" />
+        <column table="ipr_kod_zatrat" column="full_name" as="zatr_name" />
+        <fact column="nzs_on_dat" title="НЗС (ИнвестPRO)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_1c_data_nzs" title="НЗС (1C)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" as="ipr_ofz_1c_data_nzs" mp="[:mp]" />
+        <call function="-nvl" as="nzs_razn" title="НЗС расх" color="nzs_color" format="{0:n2}">
+          <column table="this" column="nzs_on_dat" />
+          <column table="this" column="ipr_ofz_1c_data_nzs" />
+        </call>
+        <fact column="kredit_on_dat" title="Кредит (ИнвестPRO)" nullif="0" color="dlg_color" format="{0:n2}" exclude="1" />
+        <fact column="ipr_1c_data_nzs" title="НЗС (1C)" nullif="0" colset="ИнвестPRO" color="nzs_color" format="{0:n2}" as="ipr_ofz_1c_data_dlg" exclude="1" />
+        <call function="-nvl" as="dolg_razn" title="Кредит расх" color="dlg_color" format="{0:n2}" exclude="1">
+          <column table="this" column="kredit_on_dat" />
+          <column table="this" column="ipr_ofz_1c_data_dlg" />
+        </call>
+        <call function="if" as="nzs_color" type="string">
+          <call function="!=0">
+            <column table="this" column="nzs_razn" />
+          </call>
+          <use-color color="pink" />
+        </call>
+        <call function="if" as="dlg_color" type="string" exclude="1">
+          <call function="!=0">
+            <column table="this" column="dolg_razn" />
+          </call>
+          <use-color color="pink" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="is not null">
+                <column table="kod_titul_ip" column="pr_ipt_summ_1c" />
+              </call>
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_titul_ip" />
+                <useparam name="kod_tit" />
+              </call>
+            </call>
+          </where>
+          <link name="ipr_kod_titul_ip" as="kod_titul_ip">
+            <link name="kod_ispolnit" />
+            <link name="pr_ofz" />
+          </link>
+          <link name="ipr_kod_zatrat">
+            <link name="kod_smet" />
+          </link>
+        </qube>
+      </from>
+      <events>
+        <useaction action-type="open-report" call="35316-check1-detail" event-name="double-click">
+          <column table="this" column="dat" />
+          <column table="this" column="kod_titul_ip" />
+          <column table="this" column="mp" />
+          <column table="this" column="kodzatrat" />
+        </useaction>
+      </events>
+    </query>
+    <query name="35316-check2-detail" order="dat" timestamp="19.01.2017 16:57:45" edit-columns="2" is-report="1" folder="invpro" form="empty" inherit="35316-cmn" title="Сверка данных с 1С для (детализация)" dx-export="1" visible="0" comment="копия check1 разные только заголовки" with-behavior="0">
+      <params>
+        <param name="dat_dolg" type="date" />
+        <param name="kod_tit" type="number" />
+        <param name="mp" type="number" />
+        <param name="kod_zatrat" type="number" />
+      </params>
+      <columns>
+        <column name="id" />
+        <column name="kod_titul_ip" />
+        <column name="tit_num_new" />
+        <column name="dat" />
+        <band title="Вид затрат">
+          <column name="smet_name" title="  " />
+          <column name="zatr_name" title="  " />
+        </band>
+        <column name="schet_name" />
+        <band title="Освоение">
+          <column name="num_doc" />
+          <column name="dat_doc" />
+          <column name="ipr_kap_fact_sum" title="без НДС" />
+          <column name="ipr_kap_fact_sum_sp" title="списано без НДС" />
+          <column name="ipr_kap_fact_sum_nds" title="c НДС (без прочих затрат)" />
+        </band>
+        <band title="Финансирование">
+          <column name="num_rno" />
+          <column name="dat_opl" />
+          <column name="ipr_fin_fact_sum_nds_npr" title="с НДС" table="fin" />
+        </band>
+        <band title="Ввод">
+          <column name="doc_num" />
+          <column name="doc_date_c" />
+          <column name="ipr_vvd_fact_sum" title="без НДС" />
+        </band>
+        <band title="Оборот">
+          <column name="nzs" />
+          <column name="saldo" />
+        </band>
+      </columns>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="kod_titul_ip" column="kod_titul_ip" />
+        <column table="kod_titul_ip" column="tit_num_new" />
+        <column table="ipr_dat" column="val" as="dat" title="Дата операции" format="d" />
+        <column table="kod_smet" column="name" as="smet_name" />
+        <column table="ipr_kod_zatrat" column="full_name" as="zatr_name" />
+        <column table="ipr_kod_schet" column="name" as="schet_name" title="Счет" />
+        <column table="ipr_kod_vip_dog" column="kod_vip_dog" />
+        <column table="ipr_kod_vip_dog" column="num_doc" />
+        <column table="ipr_kod_vip_dog" column="dat_doc" format="d" />
+        <fact column="ipr_kap_fact_sum" title="Освоение без НДС" table="kap" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_kap_fact_sum_sp" title="Освоение списано без НДС" table="kap" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <fact column="ipr_kap_fact_sum_nds" title="Освоение c НДС" table="kap_np" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <column table="ipr_kod_opl_period" column="kod_opl_period" />
+        <column table="ipr_kod_opl_period" column="num_rno" />
+        <column table="ipr_kod_opl_period" column="dat_opl" format="d" />
+        <fact column="ipr_fin_fact_sum_nds_npr" title="Финансирование с НДС" table="fin" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <column table="ipr_kod_doc_vvod" column="doc_num" />
+        <column table="ipr_kod_doc_vvod" column="doc_date_c" format="d" />
+        <fact column="ipr_vvd_fact_sum" table="vvod" title="Ввод без НДС" nullif="0" format="{0:n2}" mp="[:mp]" />
+        <call function="-nvl" as="nzs" title="НЗС" nullif="0">
+          <column column="ipr_kap_fact_sum" table="this" />
+          <column column="ipr_kap_fact_sum_sp" table="this" />
+          <column column="ipr_vvd_fact_sum" table="this" />
+        </call>
+        <call function="-nvl" title="Кредит" as="saldo" nullif="0">
+          <column column="ipr_kap_fact_sum_nds" table="this" />
+          <column column="ipr_fin_fact_sum_nds_npr" table="this" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="in">
+                <column table="kod_titul_ip" column="kod_titul_ip" />
+                <useparam name="kod_tit" />
+              </call>
+              <call function="in" optional="1">
+                <column table="ipr_kod_zatrat" column="kodzatrat" />
+                <useparam name="kod_zatrat" />
+              </call>
+              <call function="!=0" exclude="1">
+                <column table="kod_titul_ip" column="pr_ofz" />
+              </call>
+              <call function="lt">
+                <column table="ipr_dat" column="val" />
+                <useparam name="dat_dolg" />
+              </call>
+            </call>
+          </where>
+          <link name="ipr_kod_titul_ip" as="kod_titul_ip">
+            <link name="kod_ispolnit" />
+            <link name="pr_ofz" />
+          </link>
+          <link name="ipr_dat" />
+          <link name="ipr_kod_zatrat">
+            <link name="kod_smet" />
+          </link>
+          <dimset as="vvod">
+            <link name="ipr_kod_doc_vvod" />
+          </dimset>
+          <dimset as="kap">
+            <where exclude="1">
+              <call function="!=">
+                <call function="nvl">
+                  <column table="ipr_kod_vip_dog" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+            </where>
+            <link name="ipr_kod_vip_dog" />
+            <link name="ipr_kod_schet" />
+          </dimset>
+          <dimset as="kap_np">
+            <where>
+              <call function="!=">
+                <call function="nvl">
+                  <column table="ipr_kod_vip_dog" column="kod_dog" />
+                  <const>-1</const>
+                </call>
+                <const>-1</const>
+              </call>
+            </where>
+            <link name="ipr_kod_vip_dog" />
+            <link name="ipr_kod_schet" />
+          </dimset>
+          <dimset as="fin">
+            <link name="ipr_kod_opl_period" />
+            <link name="ipr_kod_schet" />
+          </dimset>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

@@ -1,0 +1,730 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vc_add_kontact" timestamp="10.10.2018 21:25:24" class="1" update-target="vc_ul_kontakt">
+      <params>
+        <param name="kod_kontact" type="number" />
+        <param name="user_id" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="kod_kontact">
+          <useparam name="kod_kontact" />
+        </call>
+        <call function="()" type="number" as="user_id">
+          <useparam name="user_id" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vc_add_creditor" timestamp="11.10.2018 14:51:40" class="1" update-target="vc_ul_creditors">
+      <params>
+        <param name="e_code" type="number" />
+        <param name="user_id" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="e_code">
+          <useparam name="e_code" />
+        </call>
+        <call function="()" type="number" as="user_id">
+          <useparam name="user_id" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vcf_ul_kontakt_insert" timestamp="31.10.2018 19:37:29" update-target="vc_ul_kontakt">
+      <params>
+        <param name="user_id" type="number" />
+        <param type="number" name="kod_kontakt" />
+      </params>
+      <select>
+        <column table="a" column="kod_kontact" />
+        <call function="()" type="number" as="user_id">
+          <useparam name="user_id" />
+        </call>
+      </select>
+      <from>
+        <query as="a" name="is_kontact">
+          <elink name="vc_ul_kontakt" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_kontact" />
+            <useparam name="kod_kontakt" />
+          </call>
+          <call function="is null">
+            <column table="vc_ul_kontakt" column="kod_kontact" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcs_ul_zayav_insert" timestamp="04.12.2018 04:38:40" update-target="vc_ul_zayav">
+      <params>
+        <param name="user_id" type="number" />
+        <param name="num_zayav" type="string" />
+        <param name="request_kind" type="number" />
+      </params>
+      <select>
+        <call function="()" type="string" as="num_zayav">
+          <useparam name="num_zayav" />
+        </call>
+        <call function="()" type="number" as="user_id">
+          <useparam name="user_id" />
+        </call>
+        <call function="()" type="number" as="request_kind">
+          <useparam name="request_kind" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+      <where>
+        <call function="not exists">
+          <query>
+            <select>
+              <column table="b" column="kod_ul_zayav" />
+            </select>
+            <from>
+              <query name="vc_ul_zayav" as="b" />
+            </from>
+            <where>
+              <call function="and">
+                <call function="=">
+                  <column table="b" column="num_zayav" />
+                  <useparam name="num_zayav" />
+                </call>
+                <call function="=">
+                  <column table="b" column="user_id" />
+                  <useparam name="user_id" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+      </where>
+    </query>
+    <query name="vc_num_zayav" timestamp="27.11.2018 02:38:14" class="1" update-target="vc_ul_kontakt">
+      <params>
+        <param name="num_zayav" type="string" />
+      </params>
+      <select>
+        <call function="rownum" type="number" as="id" key="1" />
+        <call function="()" type="string" as="num_zayav" title="Номер заявки">
+          <useparam name="num_zayav" />
+        </call>
+        <column table="c_zayav" column="kod_zayav" />
+        <column table="c_zayav_virtual" column="kod" as="kod_zayav_virt" />
+        <call function="if" as="found" type="number">
+          <call function="is not null">
+            <column table="this" column="kod_zayav" />
+            <column table="this" column="kod_zayav_virt" />
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+        <query name="c_zayav" join="left outer" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="this" column="num_zayav" />
+            <column table="c_zayav" column="num_zayav" />
+          </call>
+        </query>
+        <query name="c_zayav_virtual" join="left outer" ConstrDelOption="cascade">
+          <call function="=">
+            <call function="||">
+              <const>'ВО '</const>
+              <column table="this" column="num_zayav" />
+            </call>
+            <column table="c_zayav_virtual" column="num_zayav_vo" />
+          </call>
+        </query>
+        <query name="c_zayav" as="kod_zayav" join="left outer" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="this" column="kod_zayav" />
+            <column table="kod_zayav" column="kod_zayav" />
+          </call>
+        </query>
+        <query name="c_zayav_virtual" as="kod_zayav_virt" join="left outer" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="this" column="kod_zayav_virt" />
+            <column table="kod_zayav_virt" column="kod" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vc_ul_for_num_zayav" timestamp="01.11.2018 20:05:02" class="1" update-target="vc_ul_kontakt">
+      <params>
+        <param name="num_zayav" type="string">
+          <const>''</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="if" type="number" as="is_connected" group="max">
+          <call function="=">
+            <column table="vc_ul_zayav" column="num_zayav" />
+            <useparam name="num_zayav" />
+          </call>
+          <fact column="vc_ul_zayav_cnt" />
+        </call>
+      </expressions>
+      <select>
+        <column table="a" column="user_id" group="1" key="1" />
+        <column table="a" column="fio" group="max" />
+        <column table="a" column="user_phone" column-width="146" group="max" />
+        <column table="a" column="user_email" column-width="209" group="max" />
+      </select>
+      <from>
+        <qube>
+          <link name="vc_user_login" as="a" all-rows="1">
+            <elink name="vc_ul_kontakt">
+              <link name="kod_kontact">
+                <link name="e_code">
+                  <elink name="qr_list_zpr_abons">
+                    <link name="kod_zayav" />
+                  </elink>
+                </link>
+              </link>
+            </elink>
+          </link>
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_zayav" column="num_zayav" />
+                <useparam name="num_zayav" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="is null">
+          <fact column="is_connected" />
+        </call>
+      </where>
+    </query>
+    <query name="vc_ul_zayav_check" timestamp="31.10.2018 19:35:26" class="1" update-target="vc_ul_kontakt">
+      <params>
+        <param name="user_id" type="number" />
+        <param name="num_zayav" type="string" />
+      </params>
+      <select>
+        <call function="()" as="val" type="number">
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="vc_ul_zayav" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="user_id" />
+            <useparam name="user_id" />
+          </call>
+          <call function="=">
+            <column table="a" column="num_zayav" />
+            <useparam name="num_zayav" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_search_kontakt" timestamp="04.12.2018 04:27:13">
+      <params>
+        <param name="kod_zayav" type="number">
+          <const>72442</const>
+        </param>
+        <param name="user_id" type="number">
+          <const>27</const>
+        </param>
+      </params>
+      <select>
+        <column table="k" column="kod_kontact" group="max" />
+      </select>
+      <from>
+        <query name="c_zayav" as="z">
+          <link name="kodp">
+            <elink name="is_kontact" as="k" />
+          </link>
+        </query>
+        <query name="vc_user_login" as="l" join="cross" />
+        <query name="is_kontact" as="kod_kontact" join="left outer" ConstrDelOption="cascade">
+          <call function="=">
+            <column table="this" column="kod_kontact" />
+            <column table="kod_kontact" column="kod_kontact" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <useparam name="kod_zayav" />
+            <column table="z" column="kod_zayav" />
+          </call>
+          <call function="=">
+            <useparam name="user_id" />
+            <column table="l" column="user_id" />
+          </call>
+          <call function="=">
+            <call function="cut_phone">
+              <column table="k" column="phone" />
+            </call>
+            <call function="cut_phone">
+              <column table="l" column="user_phone" />
+            </call>
+          </call>
+          <call function="lt" exclude="1">
+            <call function="rownum" />
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_kont_user_id" timestamp="29.11.2018 22:38:01">
+      <params>
+        <param name="kod_kontakt" type="number" />
+      </params>
+      <select>
+        <column table="a" column="user_id" />
+      </select>
+      <from>
+        <query name="vc_ul_kontakt" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_kontact" />
+            <useparam name="kod_kontakt" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_kont_search_user_id" timestamp="26.12.2018 18:49:22">
+      <params>
+        <param name="kod_kontakt" type="number">
+          <const>12</const>
+        </param>
+      </params>
+      <select>
+        <column table="b" column="user_id" group="max" />
+        <column table="b" column="user_id" group="count" as="cnt" />
+      </select>
+      <from>
+        <query name="is_kontact" as="a" />
+        <query name="vc_user_login" as="b" join="left outer">
+          <call function="or">
+            <call function="=">
+              <column table="a" column="phone_clear" />
+              <column table="b" column="phone_clear" />
+            </call>
+            <call function="=">
+              <call function="lower">
+                <column table="a" column="e_mail" />
+              </call>
+              <call function="lower">
+                <column table="b" column="user_email" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_kontact" />
+            <useparam name="kod_kontakt" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_validate_kontakt_change" timestamp="27.12.2018 20:32:42">
+      <params>
+        <param name="kod_kontakt" type="number">
+          <const>111</const>
+        </param>
+        <param type="string" name="num_zayav">
+          <const>'18-55999'</const>
+        </param>
+      </params>
+      <select>
+        <call function="case" as="val" type="string">
+          <call function="when">
+            <call function="and">
+              <call function="is not null">
+                <column table="uiz" column="user_id" group="max" />
+              </call>
+              <call function="is null">
+                <column table="uik" column="user_id" group="max" />
+              </call>
+              <call function="=">
+                <column table="uiz" column="user_id" group="max" />
+                <call type="" group="max" function="nvl">
+                  <column table="vc_ul_kontakt" column="user_id" as="" type="" />
+                  <column table="vc_ul_kontakt_v" column="user_id" as="" type="" />
+                </call>
+              </call>
+            </call>
+            <call function="||">
+              <const>'Заявка будет отвязана от личного кабинета '</const>
+              <column table="uiz" column="user_email" group="max" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="!=">
+              <column table="uiz" column="user_id" group="max" />
+              <column table="uik" column="user_id" group="max" />
+            </call>
+            <call function="||">
+              <const>'Заявка будет отвязана от личного кабинета '</const>
+              <column table="uiz" column="user_email" group="max" />
+              <const>' и привязана к личному кабинену  '</const>
+              <column table="uik" column="user_email" group="max" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="vc_num_z_vo" as="a">
+          <link name="kod_zayav" as="z">
+            <link name="kod_kontact">
+              <elink name="vc_ul_kontakt" />
+            </link>
+          </link>
+          <link name="kod_zayav_virt" as="v">
+            <link name="kod_kontact" as="kod_kontact_v">
+              <elink name="vc_ul_kontakt" as="vc_ul_kontakt_v" />
+            </link>
+          </link>
+          <elink name="vc_ul_zayav">
+            <link name="user_id" as="uiz" />
+          </elink>
+        </query>
+        <query name="vc_ul_kontakt" as="uk" join="left outer">
+          <link name="user_id" as="uik" />
+          <call function="=">
+            <column column="kod_kontact" table="uk" />
+            <useparam name="kod_kontakt" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="num_zayav" />
+            <useparam name="num_zayav" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_ul_zayav_insert_nc" timestamp="04.12.2018 04:27:32" update-target="vc_ul_zayav">
+      <params>
+        <param name="num_zayav" type="string">
+          <const>2</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="num_zayav" />
+        <column table="vc_ul_kontakt" column="user_id" />
+        <call function="()" type="number" as="request_kind">
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="c_zayav" as="a">
+          <link name="kod_kontact">
+            <elink name="vc_ul_kontakt" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="num_zayav" />
+            <useparam name="num_zayav" />
+          </call>
+          <call function="is not null">
+            <column table="vc_ul_kontakt" column="user_id" />
+            <useparam name="num_zayav" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_test" timestamp="02.12.2018 23:25:26">
+      <params>
+        <param name="user_id" type="number">
+          <const>63</const>
+        </param>
+        <param name="p_num" type="array">
+          <const>('18-55801','18-55803','18-55798','18-55797','18-55792','18-55791','18-55774','18-55769','18-55758','18-55768','18-55767','18-55766','ВО','18-55804','ВО','18-55804')</const>
+        </param>
+      </params>
+      <expressions>
+        <call group="max" function="if" type="number" as="bad_kont_pr">
+          <call function="and">
+            <call function="!=nvl">
+              <useparam name="user_id" />
+              <column table="vc_user_login_by_k" column="user_id" />
+            </call>
+            <call function="is not null">
+              <column table="c_zayav" column="kod_zayav" />
+            </call>
+            <call function="=0">
+              <column table="vc_num_z_vo" column="pr_change_kont" />
+            </call>
+          </call>
+          <fact column="vc_num_z_vo_cnt" />
+        </call>
+        <call group="max" function="if" type="number" as="bad_kont">
+          <call function="and">
+            <call function="!=nvl">
+              <useparam name="user_id" />
+              <column table="vc_user_login_by_k" column="user_id" />
+            </call>
+            <call function="is not null">
+              <column table="c_zayav" column="kod_zayav" />
+            </call>
+          </call>
+          <fact column="vc_num_z_vo_cnt" />
+        </call>
+        <call group="max" function="if" type="number" as="is_bound">
+          <call function="and">
+            <call function="is not null">
+              <column table="vc_user_login" column="user_id" />
+            </call>
+            <call function="=0">
+              <column table="vc_num_z_vo" column="pr_rebind" />
+            </call>
+          </call>
+          <fact column="vc_num_z_vo_cnt" />
+        </call>
+        <call type="number" as="cant_sel" group="sum" function="nvl">
+          <fact column="bad_kont_pr" nullif="0" />
+          <fact column="is_bound" nullif="0" />
+        </call>
+      </expressions>
+      <select>
+        <column table="np_z_vo" column="num_zayav" parname="np_kod" column-visible="0" />
+        <column table="np_z_vo" column="kod_zayav" parname="kod_zayav" column-visible="0" />
+        <column table="np_z_vo" column="kod_zayav_virt" parname="kod_zayav_virt" column-visible="0" />
+        <column table="np_z_vo" column="name_org" as="namep" column-width="225" />
+        <column table="np_z_vo" column="num_zayav_vo" column-width="125" />
+        <column table="np_zv" column="d_c" />
+        <column table="np_z_vo" column="num_z" column-width="87" as="num_z" />
+        <column table="np_z" column="dat_zayav" column-width="119" />
+        <column table="np_kon" column="vis_id" column-width="210" title="Оcновной контакт" as="k_vis_id" />
+        <fact parname="bad_kont" column="bad_kont" column-visible="0" />
+        <column table="np_z_vo" column="pr_change_kont" editable="bad_kont" />
+        <column table="user_id" column="vis_id" title="Логин ЛКК" as="u_vis_id" column-width="207" />
+        <column table="np_z_vo" column="pr_rebind" editable="old_user_id" column-width="91" />
+        <fact column="cant_sel" parname="can_sel" column-visible="0" />
+        <column table="user_id" column="user_id" column-visible="0" parname="old_user_id" />
+      </select>
+      <from>
+        <qube>
+          <link name="vc_num_z_vo" as="np_z_vo" all-rows="1">
+            <link name="kod_zayav" as="np_z">
+              <link name="kod_kontact" as="np_kon" />
+            </link>
+            <link name="kod_zayav_virt" as="np_zv" />
+          </link>
+          <link name="vc_ul_zayav" as="np_uz">
+            <link name="user_id" />
+            <where exclude="1">
+              <call function="=">
+                <column table="np_uz" column="user_id" />
+                <useparam name="user_id" />
+              </call>
+            </where>
+          </link>
+          <where>
+            <call function="and">
+              <call function="or" exclude="1">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column column="num_zayav" table="np_z_vo" />
+                  <useparam name="p_num" />
+                </call>
+              </call>
+              <call function="in">
+                <column column="num_zayav" table="np_z_vo" />
+                <useparam name="p_num" />
+              </call>
+              <call function="!=nvl" exclude="1">
+                <column column="user_id" table="np_uz" />
+                <useparam name="user_id" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="vcf_zayav_get_main_kont_and_user" timestamp="27.12.2018 16:59:18">
+      <params>
+        <param name="num_zayav" type="string">
+          <const>'12'</const>
+        </param>
+      </params>
+      <select>
+        <call as="kod_kontact" type="number" group="max" function="nvl">
+          <column table="a" column="kod_kontact" as="" type="" />
+          <column table="v" column="kod_kontact" as="" type="" />
+        </call>
+        <column column="user_id" table="vc_ul_zayav" group="max" />
+      </select>
+      <from>
+        <query name="vc_num_z_vo" as="x">
+          <link name="kod_zayav" as="a" />
+          <link name="kod_zayav_virt" as="v" />
+          <elink name="vc_ul_zayav" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="x" column="num_zayav" />
+            <useparam name="num_zayav" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_not_num_z" timestamp="03.12.2018 02:08:56">
+      <params>
+        <param name="p_num" type="array">
+          <const>('18-55801','18-55803','18-55798','18-55797','18-55792','18-55791','18-55774','18-55769','18-55758','18-55768','18-55767','18-55766','ВО','18-55804','ВО','18-55804')</const>
+        </param>
+      </params>
+      <select>
+        <call function="()" as="val" group="max" nvl="0">
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <const>null</const>
+            <useparam name="p_num" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vcf_vo_search_user_id" timestamp="27.12.2018 22:38:19">
+      <params>
+        <param name="num_zayav" type="string">
+          <const>'12'</const>
+        </param>
+      </params>
+      <select>
+        <column table="b" column="user_id" group="max" />
+        <column table="b" column="user_id" group="count" as="cnt" />
+      </select>
+      <from>
+        <query name="vc_num_z_vo" as="x">
+          <link name="kod_zayav_virt" as="a" />
+        </query>
+        <query name="vc_user_login" as="b" join="left outer">
+          <call function="or">
+            <call function="=">
+              <column table="a" column="phone_clear" />
+              <column table="b" column="phone_clear" />
+            </call>
+            <call function="=">
+              <call function="lower">
+                <column table="a" column="e_mail" />
+              </call>
+              <call function="lower">
+                <column table="b" column="user_email" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="x" column="num_zayav" />
+            <useparam name="num_zayav" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vc_ul_def_info" timestamp="22.01.2019 19:54:48" class="1" update-target="vc_ul_kontakt">
+      <params>
+        <param name="kod_kontakt" type="number">
+          <const>3000261</const>
+        </param>
+        <param name="num_zayav" type="string">
+          <const>'17-35759'</const>
+        </param>
+      </params>
+      <select>
+        <call function="nvl" as="phone" type="string">
+          <column table="k" column="phone_clear" />
+          <column table="vv" column="phone_clear" />
+        </call>
+        <call function="nvl" as="email" type="string">
+          <column table="k" column="e_mail" />
+          <column table="vv" column="e_mail" />
+        </call>
+        <call function="nvl" as="f" type="string">
+          <column table="k" column="f" />
+          <column table="vv" column="f" />
+        </call>
+        <call function="nvl" as="i" type="string">
+          <column table="k" column="i" />
+          <column table="vv" column="i" />
+        </call>
+        <call function="nvl" as="o" type="string">
+          <column table="k" column="o" />
+          <column table="vv" column="o" />
+        </call>
+        <column table="k" column="send_prior_nvl" />
+        <call function="if" as="user_right" type="number">
+          <call function="=">
+            <call function="user_rights_kod_menu">
+              <const type="number">13065</const>
+            </call>
+            <const type="number">2</const>
+          </call>
+          <const>1</const>
+          <const type="number">0</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="d" />
+        <query name="vc_num_z_vo" as="a" join="left outer">
+          <link name="kod_zayav_virt" as="vv" />
+          <call function="and">
+            <call type="" function="or">
+              <call function="false" />
+              <call function="=" as="" type="" optional="1">
+                <column table="a" column="num_zayav" />
+                <useparam name="num_zayav" />
+              </call>
+            </call>
+            <call function="is not null">
+              <column table="a" column="kod_zayav_virt" />
+            </call>
+          </call>
+        </query>
+        <query name="is_kontact" as="k" join="left outer">
+          <call type="" function="or">
+            <call function="false" />
+            <call function="=" as="" type="" optional="1">
+              <column table="k" column="kod_kontact" />
+              <useparam name="kod_kontakt" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

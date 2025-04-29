@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="35316-2" timestamp="31.07.2017 13:38:08" title="Приложение 2 к соглашению Минэнерго" edit-columns="2" is-report="1" folder="invpro_ofz" form="35316-2" inherit="35316-cmn" nogrid="1" with-behavior="0">
+      <expressions>
+        <call function="if" as="fin_sum_nds_ofz" group="sum">
+          <call function="=">
+            <column table="ipr_kod_opl_period" column="pr_ofz" />
+            <const>1</const>
+          </call>
+          <fact column="ipr_fin_fact_sum_nds_npr" />
+        </call>
+      </expressions>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="35316-2.xlsx" title="Приложение 2 к соглашению Минэнерго" print-proc="2" del-cols="1" print-xlsx="1" use-flexcel="1" />
+        </excel>
+      </print-templates>
+      <select>
+        <call function="date to char" as="sdat" group="max" exclude="1">
+          <useparam name="dat" />
+        </call>
+        <call function="date to char" as="sdatdolg" group="max">
+          <useparam name="dat_dolg" />
+        </call>
+        <call function="date to char" as="sdat1" group="max">
+          <useparam name="dat1" />
+        </call>
+        <call function="date to char" as="sdat2" group="max">
+          <useparam name="dat2" />
+        </call>
+        <call function="dense_rank" as="npp" group="max" title="№" exclude="1">
+          <call function="order by 2">
+            <column table="kod_titul_ip" column="kod_titul_ip" />
+          </call>
+        </call>
+        <column table="kod_titul_ip" column="kod_titul_ip" />
+        <call function="dense_rank" as="npp" group="max" title="№">
+          <call function="order by 2">
+            <column table="kod_titul_ip" column="ofz_npp" />
+            <column table="kod_titul_ip" column="tit_num_new" />
+          </call>
+        </call>
+        <column table="kod_titul_ip" column="ofz_npp" as="npp" title="№" exclude="1" />
+        <column table="kod_titul_ip" column="name" as="num_name" />
+        <column table="pr_ofz" column="name" />
+        <fact column="nzs_on_dat" title="НЗС (ИнвестPRO)" group="sum" nullif="0" colset="ИнвестPRO" table="tit_ofz" />
+        <const as="nzs_on_dat_1c" type="number" title="НЗС (1C)" colset="1С" group="sum">null</const>
+        <fact column="kredit_on_dat" title="Кредит" group="sum" nullif="0" table="tit_ofz" />
+        <column table="kod_ispolnit" column="name" as="kod_ispolnit_name" />
+        <fact column="smet_sum_nds" title="Сметная стоимость с НДС" group="sum" table="smet" nullif="0" />
+        <fact column="smet_sum" title="Сметная стоимость без НДС" group="sum" table="smet" nullif="0" />
+        <fact column="smet_sum_nds_np" title="Сметная стоимость с НДС" group="sum" table="smet" nullif="0" />
+        <fact column="smet_sum_np" title="Сметная стоимость без НДС" group="sum" table="smet" nullif="0" />
+        <column table="kod_dop_contract" column="kod_dop_contract" />
+        <column table="kod_dop_contract" column="num_ad_pref_no_dat" as="num_ad" />
+        <column table="kod_dop_contract" column="dt_contract" />
+        <column table="kod_dop_contract" column="isp_info" as="dog_ofz_name" />
+        <fact table="dog" column="is_dop_cont_count" group="sum" />
+        <fact column="kap_sum_nds_on_dat" group="sum" title="Освоение" exclude="1" />
+        <fact column="ipr_kap_fact_sum_nds" group="sum" title="Освоение c НДС" table="fin_np" />
+        <fact column="ipr_kap_fact_nds" group="sum" title="Освоение НДС" table="fin_np" />
+        <fact column="ipr_fin_fact_sum_nds_npr" title="Профинансировано с НДС" group="sum" table="fin" />
+        <fact column="ipr_fin_fact_nds_npr" title="Профинансировано НДС" group="sum" table="fin" />
+        <fact column="fin_sum_nds_ofz" title="Профинансировано НДС" group="sum" table="fin" />
+        <column table="ipr_kod_doc_vvod" column="kod_doc" />
+        <column table="kod_doc_type" column="abbr" as="doc_type_abbr" />
+        <column table="ipr_kod_doc_vvod" column="doc_num" />
+        <column table="ipr_kod_doc_vvod" column="doc_date_c" />
+        <fact column="ipr_vvd_fact_sum" title="Ввод без НДС" group="sum" table="fin_vvod" />
+        <fact column="ipr_titul_ip_count" group="sum" table="tit_ofz" />
+        <fact column="ipr_doc_vvod_count" group="sum" table="tit_ofz" />
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="in" exclude="1">
+              <column table="kod_titul_ip" column="kod_titul_ip" />
+              <array>11387</array>
+            </call>
+          </where>
+          <link name="ipr_kod_titul_ip" as="kod_titul_ip">
+            <link name="kod_ispolnit" />
+            <link name="pr_ofz" />
+          </link>
+          <dimset as="tit_ofz">
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="!=0" exclude="1">
+                  <column table="kod_titul_ip" column="pr_ofz" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="dog">
+            <where>
+              <call function="and">
+                <call function="=1">
+                  <column table="kod_dop_contract" column="pr_ofz" />
+                </call>
+                <call function="or">
+                  <call function="=">
+                    <useparam name="dog_cond" />
+                    <const>3</const>
+                  </call>
+                  <call function="and">
+                    <call function="=">
+                      <useparam name="dog_cond" />
+                      <const>2</const>
+                    </call>
+                    <call function="is not null">
+                      <column table="kod_titul_ip" column="kod_titul_ip" />
+                    </call>
+                  </call>
+                  <call function="and">
+                    <call function="=">
+                      <useparam name="dog_cond" />
+                      <const>1</const>
+                    </call>
+                    <call function="!=0">
+                      <column table="kod_titul_ip" column="pr_ofz" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </where>
+            <link name="kod_dop_contract" />
+          </dimset>
+          <dimset as="smet">
+            <where exclude="1">
+              <call function="and">
+                <call function="!=0">
+                  <column table="kod_titul_ip" column="pr_ofz" />
+                </call>
+                <call function="=1">
+                  <column table="ipr_pr_last_smet" column="pr_last" />
+                </call>
+              </call>
+            </where>
+            <link name="ipr_pr_last_smet" only-for-cond="1" exclude="1" />
+          </dimset>
+          <dimset as="fin">
+            <where>
+              <call function="and">
+                <call function="!=0">
+                  <column table="kod_titul_ip" column="pr_ofz" />
+                </call>
+                <call function="le">
+                  <column table="ipr_dat" column="val" />
+                  <useparam name="dat2" />
+                </call>
+              </call>
+            </where>
+            <link name="ipr_dat" />
+          </dimset>
+          <dimset as="fin_np">
+            <where>
+              <call function="and">
+                <call function="!=0">
+                  <column table="kod_titul_ip" column="pr_ofz" />
+                </call>
+                <call function="le">
+                  <column table="ipr_dat" column="val" />
+                  <useparam name="dat2" />
+                </call>
+                <call function="!=">
+                  <call function="nvl">
+                    <column table="ipr_kod_vip_dog" column="kod_dog" />
+                    <const>-1</const>
+                  </call>
+                  <const>-1</const>
+                </call>
+              </call>
+            </where>
+            <link name="ipr_dat" />
+            <link name="ipr_kod_vip_dog" />
+          </dimset>
+          <dimset as="fin_vvod">
+            <where>
+              <call function="and">
+                <call function="!=0">
+                  <column table="kod_titul_ip" column="pr_ofz" />
+                </call>
+                <call function="le">
+                  <column table="ipr_dat" column="val" />
+                  <useparam name="dat2" />
+                </call>
+              </call>
+            </where>
+            <link name="ipr_dat" />
+            <link name="ipr_kod_doc_vvod">
+              <link name="kod_doc_type" />
+            </link>
+          </dimset>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="all" title="Итого">
+          <grset as="tit" title="По титулу" order="npp">
+            <group>
+              <sourcelink table="kod_titul_ip" />
+            </group>
+            <grset as="dog" title="Договоры">
+              <group>
+                <sourcelink table="kod_dop_contract" />
+              </group>
+              <where>
+                <call function="is not null">
+                  <column table="this" column="kod_dop_contract" />
+                </call>
+              </where>
+            </grset>
+            <grset as="vvod_doc" title="КС14 КС11">
+              <group>
+                <sourcelink table="ipr_kod_doc_vvod" />
+              </group>
+              <where>
+                <call function="is not null">
+                  <column table="this" column="kod_doc" />
+                </call>
+              </where>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+      <having exclude="1">
+        <call function="and">
+          <call function="gt">
+            <column table="this" column="ipr_doc_vvod_count" group="sum" />
+            <const>0</const>
+          </call>
+          <call function="gt">
+            <column table="this" column="ipr_titul_ip_count" group="sum" />
+            <const>0</const>
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="35316-2-dat1-def" timestamp="29.02.2016 15:26:11">
+      <select>
+        <call function="year begin time" as="val">
+          <call function="year">
+            <call function="sysdate" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="35316-2-dat2-def" timestamp="29.02.2016 15:26:30">
+      <select>
+        <call function="sysdate" as="val" />
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="35316-dog-output-cond">
+      <const as="id" type="string">1</const>
+      <const as="name" type="string">'Договоры ТП по ОФЗ, привязанные к титулам ОФЗ'</const>
+      <const>2</const>
+      <const>'Договоры ТП по ОФЗ, привязанные к титулам'</const>
+      <const>3</const>
+      <const>'Все договоры ТП по ОФЗ'</const>
+    </query>
+  </queries>
+  <forms>
+    <form name="35316-2" timestamp="13.12.2016 01:22:21" with-behavior="0">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <usefield field="cmn_date_cur" name="dat" title="Дата подписания перечня объектов" checked="1" mandatory="1" exclude="1" />
+        <usefield field="ipr_kod_doc" title="Год ИПР/Документ" mandatory="1" />
+        <usefield field="cmn_date" name="dat_dolg" title="Дата учета задолженности" checked="1" mandatory="1">
+          <defaultquery>
+            <query name="35316-dat-def" />
+          </defaultquery>
+        </usefield>
+        <fieldgroup title="Отчетный период">
+          <usefield field="cmn_date" name="dat1" title="с" checked="1" mandatory="1">
+            <defaultquery>
+              <query name="35316-2-dat1-def" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date" name="dat2" title="по" checked="1" mandatory="1">
+            <defaultquery>
+              <query name="35316-2-dat2-def" />
+            </defaultquery>
+          </usefield>
+        </fieldgroup>
+        <usefield field="ipr_kod_ofz" />
+        <usefield field="cmn_check" name="pr_psd" title="Только титулы с утверждённой ПСД" checked="1" exclude="1" />
+        <usefield field="cmn_check" name="pr_1c" title="С учетом данных 1С" checked="1" exclude="1" />
+        <usefield field="cmn_list" name="cols" special-type="colsets" title="ИнвестPRO/1С" visible="0" exclude="1">
+          <defaultquery>
+            <query name="35316-colsets-default" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_combo_num" title="Вывод договоров" name="dog_cond" mandatory="1">
+          <listquery>
+            <query name="35316-dog-output-cond" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_combo_str" name="tekfix" title="Cметная стоимость (фиксированная/текущая)" mandatory="1">
+          <listquery>
+            <query name="29265-cols-tekfix" />
+          </listquery>
+          <defaultquery>
+            <query name="29265-cols-tekfix-def" />
+          </defaultquery>
+        </usefield>
+      </content>
+    </form>
+  </forms>
+</root>

@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="64949" order="ym" timestamp="31.10.2022 16:22:31">
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="a" column="ym" />
+        <column table="a" column="ym_name" />
+        <column table="a" column="saldo_deb_beg" mp="-3" />
+        <column table="a" column="saldo_kred_beg" mp="-3" />
+        <column table="a" column="nach_recalc" mp="-3" />
+        <column table="a" column="nach" mp="-3" />
+        <column table="a" column="opl" mp="-3" />
+        <column table="a" column="spis_ret_kred" mp="-3" />
+        <column table="a" column="spis_deb" mp="-3" />
+        <column table="a" column="saldo_deb_end" mp="-3" />
+        <column table="a" column="saldo_kred_end" mp="-3" />
+        <column table="a" column="potr" mp="-3" />
+      </select>
+      <from>
+        <query name="sqlb_rep_64949_tbl" as="a" />
+      </from>
+    </query>
+    <query name="64949-info" timestamp="31.10.2022 23:13:09">
+      <select>
+        <column table="a" column="dat_form" />
+        <column table="a" column="inn" />
+      </select>
+      <from>
+        <query name="sqlb_rep_64949_info_tbl" as="a" />
+      </from>
+    </query>
+    <query name="64949-dog" timestamp="31.10.2022 23:57:21">
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="a" column="ndog" />
+        <column table="a" column="sname" />
+        <column table="a" column="dat_end" />
+        <column table="a" column="inn" />
+      </select>
+      <from>
+        <query name="sqlb_rep_64949_dog_tbl" as="a" />
+      </from>
+    </query>
+    <query name="64949-inn" timestamp="31.10.2022 22:24:28">
+      <select>
+        <column table="a" column="inn" title="-" key="1" as="id" group="1" />
+        <column table="a" column="inn" vid="1" group="1" />
+      </select>
+      <from>
+        <query name="kr_payer" as="a" />
+      </from>
+    </query>
+    <query name="64949-dog-list" timestamp="31.10.2022 22:31:18">
+      <params>
+        <param name="dep" type="array" />
+        <param type="string" name="p_inn" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="inn" />
+        <column table="kodp" column="name" as="payer_name" />
+        <column table="pr_active" column="name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="=" optional="1">
+            <column table="kodp" column="inn" />
+            <useparam name="p_inn" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="64949-dog-list-def" timestamp="31.10.2022 22:46:34">
+      <params>
+        <param name="dep" type="array" />
+        <param type="string" name="p_inn" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" key="1" />
+        <column table="a" column="ndog" is-name="1" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="or">
+            <call function="false" />
+            <call function="=" optional="1">
+              <column table="kodp" column="inn" />
+              <useparam name="p_inn" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <reports>
+    <report name="64949" title="Оборот (по договору/ИНН)" folder="dolg" autobands="1" form="64949" nogrid="1" timestamp="13.12.2022 03:32:47">
+      <print-templates>
+        <excel>
+          <template name="64949.xlsx" title="Оборот по договору ИНН" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <params>
+        <param name="dep" />
+        <param name="p_ym_beg" />
+        <param name="p_ym_end" />
+        <param name="kod_dog" />
+        <param name="p_inn" />
+      </params>
+      <procedure>
+        <text>BEGIN
+    DELETE vr_number_array;
+
+    FOR rec IN (SELECT kod_dog
+                  FROM kr_dogovor
+                 WHERE kod_dog IN :kod_dog)
+    LOOP
+        INSERT INTO vr_number_array (array_id, val)
+             VALUES ('kod_dog', rec.kod_dog);
+    END LOOP;
+
+    -- +0 костыль чтобы можно было передавать пустые, возможно есть специальный флаг для этого, но не нашел его
+    sqlb_rep_64949.fill_table ( nullif(:p_ym_beg+0,0), nullif(:p_ym_end+0,0));
+    sqlb_rep_64949.fill_table_info (:p_inn);
+    sqlb_rep_64949.fill_table_dog (:p_inn);
+END; </text>
+      </procedure>
+      <queries>
+        <query name="64949" as="a" />
+        <query name="64949-info" as="info" />
+        <query name="64949-dog" as="dog" />
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="64949" timestamp="13.12.2022 02:04:10">
+      <usefield field="asuse_dep" name="dep" mandatory="1" />
+      <usefield field="cmn_combo_str" name="p_inn" title="ИНН" type="string">
+        <listquery>
+          <query name="64949-inn" />
+        </listquery>
+      </usefield>
+      <usefield field="asuse_kod_dog" mandatory="1">
+        <listquery>
+          <query name="64949-dog-list" />
+        </listquery>
+        <defaultquery>
+          <query name="64949-dog-list-def" />
+        </defaultquery>
+      </usefield>
+      <fieldgroup title="Период">
+        <usefield field="asuse_ym" title="с" name="p_ym_beg" mandatory="0" hint="Для формирования отчета за всю историю оставьте период пустым">
+          <defaultquery>
+            <query name="kr_calc_prev_year_begin" />
+          </defaultquery>
+        </usefield>
+        <usefield field="asuse_ym_tek" title="по" name="p_ym_end" mandatory="0" />
+      </fieldgroup>
+    </form>
+  </forms>
+</root>

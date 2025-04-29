@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="sr_facvip_ur" title="Счет № [:sr_facvip.num_sf] от [:sr_facvip.dat_sf] [:sr_facvip.vid_real]" show-toolbar="1" with-behavior="0" timestamp="21.11.2023 13:52:18">
+      <params>
+        <param name="kod_mat" type="number" />
+        <param name="kod_sf" type="number" />
+      </params>
+      <toolbar>
+        <uicommand button-type="form-save" column-visible="0" />
+        <uicommand button-type="form-save-and-close" column-visible="0" />
+        <uicommand button-type="form-refresh" column-visible="0" />
+        <uicommand button-type="form-delete" column-visible="1" exclude="1" />
+        <uicommand action-type="custom" title="Удалить счёт" prompt="Вы уверены, что хотите удалить счёт № [:sr_facvip.num_sf] от [:sr_facvip.dat_sf]?" message="Счёт № [:sr_facvip.num_sf] от [:sr_facvip.dat_sf] удалён">
+          <useaction name="sg_dop_plat.del_dop_deb" title="Удалить счёт">
+            <useparam name="kod_sf" />
+          </useaction>
+          <useaction action-type="close" />
+        </uicommand>
+        <uicommand name="print_sf" title="Печать счета">
+          <useparam name="kod_sf" />
+        </uicommand>
+        <uicommand name="print_deb" editable="kod_deb" title="Печать документа на оплату">
+          <useparam name="kod_deb" />
+        </uicommand>
+        <uicommand action-type="custom" title="Создать документ на оплату" editable="kod_deb" editable-invert="1">
+          <useaction name="create_sf_deb" object="sr_facvip" editable="kod_deb" editable-invert="1" modal="1">
+            <useparam name="dat_sf" />
+          </useaction>
+          <useaction name="ur_save.p_dogplat_sf_to_deb">
+            <const>6</const>
+            <useparam name="kod_mat" />
+            <useparam name="kod_sf" />
+          </useaction>
+          <useaction object="sr_facvip" action-type="refresh-table" />
+          <useaction object="sr_debet" action-type="refresh-table" />
+        </uicommand>
+      </toolbar>
+      <content>
+        <column table="ur_mat" column="num_delo" column-editable="0" title="Номер дела" />
+        <column table="sr_facvip" column="kod_sf" column-editable="0" column-visible="0" />
+        <column table="sr_facvip" column="kodp" column-editable="0" title="Абонент" />
+        <column table="sr_facvip" column="kod_dog" column-editable="0" title="Договор" />
+        <column table="sr_facvip" column="dat_sf" title="Дата счета" column-editable="0" parname="dat_sf" />
+        <column table="sr_facvip" column="num_sf" title="Номер счета" column-editable="0" parname="num_sf" />
+        <column table="sr_facvip" column="ym" column-editable="0" title="Период" />
+        <fact table="sr_facvip" column="sr_facras_nachisl" title="Сумма" />
+        <column table="sr_facvip" column="vid_real" column-editable="0" title="Вид реализации" />
+        <fact table="sr_facvip" column="sr_facras_vid_t_full_name" title="Вид начисления" />
+        <column table="sr_facvip" column="kod_deb" parname="kod_deb" column-visible="0" />
+        <fieldgroup title="Документ на оплату">
+          <column table="sr_debet" column="num_pl" column-editable="0" title="Номер документа" />
+          <column table="sr_debet" column="dat_deb" column-editable="0" title="Дата документа" />
+          <column table="sr_debet" column="dat_bzad" column-editable="0" title="Дата возник. задолж." />
+        </fieldgroup>
+      </content>
+      <from>
+        <query name="sr_facvip">
+          <where>
+            <call function="=">
+              <column table="sr_facvip" column="kod_sf" />
+              <useparam name="kod_sf" />
+            </call>
+          </where>
+        </query>
+        <query name="ur_mat">
+          <where>
+            <call function="=">
+              <column table="ur_mat" column="kod_mat" />
+              <useparam name="kod_mat" />
+            </call>
+          </where>
+        </query>
+        <query name="sr_debet">
+          <where>
+            <call function="=">
+              <column table="sr_debet" column="kod_deb" />
+              <useparam name="kod_deb" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

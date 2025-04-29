@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_dp_inkasso_insert_all" class="1" update-target="ur_dp_inkasso" timestamp="09.09.2022 15:10:25">
+      <params>
+        <param name="kod_folders" type="number" />
+        <param name="kod_inkasso" type="number" />
+      </params>
+      <select>
+        <call function="()" as="kod_inkasso" type="number">
+          <useparam name="kod_inkasso" />
+        </call>
+        <column table="ur_dogplat" column="kod_dogplat" type="number" />
+      </select>
+      <from>
+        <query name="ur_folders">
+          <link name="kod_isp" as="kod_isp" table="ur_isp" child="ur_folders" field="kod_isp" parent="ur_isp" back="ur_folders" title="Исполнительный лист">
+            <link name="kod_hist_mat" as="kod_hist_mat" table="ur_hist_mat" child="ur_isp" field="kod_hist_mat" parent="ur_hist_mat" back="ur_isp" title="История рассмотрения">
+              <link name="kod_mat" as="kod_mat" table="ur_mat" child="ur_hist_mat" field="kod_mat" parent="ur_mat" back="ur_hist_mat" title="Материалы переданные в суд">
+                <elink name="ur_dogplat" as="ur_dogplat" table="ur_dogplat" child="ur_dogplat" field="kod_mat" parent="ur_mat" back="ur_dogplat" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="ur_folders" column="kod_folders" />
+          <useparam name="kod_folders" />
+        </call>
+      </where>
+    </query>
+    <query name="ur_dp_inkasso_insert_single" timestamp="23.06.2016 02:31:02" class="1" update-target="ur_dp_inkasso">
+      <params>
+        <param name="kod_dogplat" type="number" />
+        <param name="kod_inkasso" type="number" />
+      </params>
+      <select>
+        <call function="()" as="kod_inkasso" type="number">
+          <useparam name="kod_inkasso" />
+        </call>
+        <column column="kod_dogplat" table="ur_dogplat" type="number" />
+      </select>
+      <from>
+        <query name="ur_dogplat" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="ur_dogplat" column="kod_dogplat" />
+          <useparam name="kod_dogplat" />
+        </call>
+      </where>
+    </query>
+    <query name="ur_dp_inkasso_ext" timestamp="14.05.2017 03:08:56" class="1" extend="ur_dp_inkasso">
+      <select>
+        <const type="number" as="cnt" fact="ur_dp_inkasso_count" agg="sum">1</const>
+      </select>
+    </query>
+    <query name="ur_dp_kazn_ext" timestamp="14.05.2017 03:08:58" class="1" extend="ur_dp_kazn">
+      <select>
+        <const type="number" as="cnt" fact="ur_dp_kazn_count" agg="sum">1</const>
+      </select>
+    </query>
+  </queries>
+</root>

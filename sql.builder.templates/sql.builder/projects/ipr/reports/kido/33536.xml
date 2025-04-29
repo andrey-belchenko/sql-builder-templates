@@ -1,0 +1,348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="33536" with-behavior="0" timestamp="21.11.2016 14:27:53">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <field name="dat" type="date" controlType="UIDate" title="Дата" mandatory="1" />
+        <field name="kod_region" type="number" controlType="UIList" title="Регион">
+          <listquery>
+            <query name="33536-region" />
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="33536" folder="kido" form="33536" visible="1" title="Сводный отчет по действующим ДТПр" timestamp="17.03.2016 01:34:23" nogrid="1">
+      <params>
+        <param name="dat" type="date" />
+        <param name="kod_region" type="array" />
+      </params>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="33536.xml" title="Сводный отчет по действующим ДТПр" print-proc="2" output-format="xlsb" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="33536" as="a">
+          <withparams>
+            <useparam name="dat" />
+            <useparam name="kod_region" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="33536-region">
+      <const as="id" type="number" key="1">0</const>
+      <const as="name" type="string" title="Регион">'ЛО'</const>
+      <const>1</const>
+      <const>'СПб'</const>
+    </query>
+    <query name="33536">
+      <params>
+        <param name="dat">
+          <const>sysdate</const>
+        </param>
+        <param name="kod_region" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="33536-data" as="a">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+          <grsets>
+            <grset level="1" as="reg_g" title="по СПб">
+              <where>
+                <call function="and">
+                  <call function="gt">
+                    <column table="a" column="kod_region" />
+                    <const>0</const>
+                  </call>
+                  <call function="in" optional="1">
+                    <const>1</const>
+                    <useparam name="kod_region" />
+                  </call>
+                </call>
+              </where>
+              <grset level="4" as="g_lg_allg" title="всего льготные по СПб">
+                <where>
+                  <call function="=1">
+                    <column table="a" column="fl_discount" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="5" as="g_load_allg" title="всего группа мощности по СПб"></grset>
+              <grset level="" as="g_srok_allg" title="всего просроченные по СПб">
+                <where>
+                  <call function="lt">
+                    <column table="a" column="srok_uslug" />
+                    <useparam name="dat" />
+                  </call>
+                </where>
+                <grset level="4" as="g_lg_srokg" title="льготные просроченые по СПб">
+                  <where>
+                    <call function="=1">
+                      <column table="a" column="fl_discount" />
+                    </call>
+                  </where>
+                </grset>
+                <grset level="5" as="g_load_srokg" title="группа мощности просроченные по СПб"></grset>
+              </grset>
+              <grset level="3" as="g_buil" title="работы по СПб">
+                <grset level="4" as="g_lg_all" title="всего льготные по СПб (работы)">
+                  <where>
+                    <call function="=1">
+                      <column table="a" column="fl_discount" />
+                    </call>
+                  </where>
+                </grset>
+                <grset level="5" as="g_load_all" title="всего группа мощности по СПб (работы)"></grset>
+                <grset level="" as="g_srok_all" title="всего просроченные по СПб (работы)">
+                  <where>
+                    <call function="lt">
+                      <column table="a" column="srok_uslug" />
+                      <useparam name="dat" />
+                    </call>
+                  </where>
+                  <grset level="4" as="g_lg_srok" title="льготные просроченые по СПб (работы)">
+                    <where>
+                      <call function="=1">
+                        <column table="a" column="fl_discount" />
+                      </call>
+                    </where>
+                  </grset>
+                  <grset level="5" as="g_load_srok" title="группа мощности просроченные по СПб (работы)"></grset>
+                </grset>
+              </grset>
+            </grset>
+            <grset level="1" as="reg_l" title="по ЛО">
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="a" column="kod_region" />
+                    <const>0</const>
+                  </call>
+                  <call function="in" optional="1">
+                    <const>0</const>
+                    <useparam name="kod_region" />
+                  </call>
+                </call>
+              </where>
+              <grset level="4" as="g_lg_alll" title="всего льготные по СПб">
+                <where>
+                  <call function="=1">
+                    <column table="a" column="fl_discount" />
+                  </call>
+                </where>
+              </grset>
+              <grset level="5" as="g_load_alll" title="всего группа мощности по СПб"></grset>
+              <grset level="" as="g_srok_alll" title="всего просроченные по СПб">
+                <where>
+                  <call function="lt">
+                    <column table="a" column="srok_uslug" />
+                    <useparam name="dat" />
+                  </call>
+                </where>
+                <grset level="4" as="g_lg_srokl" title="льготные просроченые по СПб">
+                  <where>
+                    <call function="=1">
+                      <column table="a" column="fl_discount" />
+                    </call>
+                  </where>
+                </grset>
+                <grset level="5" as="g_load_srokl" title="группа мощности просроченные по СПб"></grset>
+              </grset>
+              <grset level="3" as="l_buil" title="работы по ЛО">
+                <grset level="4" as="l_lg_all" title="всего льготные по ЛО">
+                  <where>
+                    <call function="=1">
+                      <column table="a" column="fl_discount" />
+                    </call>
+                  </where>
+                </grset>
+                <grset level="5" as="l_load_all" title="всего группа мощности по ЛО"></grset>
+                <grset level="" as="l_srok_all" title="всего просроченные по ЛО">
+                  <where>
+                    <call function="lt">
+                      <column table="a" column="srok_uslug" />
+                      <useparam name="dat" />
+                    </call>
+                  </where>
+                  <grset level="4" as="l_lg_srok" title="льготные просроченые по ЛО">
+                    <where>
+                      <call function="=1">
+                        <column table="a" column="fl_discount" />
+                      </call>
+                    </where>
+                  </grset>
+                  <grset level="5" as="l_load_srok" title="группа мощности просроченные по ЛО"></grset>
+                </grset>
+              </grset>
+              <grset level="2" as="l_nr" title="по филиалам">
+                <grset level="4" as="l_lg_alllf" title="всего льготные по СПб">
+                  <where>
+                    <call function="=1">
+                      <column table="a" column="fl_discount" />
+                    </call>
+                  </where>
+                </grset>
+                <grset level="5" as="l_load_alllf" title="всего группа мощности по СПб"></grset>
+                <grset level="" as="l_srok_alllf" title="всего просроченные по СПб">
+                  <where>
+                    <call function="lt">
+                      <column table="a" column="srok_uslug" />
+                      <useparam name="dat" />
+                    </call>
+                  </where>
+                  <grset level="4" as="l_lg_sroklf" title="льготные просроченые по СПб">
+                    <where>
+                      <call function="=1">
+                        <column table="a" column="fl_discount" />
+                      </call>
+                    </where>
+                  </grset>
+                  <grset level="5" as="l_load_sroklf" title="группа мощности просроченные по СПб"></grset>
+                </grset>
+                <grset level="3" as="lf_buil" title="работы">
+                  <grset level="4" as="lf_lg_all" title="всего льготные по ЛО по филиалам">
+                    <where>
+                      <call function="=1">
+                        <column table="a" column="fl_discount" />
+                      </call>
+                    </where>
+                  </grset>
+                  <grset level="5" as="lf_load_all" title="всего группа мощности по ЛО по филиалам"></grset>
+                  <grset level="" as="lf_srok_all" title="всего просроченные по ЛО по филиалам">
+                    <where>
+                      <call function="lt">
+                        <column table="a" column="srok_uslug" />
+                        <useparam name="dat" />
+                      </call>
+                    </where>
+                    <grset level="4" as="lf_lg_srok" title="льготные просроченые по ЛО по филиалам">
+                      <where>
+                        <call function="=1">
+                          <column table="a" column="fl_discount" />
+                        </call>
+                      </where>
+                    </grset>
+                    <grset level="5" as="lf_load_srok" title="группа мощности просроченные по ЛО по филиалам"></grset>
+                  </grset>
+                </grset>
+              </grset>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="33536-data" grouplevel="no" timestamp="17.02.2016 18:55:48">
+      <params>
+        <param name="dat">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <call function="date to char" as="sdate" group="max">
+          <useparam name="dat" />
+        </call>
+        <column table="kod_dop_contract" column="kod_region" group="1" />
+        <column table="kod_dop_contract" column="name_region" group="kod_region" />
+        <column table="kod_dop_contract" column="kodres" group="2" />
+        <column table="kodres" column="name" as="name_r" title="Район" group="kodres" />
+        <column table="fl_build" column="id" group="3" />
+        <column table="fl_build" column="name" as="name_build" title="Наличие работ" group="id" />
+        <column table="kod_dop_contract" column="fl_discount" group="4" title="1 - льготные" />
+        <column table="kod_spr_load" column="id" as="id_load" group="5" />
+        <column table="kod_spr_load" column="name" as="name_load" title="Группа мощности" group="id_load" />
+        <column table="kod_dop_contract" column="kod_dop_contract" group="6" />
+        <column table="kod_dop_contract" column="srok_uslug" group="kod_dop_contract" />
+        <fact column="is_dop_cont_count" group="sum" />
+        <!--<call function="/" as="is_dop_cont_load123_mvt" title="Заявленная мощность, МВт" group="sum">
+          <column table="this" column="is_dop_cont_load123_kvt" />
+          <const>1000</const>
+        </call>
+        <call function="/" as="is_dop_cont_load_all_mvt" title="Суммарная мощность, МВт" group="sum">
+          <column table="this" column="is_dop_cont_load_all_kvt" />
+          <const>1000</const>
+        </call>-->
+        <fact column="is_dop_cont_load123_kvt" group="sum" mp="-3" />
+        <fact column="is_dop_cont_load_all_kvt" group="sum" mp="-3" />
+        <call function="+nvl" as="id_dop_cont_sum_all_nds" title="Стоимость АД c НДС" group="sum">
+          <column table="this" column="id_dop_cont_contr_sum_m" />
+          <column table="this" column="id_dop_cont_contr_sum_e" />
+        </call>
+        <fact column="id_dop_cont_contr_sum_m" group="sum" />
+        <fact column="id_dop_cont_contr_sum_e" group="sum" />
+        <!--<fact column="c_opl_opl_den"/>-->
+        <call function="+nvl" as="opl_sum_all_nds" title="Сумма оплаты АД c НДС" group="sum">
+          <column table="this" column="c_opl_opl_nds_den" />
+          <column table="this" column="c_imuch_opl_nds" />
+        </call>
+        <fact column="c_opl_opl_nds_den" group="sum" table="opl" />
+        <fact column="c_imuch_opl_nds" group="sum" table="opl" />
+        <call function="+nvl" as="kido_ob_sum_all_nds" title="Остаток оплаты АД c НДС" group="sum">
+          <column table="this" column="kido_ob_nds_den" />
+          <column table="this" column="kido_ob_nds_imuch" />
+        </call>
+        <fact column="kido_ob_nds_den" group="sum" />
+        <fact column="kido_ob_nds_imuch" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract">
+            <link name="kodres" />
+            <link name="fl_build" />
+            <link name="kod_spr_load" />
+          </link>
+          <dimset as="opl">
+            <link name="kido_dat_opl" />
+            <where>
+              <call function="le">
+                <column table="kido_dat_opl" column="val" />
+                <useparam name="dat" />
+              </call>
+            </where>
+          </dimset>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="ge">
+            <column table="kod_dop_contract" column="kn_zone" />
+            <const>0</const>
+          </call>-->
+          <call function="=">
+            <column table="kod_dop_contract" column="status" />
+            <const>1</const>
+          </call>
+          <call function="is null">
+            <column table="kod_dop_contract" column="kn_contract_p" />
+          </call>
+          <call function="between" optional="1">
+            <useparam name="dat" />
+            <column table="kod_dop_contract" column="dt_contract" />
+            <call function="nvl">
+              <call function="latest">
+                <column table="kod_dop_contract" column="dat_status_2" />
+                <column table="kod_dop_contract" column="dat_status_4" />
+                <column table="kod_dop_contract" column="dat_rastorg" />
+              </call>
+              <const>sysdate</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

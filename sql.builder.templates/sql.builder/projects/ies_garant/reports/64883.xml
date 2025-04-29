@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports />
+  <queries>
+    <query name="64883" is-report="1" title="Аналитический отчет по клиенту" order="parent_name,ndog,p_year,p_month" timestamp="14.04.2023 12:24:49">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <print-templates exclude="1">
+        <excel>
+          <template name="61880_20.xlsx" title="Справка о движении ДЗ и КЗ за отчетный период" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+        <usefield field="asuse_ym_tek_dep" title="Период с" name="p_ym_beg" mandatory="1" />
+        <usefield field="asuse_ym_tek_dep" title="Период по" name="p_ym_end" mandatory="1" />
+        <usefield field="field_client_dep" name="p_client" />
+        <usefield field="field_ndog_dep" name="pkod_dog" />
+      </content>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    
+    for rec in (select * from kr_org where kodp in :p_client)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_client',rec.kodp);
+    end loop;
+    
+    for rec in( select kod_Dog from kr_dogovor where kod_dog in :pkod_dog )
+    loop
+        insert into vr_number_array (array_id,val) values ('pkod_dog',rec.kod_dog);
+    end loop;
+    sqlb_rep_64883.fill_table(:p_ym_beg,:p_ym_end);
+end;   </text>
+      </procedure>
+      <select>
+        <column table="a" column="parent_name" title="Филиал" />
+        <column table="a" column="ndog" title="Номер договора" />
+        <column table="a" column="kod_potr" title="Код потребителя" />
+        <column table="a" column="org_name" title="Наименование" />
+        <column table="a" column="p_year" title="Отчетный год" type="string" />
+        <column table="a" column="p_month" title="Отчетный месяц" type="string" />
+        <column table="a" column="res" title="Ресурс" />
+        <column table="a" column="cust" title="Расход, кВт*ч, кВт" />
+        <column table="a" column="nuch" title="Сумма, руб. без НДС" />
+        <column table="a" column="max_power" title="Макс.мощность" />
+        <column table="a" column="category_fik" title="ЦК" />
+        <column table="a" column="volt_abbr" title="УН" />
+        <column table="a" column="post_rr" title="Поставщик РР" />
+        <column table="a" column="gtp_kod" title="ГТП" />
+        <column table="a" column="gtp_name_opt" title="ГТП (опт)" />
+        <column table="a" column="gtp_name_rozn" title="ГТП (розн)" />
+        <column table="a" column="opt_rozn" title="Опт / Розн" />
+        <column table="a" column="obj_name" title="Объект" />
+        <column table="a" column="vid_dog" title="Вид договора" />
+        <column table="a" column="region_name" title="Регион" />
+      </select>
+      <from>
+        <query name="sqlb_rep_64883_tbl" as="a" />
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+          <link name="dep" />
+          <link name="kodp_uch" />
+        </query>
+      </from>
+      <where exclude="1">
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="d" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <fields>
+    <field id="field_client_dep" name="p_client" controlType="UIList" val-field-name="p_client" name-field-name="name" title="Клиенты" type="number" timestamp="10.04.2023 10:50:28">
+      <listquery>
+        <query name="list_clients" />
+      </listquery>
+      <defaultquery>
+        <query name="list_clients" />
+      </defaultquery>
+    </field>
+  </fields>
+</root>

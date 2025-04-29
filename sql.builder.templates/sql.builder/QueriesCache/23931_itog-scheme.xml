@@ -1,0 +1,245 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="27.08.2023 16:20:49">
+  <scheme>
+    <table name="23931_dog" as="a" title="По договорам">
+      <columns>
+        <column name="kod_dog" type="number" c-master-key="kod_dog" into="n1" key="1" />
+        <column name="name_group_cust_parent" title="Группа потребителей" type="string" into="s1" key="0" />
+        <column name="name_group_cust" title="Подгруппа потребителей" type="string" into="s2" key="0" />
+        <column name="payer_name" title="Наименование абонента" type="string" agg="list" c-master="kodp" into="s3" key="0" />
+        <column name="ndog" title="Номер договора" type="string" agg="stragg_dist" c-master="kod_dog" into="s4" key="0" />
+        <column name="ostatok_beg" title="Дебиторская задолженность, руб." type="number" agg="sum" into="n2" key="0" class-title="Сальдо на начало периода" />
+        <column name="kredit_beg" title="Кредиторская задолженность, руб." type="number" agg="sum" into="n3" key="0" class-title="Сальдо на начало периода" />
+        <column name="nachisl" title="Начислено" type="number" agg="sum" into="n4" key="0" />
+        <column name="opl_nach" title="Оплата начислений, руб." type="number" agg="sum" into="n5" key="0" />
+        <column name="opl_avans_per" title="Переплата и аванс, руб." type="number" agg="sum" into="n6" key="0" />
+        <column name="opl_pfact_avans_per" title="Погашение факта переплатой и авансом, руб." type="number" agg="sum" into="n7" key="0" />
+        <column name="ostatok_end" title="Дебиторская задолженность, руб." type="number" agg="sum" into="n8" key="0" class-title="Сальдо на конец периода" />
+        <column name="kredit_end" title="Кредиторская задолженность, руб." type="number" agg="sum" into="n9" key="0" class-title="Сальдо на конец периода" />
+        <column name="sid" type="string" into="sid" key="0" />
+        <column name="sparentid" type="string" into="sparentid" key="0" />
+      </columns>
+      <childs>
+        <table name="23931_debet" as="b" title="Детализация по дебету">
+          <joinon>
+            <call function="=">
+              <column table="a" column="kod_dog" />
+              <column table="b" column="kod_dog" />
+            </call>
+          </joinon>
+          <columns>
+            <column name="kod_dog" type="number" c-master-key="kod_dog" into="n1" key="1" />
+            <column name="ndog" title="Номер договора" type="string" agg="stragg_dist" c-master="kod_dog" into="s1" key="0" />
+            <column name="kod_sf" type="number" c-master-key="kod_sf" into="n2" key="1" />
+            <column name="vid_sf_abbr" title="Наименование документа" type="string" c-master="kod_sf" into="s2" key="0" />
+            <column name="num_sf" title="Номер документа начисления" type="number" format="F0" c-master="kod_sf" into="n3" key="0" />
+            <column name="dat_sf" title="Дата документа начисления" type="date" c-master="kod_sf" into="d1" key="0" />
+            <column name="ym_nach" title="Отчетный период начисления" type="number" format="F2" c-master="kod_sf" into="n4" key="0" />
+            <column name="ostatok_beg" title="Дебиторская задолженность, руб." type="number" agg="sum" into="n5" key="0" class-title="Сальдо на начало периода" />
+            <column name="nachisl" title="Начислено" type="number" agg="sum" into="n6" key="0" />
+            <column name="opl_nach" title="Оплата начислений, руб." type="number" agg="sum" into="n7" key="0" />
+            <column name="opl_pfact_avans_per" title="Погашение факта переплатой и авансом, руб." type="number" agg="sum" into="n8" key="0" />
+            <column name="ostatok_end" title="Дебиторская задолженность, руб." type="number" agg="sum" into="n9" key="0" class-title="Сальдо на конец периода" />
+            <column name="sparentid" type="string" into="sparentid" key="0" />
+            <column name="sid" type="string" into="sid" key="0" />
+          </columns>
+          <childs>
+            <table name="23931_debet_opl" as="b1" title="Оплачено">
+              <joinon>
+                <call function="=">
+                  <column table="b" column="kod_sf" />
+                  <column table="b1" column="kod_sf" />
+                </call>
+              </joinon>
+              <columns>
+                <column name="kod_dog" type="number" c-master-key="kod_dog" into="n1" key="1" />
+                <column name="kod_opl" type="number" c-master-key="kod_opl" into="n2" key="1" />
+                <column name="ndog" title="Номер договора" type="string" agg="stragg_dist" c-master="kod_dog" into="s1" key="0" />
+                <column name="vid_sf_abbr" title="Наименование документа" type="string" c-master="kod_sf" into="s2" key="0" />
+                <column name="num_sf" title="Номер документа начисления" type="number" format="F0" c-master="kod_sf" into="n3" key="0" />
+                <column name="dat_sf" title="Дата документа начисления" type="date" c-master="kod_sf" into="d1" key="0" />
+                <column name="ym_nach" title="Отчетный период начисления" type="number" format="F2" c-master="kod_sf" into="n4" key="0" />
+                <column name="num_opl" title="Номер платежного документа" type="string" c-master="kod_opl_main" into="s3" key="0" />
+                <column name="dat_opl" title="Дата платежного документа" type="date" c-master="kod_opl_main" into="d2" key="0" />
+                <column name="kod_sf" type="number" c-master-key="kod_sf" into="n5" key="1" />
+                <column name="opl_nach" title="Оплата начислений, руб." type="number" agg="sum" into="n6" key="0" />
+                <column name="opl_pfact_avans_per" title="Погашение факта переплатой и авансом, руб." type="number" agg="sum" into="n7" key="0" />
+                <column name="sparentid" type="string" into="sparentid" key="0" />
+                <column name="sid" type="string" into="sid" key="0" />
+              </columns>
+              <viewcolumns>
+                <column table="b1" name="kod_dog" c-master-key="kod_dog" type="number" into="n1" assigned="1" visible="0" />
+                <column table="b1" name="kod_opl" c-master-key="kod_opl" type="number" into="n2" assigned="1" visible="0" />
+                <column table="b1" name="ndog" agg="stragg_dist" c-master="kod_dog" title="Номер договора" type="string" into="s1" assigned="1" />
+                <column table="b1" name="vid_sf_abbr" c-master="kod_sf" title="Наименование документа" type="string" into="s2" assigned="1" />
+                <column table="b1" name="num_sf" format="F0" c-master="kod_sf" title="Номер документа начисления" type="number" into="n3" assigned="1" />
+                <column table="b1" name="dat_sf" c-master="kod_sf" title="Дата документа начисления" type="date" into="d1" assigned="1" />
+                <column table="b1" name="ym_nach" format="F2" c-master="kod_sf" title="Отчетный период начисления" type="number" into="n4" assigned="1" />
+                <column table="b1" name="num_opl" c-master="kod_opl_main" title="Номер платежного документа" type="string" into="s3" assigned="1" />
+                <column table="b1" name="dat_opl" c-master="kod_opl_main" title="Дата платежного документа" type="date" into="d2" assigned="1" />
+                <column table="b1" name="kod_sf" c-master-key="kod_sf" type="number" into="n5" assigned="1" visible="0" />
+                <column table="b1" name="opl_nach" agg="sum" title="Оплата начислений, руб." type="number" into="n6" assigned="1" />
+                <column table="b1" name="opl_pfact_avans_per" agg="sum" title="Погашение факта переплатой и авансом, руб." type="number" into="n7" assigned="1" />
+                <column table="b1" name="sparentid" type="string" into="sparentid" assigned="1" visible="0" />
+                <column table="b1" name="sid" type="string" into="sid" assigned="1" visible="0" />
+              </viewcolumns>
+            </table>
+          </childs>
+          <viewcolumns>
+            <column table="b" name="kod_dog" c-master-key="kod_dog" type="number" into="n1" assigned="1" visible="0" />
+            <column table="b" name="ndog" agg="stragg_dist" c-master="kod_dog" title="Номер договора" type="string" into="s1" assigned="1" />
+            <column table="b" name="kod_sf" c-master-key="kod_sf" type="number" into="n2" assigned="1" visible="0" />
+            <column table="b" name="vid_sf_abbr" c-master="kod_sf" title="Наименование документа" type="string" into="s2" assigned="1" />
+            <column table="b" name="num_sf" format="F0" c-master="kod_sf" title="Номер документа начисления" type="number" into="n3" assigned="1" />
+            <column table="b" name="dat_sf" c-master="kod_sf" title="Дата документа начисления" type="date" into="d1" assigned="1" />
+            <column table="b" name="ym_nach" format="F2" c-master="kod_sf" title="Отчетный период начисления" type="number" into="n4" assigned="1" />
+            <band title="Сальдо на начало периода">
+              <column table="b" name="ostatok_beg" agg="sum" class-title="Сальдо на начало периода" title="Дебиторская задолженность, руб." type="number" into="n5" assigned="1" />
+            </band>
+            <column table="b" name="nachisl" agg="sum" title="Начислено" type="number" into="n6" assigned="1" />
+            <column table="b" name="opl_nach" agg="sum" title="Оплата начислений, руб." type="number" into="n7" assigned="1" />
+            <column table="b" name="opl_pfact_avans_per" agg="sum" title="Погашение факта переплатой и авансом, руб." type="number" into="n8" assigned="1" />
+            <band title="Сальдо на конец периода">
+              <column table="b" name="ostatok_end" agg="sum" class-title="Сальдо на конец периода" title="Дебиторская задолженность, руб." type="number" into="n9" assigned="1" />
+            </band>
+            <column table="b" name="sparentid" type="string" into="sparentid" assigned="1" visible="0" />
+            <column table="b" name="sid" type="string" into="sid" assigned="1" visible="0" />
+          </viewcolumns>
+        </table>
+        <table name="23931_kredit_per" as="c" title="Детализация по кредиту">
+          <joinon>
+            <call function="=">
+              <column table="a" column="kod_dog" />
+              <column table="c" column="kod_dog" />
+            </call>
+          </joinon>
+          <columns>
+            <column name="kod_dog" type="number" c-master-key="kod_dog" into="n1" key="1" />
+            <column name="kod_opl_main" type="number" c-master-key="kod_opl_main" into="n2" key="1" />
+            <column name="ndog" title="Номер договора" type="string" agg="stragg_dist" c-master="kod_dog" into="s1" key="0" />
+            <column name="num_opl" title="Номер платежного документа" type="string" c-master="kod_opl_main" into="s2" key="0" />
+            <column name="dat_opl" title="Дата платежного документа" type="date" c-master="kod_opl_main" into="d1" key="0" />
+            <column name="ym_opl" title="Период оплаты" type="number" c-master="kod_opl_main" into="n3" key="0" />
+            <column name="kredit_beg" title="Кредиторская задолженность, руб." type="number" agg="sum" into="n4" key="0" class-title="Сальдо на начало периода" />
+            <column name="opl_avans_per" title="Переплата и аванс, руб." type="number" agg="sum" into="n5" key="0" />
+            <column name="opl_pfact_avans_per" title="Погашение факта переплатой и авансом, руб." type="number" agg="sum" into="n6" key="0" />
+            <column name="kredit_end" title="Кредиторская задолженность, руб." type="number" agg="sum" into="n7" key="0" class-title="Сальдо на конец периода" />
+            <column name="sparentid" type="string" into="sparentid" key="0" />
+            <column name="sid" type="string" into="sid" key="0" />
+          </columns>
+          <childs>
+            <table name="23931_kredit_opl" as="c1" title="Сторно">
+              <joinon>
+                <call function="=">
+                  <column table="c" column="kod_opl_main" />
+                  <column table="c1" column="kod_opl_main" />
+                </call>
+              </joinon>
+              <columns>
+                <column name="kod_dog" type="number" c-master-key="kod_dog" into="n1" key="1" />
+                <column name="kod_opl" type="number" c-master-key="kod_opl" into="n2" key="1" />
+                <column name="kod_opl_main" type="number" c-master-key="kod_opl_main" into="n3" key="1" />
+                <column name="ndog" title="Номер договора" type="string" agg="stragg_dist" c-master="kod_dog" into="s1" key="0" />
+                <column name="num_opl" title="Номер платежного документа" type="string" c-master="kod_opl_main" into="s2" key="0" />
+                <column name="dat_opl" title="Дата платежного документа" type="date" c-master="kod_opl_main" into="d1" key="0" />
+                <column name="ym_opl" title="Период оплаты" type="number" c-master="kod_opl" into="n4" key="0" />
+                <column name="num_sf" title="Номер документа начисления" type="number" format="F0" c-master="kod_sf" into="n5" key="0" />
+                <column name="dat_sf" title="Дата документа начисления" type="date" c-master="kod_sf" into="d2" key="0" />
+                <column name="opl_pfact_avans_per" title="Погашение факта переплатой и авансом, руб." type="number" agg="sum" into="n6" key="0" />
+                <column name="sparentid" type="string" into="sparentid" key="0" />
+                <column name="sid" type="string" into="sid" key="0" />
+              </columns>
+              <viewcolumns>
+                <column table="c1" name="kod_dog" c-master-key="kod_dog" type="number" into="n1" assigned="1" visible="0" />
+                <column table="c1" name="kod_opl" c-master-key="kod_opl" type="number" into="n2" assigned="1" visible="0" />
+                <column table="c1" name="kod_opl_main" c-master-key="kod_opl_main" type="number" into="n3" assigned="1" visible="0" />
+                <column table="c1" name="ndog" agg="stragg_dist" c-master="kod_dog" title="Номер договора" type="string" into="s1" assigned="1" />
+                <column table="c1" name="num_opl" c-master="kod_opl_main" title="Номер платежного документа" type="string" into="s2" assigned="1" />
+                <column table="c1" name="dat_opl" c-master="kod_opl_main" title="Дата платежного документа" type="date" into="d1" assigned="1" />
+                <column table="c1" name="ym_opl" c-master="kod_opl" title="Период оплаты" type="number" into="n4" assigned="1" />
+                <column table="c1" name="num_sf" format="F0" c-master="kod_sf" title="Номер документа начисления" type="number" into="n5" assigned="1" />
+                <column table="c1" name="dat_sf" c-master="kod_sf" title="Дата документа начисления" type="date" into="d2" assigned="1" />
+                <column table="c1" name="opl_pfact_avans_per" agg="sum" title="Погашение факта переплатой и авансом, руб." type="number" into="n6" assigned="1" />
+                <column table="c1" name="sparentid" type="string" into="sparentid" assigned="1" visible="0" />
+                <column table="c1" name="sid" type="string" into="sid" assigned="1" visible="0" />
+              </viewcolumns>
+            </table>
+          </childs>
+          <viewcolumns>
+            <column table="c" name="kod_dog" c-master-key="kod_dog" type="number" into="n1" assigned="1" visible="0" />
+            <column table="c" name="kod_opl_main" c-master-key="kod_opl_main" type="number" into="n2" assigned="1" visible="0" />
+            <column table="c" name="ndog" agg="stragg_dist" c-master="kod_dog" title="Номер договора" type="string" into="s1" assigned="1" />
+            <column table="c" name="num_opl" c-master="kod_opl_main" title="Номер платежного документа" type="string" into="s2" assigned="1" />
+            <column table="c" name="dat_opl" c-master="kod_opl_main" title="Дата платежного документа" type="date" into="d1" assigned="1" />
+            <column table="c" name="ym_opl" c-master="kod_opl_main" title="Период оплаты" type="number" into="n3" assigned="1" />
+            <band title="Сальдо на начало периода">
+              <column table="c" name="kredit_beg" agg="sum" class-title="Сальдо на начало периода" title="Кредиторская задолженность, руб." type="number" into="n4" assigned="1" />
+            </band>
+            <column table="c" name="opl_avans_per" agg="sum" title="Переплата и аванс, руб." type="number" into="n5" assigned="1" />
+            <column table="c" name="opl_pfact_avans_per" agg="sum" title="Погашение факта переплатой и авансом, руб." type="number" into="n6" assigned="1" />
+            <band title="Сальдо на конец периода">
+              <column table="c" name="kredit_end" agg="sum" class-title="Сальдо на конец периода" title="Кредиторская задолженность, руб." type="number" into="n7" assigned="1" />
+            </band>
+            <column table="c" name="sparentid" type="string" into="sparentid" assigned="1" visible="0" />
+            <column table="c" name="sid" type="string" into="sid" assigned="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </childs>
+      <viewcolumns>
+        <column table="a" name="kod_dog" c-master-key="kod_dog" type="number" into="n1" assigned="1" visible="0" />
+        <column table="a" name="name_group_cust_parent" title="Группа потребителей" type="string" into="s1" assigned="1" />
+        <column table="a" name="name_group_cust" title="Подгруппа потребителей" type="string" into="s2" assigned="1" />
+        <column table="a" name="payer_name" agg="list" c-master="kodp" title="Наименование абонента" type="string" into="s3" assigned="1" />
+        <column table="a" name="ndog" agg="stragg_dist" c-master="kod_dog" title="Номер договора" type="string" into="s4" assigned="1" />
+        <band title="Сальдо на начало периода">
+          <column table="a" name="ostatok_beg" agg="sum" class-title="Сальдо на начало периода" title="Дебиторская задолженность, руб." type="number" into="n2" assigned="1" />
+          <column table="a" name="kredit_beg" agg="sum" class-title="Сальдо на начало периода" title="Кредиторская задолженность, руб." type="number" into="n3" assigned="1" />
+        </band>
+        <column table="a" name="nachisl" agg="sum" title="Начислено" type="number" into="n4" assigned="1" />
+        <column table="a" name="opl_nach" agg="sum" title="Оплата начислений, руб." type="number" into="n5" assigned="1" />
+        <column table="a" name="opl_avans_per" agg="sum" title="Переплата и аванс, руб." type="number" into="n6" assigned="1" />
+        <column table="a" name="opl_pfact_avans_per" agg="sum" title="Погашение факта переплатой и авансом, руб." type="number" into="n7" assigned="1" />
+        <band title="Сальдо на конец периода">
+          <column table="a" name="ostatok_end" agg="sum" class-title="Сальдо на конец периода" title="Дебиторская задолженность, руб." type="number" into="n8" assigned="1" />
+          <column table="a" name="kredit_end" agg="sum" class-title="Сальдо на конец периода" title="Кредиторская задолженность, руб." type="number" into="n9" assigned="1" />
+        </band>
+        <column table="a" name="sid" type="string" into="sid" assigned="1" visible="0" />
+        <column table="a" name="sparentid" type="string" into="sparentid" assigned="1" visible="0" />
+      </viewcolumns>
+    </table>
+    <table name="23931_itog" as="a0" title="Итого">
+      <columns>
+        <column name="god" title="Год" type="number" into="n1" key="0" />
+        <column name="mes" title="Месяц" type="string" into="s1" key="0" />
+        <column name="ostatok_beg" title="Дебиторская задолженность, руб." type="number" agg="sum" into="n2" key="0" class-title="Сальдо на начало периода" />
+        <column name="kredit_beg" title="Кредиторская задолженность, руб." type="number" agg="sum" into="n3" key="0" class-title="Сальдо на начало периода" />
+        <column name="nachisl" title="Начислено" type="number" agg="sum" into="n4" key="0" />
+        <column name="opl_nach" title="Оплата начислений, руб." type="number" agg="sum" into="n5" key="0" />
+        <column name="opl_avans_per" title="Переплата и аванс, руб." type="number" agg="sum" into="n6" key="0" />
+        <column name="opl_pfact_avans_per" title="Погашение факта переплатой и авансом, руб." type="number" agg="sum" into="n7" key="0" />
+        <column name="ostatok_end" title="Дебиторская задолженность, руб." type="number" agg="sum" into="n8" key="0" class-title="Сальдо на конец периода" />
+        <column name="kredit_end" title="Кредиторская задолженность, руб." type="number" agg="sum" into="n9" key="0" class-title="Сальдо на конец периода" />
+        <column name="sid" type="string" into="sid" key="0" />
+        <column name="sparentid" type="string" into="sparentid" key="0" />
+      </columns>
+      <viewcolumns>
+        <column table="a0" name="god" title="Год" type="number" into="n1" assigned="1" />
+        <column table="a0" name="mes" title="Месяц" type="string" into="s1" assigned="1" />
+        <band title="Сальдо на начало периода">
+          <column table="a0" name="ostatok_beg" agg="sum" class-title="Сальдо на начало периода" title="Дебиторская задолженность, руб." type="number" into="n2" assigned="1" />
+          <column table="a0" name="kredit_beg" agg="sum" class-title="Сальдо на начало периода" title="Кредиторская задолженность, руб." type="number" into="n3" assigned="1" />
+        </band>
+        <column table="a0" name="nachisl" agg="sum" title="Начислено" type="number" into="n4" assigned="1" />
+        <column table="a0" name="opl_nach" agg="sum" title="Оплата начислений, руб." type="number" into="n5" assigned="1" />
+        <column table="a0" name="opl_avans_per" agg="sum" title="Переплата и аванс, руб." type="number" into="n6" assigned="1" />
+        <column table="a0" name="opl_pfact_avans_per" agg="sum" title="Погашение факта переплатой и авансом, руб." type="number" into="n7" assigned="1" />
+        <band title="Сальдо на конец периода">
+          <column table="a0" name="ostatok_end" agg="sum" class-title="Сальдо на конец периода" title="Дебиторская задолженность, руб." type="number" into="n8" assigned="1" />
+          <column table="a0" name="kredit_end" agg="sum" class-title="Сальдо на конец периода" title="Кредиторская задолженность, руб." type="number" into="n9" assigned="1" />
+        </band>
+        <column table="a0" name="sid" type="string" into="sid" assigned="1" visible="0" />
+        <column table="a0" name="sparentid" type="string" into="sparentid" assigned="1" visible="0" />
+      </viewcolumns>
+    </table>
+  </scheme>
+</root>

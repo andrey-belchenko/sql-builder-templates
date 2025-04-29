@@ -1,0 +1,932 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ks_tarif_ext1" extend="ks_tarif" class="1">
+      <params>
+        <param name="date" type="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="ks_tarif_rate" column="rate1" dgroup="max" />
+        <column table="ks_tarif_rate" column="rate2" dgroup="max" />
+        <column table="tarif_parent" column="npp" as="npp_parent" title="Код группы" />
+        <!--<usepart part="tarif_bu" as="kod_tarif_bu">
+          <column table="a" column="npp"/>
+          <column table="this" column="npp_parent"/>
+        </usepart>-->
+      </select>
+      <!--<from>
+        -->
+      <!--<query name="ks_tarif_bu" as="kod_tarif_bu" join="left outer">
+          <call function="=">
+            <column table="kod_tarif_bu" column="kod_tarif_bu"/>
+            <column table="this" column="kod_tarif_bu"/>
+          </call>
+        </query>-->
+      <!--
+      </from>-->
+      <from>
+        <query name="ks_tarif_ext" as="tarif_ext" join="left outer">
+          <call function="=">
+            <column table="tarif_ext" column="tarif" />
+            <column table="a" column="tarif" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="ks_tarif_rate" as="ks_tarif_rate">
+          <where>
+            <usepart part="between-nvl">
+              <useparam name="date" />
+              <column table="ks_tarif_rate" column="dat_beg" />
+              <column table="ks_tarif_rate" column="dat_end" />
+            </usepart>
+          </where>
+        </dlink>
+      </links>
+    </query>
+    <query name="ks_tarif_bu">
+      <select>
+        <column table="a" column="kod_tarif_bu" type="number" />
+        <column table="a" column="kod_tarif_bu_gr" type="number" />
+        <column table="a" column="npp" type="string" />
+        <column table="a" column="name" type="string" />
+      </select>
+      <from>
+        <table name="ks_tarif_bu" as="a" view="1" />
+        <query name="ks_tarif_bu" as="kod_tarif_bu_gr" join="left outer">
+          <call function="=">
+            <column table="kod_tarif_bu_gr" column="kod_tarif_bu" />
+            <column table="a" column="kod_tarif_bu_gr" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_tarif_ext" stored="vr_ks_tarif_ext">
+      <select>
+        <column table="a" column="tarif" />
+        <usepart part="tarif_bu" as="kod_tarif_bu">
+          <call function="if">
+            <call function="is null">
+              <column table="a" column="tip_tarif_sost" />
+            </call>
+            <column table="a" column="npp" />
+          </call>
+          <call function="if">
+            <call function="=">
+              <column table="a" column="tip_tarif_sost" />
+              <const>2</const>
+            </call>
+            <column table="a" column="npp" />
+          </call>
+        </usepart>
+      </select>
+      <from>
+        <query name="ks_tarif" as="a" />
+        <query name="ks_tarif_bu" as="kod_tarif_bu" join="left outer">
+          <call function="=">
+            <column table="kod_tarif_bu" column="kod_tarif_bu" />
+            <column table="this" column="kod_tarif_bu" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_tarif_list" class="1" timestamp="12.09.2018 14:43:49">
+      <select>
+        <column table="a" column="tarif" />
+        <column table="a" column="npp" />
+        <column table="tip_tarif_sost" column="abbr" />
+        <column table="a" column="sname" />
+        <column table="a" column="tarif_parent" />
+      </select>
+      <from>
+        <query name="ks_tarif" as="a">
+          <link name="tip_tarif_sost" />
+        </query>
+      </from>
+    </query>
+    <query name="ks_tarif_list_ul" class="1" timestamp="23.11.2016 13:02:56">
+      <select>
+        <column table="a" column="tarif" />
+        <column table="a" column="sname" />
+        <column table="a" column="npp" />
+        <column table="tip_tarif_sost" column="abbr" />
+        <column table="a" column="tarif_parent" />
+      </select>
+      <from>
+        <query name="ks_tarif" as="a">
+          <link name="tip_tarif_sost" />
+        </query>
+      </from>
+      <where>
+        <call function="is null">
+          <column table="a" column="byt" />
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="ks_tarif_bu">
+      select 1 as kod_tarif_bu,null as kod_tarif_bu_gr,'1' as npp, 'Потребители приравненные к группе "население"' as name from  dual  union
+      select 2 ,1 , '1.1', 'в т.ч. рассчитывающиеся за электроэнергию с коэффициентом "1"'  from  dual  union
+      select 3 ,1 , '1.2','в т.ч. рассчитывающиеся за электроэнергию с коэффициентом "0,7"'  from  dual  union
+      select 4 ,1 , '1.3','в т.ч. рассчитывающиеся за электроэнергию с коэффициентом "0,9"'  from  dual  union
+      select 5 ,null ,'2','Бюджетные потребители'  from  dual  union
+      select 6 ,null,'3','Сельскохозяйственные потребители'  from  dual union
+      select 7 ,null,'4','Прочие одноставочные потребители'  from  dual union
+      select 8 ,null,'5','Без услуг по передаче'  from  dual union 
+      select 9 ,null,'6','Двухставочные потребители'  from  dual union
+      select 10 ,9,'6.1','Прочие двуставочные потребители'  from  dual union
+      select 11 ,9,'6.2','Двуставочные потребители, присоединенные к шинам станций' from dual union
+      select 0 ,null,'0','Прочие'  from  dual
+    </view>
+  </views>
+  <parts>
+    <part id="tarif_bu">
+      <params>
+        <param name="npp" />
+        <param name="sost_npp" />
+      </params>
+      <call function="case" type="number">
+        <!--в т.ч. рассчитывающиеся за электроэнергию с коэффициентом "1"-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>557</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>557</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>830</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>830</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>1330</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>1330</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>1331</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>1331</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>1342</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>1342</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>3339</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>3339</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>3349</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>3349</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>5641</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>5641</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>5677</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>5677</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>6065</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>6065</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>6071</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>6071</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>6077</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>6077</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>6083</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>6083</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>6123</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>6123</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>6124</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>6124</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>170008</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>170008</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>170014</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>170014</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>170020</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>170020</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180068</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180068</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in" name="npp">
+              <useparam name="npp" />
+              <array>180144</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180144</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180182</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180182</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180144</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180144</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180182</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180182</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180201</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180201</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180220</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180220</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7005</array>
+              <array>7030</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7005</array>
+              <array>7030</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7105</array>
+              <array>7130</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7105</array>
+              <array>7130</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7205</array>
+              <array>7230</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7205</array>
+              <array>7230</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7505</array>
+              <array>7330</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7505</array>
+              <array>7330</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7605</array>
+              <array>7615</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7605</array>
+              <array>7615</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7705</array>
+              <array>7730</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7705</array>
+              <array>7730</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7805</array>
+              <array>7830</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7805</array>
+              <array>7830</array>
+            </call>
+          </call>
+          <const>2</const>
+        </call>
+        <!--в т.ч. рассчитывающиеся за электроэнергию с коэффициентом "0,7"-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>730</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>730</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>829</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>829</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>1321</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>1321</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>4635</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>4635</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>4941</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>4941</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>180163</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>180163</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7035</array>
+              <array>7090</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7035</array>
+              <array>7090</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7135</array>
+              <array>7190</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7135</array>
+              <array>7190</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7235</array>
+              <array>7290</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7235</array>
+              <array>7290</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7335</array>
+              <array>7390</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7335</array>
+              <array>7390</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7535</array>
+              <array>7560</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7535</array>
+              <array>7560</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7635</array>
+              <array>7675</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7635</array>
+              <array>7675</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7735</array>
+              <array>7760</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7735</array>
+              <array>7760</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="between">
+              <useparam name="npp" />
+              <array>7835</array>
+              <array>7860</array>
+            </call>
+            <call function="is child between npp">
+              <useparam name="npp" />
+              <array>7835</array>
+              <array>7860</array>
+            </call>
+          </call>
+          <const>3</const>
+        </call>
+        <!--в т.ч. рассчитывающиеся за электроэнергию с коэффициентом "0,9"-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="npp" />
+              <array>7401</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="npp" />
+              <array>7401</array>
+            </call>
+          </call>
+          <const>4</const>
+        </call>
+        <!--Бюджетные потребители:-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>150000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>150000</array>
+            </call>
+          </call>
+          <const>5</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>160000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>160000</array>
+            </call>
+          </call>
+          <const>5</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>170000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>170000</array>
+            </call>
+          </call>
+          <const>5</const>
+        </call>
+        <!--Сельскохозяйственные потребители:-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>130000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>130000</array>
+            </call>
+          </call>
+          <const>6</const>
+        </call>
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>140000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>140000</array>
+            </call>
+          </call>
+          <const>6</const>
+        </call>
+        <!--Прочие одноставочные потребители:-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>110000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>110000</array>
+            </call>
+          </call>
+          <const>7</const>
+        </call>
+        <!--Без услуг по передаче:-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>180000</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>180000</array>
+            </call>
+          </call>
+          <const>8</const>
+        </call>
+        <!--Прочие двуставочные потребители:-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>120000</array>
+            </call>
+            <call function="and">
+              <call function="is child npp">
+                <useparam name="sost_npp" />
+                <array>120000</array>
+              </call>
+              <call function="is not child npp">
+                <useparam name="sost_npp" />
+                <array>120005</array>
+              </call>
+            </call>
+          </call>
+          <const>10</const>
+        </call>
+        <!--Двуставочные потребители, присоединенные к шинам станций-->
+        <call function="when">
+          <call function="or">
+            <call function="in">
+              <useparam name="sost_npp" />
+              <array>120005</array>
+            </call>
+            <call function="is child npp">
+              <useparam name="sost_npp" />
+              <array>120005</array>
+            </call>
+          </call>
+          <const>11</const>
+        </call>
+        <!--Прочие-->
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+  </parts>
+</root>

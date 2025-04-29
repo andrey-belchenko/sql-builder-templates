@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="25316" with-behavior="0" timestamp="21.11.2016 14:26:44">
+      <content>
+        <field name="date1" controlType="UIDate" title="С даты"></field>
+        <field name="date2" controlType="UIDate" title="По дату"></field>
+        <field name="dep" controlType="UIList" title="Отделения">
+          <listquery>
+            <query name="kr_dep"></query>
+          </listquery>
+        </field>
+        <field name="kod_dog" controlType="UIList" title="Абоненты и договоры" rows-limit="100">
+          <listquery>
+            <query name="kr_dogovor_el_list(dep)"></query>
+          </listquery>
+        </field>
+        <field name="vidopl" controlType="UIList" title="Виды оплат" parent-field-name="kod_parent" expand-all="1" auto-check="1">
+          <listquery>
+            <query name="ss_vidopl_list"></query>
+          </listquery>
+          <defaultquery>
+            <query name="ss_vidopl_list_cash" />
+          </defaultquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="25316-dog" title="Поступление наличных денежных средств" form="25316" folder="opl">
+      <params>
+        <param name="date1"></param>
+        <param name="date2">
+          <const>sysdate</const>
+        </param>
+        <param name="dep">
+          <const>1172</const>
+        </param>
+        <param name="kod_dog" />
+        <param name="vidopl">
+          <const>131</const>
+        </param>
+      </params>
+      <customers>
+        <customer id="10" />
+      </customers>
+      <queries>
+        <query name="25316-dog" as="a" order="dat_dog_edit">
+          <withparams>
+            <useparam name="date1" />
+            <useparam name="date2" />
+            <useparam name="dep" />
+            <useparam name="kod_dog" />
+            <useparam name="vidopl" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="25316" title="Поступление наличных денежных средств(детализация)" form="25316" folder="opl">
+      <params>
+        <param name="date1"></param>
+        <param name="date2">
+          <const>sysdate</const>
+        </param>
+        <param name="dep">
+          <const>1172</const>
+        </param>
+        <param name="kod_dog" />
+        <param name="vidopl">
+          <const>131</const>
+        </param>
+      </params>
+      <customers>
+        <customer id="10" />
+      </customers>
+      <queries>
+        <query name="25316" as="a" grouplevel="1" title="Оплаты по договору" order="dat_dog_edit">
+          <withparams>
+            <useparam name="date1" />
+            <useparam name="date2" />
+            <useparam name="dep" />
+            <useparam name="kod_dog" />
+            <useparam name="vidopl" />
+          </withparams>
+          <query name="25316" as="b" grouplevel="2" title="Оплаты поступление" main="1" order="dat_dog_edit">
+            <withparams>
+              <useparam name="date1" />
+              <useparam name="date2" />
+              <useparam name="dep" />
+              <useparam name="kod_dog" />
+              <useparam name="vidopl" />
+            </withparams>
+            <call function="and">
+              <call function="=">
+                <column table="a" column="kod_dog" />
+                <column table="b" column="kod_dog" />
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="a" column="dat_dog_edit" />
+                  <call function="nativity" />
+                </call>
+                <call function="nvl">
+                  <column table="b" column="dat_dog_edit" />
+                  <call function="nativity" />
+                </call>
+              </call>
+            </call>
+            <query name="25316" as="с" grouplevel="3" title="Оплаты расшифровка" order="dat_dog_edit">
+              <withparams>
+                <useparam name="date1" />
+                <useparam name="date2" />
+                <useparam name="dep" />
+                <useparam name="kod_dog" />
+                <useparam name="vidopl" />
+              </withparams>
+              <call function="and">
+                <call function="=">
+                  <column table="с" column="kod_opl_main" />
+                  <column table="b" column="kod_opl_main" />
+                </call>
+                <call function="=">
+                  <call function="nvl">
+                    <column table="с" column="dat_dog_edit" />
+                    <call function="nativity" />
+                  </call>
+                  <call function="nvl">
+                    <column table="b" column="dat_dog_edit" />
+                    <call function="nativity" />
+                  </call>
+                </call>
+                <!--<call function="is not null">
+                  <column table="с" column="ym_nach"/>
+                </call>-->
+              </call>
+            </query>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="25316-dog">
+      <params>
+        <param name="date1"></param>
+        <param name="date2">
+          <const>sysdate</const>
+        </param>
+        <param name="dep">
+          <const>1172</const>
+        </param>
+        <param name="kod_dog" />
+        <param name="vidopl">
+          <const>131</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="*"></column>
+      </select>
+      <from>
+        <query name="25316" as="a" grouplevel="1" materialize="0">
+          <withparams>
+            <useparam name="date1" />
+            <useparam name="date2" />
+            <useparam name="dep" />
+            <useparam name="kod_dog" />
+            <useparam name="vidopl" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="25316" grouplevel="no" materialize="1">
+      <params>
+        <param name="date1">
+          <const>sysdate-300</const>
+        </param>
+        <param name="date2"></param>
+        <param name="dep"></param>
+        <param name="kod_dog">
+          <const>4918</const>
+        </param>
+        <param name="vidopl"></param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <call function="row_number" as="npp" title="№пп" agg="no" class-title="">
+          <call function="order by simple">
+            <column table="a" column="dep_name" />
+            <column table="a" column="ndog" />
+            <column table="a" column="dat_dog_edit" />
+            <column table="a" column="dat_opl" />
+            <column table="a" column="ym_opl" />
+          </call>
+        </call>
+        <column table="a" column="dep_name" group="kod_dog" />
+        <column table="a" column="kod_opl_main" group="2" />
+        <column table="a" column="kod_opl" group="3" />
+        <!--<column table="a" column="dep_name"/>-->
+        <column table="a" column="ndog" group="kod_dog" />
+        <column table="a" column="dat_dog_edit" group="1" />
+        <!--<column table="a" column="payer_nump" group="max" />-->
+        <column table="a" column="payer_name" group="kod_dog" />
+        <column table="a" column="dat_opl" group="kod_opl_main" />
+        <column table="a" column="num_opl" group="kod_opl_main" />
+        <column table="a" column="vidopl_full_name" group="kod_opl_main" />
+        <column table="a" column="typeopl_name" group="kod_opl" />
+        <column table="a" column="vid_real_name" group="kod_opl" />
+        <column table="a" column="num_sf" group="kod_opl" />
+        <column table="a" column="dat_sf" group="kod_opl" />
+        <!--<call function="if" as="num_doc_opl" type="string" group="kod_opl">
+          <call function="is null">
+            <column table="a" column="dat_pl" />
+          </call>
+          <call function="||">
+            <const>'СФ №'</const>
+            <call function="to_char0">
+              <column table="a" column="num_sf" />
+            </call>
+          </call>
+          <call function="to_char0">
+            <column table="a" column="num_pl" />
+          </call>
+        </call>
+        <call function="if" as="dat_doc_opl" type="date" group="kod_opl">
+          <call function="is null">
+            <column table="a" column="dat_pl" />
+          </call>
+          <column table="a" column="dat_sf" />
+          <column table="a" column="dat_pl" />
+        </call>-->
+        <column table="a" column="ym_nach" group="kod_opl" />
+        <column table="a" column="nachisl_sf" group="kod_opl" />
+        <column table="a" column="bankpol_name" group="kod_opl_main" />
+        <column table="a" column="remark" group="kod_opl" />
+        <column table="a" column="oplf" group="sum" nvl="0" />
+        <column table="a" column="opl_2" group="sum" nvl="0" master="kod_opl_main" />
+        <column table="a" column="opl_avans_per" group="sum" nvl="0" master="kod_opl_main" />
+        <column table="a" column="opl_storno_avans_per" group="sum" nvl="0" master="kod_opl_main" />
+        <column table="a" column="opl_other" group="sum" nvl="0" master="kod_opl_main" />
+        <!--<column table="a" column="kredit_end" group="sum" nvl="0" master="kod_opl_main" />-->
+        <!--<column table="a" column="kredit_per_end"  group="sum" />
+        <column table="a" column="kredit_avans_end"  group="sum" />
+        <column table="a" column="kredit_per_beg" group="sum"  />
+        <column table="a" column="opl_kred_per_avans"  group="sum" />-->
+        <!--<column table="a" column="kod_opl" as ="kod_opl2" group="min"/>
+        <column table="a" column="kod_opl" as ="kod_opl3" group="2"/>-->
+      </select>
+      <from>
+        <query name="fingen_united" as="a">
+          <withparams>
+            <useparam name="date1" />
+            <!--<call function="nativity"></call>-->
+            <useparam name="date2" />
+            <useparam name="kod_dog" />
+            <!--<const>4101</const>-->
+            <undefined />
+            <undefined />
+            <undefined />
+            <undefined />
+            <!--<array>0,2,3,4</array>-->
+            <useparam name="vidopl" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="not 0">
+            <column table="a" column="oplf_sum_on_kod_opl_main" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

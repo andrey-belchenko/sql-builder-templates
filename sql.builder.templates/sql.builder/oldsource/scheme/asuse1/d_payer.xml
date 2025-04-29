@@ -1,0 +1,147 @@
+<root>
+  <queries>
+    <query name="d_payer">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp" type="string" title="Код абонента">
+        </column>
+        <column table="a" column="kodp" as="nump" type="string" title="Код абонента">
+        </column>
+        <column table="a" column="kod_ist" type="number">
+        </column>
+        <column table="a" column="kod_otrasl" type="number">
+        </column>
+        <column table="a" column="prim" type="string">
+        </column>
+        <column table="a" column="voda_par" type="number">
+        </column>
+        <column table="a" column="dat_udal" type="date" title="Дата удаления абонента">
+        </column>
+        <column table="vp" column="name" as="voda_par_name">
+        </column>
+        <column table="a" column="name" type="string" title="Наименование абонента">
+        </column>
+        <column table="a" column="inn" type="string" title="ИНН">
+        </column>
+        <column table="ifn" column="name" as="ist_fin_name" title="Источник финансирования">
+        </column>
+        <column table="otr" column="full_name" as="otrasl_fname">
+        </column>
+        <column table="otr" column="fl_full_name" as="otrasl_fl_fname">
+        </column>
+        <column table="reg" column="name" as="ar_name">
+        </column>
+        <column table="reg_tc" column="name" as="rtc_name">
+        </column>
+        <column table="st" column="name" as="station_name">
+        </column>
+      </select>
+      <from>
+        <table name="d_payer" as="a">
+        </table>
+        <query name="d_istfin" as="ifn" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ist">
+            </column>
+            <column table="ifn" column="kod">
+            </column>
+          </call>
+        </query>
+        <query name="k_otrasl" as="otr" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_otrasl">
+            </column>
+            <column table="otr" column="kod_otrasl">
+            </column>
+          </call>
+        </query>
+        <query name="d_region" as="reg" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_reg">
+            </column>
+            <column table="reg" column="kod">
+            </column>
+          </call>
+        </query>
+        <query name="k_raion_ts" as="reg_tc" join="left outer">
+          <call function="=">
+            <column table="a" column="reg_tc">
+            </column>
+            <column table="reg_tc" column="kod">
+            </column>
+          </call>
+        </query>
+        <query name="d_station" as="st" join="left outer">
+          <call function="=">
+            <column table="a" column="kods">
+            </column>
+            <column table="st" column="kod">
+            </column>
+          </call>
+        </query>
+        <query name="voda_par" as="vp" join="left outer">
+          <call function="=">
+            <column table="a" column="voda_par">
+            </column>
+            <column table="vp" column="id">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <const>1</const>
+            <const>1</const>
+          </call>
+          <usepart part="ext-cond">
+            <const>a</const>
+            <useparam name="kodp_cond">
+            </useparam>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="d_payer%tbl">
+      <select>
+        <column table="a" column="kodp">
+        </column>
+        <column table="a" column="nump">
+        </column>
+        <column table="a" column="inn">
+        </column>
+        <column table="a" column="name">
+        </column>
+        <column table="a" column="dat_udal">
+        </column>
+      </select>
+      <from>
+        <query name="d_payer" as="a">
+        </query>
+      </from>
+    </query>
+    <query name="voda_par">
+      <select>
+        <column table="a" column="id" type="number">
+        </column>
+        <column table="a" column="name" type="string" title="Вода/Пар">
+        </column>
+      </select>
+      <from>
+        <table name="v_voda_par" as="a" view="1">
+        </table>
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="v_voda_par">
+      select 0 id,'Вода' name from dual union
+      select 1 id,'Пар' name from dual
+    </view>
+  </views>
+</root>

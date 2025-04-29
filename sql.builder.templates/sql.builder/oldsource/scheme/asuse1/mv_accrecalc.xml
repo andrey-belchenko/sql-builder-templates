@@ -1,0 +1,138 @@
+<root>
+  <queries>
+    <query name="mva_accrecalc">
+      <select>
+        <column column="rownum" as="id" type="number">
+        </column>
+        <column table="a" column="point" type="number" />
+        <column table="a" column="codeabon" type="number" />
+        <column table="a" column="za_mes" type="number" />
+        <column table="a" column="za_god" type="number" />
+        <column table="a" column="calcdate" type="date" />
+        <call function="+" as="rym" type="number">
+          <column table="a" column="za_god" />
+          <call function="/">
+            <column table="a" column="za_mes" />
+            <const>100</const>
+          </call>
+        </call>
+        <column table="a" column="accountsum" type="number" />
+        <column table="a" column="tarif" type="number" />
+        <column table="a" column="tarifsum" type="number" />
+        <column table="a" column="accountmoney" type="number" />
+        <column table="obj" column="kodp" />
+        <column table="obj" column="codeabon2" />
+        <column table="obj" column="abonname" />
+        <column table="obj" column="abonadr" />
+        <column table="pr" column="nomer" as="point_nomer" />
+        <column table="pr" column="point_mesto" />
+        <column table="pr" column="nom_pu" />
+        <column table="pr" column="ct_name" />
+      </select>
+      <from>
+        <table name="mva_accrecalc" as="a">
+        </table>
+        <query name="n_dogovor" as="obj" join="left outer">
+          <call function="=">
+            <column table="a" column="codeabon">
+            </column>
+            <column table="obj" column="codeabon">
+            </column>
+          </call>
+        </query>
+        <query name="nv_priem" as="pr" join="left outer">
+          <call function="=">
+            <column table="a" column="point">
+            </column>
+            <column table="pr" column="point">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="m_recalc">
+      <select>
+        <column table="a" column="kod_recalc" type="number">
+        </column>
+        <column table="a" column="kod_bu_akt" type="number">
+        </column>
+        <column table="a" column="kod_sf" type="number">
+        </column>
+      </select>
+      <from>
+        <table name="m_recalc" as="a">
+        </table>
+      </from>
+    </query>
+    <query name="mv_recalc">
+      <select>
+        <column table="a" column="kod_recalc" type="number">
+        </column>
+        <column table="a" column="kod_bu_akt" type="number">
+        </column>
+        <column table="a" column="kod_sf" type="number">
+        </column>
+      </select>
+      <from>
+        <table name="mv_recalc" as="a">
+        </table>
+      </from>
+    </query>
+    <query name="bu_akt_facvip1">
+      <select>
+        <column table="a" column="kod_bu_akt" group="1" type="number">
+        </column>
+        <column table="a" column="kod_sf" group="1" type="number">
+        </column>
+      </select>
+      <from>
+        <table name="mv_recalc" as="a">
+        </table>
+      </from>
+    </query>
+    <query name="bu_akt_facvip">
+      <params>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_bu_akt">
+        </column>
+        <column table="a" column="kod_sf">
+        </column>
+        <column table="akt" column="num">
+        </column>
+        <column table="akt" column="dat">
+        </column>
+      </select>
+      <from>
+        <query name="bu_akt_facvip1" as="a">
+        </query>
+        <query name="hr_bu_akr" as="akt" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bu_akt">
+            </column>
+            <column table="akt" column="kod_bu_akt">
+            </column>
+          </call>
+        </query>
+        <query name="m_facvip" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf"/>
+            <column table="m_facvip" column="kod_sf">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <usepart part="ext-cond">
+            <const>m_facvip</const>
+            <useparam name="kodp_cond">
+            </useparam>
+          </usepart>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

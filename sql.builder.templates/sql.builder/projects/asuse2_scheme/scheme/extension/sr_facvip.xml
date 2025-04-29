@@ -1,0 +1,789 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="sr_facvip_ext" class="1" extend="sr_facvip" timestamp="29.06.2023 23:45:26">
+      <select>
+        <call function="||" as="name" title="Документ начисления">
+          <column table="vid_sf" column="abbr" />
+          <const>' № '</const>
+          <column table="a" column="num_sf" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_sf" />
+          </call>
+        </call>
+        <!--<column table="kod_deb" column="dat_bzad" />-->
+        <call function="coalesce" as="dat_bzad" type="date" title="Дата возникновения обязательства по погашению задолженности" dimension="dat_dolg">
+          <column table="kod_deb" column="dat_bzad" />
+          <column table="this" column="dat_zadol" />
+          <column table="this" column="dat_sf" />
+        </call>
+        <call function="if" as="dat_bzad_ksf" type="date" title="Дата возникновения обязательства по погашению задолженности">
+          <call function="is null">
+            <column table="this" column="kod_sf_old" />
+          </call>
+          <column table="this" column="dat_bzad" />
+          <column table="this" column="dat_sf" />
+        </call>
+        <call function="earliest" as="dat_res_half" dimension="dat_res_half" exclude="1">
+          <call function="latest">
+            <call function="date add days" type="date">
+              <column table="kod_sf_main" column="dat_bzad" />
+              <const>45</const>
+            </call>
+            <column table="this" column="dat_sf" />
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="kodp" column="datepublic" />
+            </call>
+            <call function="latest">
+              <column table="kodp" column="datepublic" />
+              <column table="this" column="dat_sf" />
+            </call>
+          </call>
+        </call>
+        <call function="earliest" as="dat_res_full" dimension="dat_res_full" exclude="1">
+          <call function="latest">
+            <call function="date add days" type="date">
+              <column table="kod_sf_main" column="dat_bzad" />
+              <const>90</const>
+            </call>
+            <column table="this" column="dat_sf" />
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="kodp" column="datepublic" />
+            </call>
+            <call function="latest">
+              <column table="kodp" column="datepublic" />
+              <column table="this" column="dat_sf" />
+            </call>
+          </call>
+        </call>
+        <call function="latest" as="dat_res_nal_45">
+          <call function="date add days" type="date">
+            <column table="kod_sf_main" column="dat_bzad" />
+            <const>45</const>
+          </call>
+          <column table="a" column="dat_sf" />
+        </call>
+        <call function="latest" as="dat_res_nal_90">
+          <call function="date add days" type="date">
+            <column table="kod_sf_main" column="dat_bzad" />
+            <const>90</const>
+          </call>
+          <column table="a" column="dat_sf" />
+        </call>
+        <call function="earliest" as="dat_res_buh" exclude="1">
+          <call function="latest">
+            <column table="kod_sf_main" column="dat_bzad" />
+            <column table="this" column="dat_sf" />
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="kodp" column="datepublic" />
+            </call>
+            <call function="latest">
+              <column table="kodp" column="datepublic" />
+              <column table="this" column="dat_sf" />
+            </call>
+          </call>
+        </call>
+        <call function="earliest" as="dat_res_buh">
+          <call function="latest">
+            <column table="kod_sf_main" column="dat_bzad" />
+            <column table="this" column="dat_sf" />
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <call function="egr_payer_sulst">
+                <column table="kodp" column="kodp" />
+              </call>
+            </call>
+            <call function="latest">
+              <call function="egr_payer_sulst_dat">
+                <column table="kodp" column="kodp" />
+              </call>
+              <column table="this" column="dat_sf" />
+            </call>
+          </call>
+        </call>
+        <column table="this" column="dat_bzad" as="dat_bzad_max" fact="sr_facvip_dat_bzad_max" agg="max" />
+        <call function="case" as="dat_bzad_uved_kaz_el" type="date" dimension="dat_dolg_uved_kaz_el">
+          <call function="when">
+            <call function="=">
+              <column table="kod_sf_dop" column="perc" />
+              <const>30</const>
+            </call>
+            <call function="latest">
+              <call function="to_date">
+                <call function="||">
+                  <const>'10.'</const>
+                  <call function="ym to char">
+                    <column table="kod_sf_dop" column="rym" />
+                  </call>
+                </call>
+                <const>'DD.YYYY.MM'</const>
+              </call>
+              <column table="kod_deb" column="dat_deb" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="kod_sf_dop" column="perc" />
+              <const>40</const>
+            </call>
+            <call function="latest">
+              <call function="to_date">
+                <call function="||">
+                  <const>'25.'</const>
+                  <call function="ym to char">
+                    <column table="kod_sf_dop" column="rym" />
+                  </call>
+                </call>
+                <const>'DD.YYYY.MM'</const>
+              </call>
+              <column table="kod_deb" column="dat_deb" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>0</const>
+            </call>
+            <call function="earliest">
+              <call function="latest">
+                <call function="nvl">
+                  <call function="latest">
+                    <column table="kod_deb" column="dat_deb" />
+                    <column table="kod_deb" column="dat_bzad" />
+                  </call>
+                  <call function="ym end day">
+                    <column table="kod_sf_dop" column="rym" />
+                  </call>
+                </call>
+                <call function="ym begin time">
+                  <column table="kod_sf_dop" column="rym" />
+                </call>
+              </call>
+              <call function="ym end day">
+                <column table="kod_sf_dop" column="rym" />
+              </call>
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>2</const>
+            </call>
+            <call function="to_date" exclude="1">
+              <call function="||">
+                <const>'18.'</const>
+                <call function="ym to char">
+                  <call function="ym add month">
+                    <call function="nvl">
+                      <column table="this" column="rym" />
+                      <column table="this" column="ym" />
+                    </call>
+                    <const>1</const>
+                  </call>
+                </call>
+              </call>
+              <const>'DD.YYYY.MM'</const>
+            </call>
+            <call function="latest">
+              <column table="kod_deb" column="dat_bzad" />
+              <column table="kod_deb" column="dat_deb" />
+            </call>
+          </call>
+          <call function="else">
+            <call function="nvl">
+              <column table="kod_deb" column="dat_bzad" />
+              <call function="ym end day">
+                <call function="ym add month">
+                  <column table="a" column="ym" />
+                  <const>1</const>
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+        <call as="is_big_avans" function="if" type="number" title="Признак аванс больше чем 30, 40" comment="см. заявку 25547 ">
+          <call function="and">
+            <call function="=0">
+              <column table="this" column="vid_real" />
+            </call>
+            <call function="not in">
+              <column table="kod_sf_dop" column="perc" />
+              <array>30,40</array>
+            </call>
+            <call function="=1">
+              <column table="kod_sf_dop" column="day" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call as="dat_ezad_kaz" function="case" type="date" title="Дата возникновения задолженности с учетом авансов 30,40% " comment="старый вариант, название неправильное, кое где используется, заменить на dat_bzad_uved_kaz_el?">
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="this" column="perc" />
+                <const>30</const>
+              </call>
+              <call function="=">
+                <column table="this" column="vid_real" />
+                <const>0</const>
+              </call>
+            </call>
+            <call function="to_date">
+              <call function="||">
+                <call function="to_char">
+                  <const>25</const>
+                </call>
+                <const>'.'</const>
+                <call function="to_char">
+                  <call function="mes">
+                    <column table="this" column="rym" />
+                  </call>
+                </call>
+                <const>'.'</const>
+                <call function="to_char">
+                  <call function="year">
+                    <call function="ym begin time">
+                      <column table="this" column="rym" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+              <const>'dd.mm.yyyy'</const>
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=" exclude="1">
+                <column table="this" column="perc" />
+                <const>40</const>
+              </call>
+              <call function="=">
+                <column table="this" column="vid_real" />
+                <const>0</const>
+              </call>
+            </call>
+            <call function="ym end time">
+              <column table="this" column="rym" />
+            </call>
+          </call>
+          <call function="else">
+            <call function="ym end time">
+              <call function="ym add month">
+                <column table="this" column="ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="sr_facras" column="nachisl" dgroup="sum" />
+        <column table="kod_sf_dop" column="rym" dgroup="min" dimension="ym_vozn2" />
+        <column table="kod_sf_dop" column="vid_t" dgroup="min" />
+        <call function="if" type="number" as="ym_vozn" dimension="ym_vozn">
+          <call function="=">
+            <column table="this" column="vid_real" />
+            <const>0</const>
+          </call>
+          <column table="this" column="rym" />
+          <call function="nvl">
+            <column table="kod_sf_old_neg" column="ym" />
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="add_months" type="date" as="dat_vozn_otch" comment="Еще одна вариация при исправлении по 67698(1) ">
+          <call function="ym end time">
+            <call function="nvl">
+              <column table="kod_sf_old_neg" column="ym" />
+              <column table="this" column="ym" />
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="if" as="nachisl_p">
+          <call function="ge">
+            <column table="this" column="nachisl" />
+            <const>0</const>
+          </call>
+          <column table="this" column="nachisl" />
+        </call>
+        <call function="if" as="nachisl_m">
+          <call function="lt">
+            <column table="this" column="nachisl" />
+            <const>0</const>
+          </call>
+          <column table="this" column="nachisl" />
+        </call>
+        <column table="this" column="ym" fact="sr_facvip_ym_min" as="ym_min" agg="min" title="Период начисления с" />
+        <column table="this" column="ym" fact="sr_facvip_ym_max" as="ym_max" agg="max" title="Период начисления по" />
+        <call as="dat_dolg_norm" function="if" type="date" dimension="dat_dolg_norm">
+          <call function="=">
+            <column table="this" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="ym end time">
+            <column table="this" column="rym" />
+          </call>
+          <call type="" function="if">
+            <call function="=">
+              <column table="this" column="dat_zadol" />
+              <call function="to_date">
+                <call function="||">
+                  <const>'31.12.'</const>
+                  <call function="year">
+                    <column table="this" column="dat_sf" />
+                  </call>
+                </call>
+                <const>'DD.MM.YYYY'</const>
+              </call>
+            </call>
+            <call function="ym end time">
+              <call function="date to ym">
+                <column table="this" column="dat_zadol" />
+              </call>
+            </call>
+            <call function="if" as="" type="">
+              <call function="and">
+                <call function="=">
+                  <column table="this" column="ym_vozn" />
+                  <column table="this" column="ym" />
+                </call>
+                <call function="or">
+                  <call function="gt">
+                    <column table="kod_sf_dop" column="nachisl" />
+                    <const>0</const>
+                  </call>
+                  <call function="is not null">
+                    <column table="this" column="kod_sf_first" />
+                  </call>
+                </call>
+                <call function="gt" exclude="1">
+                  <column table="kod_sf_dop" column="nachisl" />
+                  <const>0</const>
+                </call>
+              </call>
+              <call function="ym end time">
+                <call function="ym add month">
+                  <column table="this" column="ym" />
+                  <const>1</const>
+                </call>
+              </call>
+              <call function="ym end time">
+                <column table="this" column="ym" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="this" column="dat_dolg_norm" dimension="dat_vozn_norm" as="dat_vozn_norm" />
+        <call as="dat_ezad_norm" function="if" type="date">
+          <call function="=">
+            <column table="this" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="ym end time">
+            <call function="ym add month">
+              <column table="this" column="rym" />
+              <const>1</const>
+            </call>
+          </call>
+        </call>
+        <call as="dat_ezad_uved_kaz_el" function="if" type="date">
+          <call function="=">
+            <column table="this" column="vid_real" />
+            <const>0</const>
+          </call>
+          <call function="date add days">
+            <call function="ym end day">
+              <column table="this" column="rym" />
+            </call>
+            <const>18</const>
+          </call>
+        </call>
+        <call function="nvl" fact="sr_facvip_perc_sum" agg="sum" as="perc">
+          <column table="kod_sf_dop" column="perc" />
+          <column table="a" column="proc" />
+        </call>
+        <column table="kod_sf_dop" column="perc" dgroup="min" is-fact="1" fact="sr_facvip_perc_sum" agg="sum" exclude="1" />
+        <column table="kr_vist_day" column="perc" dgroup="min" as="perc1" comment="только для проверки расчета в sg_tel" />
+        <column table="kod_sf_old" column="ym" as="sf_old_ym" />
+        <call as="vid_real_no_av" function="if" type="date" dimension="vid_real_no_av">
+          <call function="=">
+            <column table="this" column="vid_real" />
+            <const>0</const>
+          </call>
+          <const>null</const>
+          <column table="this" column="vid_real" />
+        </call>
+        <call function="nvl" as="kod_sf_main" comment="очередной вариант с перерасчетами код предыдущего сф если перерасчет на минус иначе свой" type="number">
+          <column table="kod_sf_old_neg" column="kod_sf" />
+          <column table="this" column="kod_sf" />
+        </call>
+        <column table="kod_sf_norm_av" column="kod_ur_state" dimension="kod_ur_state" />
+        <column table="kod_sf_dop" column="period" />
+        <column table="kod_sf_dop" column="name" as="ras_name" />
+        <call function="nvl" as="kod_sf_fm" comment="очередной вариант с перерасчетами код предыдущего сф если перерасчет на минус иначе свой" type="number">
+          <column table="this" column="kod_sf_first" />
+          <column table="this" column="kod_sf" />
+        </call>
+        <call as="kod_peni_sf" function="if" is-fact="1" fact="kod_peni_sf" agg="max" type="number">
+          <call function="=">
+            <column table="this" column="vid_real" />
+            <const>7</const>
+          </call>
+          <column table="a" column="kod_sf" />
+        </call>
+        <call as="dat_sf_recalc" function="if" type="date" is-private-dimension="dat_recalc" is-final-dimension="dat_recalc" dimension="dat_recalc">
+          <call function="in">
+            <column table="this" column="kniga" />
+            <array>0,1,2,4</array>
+          </call>
+          <query>
+            <select>
+              <column group="max" table="sqsr" column="dat_recalc" />
+            </select>
+            <from>
+              <query name="sr_recalc_sf" as="sqsrs">
+                <link name="kod_recalc" as="sqsr" />
+              </query>
+            </from>
+            <where>
+              <call function="=">
+                <column table="sqsrs" column="kod_sf" />
+                <column table="a" column="kod_sf" />
+              </call>
+            </where>
+          </query>
+          <column table="this" column="dat_sf" />
+        </call>
+        <column table="kod_sf_text" column="data_gpz" />
+      </select>
+      <links>
+        <dlink name="vr_pret_dolg_sf" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="vr_pret_dolg_dog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_pret" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_ur_pret" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+        <dlink name="sr_facras" pushpred="1">
+          <dlink name="sr_facras_text" pushpred="1" exclude="1">
+            <link name="kod_av" />
+          </dlink>
+        </dlink>
+        <dlink name="vv_all_deb_sf">
+          <dlink name="ur_dogplat" dimension="1" />
+        </dlink>
+        <link name="kod_deb" as="kod_deb1" exclude="1">
+          <dlink name="ur_dogplat" as="ur_dogplat1" dimension="kod_dogplat" />
+        </link>
+        <dlink name="ur_dogplat" dimension="kod_dogplat" exclude="1" />
+        <link name="kod_sf_dop" />
+        <link name="kod_sf_first" exclude="1" />
+        <link name="kod_dog" as="kod_dog1" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="kod_folders_kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_graf_for_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <link name="kodp" />
+          <dimlink name="ks_ministry" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_cls" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_fs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_vdog" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_istfin" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_active" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink title="Банк плательщика" is-private-dimension="1" is-final-dimension="1" dimension="1" name="kodb" />
+          <dimlink name="kodbpol" title="Банк получателя" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_otrasl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_okved" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dep" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kr_podr" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_dogpodr" title="Подразделение" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+        <dimlink name="kod_dogplat">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_other" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_graf" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_sogl" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_pretenz" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_other" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_stage_bk" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+          <dimlink name="kod_graf_opl" dimension="1" is-final-dimension="1" is-private-dimension="1" exclude="1" />
+        </dimlink>
+        <dlink name="qube_sf_graf" dimension="1" is-final-dimension="1" />
+        <dlink name="sr_recalc_sf" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="sr_recalc" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="vid_recalc" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+      </links>
+      <from>
+        <query name="sr_facvip_dop" as="kod_sf_dop" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_dop" column="kod_sf" />
+          </call>
+        </query>
+        <query name="vv_sr_facvip_ret_inf" as="kod_sf_ret_inf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_ret_inf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="vv_sr_facvip_rec_info_m" as="kod_sf_rec_info" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_rec_info" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf_old_neg" join="left outer">
+          <call function="=">
+            <column table="kod_sf_rec_info" column="kod_sf_old_neg" />
+            <column table="kod_sf_old_neg" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sr_facvip_main" as="kod_sf_main" join="left outer" dimension="1">
+          <call function="=">
+            <column table="this" column="kod_sf_main" />
+            <column table="kod_sf_main" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sr_facvip_norm_av" as="kod_sf_norm_av" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf_norm_av" column="kod_sf" />
+          </call>
+        </query>
+        <query name="kr_vist_day" as="kr_vist_day" join="left outer" comment="только для проверки расчета в sg_tel">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_dog" />
+              <column table="kr_vist_day" column="kod_dog" />
+            </call>
+            <call function="=">
+              <column table="a" column="vist_day" />
+              <column table="kr_vist_day" column="day" />
+            </call>
+            <call function="=">
+              <column table="a" column="vid_avans" />
+              <column table="kr_vist_day" column="vid_avans" />
+            </call>
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf_fm" join="left outer" dname="sr_facvip_fm">
+          <call function="=">
+            <column table="this" column="kod_sf_fm" />
+            <column table="kod_sf_fm" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="not in">
+          <column table="a" column="vid_sf" />
+          <array>2,9</array>
+        </call>
+      </where>
+      <actions>
+        <action action-type="dynamic-form" call="create_sf_deb" name="create_sf_deb" />
+        <uicommand action-type="dynamic-form" call="sr_opl_view" name="opl_view">
+          <useparam name="p_kod_sf" />
+          <useparam name="p_dat_form" />
+        </uicommand>
+      </actions>
+    </query>
+    <query name="sr_facvip_astr" inherit="sr_facvip" class="1" timestamp="19.03.2021 17:09:13">
+      <select>
+        <column table="this" column="dat_sf" as="dat_ur" dimension="dat_ur" />
+        <column table="this" column="dat_sf" as="dat_ur_ent" dimension="dat_ur_ent" />
+        <column table="this" column="kod_sf" as="kod_sf_astr" key-dimension="kod_sf_astr" />
+        <column table="this" column="vid_real" dimension="vid_real" />
+        <column table="this" column="kod_dog" dimension="kod_dog" exclude="1" />
+      </select>
+      <links>
+        <dlink name="sr_penni_astr" dimension="kod_pen_astr">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" />
+          <dimlink name="kod_isp_other" dimension="1" is-final-dimension="1" />
+          <link name="kod_delo" dimension="1" exclude="1">
+            <dlink name="ur_hist_mat" dimension="1">
+              <dlink name="ur_isp" dimension="1">
+                <dlink name="ur_folders_isp" dimension="1">
+                  <dlink name="ur_mat_isp" dimension="1" />
+                  <dlink name="ur_kazn_isp" dimension="1" />
+                  <dlink name="ur_inkasso_isp" dimension="1" />
+                </dlink>
+              </dlink>
+            </dlink>
+          </link>
+        </dlink>
+        <link name="kod_dog" as="kod_dog1" dimension="1">
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="sr_facvip_dop" timestamp="27.12.2018 19:41:14" class="1" stored="vv_sr_facvip_dop" intrval="FREQ=DAILY; INTERVAL=1">
+      <select>
+        <column table="sr_facras" column="kod_sf" group="1" index="1" />
+        <column table="kod_av" column="perc" group="max" />
+        <column table="kod_av" column="day" group="min" />
+        <column table="kod_av" column="period" group="min" />
+        <column table="sr_facras" column="rym" group="min" />
+        <column table="kod_ras_text" column="name" group="min" />
+        <column table="sr_facras" column="vid_t" group="min" />
+        <column table="sr_facras" column="nachisl" group="sum" />
+      </select>
+      <from>
+        <query name="sr_facras">
+          <link name="kod_ras_text">
+            <link name="kod_av" />
+          </link>
+        </query>
+      </from>
+    </query>
+    <query name="sr_facvip_main" class="1" timestamp="21.12.2016 22:01:01" inherit="sr_facvip">
+      <select />
+      <from />
+    </query>
+    <query name="sr_fv_ur_state" timestamp="08.06.2017 12:07:48" stored="vv_sr_fv_ur_state" class="1" intrval="FREQ=DAILY; INTERVAL=1">
+      <select>
+        <column table="kod_sf" column="kod_sf" group="1" index="1" />
+        <column table="dat_ur" column="val" group="1" index="1" dimension="dat_ur" as="dat_ur" is-final-dimension="1" is-private-dimension="1" />
+        <column table="dat_ur" column="val" group="1" index="1" dimension="dat" as="dat" is-final-dimension="1" is-private-dimension="1" />
+        <fact column="kod_ur_state" group="1" index="1" is-fact="1" agg="max" fact="sr_fv_ur_st_kod_ur_st_max" fact-dimension="kod_ur_state_dt" />
+        <column table="kod_sf" column="dat_dolg_norm" dimension="dat_vozn_norm" as="dat_vozn_norm" group="1" exclude="1" />
+      </select>
+      <from>
+        <qube star-scheme="1" merge-dimsets="1">
+          <link name="kod_sf">
+            <link name="kod_dog">
+              <link name="dep" />
+              <link name="kodp" />
+            </link>
+          </link>
+          <link name="dat_ur" />
+          <where>
+            <call function="is not null">
+              <column table="kod_sf" column="kod_sf" />
+            </call>
+          </where>
+        </qube>
+        <query name="sr_facvip" as="kod_sf" join="left outer" dimension="kod_sf" is-private-dimension="1" is-final-dimension="1">
+          <call function="=">
+            <column table="this" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="ur_state_dt" as="kod_ur_state" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="this" column="kod_sf" />
+            <column table="kod_ur_state" column="kod_ur_state" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dimlink name="kod_sf">
+          <dimlink name="dat_dolg_norm" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="ym_vozn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dimlink>
+      </links>
+      <where>
+        <call function="is not null">
+          <column table="this" column="kod_ur_state" group="no" />
+        </call>
+      </where>
+      <!--<where>
+        <call function="and">
+          <call function="=">
+            <column column="kod_folders" table="ur_mat" />
+            <useparam name="fk_kod_folders" />
+          </call>
+        </call>
+      </where>-->
+    </query>
+  </queries>
+  <parts>
+    <part id="days_dolg">
+      <params>
+        <param name="date" />
+        <param name="date_bzad" />
+        <param name="dolg" />
+      </params>
+      <call function="if" as="days_dolg" type="number">
+        <call function="and">
+          <call function="le">
+            <useparam name="date_bzad" />
+            <useparam name="date" />
+          </call>
+          <call function="!=nvl">
+            <useparam name="dolg" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="-">
+          <useparam name="date" />
+          <column table="this" column="dat_bzad" />
+        </call>
+      </call>
+    </part>
+    <part id="days_dolg_diap" class="1" timestamp="08.02.2016 11:47:21">
+      <params>
+        <param name="val" />
+      </params>
+      <call function="case" as="days_dolg_diap" type="string" title="Критерий задолженности">
+        <call function="when">
+          <call function="lt">
+            <useparam name="val" />
+            <const>45</const>
+          </call>
+          <const>'менее 45 дней'</const>
+        </call>
+        <call function="when">
+          <call function="between">
+            <useparam name="val" />
+            <const>45</const>
+            <const>90</const>
+          </call>
+          <const>'от 45 до 90 дней'</const>
+        </call>
+        <call function="when">
+          <call function="gt">
+            <useparam name="val" />
+            <const>90</const>
+          </call>
+          <const>'свыше 90 дней'</const>
+        </call>
+      </call>
+    </part>
+  </parts>
+</root>

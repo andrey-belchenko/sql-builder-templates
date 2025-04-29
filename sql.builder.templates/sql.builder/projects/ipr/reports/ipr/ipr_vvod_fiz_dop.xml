@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ipr_vvod_fiz_dop_fact" timestamp="24.01.2017 19:48:36">
+      <select>
+        <column table="phis_param" column="kod_titul_ip" group="1" />
+        <call function="date to ym2" as="ym" group="1">
+          <column table="kod_doc" column="doc_date" />
+        </call>
+        <call function="()" group="sum" as="km_vl1">
+          <usepart part="ipr_fin_phis_param-val-num">
+            <const>19</const>
+          </usepart>
+        </call>
+        <call function="()" group="sum" as="km_vl2">
+          <usepart part="ipr_fin_phis_param-val-num">
+            <const>20</const>
+          </usepart>
+        </call>
+        <call function="-nvl" group="sum" as="km_vl1_pr">
+          <column table="this" column="km_vl1" group="" />
+          <usepart part="ipr_fin_phis_param-val-dem-num">
+            <const>19</const>
+          </usepart>
+        </call>
+        <call function="-nvl" group="sum" as="km_vl2_pr">
+          <column table="this" column="km_vl2" group="" />
+          <usepart part="ipr_fin_phis_param-val-dem-num">
+            <const>20</const>
+          </usepart>
+        </call>
+      </select>
+      <from>
+        <query name="ipv_phys_param_values" as="phis_param">
+          <link name="kod_titul_ip" />
+          <link name="kod_doc" />
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="this" column="ym" />
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

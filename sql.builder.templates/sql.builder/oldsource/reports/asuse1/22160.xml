@@ -1,0 +1,354 @@
+<root>
+  <reports>
+    <report name="22160">
+      <customers>
+        <customer id="1"/>
+      </customers>
+      <queries>
+        <query name="22160" as="a">
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <!--<parts>
+    <part id="22160-cols-for-group">
+      <column column="kod_sf"/>
+    </part>
+    <part id="22160-cols-nachisl">
+      <column column="kodp"  group="max"/>
+      <column column="codeabon"  group="max"/>
+      <column column="sf_name"  group="max"/>
+      <column column="akt_name"  group="max"/>
+      <column column="summa" group="sum"/>
+      <column column="num_sf" group="max"/>
+      <column column="dat_sf"  group="max"/>
+      <column column="num_akt" group="max"/>
+      <column column="dat_akt"  group="max"/>
+    </part>
+  </parts>
+-->
+  <queries>
+    <!--
+    <query  name="22160">
+      <select>
+        <column table="a" column="kodp"  group="max"/>
+        <column table="a"  column="codeabon"  group="1"/>
+        <column table="a"  column="sf_name"  group="stragg"/>
+        <column table="a"  column="akt_name"  group="stragg"/>
+        <column table="a"  column="dolg" group="sum"/>
+      </select>
+      <from>
+        <query name="22160-pre" as="a"></query>
+      </from>
+    </query>
+
+
+    <query name="22160-pre">
+      <select>
+        <usepart part="add-cols">
+          <nodes>
+            <usepart part="22160-cols-for-group"/>
+          </nodes>
+          <const>a</const>
+        </usepart>
+        <usepart part="add-cols">
+          <nodes>
+            <usepart part="22160-cols-nachisl"/>
+          </nodes>
+          <const>a</const>
+        </usepart>
+        <call function="-nvl" as="dolg">
+          <column table="a" column="summa"/>
+          <column table="a" column="opl"/>
+        </call>
+      </select>
+      <from>
+        <query name="22160-main" as="a">
+          <withparams>
+            <const>sysdate</const>
+            <const>'83626'</const>
+            <nodes>
+              <usepart part="22160-cols-for-group"/>
+            </nodes>
+            <nodes>
+              <usepart part="22160-cols-nachisl"/>
+            </nodes>
+            <nodes>
+              <column column="opl" group="sum"/>
+            </nodes>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="gt">
+            <call function="-nvl" as="dolg">
+              <column table="a" column="summa"/>
+              <column table="a" column="opl"/>
+            </call>
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+
+
+
+
+    <query name="22160-test-new">
+      <select>
+        <column table="a" column="kod_sf"/>
+        <column  table="a" column="kod_bu_akt"/>
+      </select>
+      <from>
+        <query name="bu_akt_facvip" as="a">
+          <withparams>
+            <part>
+              <params>
+                <param name="table-pname"></param>
+              </params>
+              <call function="=">
+                <column  table=":table-pname" column="kodp"/>
+                <const>'83626'</const>
+              </call>
+            </part>
+          </withparams>
+        </query>
+      </from>
+    </query>
+  -->
+    <query name="22160">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="22160-1" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="gt">
+          <column table="a" column="dolg" />
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+    <query name="22160-1">
+      <select>
+        <column table="a" column="kodp" group="max" />
+        <column table="a" column="codeabon" group="1" />
+        <!--<column table="a" column="kod_sf" group="1" />
+        <column table="a" column="dat_bzad_uved" group="max"/>-->
+        <column table="a" column="name" as="sf_name" group="stragg" />
+        <column table="a" column="akt_name" group="stragg" />
+        <column table="a" column="dolg" group="sum" />
+      </select>
+      <from>
+        <query name="m_facvip" as="a">
+          <withparams>
+            <const>p_date</const>
+            <part>
+              <params>
+                <param name="table-pname">
+                </param>
+              </params>
+              <call function="=">
+                <column table=":table-pname" column="kodp" />
+                <call function="nvl">
+                  <const>p_kodp</const>
+                  <column table=":table-pname" column="kodp" />
+                </call>
+                <!--<column table=":table-pname" column="kodp" />-->
+              </call>
+            </part>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=nvl">
+            <column table="a" column="dolg" />
+            <const>0</const>
+          </call>
+          <call function="!=nvl">
+            <column table="a" column="deb_dolg" />
+            <const>0</const>
+          </call>
+          <call function="is not null">
+            <column table="a" column="kod_bu_akt" />
+          </call>
+          <call function="ls">
+            <column table="a" column="dat_bzad_uved">
+            </column>
+            <const>p_date</const>
+          </call>
+          <call function="is not null">
+            <column table="a" column="dat_sf">
+            </column>
+          </call>
+          <const>
+            ((select count(*) from m_zbd where version=2)=0 or ((select count(*) from m_zbd where version=2)>0 and a.dat_sf >= (select date_s from sv_const where rownum=1) ))
+          </const>
+        </call>
+      </where>
+    </query>
+    <!--   <query name="22160-test2">
+      <params>
+        <param name="date"></param>
+        <param name="kodp"></param>
+        <param name="cols-for-group"></param>
+        <param name="cols-nachisl"></param>
+      </params>>
+      <select>
+        <usepart part="add-cols-add-group">
+          <useparam name="cols-for-group"/>
+          <const>n</const>
+        </usepart>
+        <usepart part="add-cols-with-group">
+          <useparam name="cols-nachisl"/>
+          <const>n</const>
+        </usepart>
+      </select>
+      <from>
+        <query name="m_facras" as="n"/>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls">
+            <column table="n" column="dat_bzad_nvl"></column>
+            <useparam name="date"/>
+          </call>
+          <usepart part="22160-main-cond">
+            <const>n</const>
+            <useparam name="kodp"/>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    
+    
+
+    <query name="22160-main">
+      <parts>
+        <part id="22160-main-cond">
+          <params>
+            <param name="table-pname"></param>
+            <param name="kodp"></param>
+          </params>
+          <call function="and">
+            <call function="=">
+              <column table=":table-pname" column="kodp"></column>
+              <call function="nvl">
+                <useparam name="kodp"></useparam>
+                <column table=":table-pname" column="kodp"></column>
+              </call>
+            </call>
+            
+          </call>
+        </part>
+      </parts>
+      <params>
+        <param name="date"></param>
+        <param name="kodp"></param>
+        <param name="cols-for-group"></param>
+        <param name="cols-nachisl"></param>
+        <param name="cols-opl"></param>
+      </params>
+      <select>
+        <usepart part="add-cols">
+          <useparam name="cols-for-group"/>
+          <const>n</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-nachisl"/>
+          <const>n</const>
+        </usepart>
+        <usepart part="add-cols">
+          <useparam name="cols-opl"/>
+          <const>o</const>
+        </usepart>
+      </select>
+      <from>
+        <query as="n">
+          <select>
+            <usepart part="add-cols-add-group">
+              <useparam name="cols-for-group"/>
+              <const>n</const>
+            </usepart>
+            <usepart part="add-cols-with-group">
+              <useparam name="cols-nachisl"/>
+              <const>n</const>
+            </usepart>
+          </select>
+          <from>
+            <query name="m_facras" as="n">
+              <withparams>
+                <useparam name="kodp"></useparam>
+              </withparams>
+            </query>
+          </from>
+          <where>
+            <call function="and">
+              <call function="ls">
+                <column table="n" column="dat_bzad_nvl"></column>
+                <useparam name="date"/>
+              </call>
+              <call function="is not null">
+                <column table="n" column="kod_bu_akt"></column>
+              </call>
+              <usepart part="22160-main-cond">
+                <const>n</const>
+                <useparam name="kodp"/>
+              </usepart>
+            </call>
+          </where>
+        </query>
+        <query as="o" join="left outer">
+          <select>
+            <usepart part="add-cols-add-group">
+              <useparam name="cols-for-group"/>
+              <const>o</const>
+            </usepart>
+            <usepart part="add-cols-with-group">
+              <useparam name="cols-opl"/>
+              <const>o</const>
+            </usepart>
+          </select>
+          <from>
+            <query name="m_opl" as="o"/>
+          </from>
+          <where>
+            <call function="and">
+              <call function="ls">
+                <column table="o" column="datao"></column>
+                <useparam name="date"/>
+              </call>
+              <usepart part="22160-main-cond">
+                <const>o</const>
+                <useparam name="kodp"/>
+              </usepart>
+            </call>
+          </where>
+          <usepart part="add-join">
+            <useparam name="cols-for-group"/>
+            <const>n</const>
+            <const>o</const>
+          </usepart>
+        </query>
+      </from>
+
+    </query>
+
+
+    <query  name="22160-test1">
+      <select>
+        <column table="a" column="kodp" group="1"></column>
+        <column table="a" column="kod_sf" group="1"></column>
+        <column table="a" column="vid_real" group="max"></column>
+        <column table="a" column="nachisl" group="sum"></column>
+      </select>
+      <from>
+        <query name="m_facras" as="a"/>
+      </from>
+    </query>-->
+  </queries>
+</root>

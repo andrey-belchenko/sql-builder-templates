@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="tree_test2" title="Дерево с данными" timestamp="26.04.2022 14:28:09" with-behavior="0" file="sql.builder.templates\sql.builder\projects\asuse2\reports\arbitrage\forms.xml" elid="117" ord="117" leaf="0" lvl="2" pelid="">
+    <grid table="a" show-toolbar="1" order-field-name="prizn_uch" id="20285097">
+      <columns id="29085127">
+        <field table="a" name="kod_sud" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="64383933" />
+        <field table="a" name="kod_parent" title="Суд / судебный участок" controlType="UICombo" rows-limit="100" id="53108463" />
+        <field table="a" name="name" title="Судебный участок" controlType="UIText" rows-limit="100" id="35544708" />
+        <field table="a" name="prizn_uch" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="58933794" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="us_sud" key="kod_sud" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.name as name, /*Судебный участок*//*string*/
+a.prizn_uch as prizn_uch, /*number*/
+kod_parent_x_n.name as kod_parent_x_n, /*Суд / судебный участок*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name, /*Судебный участок*//*string*/
+a.kod_parent as kod_parent, /*number*/
+a.prizn_uch as prizn_uch, /**//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from us_sud
+a
+--\us_sud
+)
+a
+--\us_sud
+left outer join
+(
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name/*Судебный участок*//*string*/
+
+from us_sud
+a
+--\us_sud
+)
+kod_parent_x_n on a.kod_parent = kod_parent_x_n.kod_sud--\us_sud
+--\
+</select-text>
+      <columns>
+        <column name="kod_sud" table="a" type="number" title="" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_sud" temp-col-name="n1" />
+        <column name="kod_parent" table="a" type="number" title="Суд / судебный участок" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="kod_parent" temp-col-name="n2">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_sud_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sud_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_parent_x_n.name as kod_parent_x_n, /*Суд / судебный участок*//*string*/
+a.kod_sud as kod_sud/*number*//*key*/
+
+from (
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.kod_parent as kod_parent/*number*/
+
+from (select a.kod_sud as kod_sud,a.kod_parent as kod_parent  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.n2 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.kod_parent as kod_parent  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.n2 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+a
+--\us_sud
+left outer join
+(
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name/*Судебный участок*//*string*/
+
+from (select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+kod_parent_x_n on a.kod_parent = kod_parent_x_n.kod_sud--\us_sud
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_parent_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="name" table="a" type="string" title="Судебный участок" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="name" temp-col-name="s1">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_sud_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sud_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_parent_x_n.name as kod_parent_x_n, /*Суд / судебный участок*//*string*/
+a.kod_sud as kod_sud/*number*//*key*/
+
+from (
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.kod_parent as kod_parent/*number*/
+
+from (select a.kod_sud as kod_sud,a.kod_parent as kod_parent  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.n2 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.kod_parent as kod_parent  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.n2 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+a
+--\us_sud
+left outer join
+(
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name/*Судебный участок*//*string*/
+
+from (select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+kod_parent_x_n on a.kod_parent = kod_parent_x_n.kod_sud--\us_sud
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_parent_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="prizn_uch" table="a" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="prizn_uch" temp-col-name="n3" />
+        <column name="kod_parent_x_n" table="a.kod_parent" type="string" title="Суд / судебный участок" text-source-for="kod_parent" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sud_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sud_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_parent_x_n.name as kod_parent_x_n, /*Суд / судебный участок*//*string*/
+a.kod_sud as kod_sud/*number*//*key*/
+
+from (
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.kod_parent as kod_parent/*number*/
+
+from (select a.kod_sud as kod_sud,a.kod_parent as kod_parent  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.n2 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.kod_parent as kod_parent  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.n2 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+a
+--\us_sud
+left outer join
+(
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name/*Судебный участок*//*string*/
+
+from (select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+kod_parent_x_n on a.kod_parent = kod_parent_x_n.kod_sud--\us_sud
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_sud as kod_sud 
+,:kod_parent as kod_parent 
+,:name as name 
+,:prizn_uch as prizn_uch 
+ 
+from dual ) 
+ 
+loop 
+insert into us_sud 
+(kod_sud 
+,kod_parent 
+,name 
+,prizn_uch 
+) 
+ values  
+(r.kod_sud 
+,r.kod_parent 
+,r.name 
+,r.prizn_uch 
+) 
+ returning  
+kod_sud into :kod_sud; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from us_sud where kod_sud=:kod_sud</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_sud; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_sud as kod_sud 
+,:kod_parent as kod_parent 
+,:name as name 
+,:prizn_uch as prizn_uch 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,s1 
+,n3 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_sud 
+,:row_state_id 
+,r.kod_sud 
+,r.kod_parent 
+,r.name 
+,r.prizn_uch 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_sud as kod_sud 
+,:kod_parent as kod_parent 
+,:name as name 
+,:prizn_uch as prizn_uch 
+,a.adres 
+,a.http 
+,a.prim 
+,a.kod_instanc 
+,a.region 
+ 
+from us_sud a  where kod_sud=:kod_sud) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,s1 
+,n3 
+,s2 
+,s3 
+,s4 
+,n4 
+,s5 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_sud 
+,:row_state_id 
+,r.kod_sud 
+,r.kod_parent 
+,r.name 
+,r.prizn_uch 
+,r.adres 
+,r.http 
+,r.prim 
+,r.kod_instanc 
+,r.region 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update us_sud set  
+(kod_sud 
+,kod_parent 
+,name 
+,prizn_uch 
+) 
+= 
+ ( select  
+:kod_sud as kod_sud 
+,:kod_parent as kod_parent 
+,:name as name 
+,:prizn_uch as prizn_uch 
+ 
+from dual ) 
+ 
+where 
+kod_sud=:kod_sud 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="us_sud" as="a">
+          <columns>
+            <column name="kod_sud" type="number" title="" visible="0" />
+            <column name="kod_parent" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="name" type="string" title="Судебный участок" />
+            <column name="prizn_uch" type="number" title="" />
+            <column name="kod_parent_x_n" type="string" title="Суд / судебный участок" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="kod_sud" type="number" title="" visible="0" />
+            <column name="kod_parent_x_n" type="string" title="Суд / судебный участок" />
+            <column name="kod_parent" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="name" type="string" title="Судебный участок" />
+            <column name="prizn_uch" type="number" title="" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_sud_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_sud_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.name as name, /*Судебный участок*//*string*/
+a.prizn_uch as prizn_uch, /*number*/
+kod_parent_x_n.name as kod_parent_x_n, /*Суд / судебный участок*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name, /*Судебный участок*//*string*/
+a.kod_parent as kod_parent, /*number*/
+a.prizn_uch as prizn_uch, /**//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_sud as kod_sud,a.name as name,a.kod_parent as kod_parent,a.prizn_uch as prizn_uch,0 as is_new,1 as is_not_new  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name,t.n2 as kod_parent,t.n3 as prizn_uch,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.name as name,a.kod_parent as kod_parent,a.prizn_uch as prizn_uch,0 as is_new,1 as is_not_new  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name,t.n2 as kod_parent,t.n3 as prizn_uch,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+a
+--\us_sud
+left outer join
+(
+--us_sud
+select a.kod_sud as kod_sud, /*number*//*key*/
+a.name as name/*Судебный участок*//*string*/
+
+from (select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+a
+--\(select a.kod_sud as kod_sud,a.name as name  from us_sud a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_sud=t.f2 ) and   a.kod_sud in :kod_sud_prm   union all  select t.n1 as kod_sud,t.s1 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sud_prm )
+)
+kod_parent_x_n on a.kod_parent = kod_parent_x_n.kod_sud--\us_sud
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

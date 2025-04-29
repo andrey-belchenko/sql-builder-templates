@@ -1,0 +1,1324 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="28007" timestamp="21.11.2016 14:26:53" with-behavior="0">
+      <content>
+        <field name="dep" controlType="UIList" title="Отделение" show-nulls="0">
+          <listquery>
+            <query name="kr_dep" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_dep_current" />
+          </defaultquery>
+        </field>
+        <field name="ym" controlType="UIComboRange" title="Отчётный период" mandatory="1">
+          <listquery>
+            <query name="kr_calc_list" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max" />
+          </defaultquery>
+        </field>
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="28007-pp" title="Ведомость по претензионно-исковой работе" form="28007" folder="ur_reports" timestamp="20.05.2016 16:46:50">
+      <params>
+        <param name="dep" />
+        <param name="ym1">
+          <const>2014.01</const>
+        </param>
+        <param name="ym2">
+          <const>2014.12</const>
+        </param>
+        <param name="kod_group_cust_parent" />
+        <param name="kod_group_cust" />
+      </params>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="28007-pp.xml" title="Ведомость по претензионно-исковой работе" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="28007-rep" as="m" title="Шапка">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </withparams>
+        </query>
+        <query name="28007-pp" as="a" title="Данные" main="1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="28007-ba" title="Ведомость по банкротству" form="28007" folder="ur_reports" timestamp="20.05.2016 16:37:15">
+      <params>
+        <param name="dep" />
+        <param name="ym1">
+          <const>2014.01</const>
+        </param>
+        <param name="ym2">
+          <const>2014.12</const>
+        </param>
+        <param name="kod_group_cust_parent" />
+        <param name="kod_group_cust" />
+      </params>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="28007-ba.xml" title="Ведомость по банкротству" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="28007-rep" as="m" title="Шапка">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </withparams>
+        </query>
+        <query name="28007-ba" as="a" title="Данные" main="1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="28007-rep">
+      <params>
+        <param name="dep" />
+        <param name="ym1">
+          <const>2014.01</const>
+        </param>
+        <param name="ym2">
+          <const>2014.12</const>
+        </param>
+      </params>
+      <select>
+        <call function="" as="ym1" title="Начальный период" type="string">
+          <call function="ym to char">
+            <useparam name="ym1" />
+          </call>
+        </call>
+        <call function="" as="ym2" title="Конечный период" type="string">
+          <call function="ym to char">
+            <useparam name="ym2" />
+          </call>
+        </call>
+        <call function="" as="date_begin" type="string" title="Начальная отчётная дата">
+          <call function="date to char">
+            <call function="ym begin time">
+              <useparam name="ym1" />
+            </call>
+          </call>
+        </call>
+        <call function="" as="date_end" type="string" title="Конечная отчётная дата">
+          <call function="date to char">
+            <call function="add_month">
+              <call function="ym begin time">
+                <useparam name="ym2" />
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="28007-pp" timestamp="20.05.2016 16:41:19">
+      <params>
+        <param name="dep" />
+        <param name="ym1">
+          <const>2015.06</const>
+        </param>
+        <param name="ym2">
+          <const>2015.08</const>
+        </param>
+        <param name="kod_group_cust_parent" />
+        <param name="kod_group_cust" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="28007-data-pp" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+          </withparams>
+          <grsets>
+            <grset level="1,2" title="По искам и договорам" as="detail" order="dep_name, dat_isk">
+              <where>
+                <!--чтобы не выводились суммы по договорам без исков-->
+                <call function="is not null">
+                  <column table="a" column="kod_mat_pp" />
+                </call>
+              </where>
+            </grset>
+            <grset level="" title="Всего" as="itog">
+              <where>
+                <call function="is not null">
+                  <column table="a" column="kod_mat_pp" />
+                </call>
+              </where>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="28007-ba" timestamp="20.05.2016 16:37:53">
+      <params>
+        <param name="dep" />
+        <param name="ym1">
+          <const>2015.06</const>
+        </param>
+        <param name="ym2">
+          <const>2015.08</const>
+        </param>
+        <param name="kod_group_cust_parent" />
+        <param name="kod_group_cust" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="28007-data-ba" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="kod_group_cust_parent" />
+            <useparam name="kod_group_cust" />
+          </withparams>
+          <grsets>
+            <grset level="1,2" title="По искам и договорам" as="detail" order="dep_name, dat_isk">
+              <where>
+                <!--чтобы не выводились суммы по договорам без исков-->
+                <call function="is not null">
+                  <column table="a" column="kod_mat_ba" />
+                </call>
+              </where>
+            </grset>
+            <grset level="" title="Всего" as="itog">
+              <where>
+                <call function="is not null">
+                  <column table="a" column="kod_mat_ba" />
+                </call>
+              </where>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="28007-data-pp" grouplevel="no" timestamp="20.05.2016 16:53:19">
+      <params>
+        <param name="dep">
+          <!--<const>1172</const>-->
+        </param>
+        <param name="ym1">
+          <const>2015.06</const>
+        </param>
+        <param name="ym2">
+          <const>2015.08</const>
+        </param>
+        <param name="kod_group_cust_parent" />
+        <param name="kod_group_cust" />
+      </params>
+      <select>
+        <!--<const type="number" as="fake_kod" group="max">1</const>-->
+        <column table="a" column="kod_mat_pp" group="1" />
+        <column table="a" column="kod_dog" group="2" />
+        <!--Начало-->
+        <column table="kod_mat_pp" column="num_delo" group="kod_mat_pp" title="Номер дела в суде" />
+        <column table="kodp" column="name" as="abon_name" group="kod_mat_pp" title="Наименование абонента" />
+        <column table="kodp" column="inn" as="abon_inn" group="kod_mat_pp" title="ИНН/КПП абонента" />
+        <column table="kod_dog" column="ndog" group="kod_dog" title="№ договора" />
+        <column table="kod_group_cust_parent" column="name" as="name_group_cust_parent" group="kod_dog" title="Группа потребителей" />
+        <column table="kod_group_cust" column="name" as="name_group_cust" group="kod_dog" title="Подгруппа потребителей" />
+        <column table="kod_mat_pp" column="num_pp_gp" group="kod_mat_pp" title="Документ-основание (тип, номер, дата)" />
+        <column table="kod_mat_pp" column="dat_gp" group="kod_mat_pp" title="Дата перечисления ГП" />
+        <column table="dep" column="sname" as="dep_name" group="kod_mat_pp" title="Филиал" />
+        <column table="a" column="sum_gp" group="sumnvl" format="{0:c}" title="Размер оплаченой гос. пошлины" />
+        <column table="a" column="oborot_28007_itog" if="saldo" as="oborot_28007_itog" group="sumnvl" format="{0:c}" title="Сальдо начальное по дебету">
+          <section>
+            <call function="ym add month">
+              <useparam name="ym1" />
+              <const>-1</const>
+            </call>
+          </section>
+        </column>
+        <!--<column table="a" column="nach_deb_28007_itog" if="saldo" as="saldo_28007_deb_begin" group="sumnvl" format="{0:c}" title="Сальдо начальное по дебету">
+            <section>
+              <call function="ym add month">
+                <useparam name="ym1"/>
+                <const>-1</const>
+              </call>
+            </section>
+          </column>
+        <column table="a" column="opl_kred_28007_itog" if="saldo" as="saldo_28007_kred_begin" group="sum" format="{0:c}" title="Сальдо начальное по кредиту"/>-->
+        <!--По периодам-->
+        <column table="a" column="sum_gp" as="sum_gp_ym" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <pivot title=" по периодам">
+            <column table="a" column="ym" />
+            <query order="ym">
+              <select>
+                <column table="a" column="ym" />
+                <call function="ym to char" as="title">
+                  <column table="a" column="ym" />
+                </call>
+              </select>
+              <from>
+                <query name="spr_time_ym" as="a" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="a" column="ym" />
+                  <useparam name="ym1" />
+                  <useparam name="ym2" />
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <call function="if" as="nach_gp_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny2_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_other_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="sum_gp_prin" as="sum_gp_prin_ym" dimname="ym" group="sumnvl" format="{0:c}" title="Списано в расход ГП" />
+        <call function="if" as="opl_gp_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+          </call>
+        </call>
+        <call function="if" as="opl_peny_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+          </call>
+        </call>
+        <call function="if" as="opl_peny2_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="opl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_other_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+            <const>0</const>
+          </call>
+        </call>
+        <!--Всего-->
+        <!--Хитрый подсчет итогов через pivot-->
+        <column table="a" column="sum_gp" as="sum_gp_itog" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <pivot title=" всего">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym_beg" />
+              <column table="dim" column="ym_end" />
+            </call>
+            <query>
+              <select>
+                <const type="number" as="key">1</const>
+                <const type="string" as="title">'всего'</const>
+                <call function="" as="ym_beg" type="number">
+                  <useparam name="ym1" />
+                </call>
+                <call function="" as="ym_end" type="number">
+                  <useparam name="ym2" />
+                </call>
+              </select>
+              <from>
+                <table name="dual" as="a" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <call function="if" as="nach_gp_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny2_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_other_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="sum_gp_prin" as="sum_gp_prin_itog" dimname="itog" group="sumnvl" format="{0:c}" title="Списано в расход ГП" />
+        <call function="if" as="opl_gp_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="if" as="opl_peny_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+          </call>
+        </call>
+        <call function="if" as="opl_peny2_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="opl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_other_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+            <const>0</const>
+          </call>
+        </call>
+        <!--Конец-->
+        <call function="if" as="summa_nogp" type="number" group="sumnvl" format="{0:c}" title="Взыскано по иску">
+          <call function="!=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <column table="a" column="summa" />
+          <const>0</const>
+        </call>
+        <call function="if" as="summa_osn" type="number" group="sumnvl" format="{0:c}" title="Взыскано по иску: ОД">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <column table="a" column="summa" />
+          <const>0</const>
+        </call>
+        <call function="if" as="summa_peny" type="number" group="sumnvl" format="{0:c}" title="Взыскано по иску: проценты">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>7</const>
+          </call>
+          <column table="a" column="summa" />
+          <const>0</const>
+        </call>
+        <call function="nvl" as="sum_v" type="number" group="sumnvl" format="{0:c}" title="Признано судом">
+          <column table="a" column="sum_v" />
+          <column table="a" column="summa" />
+        </call>
+        <call function="if" as="sum_v_osn" type="number" group="sumnvl" format="{0:c}" title="Признано судом: ОД">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="nvl">
+            <column table="a" column="sum_v" />
+            <column table="a" column="summa" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="sum_v_gp" type="number" group="sumnvl" format="{0:c}" title="Признано судом: ГП">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl">
+            <column table="a" column="sum_v" />
+            <column table="a" column="summa" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="sum_v_peny" type="number" group="sumnvl" format="{0:c}" title="Признано судом: проценты">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>7</const>
+          </call>
+          <call function="nvl">
+            <column table="a" column="sum_v" />
+            <column table="a" column="summa" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="peny2" type="number" group="sumnvl" format="{0:c}" title="Признано судом: проценты за несвоевременную оплату по решению">
+          <call function="like">
+            <column table="a" column="row_type" />
+            <const>'%pn-sf'</const>
+          </call>
+          <column table="a" column="nachisl" />
+          <const>0</const>
+        </call>
+        <column table="a" column="sum_gp_ret" group="sumnvl" format="{0:c}" title="Возврат ГП из бюджета" />
+        <column table="kod_mat_pp" column="dat_doc" as="dat_isk" group="kod_mat_pp" title="Дата принятия к производству искового заявления" />
+        <column table="kod_hist_mat_last" column="dat_post" as="dat_resh" group="kod_mat_pp" title="Дата принятия решения" />
+        <call function="||" type="string" as="ym" title="Период задолженности" group="kod_mat_pp">
+          <call function="ym to char">
+            <call function="over">
+              <call function="min">
+                <column table="a" column="ym_nach" />
+              </call>
+              <call function="partition by">
+                <column table="a" column="kod_sdp" />
+                <column table="a" column="kod" />
+              </call>
+            </call>
+          </call>
+          <const>' - '</const>
+          <call function="ym to char">
+            <call function="over">
+              <call function="max">
+                <column table="a" column="ym_nach" />
+              </call>
+              <call function="partition by">
+                <column table="a" column="kod_sdp" />
+                <column table="a" column="kod" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="kod_hist_mat_last" column="dat_entry" group="kod_mat_pp" title="Дата вступления решения в силу" />
+        <column table="kod_hist_mat_last" column="dat_srok" group="kod_mat_pp" title="Срок обжалования решения" />
+        <column table="kod_mat_pp" column="prim" group="kod_mat_pp" title="Примечание" />
+      </select>
+      <from>
+        <query name="un-dogplat" as="a">
+          <link name="kod_mat_pp">
+            <link name="kod_folders">
+              <link name="kodp" />
+              <link name="kod_podr" as="dep" />
+            </link>
+            <link name="kod_hist_mat_last" />
+          </link>
+          <link name="kod_dog">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+          <extendwhere>
+            <call function="and">
+              <call function="=">
+                <column table="*" column="kod_abon_type" />
+                <const>2</const>
+              </call>
+              <call function="is not null" selective="1">
+                <column table="*" column="kod_mat_pp" />
+              </call>
+              <call function="in" optional="1">
+                <column table="*" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <!--<call function="=">
+                <column table="*" column="kod_mat_pp"/>
+                <const>1000000235</const>
+              </call>-->
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="pr_isk" />
+          </call>
+          <call function="or">
+            <call function="is null">
+              <column table="a" column="kod_dogplat" />
+            </call>
+            <call function="and">
+              <call function="=">
+                <column table="kod_folders" column="kod_sdp" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="kod_folders" column="kod_vi" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="kodp" column="kod_abon_type" />
+                <const>2</const>
+              </call>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_group_cust_parent" column="kod_group_cust" />
+            <useparam name="kod_group_cust_parent" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_group_cust" column="kod_group_cust" />
+            <useparam name="kod_group_cust" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="28007-data-ba" grouplevel="no" timestamp="20.05.2016 16:50:10">
+      <params>
+        <param name="dep">
+          <!--<const>1172</const>-->
+        </param>
+        <param name="ym1">
+          <const>2015.06</const>
+        </param>
+        <param name="ym2">
+          <const>2015.08</const>
+        </param>
+        <param name="kod_group_cust_parent" />
+        <param name="kod_group_cust" />
+      </params>
+      <select>
+        <column table="a" column="kod_mat_ba" group="1" />
+        <column table="a" column="kod_dog" group="2" />
+        <!--Начало-->
+        <column table="kod_mat_ba" column="num_delo" group="kod_mat_ba" title="Номер дела в суде" />
+        <column table="kodp" column="name" as="abon_name" group="kod_mat_ba" title="Наименование абонента" />
+        <column table="kodp" column="inn" as="abon_inn" group="kod_mat_ba" title="ИНН/КПП абонента" />
+        <column table="kod_dog" column="ndog" group="kod_dog" title="№ договора" />
+        <column table="kod_group_cust_parent" column="name" as="name_group_cust_parent" group="kod_dog" title="Группа потребителей" />
+        <column table="kod_group_cust" column="name" as="name_group_cust" group="kod_dog" title="Подгруппа потребителей" />
+        <column table="kod_mat_ba" column="num_pp_gp" group="kod_mat_ba" title="Документ-основание (тип, номер, дата)" />
+        <column table="kod_mat_ba" column="dat_gp" group="kod_mat_ba" title="Дата перечисления ГП" />
+        <column table="dep" column="sname" as="dep_name" group="kod_mat_ba" title="Филиал" />
+        <column table="a" column="sum_gp" group="sumnvl" format="{0:c}" title="Размер оплаченой гос. пошлины" />
+        <column table="a" column="oborot_28007_itog" if="saldo" as="oborot_28007_itog" group="sumnvl" format="{0:c}" title="Сальдо начальное по дебету">
+          <section>
+            <call function="ym add month">
+              <useparam name="ym1" />
+              <const>-1</const>
+            </call>
+          </section>
+        </column>
+        <!--<column table="a" column="nach_deb_28007_itog" if="saldo" as="saldo_28007_deb_begin" group="sumnvl" format="{0:c}" title="Сальдо начальное по дебету">
+            <section>
+              <call function="ym add month">
+                <useparam name="ym1"/>
+                <const>-1</const>
+              </call>
+            </section>
+          </column>
+        <column table="a" column="opl_kred_28007_itog" if="saldo" as="saldo_28007_kred_begin" group="sum" format="{0:c}" title="Сальдо начальное по кредиту"/>-->
+        <!--По периодам-->
+        <column table="a" column="sum_gp" as="sum_gp_ym" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <pivot title=" по периодам">
+            <column table="a" column="ym" />
+            <query order="ym">
+              <select>
+                <column table="a" column="ym" />
+                <call function="ym to char" as="title">
+                  <column table="a" column="ym" />
+                </call>
+              </select>
+              <from>
+                <query name="spr_time_ym" as="a" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="a" column="ym" />
+                  <useparam name="ym1" />
+                  <useparam name="ym2" />
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <call function="if" as="nach_gp_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny2_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_other_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="sum_gp_prin" as="sum_gp_prin_ym" dimname="ym" group="sumnvl" format="{0:c}" title="Списано в расход ГП" />
+        <call function="if" as="opl_gp_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+          </call>
+        </call>
+        <call function="if" as="opl_peny_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+          </call>
+        </call>
+        <call function="if" as="opl_peny2_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="opl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_other_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+            <const>0</const>
+          </call>
+        </call>
+        <!--Всего-->
+        <!--Хитрый подсчет итогов через pivot-->
+        <column table="a" column="sum_gp" as="sum_gp_itog" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <pivot title=" всего">
+            <call function="between">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym_beg" />
+              <column table="dim" column="ym_end" />
+            </call>
+            <query>
+              <select>
+                <const type="number" as="key">1</const>
+                <const type="string" as="title">'всего'</const>
+                <call function="" as="ym_beg" type="number">
+                  <useparam name="ym1" />
+                </call>
+                <call function="" as="ym_end" type="number">
+                  <useparam name="ym2" />
+                </call>
+              </select>
+              <from>
+                <table name="dual" as="a" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <call function="if" as="nach_gp_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_peny2_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_other_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Начислено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="sum_gp_prin" as="sum_gp_prin_itog" dimname="itog" group="sumnvl" format="{0:c}" title="Списано в расход ГП" />
+        <call function="if" as="opl_gp_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="if" as="opl_peny_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено проценты">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="not like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+          </call>
+        </call>
+        <call function="if" as="opl_peny2_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено проценты за несвоевременное исполнение решения суда">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="vid_real" />
+              <const>7</const>
+            </call>
+            <call function="like">
+              <column table="a" column="row_type" />
+              <const>'%pn-sf'</const>
+            </call>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="opl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_other_itog" type="number" dimname="itog" group="sumnvl" format="{0:c}" title="Оплачено прочая реализация">
+          <call function="not in">
+            <column table="a" column="vid_real" />
+            <array>
+              <const>2</const>
+              <const>7</const>
+              <const>9</const>
+            </array>
+          </call>
+          <call function="+nvl">
+            <column table="a" column="opl" />
+            <column table="a" column="opl_kred" />
+            <const>0</const>
+          </call>
+        </call>
+        <!--Конец-->
+        <call function="if" as="summa_nogp" type="number" group="sumnvl" format="{0:c}" title="Взыскано по иску">
+          <call function="!=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <column table="a" column="summa" />
+          <const>0</const>
+        </call>
+        <call function="if" as="summa_osn" type="number" group="sumnvl" format="{0:c}" title="Взыскано по иску: ОД">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <column table="a" column="summa" />
+          <const>0</const>
+        </call>
+        <call function="if" as="summa_peny" type="number" group="sumnvl" format="{0:c}" title="Взыскано по иску: проценты">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>7</const>
+          </call>
+          <column table="a" column="summa" />
+          <const>0</const>
+        </call>
+        <call function="nvl" as="sum_v" type="number" group="sumnvl" format="{0:c}" title="Признано судом">
+          <column table="a" column="sum_v" />
+          <column table="a" column="summa" />
+        </call>
+        <call function="if" as="sum_v_osn" type="number" group="sumnvl" format="{0:c}" title="Признано судом: ОД">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>2</const>
+          </call>
+          <call function="nvl">
+            <column table="a" column="sum_v" />
+            <column table="a" column="summa" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="sum_v_gp" type="number" group="sumnvl" format="{0:c}" title="Признано судом: ГП">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl">
+            <column table="a" column="sum_v" />
+            <column table="a" column="summa" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="sum_v_peny" type="number" group="sumnvl" format="{0:c}" title="Признано судом: проценты">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>7</const>
+          </call>
+          <call function="nvl">
+            <column table="a" column="sum_v" />
+            <column table="a" column="summa" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="peny2" type="number" group="sumnvl" format="{0:c}" title="Признано судом: проценты за несвоевременную оплату по решению">
+          <call function="like">
+            <column table="a" column="row_type" />
+            <const>'%pn-sf'</const>
+          </call>
+          <column table="a" column="nachisl" />
+          <const>0</const>
+        </call>
+        <column table="a" column="sum_gp_ret" group="sumnvl" format="{0:c}" title="Возврат ГП из бюджета" />
+        <column table="kod_mat_ba" column="dat_doc" as="dat_isk" group="kod_mat_ba" title="Дата принятия к производству искового заявления" />
+        <column table="kod_hist_mat_last" column="dat_post" as="dat_resh" group="kod_mat_ba" title="Дата принятия решения" />
+        <call function="||" type="string" as="ym" title="Период задолженности" group="kod_mat_ba">
+          <call function="ym to char">
+            <call function="over">
+              <call function="min">
+                <column table="a" column="ym_nach" />
+              </call>
+              <call function="partition by">
+                <column table="a" column="kod_sdp" />
+                <column table="a" column="kod" />
+              </call>
+            </call>
+          </call>
+          <const>' - '</const>
+          <call function="ym to char">
+            <call function="over">
+              <call function="max">
+                <column table="a" column="ym_nach" />
+              </call>
+              <call function="partition by">
+                <column table="a" column="kod_sdp" />
+                <column table="a" column="kod" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <column table="kod_hist_mat_last" column="dat_entry" group="kod_mat_ba" title="Дата вступления решения в силу" />
+        <column table="kod_hist_mat_last" column="dat_srok" group="kod_mat_ba" title="Срок обжалования решения" />
+        <column table="kod_mat_ba" column="prim" group="kod_mat_ba" title="Примечание" />
+      </select>
+      <from>
+        <query name="un-dogplat" as="a">
+          <link name="kod_mat_ba">
+            <link name="kod_folders">
+              <link name="kodp" />
+              <link name="kod_podr" as="dep" />
+            </link>
+            <link name="kod_hist_mat_last" />
+          </link>
+          <link name="kod_dog">
+            <link name="kod_dog_dop">
+              <link name="kod_group_cust">
+                <link name="kod_group_cust_parent" />
+              </link>
+            </link>
+          </link>
+          <extendwhere>
+            <call function="and">
+              <call function="=">
+                <column table="*" column="kod_abon_type" />
+                <const>2</const>
+              </call>
+              <call function="is not null" selective="1">
+                <column table="*" column="kod_mat_ba" />
+              </call>
+              <call function="in" optional="1">
+                <column table="*" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <!--<call function="=">
+                <column table="*" column="kod_mat_ba"/>
+                <const>1000000235</const>
+              </call>-->
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="pr_isk_ba" />
+          </call>
+          <call function="or">
+            <call function="is null">
+              <column table="a" column="kod_dogplat" />
+            </call>
+            <call function="and">
+              <call function="=">
+                <column table="kod_folders" column="kod_sdp" />
+                <const>9</const>
+              </call>
+              <call function="=">
+                <column table="kod_folders" column="kod_vi" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="kodp" column="kod_abon_type" />
+                <const>2</const>
+              </call>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_group_cust_parent" column="kod_group_cust" />
+            <useparam name="kod_group_cust_parent" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_group_cust" column="kod_group_cust" />
+            <useparam name="kod_group_cust" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="28007-test">
+      <params>
+        <param name="dep" />
+        <param name="ym1">
+          <const>2015.06</const>
+        </param>
+        <param name="ym2">
+          <const>2015.08</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod" as="kod_mat_pp" group="1" />
+        <!--<column table="a" column="kod_dog" group="2"/>-->
+        <!--<column table="a"  column="oborot"/>-->
+        <column table="a" column="sum_gp" as="sum_gp_ym" dimname="ym" group="sumnvl" format="{0:c}" title="Оплачено госпошлина">
+          <pivot title=" по периодам">
+            <column table="a" column="ym" />
+            <query order="ym">
+              <select>
+                <column table="a" column="ym" />
+                <call function="ym to char" as="title">
+                  <column table="a" column="ym" />
+                </call>
+              </select>
+              <from>
+                <query name="spr_time_ym" as="a" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="a" column="ym" />
+                  <useparam name="ym1" />
+                  <useparam name="ym2" />
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <call function="if" as="nach_peny_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено проценты">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>7</const>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="nach_gp_ym" type="number" dimname="ym" group="sumnvl" format="{0:c}" title="Начислено госпошлина">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <const>9</const>
+          </call>
+          <call function="nvl0">
+            <column table="a" column="nachisl" />
+          </call>
+          <const>0</const>
+        </call>
+        <!--<column table="a" column="nachisl"/>-->
+        <!--<column table="a" column="opl"/>-->
+      </select>
+      <from>
+        <query name="un-dogplat" as="a">
+          <extendwhere>
+            <call function="and">
+              <call function="=">
+                <column table="*" column="kod_abon_type" />
+                <const>2</const>
+              </call>
+              <call function="=" selective="1">
+                <column table="*" column="kod_sdp" />
+                <const>6</const>
+              </call>
+              <call function="in" optional="1">
+                <column table="*" column="dep" />
+                <useparam name="dep" />
+              </call>
+              <!--<call function="=">
+                <column table="*" column="kod_mat_pp"/>
+                -->
+              <!--<const>1000000181</const>-->
+              <!--
+                <const>100</const>
+              </call>-->
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

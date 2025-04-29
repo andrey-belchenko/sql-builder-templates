@@ -1,0 +1,96 @@
+<root>
+  <queries>
+    <query name="f46_razdel">
+      <select>
+        <column table="a" column="*">
+        </column>
+      </select>
+      <from>
+        <usepart part="table-from-dual" as="a">
+          <rows>
+            <row>
+              <const as="id" type="string">'I'</const>
+              <const as="name" type="string" title="Раздел Ф46">'I. Полезный отпуск электроэнергии и мощности, реализуемой по регулируемым тарифам (ценам)'</const>
+            </row>
+            <row>
+              <const as="id">'II'</const>
+              <const as="name">'II. Полезный отпуск электроэнергии и мощности, реализуемой по нерегулируемым ценам'</const>
+            </row>
+          </rows>
+        </usepart>
+      </from>
+    </query>
+    <query name="f46_podrazdel">
+      <select>
+        <column table="a" column="*">
+        </column>
+      </select>
+      <from>
+        <usepart part="table-from-dual" as="a">
+          <rows>
+            <row>
+              <const as="id" type="string">'А'</const>
+              <const as="name" type="string" title="Подраздел Ф46">'А. по Договору энергоснабжения'</const>
+            </row>
+            <row>
+              <const as="id" forcustomers="8">'Б'</const>
+              <const as="name" forcustomers="8">'А. по Договору энергоснабжения'</const>
+              <const as="id" notforcustomers="8">'Б'</const>
+              <const as="name" notforcustomers="8">'Б. по Договору купли-продажи'</const>
+            </row>
+            <row>
+              <const as="id">'В'</const>
+              <const as="name">'В. населению и приравненным к нему категориям потребителей'</const>
+            </row>
+          </rows>
+        </usepart>
+      </from>
+    </query>
+  </queries>
+  <parts>
+    <part id="col-from-dual">
+      <params>
+        <param name="column" multiple="1" />
+      </params>
+      <useparam name="column">
+      </useparam>
+    </part>
+    <part id="row-from-dual">
+      <params>
+        <param name="columns" />
+      </params>
+      <query>
+        <select>
+          <usepart part="col-from-dual">
+            <useparam name="columns">
+            </useparam>
+          </usepart>
+        </select>
+        <from>
+          <table name="dual" as="a">
+          </table>
+        </from>
+      </query>
+    </part>
+    <part id="rows-from-dual">
+      <params>
+        <param name="row" multiple="1" />
+      </params>
+      <usepart part="row-from-dual">
+        <useparam name="row" />
+      </usepart>
+    </part>
+    <part id="table-from-dual">
+      <params>
+        <param name="rows" />
+      </params>
+      <query>
+        <union>
+          <usepart part="rows-from-dual">
+            <useparam name="rows" />
+          </usepart>
+        </union>
+      </query>
+    </part>
+  </parts>
+</root>

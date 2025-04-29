@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="65116" nogrid="1" order="a.ndog, a.nom_sf" timestamp="26.05.2023 12:22:13">
+      <params>
+        <param type="array" name="p_dep" />
+        <param type="number" name="p_ym_beg" />
+        <param type="number" name="p_ym_end" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" title="Номер договора" />
+        <column table="a" column="payer_name" title="Наименование" />
+        <column table="a" column="inn" title="ИНН" />
+        <column table="a" column="dat_dog" title="Дата заключения договора" />
+        <column table="a" column="dat_fin" title="Дата расторжения договора" />
+        <column table="a" column="gr_potreb" title="Группа  (потребителей)" />
+        <column table="a" column="vgo" title="ВГО" />
+        <column table="a" column="dat_sf" title="Дата СФ" />
+        <column table="a" column="nom_sf" title="Номер СФ" />
+        <column table="a" column="vid_sf" title="Вид СФ (Товарная/ Авансовая)" />
+        <column table="a" column="kz_beg" title="КЗ на начало периода (тыс. руб.)" mp="-3" />
+        <column table="a" column="dz_beg" mp="-3" title="ДЗ на начало периода (тыс. руб.)" />
+        <column table="a" column="dz_tek_beg" mp="-3" title="Текущая задолженность на начало периода (тыс. руб.)" />
+        <column table="a" column="nachisl_per_period" mp="-3" title="Начислено всего (тыс. руб.)" />
+        <column table="a" column="opl_per_period" mp="-3" title="Оплата без учета списания (тыс. руб.)" />
+        <column table="a" column="kz_spis" mp="-3" title="Возврат, списание КЗ за период (тыс. руб.)" />
+        <column table="a" column="dz_spis" mp="-3" title="Списано за период  (списание ДЗ) (тыс. руб.)" />
+        <column table="a" column="kz_end" mp="-3" title="КЗ на конец периода (тыс. руб.)" />
+        <column table="a" column="dz_end" mp="-3" title="ДЗ на конец периода (тыс. руб.)" />
+        <column table="a" column="dz_tek_end" mp="-3" title="Текущая задолженность (на конец периода) (тыс. руб.)" />
+      </select>
+      <from>
+        <query name="sqlb_rep_65116_tbl" as="a">
+          <withparams>
+            <param type="number" name="p_ym_beg" />
+            <param type="number" name="p_ym_end" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <forms>
+    <form name="65116" timestamp="26.05.2023 13:24:11">
+      <usefield field="asuse_dep_single" name="p_dep" mandatory="1" />
+      <fieldgroup title="Период">
+        <usefield field="asuse_ym_tek_dep" title="с" name="p_ym_beg" mandatory="1" type="number">
+          <defaultquery>
+            <query name="kr_calc_max_pre_dep" />
+          </defaultquery>
+        </usefield>
+        <usefield field="asuse_ym_tek_dep" title="по" name="p_ym_end" mandatory="1" type="number">
+          <defaultquery>
+            <query name="kr_calc_max_pre_dep" />
+          </defaultquery>
+        </usefield>
+      </fieldgroup>
+      <field controlType="UIDate" type="date" field="cmn_date_cur" name="p_date_create" comment="Дата формирования" show-checkbox="0" visible="0">
+        <defaultquery>
+          <query name="cur-date" />
+        </defaultquery>
+      </field>
+    </form>
+  </forms>
+  <reports>
+    <report name="65116" nogrid="1" form="65116" title="ОСВ Долги (структура ДЗ)" timestamp="26.05.2023 12:58:42">
+      <params>
+        <param type="array" name="p_dep" />
+        <param type="number" name="p_ym_beg" />
+        <param type="number" name="p_ym_end" />
+        <param name="p_date_create" type="date" />
+      </params>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_65116.fill_table(:p_ym_beg,:p_ym_end);
+end;
+   </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="65116.xlsx" title="ОСВ Долги (структура ДЗ)" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="29" />
+      </customers>
+      <queries>
+        <query name="65116" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_ym_beg" />
+            <useparam name="p_ym_end" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+</root>

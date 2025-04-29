@@ -1,0 +1,1114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="cube_b27-params" timestamp="15.11.2016 18:00:41">
+      <param name="p_kod_dog_array_id" type="string">
+        <const>'dog1'</const>
+      </param>
+      <param name="p_ym" type="number">
+        <const>2016.10</const>
+      </param>
+      <param name="p_date1" type="date">
+        <const>to_date('01.10.2016','DD.MM.YYYY')</const>
+      </param>
+      <param name="p_date2" type="date">
+        <const>to_date('31.10.2016','DD.MM.YYYY')</const>
+      </param>
+    </part>
+    <part id="cube_b27-withparams" timestamp="11.11.2016 17:29:36">
+      <useparam name="p_kod_dog_array_id" />
+      <useparam name="p_ym" />
+      <useparam name="p_date1" />
+      <useparam name="p_date2" />
+    </part>
+  </parts>
+  <queries>
+    <query name="cube_b23" timestamp="16.11.2016 15:11:07">
+      <params>
+        <param name="p_kod_dog_array_id" type="string">
+          <const>'dog1'</const>
+        </param>
+        <param name="p_ym" type="number">
+          <const>2016.10</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="=" as="cur_ym">
+          <column table="ym" column="val" />
+          <useparam name="p_ym" />
+        </call>
+        <call function="le" as="do_ym">
+          <column table="ym" column="val" />
+          <useparam name="p_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="nachisl_av">
+          <fact column="fin_ul_nachisl_av" condition="cur_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="nachisl_osn">
+          <fact column="fin_ul_nachisl_osn" condition="cur_ym" />
+        </call>
+        <call function="if" type="number" group="sum" as="nachisl_osn_pred">
+          <call function="is not null">
+            <column table="kod_sf" column="vist_day" />
+          </call>
+          <fact column="fin_ul_nachisl_osn" condition="cur_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="opl_sf_osn">
+          <fact column="fin_ul_opl_sf_osn" condition="cur_ym" />
+        </call>
+        <call function="if" type="number" group="sum" as="opl_stor_pred">
+          <call function="lt">
+            <column table="kod_opl_kred" column="ym" />
+            <column table="kod_opl_stor" column="ym" />
+          </call>
+          <call function="0-">
+            <fact column="sr_opl_opl_stor" condition="cur_ym" />
+          </call>
+        </call>
+        <call function="()" type="number" group="sum" as="opl_bnk">
+          <fact column="sr_opl_opl_bnk" condition="cur_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="opl_kred">
+          <fact column="sr_opl_opl_kred" condition="cur_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="ob_deb_osn">
+          <fact column="fin_ul_ob_osn" condition="do_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="ob_kred">
+          <fact column="fin_ul_ob_kr" condition="do_ym" />
+        </call>
+      </expressions>
+      <select>
+        <column table="dep" column="name" group="1" exclude="1" />
+        <column table="kod_dog" column="ndog" group="1" exclude="1" />
+        <call function="()" type="number" as="d_calendar_y_h_q_m" group="1">
+          <useparam name="p_ym" />
+        </call>
+        <column table="kod_dog_fin" column="kodp_uch" as="d_divisions" group="1" />
+        <column table="kod_dog_dop" column="kod_group_cust" as="d_groups_of_customers" group="1" />
+        <column table="kod_dog_fin" column="kod_ist" as="d_financing_source" group="1" />
+        <column table="kod_dog_fin" column="kod_dog" as="d_contracts" group="1" />
+        <fact column="nachisl_osn_pred" as="ind_1882" group="sum" />
+        <fact column="nachisl_av" as="ind_1883" group="sum" />
+        <fact column="nachisl_osn" as="ind_1844" group="sum" />
+        <fact column="opl_sf_osn" as="ind_1893" group="sum" />
+        <fact column="opl_stor_pred" as="ind_1894" group="sum" />
+        <fact column="opl_bnk" as="ind_1898" group="sum" />
+        <fact column="opl_kred" as="ind_1900" group="sum" />
+        <call function="-nvl" as="ind_1918" group="sum">
+          <column table="this" column="ind_2098" group="no" />
+          <column table="this" column="ind_1919" group="no" />
+        </call>
+        <fact as="ind_1919" column="ob_kred" group="sum" />
+        <fact as="ind_2098" column="ob_deb_osn" group="sum" />
+        <call function="()" as="ind_2135" type="number" group="sum">
+          <const type="number">0</const>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="dep" />
+              <link name="kodp_uch" />
+              <link name="kod_dog_dop" />
+            </link>
+          </link>
+          <where>
+            <call function="in">
+              <column table="kod_dog" column="kod_dog_fin" />
+              <query>
+                <select>
+                  <column table="a" column="val" />
+                </select>
+                <from>
+                  <query name="vr_number_array" as="a" />
+                </from>
+                <where>
+                  <call function="=">
+                    <column table="a" column="array_id" />
+                    <useparam name="p_kod_dog_array_id" />
+                  </call>
+                </where>
+              </query>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="cube_b27_uved_sf" timestamp="11.11.2016 17:25:35" use-repository="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <select>
+        <column table="kod_pred" column="kod_pred" group="max" />
+        <column table="kod_dog" column="kod_dog" group="1" />
+        <column table="kod_sf" column="kod_sf" group="1" />
+        <call function="if" as="dolg_uved" type="number" group="sum">
+          <call function="and">
+            <call function="le">
+              <column table="dat_dolg" column="val" as="dat_dolg" />
+              <column table="kod_pred" column="dat_ras" />
+            </call>
+            <call function="gt">
+              <call function="nvl">
+                <column table="kod_sf" column="dat_ezad" />
+                <call function="doomsday" />
+              </call>
+              <column table="kod_pred" column="dat_ras" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="if" as="dolg_tek" type="number" group="sum">
+          <call function="and">
+            <call function="le">
+              <column table="dat_dolg" column="val" as="dat_dolg" />
+              <useparam name="p_date2" />
+            </call>
+            <call function="gt">
+              <call function="nvl">
+                <column table="kod_sf" column="dat_ezad" />
+                <call function="doomsday" />
+              </call>
+              <useparam name="p_date2" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob" />
+        </call>
+        <call function="decode" as="inf" type="string" group="max" exclude="1">
+          <column table="kod_pred" column="kod_otkloper" />
+          <const>9</const>
+          <const>'Направлено предупреждение о задолженности'</const>
+          <const>2</const>
+          <const>'Намечен на ограничение'</const>
+          <const>1</const>
+          <const>'Намечен на отключение'</const>
+        </call>
+        <call function="decode" as="dat" type="date" group="max" exclude="1">
+          <column table="kod_pred" column="kod_otkloper" />
+          <const>9</const>
+          <column table="kod_pred" column="dat_tlg" />
+          <const>2</const>
+          <column table="kod_pred" column="dat_otkl" />
+          <const>1</const>
+          <column table="kod_pred" column="dat_tlg" />
+        </call>
+        <column table="kod_pred" column="sved_isp" group="max" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog" />
+          <link name="kod_pred" />
+          <link name="kod_sf" />
+          <link name="dat_dolg_uved_kaz_el" as="dat_dolg" />
+          <where>
+            <call function="in">
+              <column table="kod_dog" column="kod_dog" />
+              <query>
+                <select>
+                  <column table="a" column="val" />
+                </select>
+                <from>
+                  <query name="vr_number_array" as="a" />
+                </from>
+                <where>
+                  <call function="=">
+                    <column table="a" column="array_id" />
+                    <useparam name="p_kod_dog_array_id" />
+                  </call>
+                </where>
+              </query>
+            </call>
+            <call function="!=">
+              <column table="kod_pred" column="pr_arx" />
+              <const>1</const>
+            </call>
+            <call function="in" exclude="1">
+              <column table="kod_pred" column="kod_otkloper" />
+              <array>1,2,9</array>
+            </call>
+            <call function="le" exclude="1">
+              <column table="ym" column="val" />
+              <call function="date to ym">
+                <useparam name="dat" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <having>
+        <call function="and">
+          <call function="gt">
+            <column table="this" column="dolg_uved" />
+            <const>0</const>
+          </call>
+          <call function="gt">
+            <column table="this" column="dolg_tek" />
+            <const>0</const>
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="cube_b27_dolg_sf" timestamp="16.11.2016 21:18:25" use-repository="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <expressions>
+        <call function="if" as="dolg_deb_pr" group="sum" type="number">
+          <call function="le">
+            <column table="dat_dolg_uved_kaz_el" column="val" />
+            <useparam name="p_date2" />
+          </call>
+          <fact column="fin_ul_ob_os_av_uav" />
+        </call>
+        <call function="if" as="dolg_deb_pr1" group="sum" type="number" exclude="1">
+          <call function="le">
+            <column table="dat_dolg_uved_kaz_el" column="val" />
+            <useparam name="p_date2" />
+          </call>
+          <fact column="fin_ul_ob_os_av" />
+        </call>
+        <call function="if" as="dolg_deb_pr2" group="sum" type="number" exclude="1">
+          <call function="le">
+            <column table="dat_dolg_uved_kaz_el" column="val" />
+            <useparam name="p_date2" />
+          </call>
+          <fact column="sr_facras_nachisl" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_osn_pr">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>2</const>
+          </call>
+          <fact column="dolg_deb_pr" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_osn_pr_per">
+          <call function="=">
+            <column table="kod_sf" column="ym" />
+            <useparam name="p_ym" />
+          </call>
+          <fact column="dolg_deb_osn_pr" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr">
+          <call function="=">
+            <column table="kod_sf" column="vid_real" />
+            <const>0</const>
+          </call>
+          <fact column="dolg_deb_pr" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr_tek">
+          <call function="=">
+            <column table="kod_sf" column="rym" />
+            <useparam name="p_ym" />
+          </call>
+          <fact column="dolg_deb_av_pr" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr_tek_30">
+          <call function="=">
+            <column table="kod_sf" column="perc" />
+            <const>30</const>
+          </call>
+          <fact column="dolg_deb_av_pr_tek" />
+        </call>
+        <call function="if" type="number" group="sum" as="dolg_deb_av_pr_tek_40">
+          <call function="=">
+            <column table="kod_sf" column="perc" />
+            <const>40</const>
+          </call>
+          <fact column="dolg_deb_av_pr_tek" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog_fin" column="kod_dog" />
+        <column table="kod_sf" column="kod_sf" />
+        <column table="kod_sf" column="dat_bzad_uved_kaz_el" exclude="1" />
+        <column table="kod_sf" column="ym" exclude="1" />
+        <column table="kod_sf" column="rym" exclude="1" />
+        <column table="kod_sf" column="perc" exclude="1" />
+        <column table="kod_sf" column="ym_vozn" exclude="1" />
+        <fact column="kod_ur_state_pp" as="kod_ur_state" />
+        <call function="if" as="ym_vozn" type="number">
+          <call function="!=0">
+            <column table="this" column="dolg_deb" />
+          </call>
+          <call function="if">
+            <call function="=0">
+              <column table="kod_sf" column="vid_real" />
+            </call>
+            <column table="kod_sf" column="rym" />
+            <column table="kod_sf" column="ym" />
+          </call>
+        </call>
+        <call function="if" as="ym_vozn_isk" type="number">
+          <call function="gt">
+            <column table="this" column="kod_ur_state" />
+            <const>0</const>
+          </call>
+          <column table="this" column="ym_vozn" />
+        </call>
+        <call function="if" as="ym_vozn_prizn" type="number">
+          <call function="gt">
+            <column table="this" column="kod_ur_state" />
+            <const>1</const>
+          </call>
+          <column table="this" column="ym_vozn" />
+        </call>
+        <call function="if" as="ym_vozn_isp" type="number">
+          <call function="gt">
+            <column table="this" column="kod_ur_state" />
+            <const>2</const>
+          </call>
+          <column table="this" column="ym_vozn" />
+        </call>
+        <call function="+nvl" as="dolg_deb_pr_tek">
+          <fact column="dolg_deb_osn_pr_per" />
+          <fact column="dolg_deb_av_pr_tek" />
+        </call>
+        <fact column="dolg_deb_av_pr_tek_30" />
+        <fact column="dolg_deb_av_pr_tek_40" />
+        <fact column="fin_ul_ob_osn" table="ds" as="dolg_deb_osn" />
+        <fact column="dolg_deb_osn_pr" title="Деб. задолженость по основной реализации (просроченная)" />
+        <call function="+nvl" as="dolg_deb_pr" exclude="1">
+          <fact column="dolg_deb_osn_pr" table="ds" />
+          <fact column="dolg_deb_av_pr" table="av" />
+        </call>
+        <fact column="dolg_deb_pr" />
+        <call function="+nvl" as="dolg_deb">
+          <fact column="fin_ul_ob_osn" />
+          <fact column="dolg_deb_av_pr" />
+        </call>
+        <fact column="dolg_deb_av_pr" />
+        <fact column="dolg_deb_pr1" exclude="1" />
+        <fact column="sr_facras_nachisl" exclude="1" />
+        <fact column="dolg_deb_pr2" exclude="1" />
+        <fact column="sverh_dolg_pre" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="av">
+            <link name="kod_sf" only-for-cond="1" />
+            <link name="dat" />
+            <where>
+              <call function="gt">
+                <call function="nvl">
+                  <column table="kod_sf" column="dat_ezad" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="p_date2" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date2" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="ds">
+            <link name="dat" />
+            <where>
+              <call function="and">
+                <call function="le">
+                  <column table="dat" column="val" />
+                  <useparam name="p_date2" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <link name="kod_dog">
+            <link name="kod_dog_fin" />
+          </link>
+          <link name="kod_sf" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <query>
+                  <select>
+                    <column table="a" column="val" />
+                  </select>
+                  <from>
+                    <query name="vr_number_array" as="a" />
+                  </from>
+                  <where>
+                    <call function="=">
+                      <column table="a" column="array_id" />
+                      <useparam name="p_kod_dog_array_id" />
+                    </call>
+                  </where>
+                </query>
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_dog" column="kod_dog" />
+                <const>2708</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="!=0">
+            <column table="this" column="dolg_deb" />
+            <column table="this" column="dolg_deb_pr" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="cube_b27_dolg_dog" timestamp="17.11.2016 00:05:13" use-repository="1" materialize="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="dolg_deb_pr_tek" group="sum" />
+        <column table="a" column="dolg_deb_av_pr_tek_30" group="sum" />
+        <column table="a" column="dolg_deb_av_pr_tek_40" group="sum" />
+        <call function="vg_period.ym_enum_str_order " as="period" type="string">
+          <column table="a" column="ym_vozn" group="stragg" />
+        </call>
+        <call function="vg_period.ym_enum_str_order " as="period_isk" type="string">
+          <column table="a" column="ym_vozn_isk" group="stragg" />
+        </call>
+        <call function="vg_period.ym_enum_str_order " as="period_prizn" type="string">
+          <column table="a" column="ym_vozn_prizn" group="stragg" />
+        </call>
+        <call function="vg_period.ym_enum_str_order " as="period_isp" type="string">
+          <column table="a" column="ym_vozn_isp" group="stragg" />
+        </call>
+        <call function="()" as="period_isp" type="string" exclude="1">
+          <column table="a" column="ym_vozn_isp" group="stragg" />
+        </call>
+        <call function="()" as="period_prizn" type="string" exclude="1">
+          <column table="a" column="ym_vozn_prizn" group="stragg" />
+        </call>
+        <call function="()" as="period_isk" type="string" exclude="1">
+          <column table="a" column="ym_vozn_isk" group="stragg" />
+        </call>
+        <call function="()" as="period" type="string" exclude="1">
+          <column table="a" column="ym_vozn" group="stragg" />
+        </call>
+        <column table="a" column="dolg_deb" group="sum" />
+        <column table="a" column="dolg_deb_osn" group="sum" />
+        <column table="a" column="dolg_deb_pr" group="sum" />
+        <column table="a" column="dolg_deb_av_pr" group="sum" />
+      </select>
+      <from>
+        <query name="cube_b27_dolg_sf" as="a">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="cube_b27_uved_last_dog" timestamp="11.11.2016 17:24:41" use-repository="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <call function="over" as="kod_pred" group="max">
+          <call function="last_value">
+            <column table="a" column="kod_pred" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_dog" />
+          </call>
+          <call function="order by 2">
+            <column table="a" column="dat_otkl" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="kr_predabon" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="kod_dog" />
+            <query>
+              <select>
+                <column table="a" column="val" />
+              </select>
+              <from>
+                <query name="vr_number_array" as="a" />
+              </from>
+              <where>
+                <call function="=">
+                  <column table="a" column="array_id" />
+                  <useparam name="p_kod_dog_array_id" />
+                </call>
+              </where>
+            </query>
+          </call>
+          <call function="is not null">
+            <column table="a" column="dat_otkl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="cube_b27_uved_dog" timestamp="11.11.2016 16:00:20" use-repository="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" group="1" />
+        <column table="a" column="kod_pred" group="max" />
+      </select>
+      <from>
+        <query name="cube_b27_uved_sf" as="a">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="cube_b27" timestamp="17.11.2016 00:08:48" use-repository="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <expressions>
+        <call function="=" as="cur_ym">
+          <column table="ym" column="val" />
+          <useparam name="p_ym" />
+        </call>
+        <call function="between" as="cur_per">
+          <column table="dat" column="val" />
+          <useparam name="p_date1" />
+          <useparam name="p_date2" />
+        </call>
+        <call function="le" as="do_ym">
+          <column table="dat" column="val" />
+          <useparam name="p_date2" />
+        </call>
+        <call function="and" as="kred_av" exclude="1">
+          <call function="or">
+            <call function="le">
+              <column table="kod_sf" column="dat_ezad" />
+              <useparam name="p_date2" />
+            </call>
+            <call function="gt">
+              <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+              <useparam name="p_date2" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="dat" column="val" />
+            <useparam name="p_date2" />
+          </call>
+        </call>
+        <call function="and" as="kred_os" comment="всякие извращения , чтобы добиться совпадения с отчетом по потребителям должникам" exclude="1">
+          <call function="gt">
+            <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+            <useparam name="p_date2" />
+          </call>
+          <call function="=">
+            <column table="kod_sf" column="ym" />
+            <useparam name="p_ym" />
+          </call>
+          <call function="le">
+            <column table="dat" column="val" />
+            <useparam name="p_date2" />
+          </call>
+          <call function="le">
+            <column table="kod_opl_sf" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="p_ym" />
+            </call>
+          </call>
+        </call>
+        <call function="()" as="nach_av_tek_ym" type="number">
+          <fact column="fin_ul_nachisl_av" condition="cur_ym" />
+        </call>
+        <call function="if" as="nach_av_tek_ym_30" type="number">
+          <call function="=">
+            <column table="kod_sf" column="perc" />
+            <const>30</const>
+          </call>
+          <fact column="nach_av_tek_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="opl_bnk">
+          <fact column="sr_opl_opl_bnk" condition="cur_per" />
+        </call>
+        <call function="()" type="number" group="sum" as="nachisl_osn">
+          <fact column="fin_ul_nachisl_osn" condition="cur_ym" />
+        </call>
+        <call function="if" type="number" group="sum" as="opl_post">
+          <call function="in">
+            <column table="kod_opl_sf" column="kod_type_opl" />
+            <array>0</array>
+          </call>
+          <fact column="sr_opl_opl_sf" condition="cur_per" />
+        </call>
+        <call function="()" type="number" group="sum" as="ob_kred">
+          <fact column="fin_ul_ob_kr" condition="do_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="ob_kred_os">
+          <fact column="fin_ul_ob_kr_os" condition="do_ym" />
+        </call>
+        <call function="+nvl" type="number" group="sum" as="kred_full" exclude="1">
+          <fact column="ob_kred" />
+          <fact column="fin_ul_opl_sf_osn" condition="kred_os" />
+        </call>
+      </expressions>
+      <select>
+        <call function="if" as="ind_2199" type="number">
+          <call function="!=0">
+            <column table="this" column="ind_2098" />
+          </call>
+          <const>1</const>
+        </call>
+        <column table="kod_dog_fin" column="kodp_uch" as="d_divisions" group="1" />
+        <column table="kod_dog_dop" column="kod_group_cust" as="d_groups_of_customers" group="1" />
+        <column table="kod_dog_fin" column="kod_ist" as="d_financing_source" group="1" />
+        <column table="kod_dog_fin" column="kod_dog" as="d_contracts" group="1" />
+        <column table="kod_dog_fin" column="kodp" as="d_counterparties" group="1" />
+        <column table="kodp" column="kod_m" as="d_ministries" group="1" />
+        <fact column="nach_av_tek_ym" as="ind_1883" table="ds" group="sum" />
+        <fact column="nach_av_tek_ym_30" as="ind_1884" table="ds" group="sum" />
+        <fact column="opl_bnk" as="ind_1898" table="ds" group="sum" />
+        <fact column="sr_opl_bank_opl" table="opl_bank" as="ind_1907" group="sum" />
+        <column table="dolg" column="dolg_deb_pr_tek" as="ind_2117" group="sum" />
+        <column table="dolg" column="dolg_deb_av_pr_tek_30" as="ind_2118" group="sum" />
+        <column table="dolg" column="dolg_deb_av_pr_tek_40" as="ind_2119" group="sum" />
+        <column table="dolg" column="period" as="ind_2619" group="stragg" />
+        <column table="dolg" column="period_isk" as="ind_2620" group="stragg" />
+        <column table="dolg" column="period_prizn" as="ind_2621" group="stragg" />
+        <column table="dolg" column="period_isp" as="ind_2622" group="stragg" />
+        <call function="if" as="ind_2612" type="string" group="max">
+          <call function="=">
+            <column table="kod_dog" column="pr_active" />
+            <const>0</const>
+          </call>
+          <call function="replace">
+            <fact column="kr_vist_day_name" />
+            <const>','</const>
+            <const>'; '</const>
+          </call>
+        </call>
+        <call function="if" as="ind_2613" type="string" group="max">
+          <call function="=">
+            <column table="kod_dog" column="pr_active" />
+            <const>0</const>
+          </call>
+          <fact column="kr_dogovor_prim" as="ind_2613" />
+        </call>
+        <column table="kod_pred" column="dat_otkl" as="ind_2614" group="max" />
+        <column table="kod_pred" column="sved_isp" as="ind_2615" group="max" />
+        <column table="kod_pred" column="notes" as="ind_2616" group="max" />
+        <column table="kod_pred_last" column="dat_otkl" as="ind_2617" group="max" />
+        <column table="kod_pred_last" column="sved_isp" as="ind_2618" group="max" />
+        <fact column="nachisl_osn" as="ind_1844" group="sum" />
+        <fact column="opl_post" as="ind_1903" group="sum" />
+        <call function="-nvl" as="ind_1918" group="sum">
+          <column table="this" column="ind_2098" group="no" />
+          <column table="this" column="ind_1919" group="no" />
+        </call>
+        <fact as="ind_1919" column="ob_kred" group="sum" />
+        <column table="dolg" column="dolg_deb_osn" as="ind_2098" group="sum" />
+        <call function="if" type="number" as="ind_2110" group="sum">
+          <call function="gt">
+            <call function="-nvl">
+              <column table="dolg" column="dolg_deb_pr" />
+              <fact column="ob_kred_os" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="-nvl">
+            <column table="dolg" column="dolg_deb_pr" />
+            <fact column="ob_kred_os" />
+          </call>
+        </call>
+        <column table="dolg" column="dolg_deb_pr" exclude="1" />
+        <fact column="fin_ul_ob_kr_os" condition="do_ym" exclude="1" />
+        <fact column="fin_ul_ob_kr_av" condition="kred_av" exclude="1" />
+        <column table="dolg" column="dolg_deb_osn" exclude="1" />
+        <column table="dolg" column="dolg_deb_av_pr" exclude="1" />
+        <fact column="fin_ul_opl_sf_osn" condition="kred_os" exclude="1" />
+        <fact column="kred_full" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="av">
+            <link name="kod_sf" only-for-cond="1" />
+            <link name="dat" />
+            <where>
+              <call function="gt">
+                <call function="nvl">
+                  <column table="kod_sf" column="dat_ezad" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="p_date2" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date2" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="opl_bank">
+            <link name="kod_link" only-for-cond="1" />
+            <link name="dat" />
+            <where>
+              <call function="!=nvl">
+                <column table="kod_link" column="pr_raznos" />
+                <const>1</const>
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date2" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="ds">
+            <link name="dat" />
+            <where>
+              <call function="and">
+                <call function="le">
+                  <column table="dat" column="val" />
+                  <useparam name="p_date2" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="kod_dog_dop" />
+              <link name="kodp" />
+            </link>
+          </link>
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <query>
+                  <select>
+                    <column table="a" column="val" />
+                  </select>
+                  <from>
+                    <query name="vr_number_array" as="a" />
+                  </from>
+                  <where>
+                    <call function="=">
+                      <column table="a" column="array_id" />
+                      <useparam name="p_kod_dog_array_id" />
+                    </call>
+                  </where>
+                </query>
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_dog" column="kod_dog" />
+                <const>2708</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+        <query name="cube_b27_dolg_dog" as="dolg" join="left outer">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="kod_dog" column="kod_dog" />
+            <column table="dolg" column="kod_dog" />
+          </call>
+        </query>
+        <query name="cube_b27_uved_dog" as="uved" join="left outer">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="kod_dog" column="kod_dog" />
+            <column table="uved" column="kod_dog" />
+          </call>
+        </query>
+        <query join="left outer" name="kr_predabon" as="kod_pred">
+          <call function="=">
+            <column table="uved" column="kod_pred" />
+            <column table="kod_pred" column="kod_pred" />
+          </call>
+        </query>
+        <query name="cube_b27_uved_last_dog" as="uved_last" join="left outer">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="kod_dog" column="kod_dog" />
+            <column table="uved_last" column="kod_dog" />
+          </call>
+        </query>
+        <query join="left outer" name="kr_predabon" as="kod_pred_last">
+          <call function="=">
+            <column table="uved_last" column="kod_pred" />
+            <column table="kod_pred_last" column="kod_pred" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="cube_b27_test" timestamp="16.11.2016 01:23:32" use-repository="1">
+      <params>
+        <usepart part="cube_b27-params" />
+      </params>
+      <expressions>
+        <call function="=" as="cur_ym">
+          <column table="ym" column="val" />
+          <useparam name="p_ym" />
+        </call>
+        <call function="between" as="cur_per">
+          <column table="dat" column="val" />
+          <useparam name="p_date1" />
+          <useparam name="p_date2" />
+        </call>
+        <call function="le" as="do_ym">
+          <column table="dat" column="val" />
+          <useparam name="p_date2" />
+        </call>
+        <call function="and" as="kred_av">
+          <call function="or">
+            <call function="le">
+              <column table="kod_sf" column="dat_ezad" />
+              <useparam name="p_date2" />
+            </call>
+            <call function="gt">
+              <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+              <useparam name="p_date2" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="dat" column="val" />
+            <useparam name="p_date2" />
+          </call>
+        </call>
+        <call function="and" as="kred_os">
+          <call function="=">
+            <column table="kod_sf" column="ym" />
+            <useparam name="p_ym" />
+          </call>
+          <call function="gt">
+            <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+            <useparam name="p_date2" />
+          </call>
+          <call function="le">
+            <column table="dat" column="val" />
+            <useparam name="p_date2" />
+          </call>
+        </call>
+        <call function="()" as="nach_av_tek_ym" type="number">
+          <fact column="fin_ul_nachisl_av" condition="cur_ym" />
+        </call>
+        <call function="if" as="nach_av_tek_ym_30" type="number">
+          <call function="=">
+            <column table="kod_sf" column="perc" />
+            <const>30</const>
+          </call>
+          <fact column="nach_av_tek_ym" />
+        </call>
+        <call function="()" type="number" group="sum" as="opl_bnk">
+          <fact column="sr_opl_opl_bnk" condition="cur_per" />
+        </call>
+        <call function="()" type="number" group="sum" as="nachisl_osn">
+          <fact column="fin_ul_nachisl_osn" condition="cur_ym" />
+        </call>
+        <call function="if" type="number" group="sum" as="opl_post">
+          <call function="in">
+            <column table="kod_opl_sf" column="kod_type_opl" />
+            <array>0</array>
+          </call>
+          <fact column="sr_opl_opl_sf" condition="cur_per" />
+        </call>
+        <call function="+nvl" type="number" group="sum" as="ob_kred">
+          <fact column="fin_ul_ob_kr_os" condition="do_ym" />
+          <fact column="fin_ul_ob_kr_av" condition="kred_av" />
+        </call>
+        <call function="-nvl" type="number" group="sum" as="kred_full">
+          <fact column="ob_kred" />
+          <fact column="fin_ul_opl_sf_osn" condition="kred_os" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog_fin" column="kodp_uch" as="d_divisions" />
+        <column table="kod_dog_dop" column="kod_group_cust" as="d_groups_of_customers" exclude="1" />
+        <column table="kod_dog_fin" column="kod_ist" as="d_financing_source" exclude="1" />
+        <column table="kod_dog_fin" column="kod_dog" as="d_contracts" exclude="1" />
+        <column table="kod_dog_fin" column="kodp" as="d_counterparties" exclude="1" />
+        <column table="kodp" column="kod_m" as="d_ministries" exclude="1" />
+        <fact column="nach_av_tek_ym" as="ind_1883" table="ds" exclude="1" />
+        <fact column="nach_av_tek_ym_30" as="ind_1884" table="ds" exclude="1" />
+        <fact column="opl_bnk" as="ind_1898" table="ds" exclude="1" />
+        <fact column="sr_opl_bank_opl" table="opl_bank" as="ind_1907" exclude="1" />
+        <column table="dolg" column="dolg_deb_pr_tek" as="ind_2117" exclude="1" />
+        <column table="dolg" column="dolg_deb_av_pr_tek_30" as="ind_2118" exclude="1" />
+        <column table="dolg" column="dolg_deb_av_pr_tek_40" as="ind_2119" exclude="1" />
+        <column table="dolg" column="period" as="ind_2619" exclude="1" />
+        <column table="dolg" column="period_isk" as="ind_2620" exclude="1" />
+        <column table="dolg" column="period_prizn" as="ind_2621" exclude="1" />
+        <column table="dolg" column="period_isp" as="ind_2622" exclude="1" />
+        <call function="replace" as="ind_2612" exclude="1">
+          <fact column="kr_vist_day_name" />
+          <const>','</const>
+          <const>'; '</const>
+          <call function="decode" exclude="1">
+            <fact column="kr_vist_day_name" />
+            <const>null</const>
+            <const>null</const>
+            <const>', ок. плат. '</const>
+          </call>
+          <column table="kod_dog" column="postplat_info" exclude="1" />
+        </call>
+        <fact column="kr_dogovor_prim" as="ind_2613" exclude="1" />
+        <column table="kod_pred" column="dat_otkl" as="ind_2614" exclude="1" />
+        <column table="kod_pred" column="sved_isp" as="ind_2615" exclude="1" />
+        <column table="kod_pred" column="notes" as="ind_2616" exclude="1" />
+        <column table="kod_pred_last" column="dat_otkl" as="ind_2617" exclude="1" />
+        <column table="kod_pred_last" column="sved_isp" as="ind_2618" exclude="1" />
+        <fact column="nachisl_osn" as="ind_1844" exclude="1" />
+        <fact column="opl_post" as="ind_1903" exclude="1" />
+        <call function="-nvl" as="ind_1918" exclude="1">
+          <column table="dolg" column="dolg_deb" as="ind_2098" exclude="1" thissrc="ind_2098" group="no" />
+          <fact as="ind_1919" column="ob_kred" exclude="1" thissrc="ind_1919" group="no" />
+        </call>
+        <fact as="ind_1919" column="ob_kred" exclude="1" />
+        <column table="dolg" column="dolg_deb" as="ind_2098" exclude="1" />
+        <column table="dolg" column="dolg_deb_pr" exclude="1" />
+        <fact column="kred_full" exclude="1" />
+        <column table="kod_opl_sf" column="kod_opl" />
+        <column table="kod_opl_sf" column="dat_oper" />
+        <column table="kod_opl_sf" column="dat_opl" />
+        <column table="kod_sf" column="kod_sf" />
+        <column table="kod_sf" column="dat_bzad_uved_kaz_el" />
+        <fact column="fin_ul_opl_sf_osn" condition="kred_os" />
+        <fact column="fin_ul_opl_sf_osn" as="qqq" exclude="1" />
+        <call function="if" type="number" as="ind_2110" exclude="1">
+          <call function="gt">
+            <call function="-nvl">
+              <column table="dolg" column="dolg_deb_pr" />
+              <fact column="kred_full" />
+            </call>
+            <const>0</const>
+          </call>
+          <call function="-nvl">
+            <column table="dolg" column="dolg_deb_pr" />
+            <fact column="kred_full" />
+          </call>
+        </call>
+        <column table="dolg" column="dolg_deb_pr" as="ind_2110" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="av">
+            <link name="kod_sf" only-for-cond="1" />
+            <link name="dat" />
+            <where>
+              <call function="gt">
+                <call function="nvl">
+                  <column table="kod_sf" column="dat_ezad" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="p_date2" />
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date2" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="opl_bank">
+            <link name="kod_link" only-for-cond="1" />
+            <link name="dat" />
+            <where>
+              <call function="!=nvl">
+                <column table="kod_link" column="pr_raznos" />
+                <const>1</const>
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date2" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="ds">
+            <link name="dat" />
+            <where>
+              <call function="and">
+                <call function="le">
+                  <column table="dat" column="val" />
+                  <useparam name="p_date2" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="kod_dog_dop" />
+              <link name="kodp" />
+            </link>
+          </link>
+          <link name="kod_opl_sf" />
+          <link name="kod_sf" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <query>
+                  <select>
+                    <column table="a" column="val" />
+                  </select>
+                  <from>
+                    <query name="vr_number_array" as="a" />
+                  </from>
+                  <where>
+                    <call function="=">
+                      <column table="a" column="array_id" />
+                      <useparam name="p_kod_dog_array_id" />
+                    </call>
+                  </where>
+                </query>
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_dog" column="kod_dog" />
+                <const>2708</const>
+              </call>
+            </call>
+          </where>
+        </qube>
+        <query name="cube_b27_dolg_dog" as="dolg" join="left outer" exclude="1">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="kod_dog_fin" column="kod_dog" as="d_contracts" exclude="1" thissrc="d_contracts" />
+            <column table="dolg" column="kod_dog" />
+          </call>
+        </query>
+        <query name="cube_b27_uved_dog" as="uved" join="left outer" exclude="1">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="kod_dog_fin" column="kod_dog" as="d_contracts" exclude="1" thissrc="d_contracts" />
+            <column table="uved" column="kod_dog" />
+          </call>
+        </query>
+        <query join="left outer" name="kr_predabon" as="kod_pred" exclude="1">
+          <call function="=">
+            <column table="uved" column="kod_pred" />
+            <column table="kod_pred" column="kod_pred" />
+          </call>
+        </query>
+        <query name="cube_b27_uved_last_dog" as="uved_last" join="left outer" exclude="1">
+          <withparams>
+            <usepart part="cube_b27-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="kod_dog_fin" column="kod_dog" as="d_contracts" exclude="1" thissrc="d_contracts" />
+            <column table="uved_last" column="kod_dog" />
+          </call>
+        </query>
+        <query join="left outer" name="kr_predabon" as="kod_pred_last" exclude="1">
+          <call function="=">
+            <column table="uved_last" column="kod_pred" />
+            <column table="kod_pred_last" column="kod_pred" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

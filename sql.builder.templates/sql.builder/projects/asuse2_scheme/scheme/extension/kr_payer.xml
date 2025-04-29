@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="kr_payer_ext" class="1" extend="kr_payer" timestamp="19.11.2024 11:11:23">
+      <select>
+        <!--Может быть неверным, если у абонента есть договоры на несколько отделений!-->
+        <column table="kod_dog" column="dep" as="dep" dgroup="max" />
+        <column table="kod_dog" column="tep_el" as="tep_el" dgroup="max" />
+        <column table="kod_dog" column="kod_abon_type" as="kod_abon_type" dgroup="max" />
+        <column table="kod_dog" column="abon_type_name" as="abon_type_name" dgroup="min" />
+        <call function="||" as="num_name" title="Абонент">
+          <column table="this" column="nump" />
+          <const>' '</const>
+          <column table="this" column="name" />
+        </call>
+        <column table="a" column="ac_egr_status" type="string" title="Код статуса по справочнику СЮЛСТ/СИПСТ" />
+        <column table="a" column="ac_egr_status_name" type="string" title="чнику СЮЛСТ/СИПСТ" />
+        <column table="a" column="ac_egr_sulpd" type="string" title="Код статуса по справочнику СЮЛПД" />
+        <column table="a" column="ac_egr_sulpd_name" type="string" title="Статус по справочнику СЮЛПД" />
+        <!--<Берем из ur_dogplat-->
+        <!--<column table="kod_dog" column="dat_dog" as="dat_dog" dgroup="max"/>     
+        <column table="kod_dog" column="ndog" as="ndog" dgroup="max"/>
+        <column table="kod_dog" column="podr" as="podr" dgroup="max"/>-->
+        <!--<column table="kod_dog" column="kod_emp" as="kod_emp_contr" dgroup="max"/>-->
+        <column table="udo" column="datepublic" type="date" exclude="1" />
+        <call function="egr_payer_sulst" as="bk_kod_st" title="код СЮЛСТ для абонента" exclude="1">
+          <column table="this" column="kodp" />
+        </call>
+        <call column="ur_bk_kodp_last_st_name" as="bk_st_name" function="()" title="статус банкродства из СЮЛСТ для абонента" exclude="1">
+          <query>
+            <select>
+              <column table="a" column="sulst_name" />
+            </select>
+            <from>
+              <query name="kk_egr_sulst" as="a" />
+            </from>
+            <where>
+              <call function="=">
+                <column table="a" column="sulst" />
+                <call function="egr_payer_sulst" as="bk_kod_st" title="код СЮЛСТ для абонента">
+                  <column table="this" column="kodp" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="egr_payer_sulst_dat" as="bk_st_date" title="дата банкродства СЮЛСТ" exclude="1">
+          <column table="this" column="kodp" />
+        </call>
+        <call function="egr_payer_docname" as="bk_st_docname" title="Наименование документа основания изменения записи об абоненте в ЕГРЮЛ" exclude="1">
+          <column table="this" column="kodp" />
+        </call>
+        <call function="egr_payer_docnum" as="bk_st_docnum" title="Номер последнего документа в ЕГРЮЛ" exclude="1">
+          <column table="this" column="kodp" />
+        </call>
+        <call function="egr_payer_docdate" as="bk_st_docdate" title="Дата документа в ЕГРЮЛ" exclude="1">
+          <column table="this" column="kodp" />
+        </call>
+      </select>
+      <from>
+        <query name="k_house" as="kod_d_p" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_d_p" />
+            <column table="kod_d_p" column="kodd" />
+          </call>
+        </query>
+        <query name="k_house" as="kod_d_ur" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_d_ur" />
+            <column table="kod_d_ur" column="kodd" />
+          </call>
+        </query>
+        <query name="kr_org" as="dep" join="left outer">
+          <call function="=">
+            <column table="this" column="dep" />
+            <column table="dep" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_payer_nsi" join="left outer" as="kodp_nsi">
+          <call function="=">
+            <column table="this" column="kodp" />
+            <column table="kodp_nsi" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_sulst" as="udo" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="udo" column="type_sulst" />
+              <call function="if">
+                <call function="is null">
+                  <column table="a" column="kpp" />
+                </call>
+                <const type="string">'ИП'</const>
+                <const type="string">'ЮЛ'</const>
+              </call>
+            </call>
+            <call function="=">
+              <column table="this" column="ac_egr_status" />
+              <column table="udo" column="sulst" />
+            </call>
+          </call>
+        </query>
+        <query name="kk_sulst" as="udo1" join="left outer">
+          <call function="=">
+            <column table="this" column="ac_egr_sulpd" />
+            <column table="udo1" column="sulst" />
+          </call>
+        </query>
+        <query name="udo_t_fedresurs-gr" as="udo" join="left outer" exclude="1">
+          <call function="=">
+            <column table="this" column="inn" />
+            <column table="udo" column="inn" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="kod_otrasl">
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+        <dlink name="kr_dogovor" as="kod_dog" dimension="1">
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_numobj" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_numobj_mn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="day_pokaz" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_point" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_seti" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="dat_s" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_elter" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="eobj_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_parent_eo" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_srckind" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp_bal" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp_elter" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_org_group" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_eobject_senter_nut" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_point_pu" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_v" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_elnet" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="point_dat_s" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="point_dat_po" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_point_har" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+        <dlink name="kr_employee" dimension="1" />
+        <dlink name="sr_opl_bank" dimension="1" />
+        <dlink name="kr_org_edo" dimension="1" is-final-dimension="1" />
+        <dlink name="ur_folders" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </dlink>
+        <dlink name="ur_folders_kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+      </links>
+    </query>
+    <query name="kr_payer_prizn_activ">
+      <select>
+        <column table="a" column="kod" type="number"></column>
+        <column table="a" column="name" type="string" title="Статус абонента" vid="1"></column>
+      </select>
+      <from>
+        <table name="payer_prizn_activ" view="1" as="a"></table>
+      </from>
+    </query>
+    <query name="kr_payer_abon_type">
+      <select>
+        <column table="a" column="kod_abon_type" type="number"></column>
+        <column table="a" column="abon_type_name" type="string" title="Тип абонентов"></column>
+      </select>
+      <from>
+        <table name="payer_abon_type" view="1" as="a"></table>
+      </from>
+    </query>
+    <query name="abon_type_current">
+      <select>
+        <!--<column table="a" column="kod_abon_type"/>-->
+        <call function="if" as="kod_abon_type" type="number">
+          <call function="=">
+            <useglobparam name="tep_el" />
+            <const>4</const>
+          </call>
+          <const>1</const>
+          <const>2</const>
+        </call>
+        <column table="a" column="abon_type_name" type="string" />
+      </select>
+      <from>
+        <table name="payer_abon_type" view="1" as="a"></table>
+      </from>
+      <where>
+        <call function="=">
+          <call function="if">
+            <call function="=">
+              <useglobparam name="tep_el" />
+              <const>4</const>
+            </call>
+            <const>1</const>
+            <const>2</const>
+          </call>
+          <column table="a" column="kod_abon_type" />
+        </call>
+      </where>
+    </query>
+    <query name="kr_payer_list" class="1" timestamp="21.03.2017 01:52:56">
+      <params>
+        <param type="array" name="kod_abon_type" />
+      </params>
+      <select>
+        <column table="kr_payer" column="kodp" />
+        <column table="kr_payer" column="nump" />
+        <column table="kr_payer" column="name" />
+        <column table="kr_payer" column="inn" />
+      </select>
+      <from>
+        <query name="kr_payer" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="kr_payer" column="kod_abon_type" />
+            <useparam name="kod_abon_type" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="nump_like">
+      <params>
+        <param name="nump_s" type="string" />
+        <param name="nump_po" type="string" />
+      </params>
+      <select>
+        <call function="if" as="value">
+          <call function="and">
+            <call function="is not null">
+              <call function="nvlu" as="value">
+                <useparam name="nump_s" />
+                <const>null</const>
+              </call>
+            </call>
+            <call function="is null">
+              <call function="nvlu" as="value">
+                <useparam name="nump_po" />
+                <const>null</const>
+              </call>
+            </call>
+          </call>
+          <useparam name="nump_s" />
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="kr_payer_nump_list" timestamp="27.09.2017 12:22:57" class="1">
+      <select>
+        <column table="a" column="nump" group="1" key="1" as="id" />
+        <column table="a" column="name" group="stragg" />
+      </select>
+      <from>
+        <query name="kr_payer" as="a" />
+      </from>
+    </query>
+    <query name="tco_net_dep" class="1" timestamp="15.04.2025 14:33:58">
+      <params>
+        <param name="p_dep" type="number" />
+      </params>
+      <select>
+        <column table="a" column="kodp" type="number" as="tco_net_kodp" />
+        <column table="a" column="tco_net_name" type="string" as="tco_net_name" />
+      </select>
+      <from>
+        <table name="tco_net_dep" as="a" view="1" />
+      </from>     
+    </query>
+  </queries>
+  <views>
+    <view name="payer_prizn_activ">
+      select 0 as kod, 'Активный' as name from dual union
+      select 1, 'Неактивный' from dual union
+      select 2, 'Преддоговорной' from dual
+    </view>
+    <view name="payer_abon_type">
+      select 1 as kod_abon_type, 'Физические лица' as abon_type_name from dual union
+      select 2, 'Юридические лица' from dual
+    </view>
+    <view name="tco_net_dep" title="ТСО (граница с сетями)">
+      SELECT  net.kodp as kodp,
+              max(net.name) as tco_net_name  -- ТСО (граница с сетями)
+      --  , max(pwrc.name) as tco_pwrc_name -- ТСО (услуги по передаче)
+      FROM hr_pmax_history h
+      JOIN hr_pmax_detail d ON (h.kod_pmax_history = d.kod_pmax_history)
+      JOIN hr_attpoint a ON (d.kod_attpoint = a.kod_attpoint)
+      LEFT JOIN kr_payer net ON a.kodp_net = net.kodp
+      -- LEFT JOIN kr_payer pwrc ON a.kodp_pwrcompany = pwrc.kodp
+      inner join kr_numobj n ON h.kod_numobj = n.kod_numobj
+      inner join kr_dogovor dog ON n.kod_dog = dog.kod_dog
+      WHERE  d.kodnagruzpotreb = a.kodnagruzpotreb
+      and dog.dep = :p_dep
+      GROUP BY net.kodp
+    </view>
+  </views>
+</root>

@@ -1,0 +1,928 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="soveshanie_55300" timestamp="28.12.2023 14:43:19" title="Работа с совещаниями" file="sql.builder.templates\sql.builder\projects\asuse2\reports\33654.xml" elid="184" ord="184" leaf="0" lvl="2" pelid="">
+    <splitcontainer id="29738409">
+      <fieldgroup title="Даты совещаний" id="52639268">
+        <grid table="sov" show-toolbar="1" dx-export="0" id="8590423">
+          <columns id="53342692">
+            <field table="sov" name="dat" title="Дата" width="100" controlType="UIDate" rows-limit="100" id="64382531" />
+          </columns>
+        </grid>
+      </fieldgroup>
+      <fieldgroup title="Принятые решения" id="43612071">
+        <grid table="sov_info" show-toolbar="1" dx-export="0" id="33744198">
+          <columns id="53817292">
+            <field table="sov_info" name="kod_dog" title="Договор" width="160" controlType="UICombo" rows-limit="100" id="38417787">
+              <listquery id="31048024">
+                <query name="kr_dogovor_list_active" id="19578886">
+                  <withparams id="61147252">
+                    <useparam name="p_dep" id="56866740" />
+                  </withparams>
+                </query>
+              </listquery>
+            </field>
+            <field table="sov_info" name="info" title="Информация" width="500" controlType="UITextEx" rows-limit="100" id="34932563" />
+          </columns>
+        </grid>
+      </fieldgroup>
+    </splitcontainer>
+  </form>
+  <params>
+    <param name="p_dep" />
+  </params>
+  <dataset>
+    <params>
+      <param name="p_dep" />
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="sov_has_changes" parname="sov_has_changes" />
+      <field type="string" name="sov_info_has_changes" parname="sov_info_has_changes" />
+    </fields>
+    <table name="sov" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="sqlb_55300_soveshanie" key="kod_soveshanie" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select sov.dat as dat, /*Дата*//*date*/
+sov.is_new as is_new, /*number*/
+sov.is_not_new as is_not_new, /*number*/
+sov.kod_soveshanie as kod_soveshanie/*number*//*key*/
+
+from (
+--sqlb_55300_soveshanie
+select a.kod_soveshanie as kod_soveshanie, /*number*//*key*/
+a.dat as dat, /**//*date*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from sqlb_55300_soveshanie
+a
+--\sqlb_55300_soveshanie
+
+order by dat desc)
+sov
+--\sqlb_55300_soveshanie
+
+order by dat desc--\
+</select-text>
+      <columns>
+        <column name="dat" table="sov" type="date" title="Дата" is-user-editable="1" ColumnMandatory="1" is-updateable="1" is-updateable-ext="1" update-target="dat" temp-col-name="d1" />
+        <column name="is_new" table="sov" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="sov" type="number" title="" is-user-editable="1" />
+        <column name="kod_soveshanie" table="sov" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_soveshanie" temp-col-name="n1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:dat as dat 
+,:kod_soveshanie as kod_soveshanie 
+ 
+from dual ) 
+ 
+loop 
+insert into sqlb_55300_soveshanie 
+(dat 
+,kod_soveshanie 
+) 
+ values  
+(r.dat 
+,r.kod_soveshanie 
+) 
+ returning  
+kod_soveshanie into :kod_soveshanie; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from sqlb_55300_soveshanie where kod_soveshanie=:kod_soveshanie</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='sov' 
+and 
+names=:form_id 
+and 
+f2=:kod_soveshanie; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:dat as dat 
+,:kod_soveshanie as kod_soveshanie 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,d1 
+,n1 
+) 
+ values  
+('sov' 
+,:form_id 
+,:kod_soveshanie 
+,:row_state_id 
+,r.dat 
+,r.kod_soveshanie 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:dat as dat 
+,:kod_soveshanie as kod_soveshanie 
+,a.u_m 
+,a.d_m 
+ 
+from sqlb_55300_soveshanie a  where kod_soveshanie=:kod_soveshanie) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,d1 
+,n1 
+,s1 
+,d2 
+) 
+ values  
+('sov' 
+,:form_id 
+,:kod_soveshanie 
+,:row_state_id 
+,r.dat 
+,r.kod_soveshanie 
+,r.u_m 
+,r.d_m 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='sov' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update sqlb_55300_soveshanie set  
+(dat 
+,kod_soveshanie 
+) 
+= 
+ ( select  
+:dat as dat 
+,:kod_soveshanie as kod_soveshanie 
+ 
+from dual ) 
+ 
+where 
+kod_soveshanie=:kod_soveshanie 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="sqlb_55300_soveshanie" as="sov">
+          <columns>
+            <column name="dat" type="date" title="Дата" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_soveshanie" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="dat" type="date" title="Дата" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_soveshanie" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_soveshanie_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_soveshanie_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select sov.dat as dat, /*Дата*//*date*/
+sov.is_new as is_new, /*number*/
+sov.is_not_new as is_not_new, /*number*/
+sov.kod_soveshanie as kod_soveshanie/*number*//*key*/
+
+from (
+--sqlb_55300_soveshanie
+select a.kod_soveshanie as kod_soveshanie, /*number*//*key*/
+a.dat as dat, /**//*date*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_soveshanie as kod_soveshanie,a.dat as dat,a.u_m as u_m,a.d_m as d_m,0 as is_new,1 as is_not_new  from sqlb_55300_soveshanie a where not exists (select * from rr_temp t where t.skod ='sov' and t.names=:form_id  and a.kod_soveshanie=t.f2 ) and   a.kod_soveshanie in :kod_soveshanie_prm   union all  select t.n1 as kod_soveshanie,t.d1 as dat,t.s1 as u_m,t.d2 as d_m,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sov' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_prm )
+a
+--\(select a.kod_soveshanie as kod_soveshanie,a.dat as dat,a.u_m as u_m,a.d_m as d_m,0 as is_new,1 as is_not_new  from sqlb_55300_soveshanie a where not exists (select * from rr_temp t where t.skod ='sov' and t.names=:form_id  and a.kod_soveshanie=t.f2 ) and   a.kod_soveshanie in :kod_soveshanie_prm   union all  select t.n1 as kod_soveshanie,t.d1 as dat,t.s1 as u_m,t.d2 as d_m,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sov' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_prm )
+
+order by dat desc)
+sov
+--\sqlb_55300_soveshanie
+
+order by dat desc--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+    <table name="sov_info" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="sqlb_55300_soveshanie_info" key="kod_soveshanie_info" parent-table="sov" parent-key="kod_soveshanie" is-ms-upd="1">
+      <select-text>
+--
+select sov_info.kod_dog as kod_dog, /*Договор*//*number*/
+sov_info.info as info, /*Информация*//*string*/
+kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+sov_info.is_new as is_new, /*number*/
+sov_info.is_not_new as is_not_new, /*number*/
+sov_info.kod_soveshanie_info as kod_soveshanie_info, /*number*//*key*/
+sov_info.kod_soveshanie as kod_soveshanie/*number*/
+
+from (
+--sqlb_55300_soveshanie_info
+select a.kod_soveshanie_info as kod_soveshanie_info, /*number*//*key*/
+a.kod_soveshanie as kod_soveshanie, /*number*/
+a.kod_dog as kod_dog, /*number*/
+a.info as info, /**//*string*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from sqlb_55300_soveshanie_info
+a
+--\sqlb_55300_soveshanie_info
+)
+sov_info
+--\sqlb_55300_soveshanie_info
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sov_info.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+where
+sov_info.kod_soveshanie = :fk_kod_soveshanie --\
+</select-text>
+      <columns>
+        <column name="kod_dog" table="sov_info" type="number" title="Договор" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_dog" temp-col-name="n1">
+          <sel-list-compiled>
+            <root>
+              <query class="1" timestamp="31.01.2017 13:37:28" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_dogovor.xml" elid="2291" ord="2291" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_dog" as="kod_dog" key="1" fixed="1" used="1" type="number" agg="max" sourcetable="./a/a" sourcecolumn="kod_dog" into="n1">a.kod_dog as kod_dog, /*number*//*key*/
+</column><column table="a" column="ndog" as="ndog" key="0" used="1" type="string" title="Номер договора" agg="stragg_dist" sourcetable="./a/a" sourcecolumn="ndog" into="s1">a.ndog as ndog, /*Номер договора*//*string*/
+</column><column table="dep" column="name" as="dep_name" title="Отделение" key="0" used="1" type="string" sourcetable="./a/dep" sourcecolumn="name" into="s2">dep.name as dep_name, /*Отделение*//*string*/
+</column><column table="kodp" column="nump" as="nump" key="0" used="1" type="string" title="Код абонента" sourcetable="./a/kodp" sourcecolumn="nump" into="s3">kodp.nump as nump, /*Код абонента*//*string*/
+</column><column table="kodp" column="inn" as="inn" key="0" used="1" type="string" title="ИНН" sourcetable="./a/kodp" sourcecolumn="inn" into="s4">kodp.inn as inn, /*ИНН*//*string*/
+</column><column table="kodp" column="name" as="payer_name" key="0" used="1" type="string" title="Наименование абонента" agg="list" sourcetable="./a/kodp" sourcecolumn="name" into="s5">kodp.name as payer_name/*Наименование абонента*//*string*/
+</column></select>
+                <from>
+from <query name="kr_dogovor" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--kr_dogovor
+select <column table="a" column="kod_dog" type="number" key-dimension="kod_dog" fact="kr_dogovor_kod_dog" agg="max" fact-dimension="kod_dog" as="kod_dog" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod_dog" used="1">a.kod_dog as kod_dog, /*number*//*key*/
+</column><column table="a" column="pr_active" type="number" title="" comment="состояние договора&#xA;0 - действующий&#xA;1- удаленный&#xA;2-новый" as="pr_active" reference="kk_active" refcol="pr_active" key="0" sourcetable="./a/a" sourcecolumn="pr_active" used="1">a.pr_active as pr_active, /**//*number*/
+</column><column table="a" column="kodp" type="number" title="" comment="код абонента (для договоров услуг - сторона1 - кому платят )" vid="1" as="kodp" reference="kr_payer" refcol="kodp" key="0" sourcetable="./a/a" sourcecolumn="kodp" used="1">a.kodp as kodp, /**//*number*/
+</column><column table="a" column="ndog" type="string" title="Номер договора" comment="номер договора" fact="kr_dog_ndog" agg="stragg_dist" vid="1" as="ndog" key="0" sourcetable="./a/a" sourcecolumn="ndog" used="1">a.ndog as ndog, /*Номер договора*//*string*/
+</column><column table="a" column="dep" type="number" title="" vid="1" as="dep" key="0" sourcetable="./a/a" sourcecolumn="dep" used="1">a.dep as dep/**//*number*/
+</column></select><from>
+from <table name="kr_dogovor" as="a" title="Договор" used="1">kr_dogovor
+a
+--\kr_dogovor
+</table></from>)
+a
+--\kr_dogovor
+</query><query name="kr_org" as="dep" join="left outer" path="./a/dep" haskeys="1" used="1">left outer join
+(
+<select>--kr_org
+select <column table="a" column="kodp" type="number" title="" as="kodp" key="1" fixed="1" sourcetable="./a/dep" sourcecolumn="kodp" used="1">a.kodp as kodp, /**//*number*//*key*/
+</column><column table="a" column="name" type="string" title="Отделение" as="name" key="0" sourcetable="./a/dep" sourcecolumn="name" used="1">a.name as name/*Отделение*//*string*/
+</column></select><from>
+from <table name="kr_org" as="a" used="1">kr_org
+a
+--\kr_org
+</table></from><call function="=" type="bool">)
+dep on <column table="a" column="dep">a.dep</column><text txtype="func"> = </text><column table="dep" column="kodp">dep.kodp</column></call>--\kr_org
+</query><query name="kr_payer" as="kodp" join="left outer" path="./a/kodp" haskeys="1" used="1">left outer join
+(
+<select>--kr_payer
+select <column table="a" column="kodp" type="number" title="" comment="уник. код абонента" fact="kr_payer_kodp" agg="max" as="kodp" key="1" fixed="1" sourcetable="./a/kodp" sourcecolumn="kodp" used="1">a.kodp as kodp, /**//*number*//*key*/
+</column><column table="a" column="nump" type="string" title="Код абонента" comment="номер абонента" vid="1" is-name="1" as="nump" key="0" sourcetable="./a/kodp" sourcecolumn="nump" used="1">a.nump as nump, /*Код абонента*//*string*/
+</column><column table="a" column="name" type="string" title="Наименование абонента" comment="наименование" vid="1" is-name="1" is-fact="1" agg="list" as="name" fact="kr_payer_name" key="0" sourcetable="./a/kodp" sourcecolumn="name" used="1">a.name as name, /*Наименование абонента*//*string*/
+</column><column table="a" column="inn" type="string" title="ИНН" comment="инн" as="inn" key="0" sourcetable="./a/kodp" sourcecolumn="inn" used="1">a.inn as inn/*ИНН*//*string*/
+</column></select><from>
+from <table name="kr_payer" as="a" title="Абонент" used="1">kr_payer
+a
+--\kr_payer
+</table></from><call function="=" type="bool">)
+kodp on <column table="a" column="kodp">a.kodp</column><text txtype="func"> = </text><column table="kodp" column="kodp">kodp.kodp</column></call>--\kr_payer
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> and </text><call function="and" pth="" type="bool">(<call function="true" pth="" type="bool">(<text txtype="func"> 1=1 </text>) </call><text txtype="func"> and </text><call function="in" pth="" type="bool">(<column table="a" column="pr_active">a.pr_active</column><text txtype="func"> in </text><call function="array" pth="">(<const><text>0</text></const>) </call>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="dep">a.dep</column><text txtype="func"> in </text><const><text>:dep </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kodp">a.kodp</column><text txtype="func"> in </text><const><text>:kodp </text></const>) </call><text txtype="func"> } </text>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_dog" as="kod_dog" key="1" fixed="1" thissrc="kod_dog">a.kod_dog</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_dog" as="kod_dog" key="1" fixed="1" thissrc="kod_dog">a.kod_dog</column><text txtype="func"> ) like lower( </text><const><text>:kod_dog_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ndog" as="ndog" key="0" thissrc="ndog">a.ndog</column><text txtype="func"> ) like lower( </text><const><text>:ndog_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="dep" column="name" as="dep_name" title="Отделение" key="0" thissrc="dep_name">dep.name</column><text txtype="func"> ) like lower( </text><const><text>:dep_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="kodp" column="nump" as="nump" key="0" thissrc="nump">kodp.nump</column><text txtype="func"> ) like lower( </text><const><text>:nump_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="kodp" column="inn" as="inn" key="0" thissrc="inn">kodp.inn</column><text txtype="func"> ) like lower( </text><const><text>:inn_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="kodp" column="name" as="payer_name" key="0" thissrc="payer_name">kodp.name</column><text txtype="func"> ) like lower( </text><const><text>:payer_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" timestamp="31.01.2017 13:37:28" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_dogovor.xml" elid="2291" ord="2291" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" timestamp="31.01.2017 13:37:28" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_dogovor.xml" elid="2291" ord="2291" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="dep" type="array" />
+                    <param type="array" name="kodp" />
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_dog_filter" type="string" />
+                    <param name="ndog_filter" type="string" />
+                    <param name="dep_name_filter" type="string" />
+                    <param name="nump_filter" type="string" />
+                    <param name="inn_filter" type="string" />
+                    <param name="payer_name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_dog" as="kod_dog" key="1" fixed="1" />
+                    <column table="a" column="ndog" as="ndog" key="0" />
+                    <column table="dep" column="name" as="dep_name" title="Отделение" key="0" />
+                    <column table="kodp" column="nump" as="nump" key="0" />
+                    <column table="kodp" column="inn" as="inn" key="0" />
+                    <column table="kodp" column="name" as="payer_name" key="0" />
+                  </select>
+                  <from>
+                    <query name="kr_dogovor" as="a" title="Договор">
+                      <link name="kodp" as="kodp" table="kr_payer" child="kr_dogovor" field="kodp" parent="kr_payer" back="kr_dogovor" title="Абонент" />
+                      <link name="dep" as="dep" table="kr_org" child="kr_dogovor" field="dep" parent="kr_org" back="kr_dog_dep" />
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="and">
+                        <call function="true" />
+                        <call function="in">
+                          <column table="a" column="pr_active" />
+                          <call function="array">
+                            <const>0</const>
+                          </call>
+                        </call>
+                        <call function="in" optional="1">
+                          <column table="a" column="dep" />
+                          <useparam name="dep" />
+                        </call>
+                        <call function="in" optional="1">
+                          <column table="a" column="kodp" />
+                          <useparam name="kodp" />
+                        </call>
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_dog" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_dog" />
+                        <useparam name="kod_dog_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ndog" />
+                        <useparam name="ndog_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dep_name" />
+                        <useparam name="dep_name_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="nump" />
+                        <useparam name="nump_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="inn" />
+                        <useparam name="inn_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="payer_name" />
+                        <useparam name="payer_name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="dep" />
+                    <useparam name="kodp" />
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_dog_filter" />
+                    <useparam name="ndog_filter" />
+                    <useparam name="dep_name_filter" />
+                    <useparam name="nump_filter" />
+                    <useparam name="inn_filter" />
+                    <useparam name="payer_name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="dep" type="array">
+                  <const>:dep </const>
+                </param>
+                <param type="array" name="kodp">
+                  <const>:kodp </const>
+                </param>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_dog_filter" type="string">
+                  <const>:kod_dog_filter </const>
+                </param>
+                <param name="ndog_filter" type="string">
+                  <const>:ndog_filter </const>
+                </param>
+                <param name="dep_name_filter" type="string">
+                  <const>:dep_name_filter </const>
+                </param>
+                <param name="nump_filter" type="string">
+                  <const>:nump_filter </const>
+                </param>
+                <param name="inn_filter" type="string">
+                  <const>:inn_filter </const>
+                </param>
+                <param name="payer_name_filter" type="string">
+                  <const>:payer_name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-cl-fact-pars>
+            <withparams>
+              <useparam name="p_dep" parname="dep" />
+            </withparams>
+          </sel-list-cl-fact-pars>
+          <dep-refresh-cmd>
+            <root table="sov_info">
+              <params>
+                <param name="kod_soveshanie_info_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_soveshanie_info_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+sov_info.kod_soveshanie_info as kod_soveshanie_info/*number*//*key*/
+
+from (
+--sqlb_55300_soveshanie_info
+select a.kod_soveshanie_info as kod_soveshanie_info, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_soveshanie_info as kod_soveshanie_info,a.kod_dog as kod_dog  from sqlb_55300_soveshanie_info a where not exists (select * from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and a.kod_soveshanie_info=t.f2 ) and   a.kod_soveshanie_info in :kod_soveshanie_info_prm   union all  select t.n2 as kod_soveshanie_info,t.n1 as kod_dog  from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_info_prm )
+a
+--\(select a.kod_soveshanie_info as kod_soveshanie_info,a.kod_dog as kod_dog  from sqlb_55300_soveshanie_info a where not exists (select * from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and a.kod_soveshanie_info=t.f2 ) and   a.kod_soveshanie_info in :kod_soveshanie_info_prm   union all  select t.n2 as kod_soveshanie_info,t.n1 as kod_dog  from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_info_prm )
+)
+sov_info
+--\sqlb_55300_soveshanie_info
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sov_info.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_dog_x_n" table="sov_info" />
+          </dependants>
+        </column>
+        <column name="info" table="sov_info" type="string" title="Информация" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="info" temp-col-name="s1" />
+        <column name="kod_dog_x_n" table="sov_info.kod_dog" type="string" title="Договор" text-source-for="kod_dog" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_soveshanie_info_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_soveshanie_info_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+sov_info.kod_soveshanie_info as kod_soveshanie_info/*number*//*key*/
+
+from (
+--sqlb_55300_soveshanie_info
+select a.kod_soveshanie_info as kod_soveshanie_info, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_soveshanie_info as kod_soveshanie_info,a.kod_dog as kod_dog  from sqlb_55300_soveshanie_info a where not exists (select * from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and a.kod_soveshanie_info=t.f2 ) and   a.kod_soveshanie_info in :kod_soveshanie_info_prm   union all  select t.n2 as kod_soveshanie_info,t.n1 as kod_dog  from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_info_prm )
+a
+--\(select a.kod_soveshanie_info as kod_soveshanie_info,a.kod_dog as kod_dog  from sqlb_55300_soveshanie_info a where not exists (select * from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and a.kod_soveshanie_info=t.f2 ) and   a.kod_soveshanie_info in :kod_soveshanie_info_prm   union all  select t.n2 as kod_soveshanie_info,t.n1 as kod_dog  from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_info_prm )
+)
+sov_info
+--\sqlb_55300_soveshanie_info
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sov_info.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="sov_info" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="sov_info" type="number" title="" is-user-editable="1" />
+        <column name="kod_soveshanie_info" table="sov_info" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_soveshanie_info" temp-col-name="n2" />
+        <column name="kod_soveshanie" table="sov_info" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_soveshanie" temp-col-name="n3">
+          <sel-list-compiled>
+            <root>
+              <query class="1" order="dat desc" timestamp="26.06.2020 13:17:22" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\sqlb_55300_soveshanie.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="dat">dat</column>
+                </order>
+                <select>--a
+select <column table="a" column="kod_soveshanie" type="number" column-mandatory="1" as="kod_soveshanie" key="1" fixed="1" sourcetable="./a" sourcecolumn="kod_soveshanie" used="1" into="n1">a.kod_soveshanie as kod_soveshanie, /*number*//*key*/
+</column><column table="a" column="dat" type="date" column-mandatory="1" title="" comment="Дата совещания" as="dat" key="0" sourcetable="./a" sourcecolumn="dat" used="1" into="d1">a.dat as dat, /**//*date*/
+</column><column table="a" column="u_m" type="string" data-size="20" title="" as="u_m" key="0" sourcetable="./a" sourcecolumn="u_m" used="1" into="s1">a.u_m as u_m, /**//*string*/
+</column><column table="a" column="d_m" type="date" title="" as="d_m" key="0" sourcetable="./a" sourcecolumn="d_m" used="1" into="d2">a.d_m as d_m, /**//*date*/
+</column><column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" sourcetable="./a" sourcecolumn="is_new" used="1" into="n2">0 as is_new, /*number*/
+</column><column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" sourcetable="./a" sourcecolumn="is_not_new" used="1" into="n3">1 as is_not_new/*number*/
+</column></select>
+                <from>
+from <table name="sqlb_55300_soveshanie" as="a" used="1">sqlb_55300_soveshanie
+a
+--\sqlb_55300_soveshanie
+</table></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_soveshanie" type="number" column-mandatory="1" as="kod_soveshanie" key="1" fixed="1" sourcetable="./a" sourcecolumn="kod_soveshanie" thissrc="kod_soveshanie">a.kod_soveshanie</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_soveshanie" type="number" column-mandatory="1" as="kod_soveshanie" key="1" fixed="1" sourcetable="./a" sourcecolumn="kod_soveshanie" thissrc="kod_soveshanie">a.kod_soveshanie</column><text txtype="func"> ) like lower( </text><const><text>:kod_soveshanie_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat" type="date" column-mandatory="1" title="" comment="Дата совещания" as="dat" key="0" sourcetable="./a" sourcecolumn="dat" thissrc="dat">a.dat</column><text txtype="func"> ) like lower( </text><const><text>:dat_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="u_m" type="string" data-size="20" title="" as="u_m" key="0" sourcetable="./a" sourcecolumn="u_m" thissrc="u_m">a.u_m</column><text txtype="func"> ) like lower( </text><const><text>:u_m_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="d_m" type="date" title="" as="d_m" key="0" sourcetable="./a" sourcecolumn="d_m" thissrc="d_m">a.d_m</column><text txtype="func"> ) like lower( </text><const><text>:d_m_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" sourcetable="./a" sourcecolumn="is_new" thissrc="is_new">0</column><text txtype="func"> ) like lower( </text><const><text>:is_new_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" sourcetable="./a" sourcecolumn="is_not_new" thissrc="is_not_new">1</column><text txtype="func"> ) like lower( </text><const><text>:is_not_new_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by dat desc</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" order="dat desc" timestamp="26.06.2020 13:17:22" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\sqlb_55300_soveshanie.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" order="dat desc" timestamp="26.06.2020 13:17:22" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\sqlb_55300_soveshanie.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_soveshanie_filter" type="string" />
+                    <param name="dat_filter" type="string" />
+                    <param name="u_m_filter" type="string" />
+                    <param name="d_m_filter" type="string" />
+                    <param name="is_new_filter" type="string" />
+                    <param name="is_not_new_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_soveshanie" type="number" column-mandatory="1" as="kod_soveshanie" key="1" fixed="1" />
+                    <column table="a" column="dat" type="date" column-mandatory="1" title="" comment="Дата совещания" as="dat" key="0" />
+                    <column table="a" column="u_m" type="string" data-size="20" title="" as="u_m" key="0" />
+                    <column table="a" column="d_m" type="date" title="" as="d_m" key="0" />
+                    <column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" />
+                    <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" />
+                  </select>
+                  <from>
+                    <table name="sqlb_55300_soveshanie" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_soveshanie" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_soveshanie" />
+                        <useparam name="kod_soveshanie_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat" />
+                        <useparam name="dat_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="u_m" />
+                        <useparam name="u_m_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="d_m" />
+                        <useparam name="d_m_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_new" />
+                        <useparam name="is_new_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_not_new" />
+                        <useparam name="is_not_new_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="dat" />
+                  </order>
+                  <order>
+                    <column column="dat" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_soveshanie_filter" />
+                    <useparam name="dat_filter" />
+                    <useparam name="u_m_filter" />
+                    <useparam name="d_m_filter" />
+                    <useparam name="is_new_filter" />
+                    <useparam name="is_not_new_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_soveshanie_filter" type="string">
+                  <const>:kod_soveshanie_filter </const>
+                </param>
+                <param name="dat_filter" type="string">
+                  <const>:dat_filter </const>
+                </param>
+                <param name="u_m_filter" type="string">
+                  <const>:u_m_filter </const>
+                </param>
+                <param name="d_m_filter" type="string">
+                  <const>:d_m_filter </const>
+                </param>
+                <param name="is_new_filter" type="string">
+                  <const>:is_new_filter </const>
+                </param>
+                <param name="is_not_new_filter" type="string">
+                  <const>:is_not_new_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+        </column>
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_dog as kod_dog 
+,:info as info 
+,:kod_soveshanie_info as kod_soveshanie_info 
+,:kod_soveshanie as kod_soveshanie 
+ 
+from dual ) 
+ 
+loop 
+insert into sqlb_55300_soveshanie_info 
+(kod_dog 
+,info 
+,kod_soveshanie_info 
+,kod_soveshanie 
+) 
+ values  
+(r.kod_dog 
+,r.info 
+,r.kod_soveshanie_info 
+,r.kod_soveshanie 
+) 
+ returning  
+kod_soveshanie_info into :kod_soveshanie_info; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from sqlb_55300_soveshanie_info where kod_soveshanie_info=:kod_soveshanie_info</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='sov_info' 
+and 
+names=:form_id 
+and 
+f2=:kod_soveshanie_info; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_dog as kod_dog 
+,:info as info 
+,:kod_soveshanie_info as kod_soveshanie_info 
+,:kod_soveshanie as kod_soveshanie 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,s1 
+,n2 
+,n3 
+) 
+ values  
+('sov_info' 
+,:form_id 
+,:kod_soveshanie_info 
+,:row_state_id 
+,r.kod_dog 
+,r.info 
+,r.kod_soveshanie_info 
+,r.kod_soveshanie 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_dog as kod_dog 
+,:info as info 
+,:kod_soveshanie_info as kod_soveshanie_info 
+,:kod_soveshanie as kod_soveshanie 
+,a.u_m 
+,a.d_m 
+ 
+from sqlb_55300_soveshanie_info a  where kod_soveshanie_info=:kod_soveshanie_info) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,s1 
+,n2 
+,n3 
+,s2 
+,d1 
+) 
+ values  
+('sov_info' 
+,:form_id 
+,:kod_soveshanie_info 
+,:row_state_id 
+,r.kod_dog 
+,r.info 
+,r.kod_soveshanie_info 
+,r.kod_soveshanie 
+,r.u_m 
+,r.d_m 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='sov_info' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update sqlb_55300_soveshanie_info set  
+(kod_dog 
+,info 
+,kod_soveshanie_info 
+,kod_soveshanie 
+) 
+= 
+ ( select  
+:kod_dog as kod_dog 
+,:info as info 
+,:kod_soveshanie_info as kod_soveshanie_info 
+,:kod_soveshanie as kod_soveshanie 
+ 
+from dual ) 
+ 
+where 
+kod_soveshanie_info=:kod_soveshanie_info 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="sqlb_55300_soveshanie_info" as="sov_info">
+          <columns>
+            <column name="kod_dog" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="info" type="string" title="Информация" />
+            <column name="kod_dog_x_n" type="string" title="Договор" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_soveshanie_info" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_soveshanie" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="kod_dog_x_n" type="string" title="Договор" />
+            <column name="kod_dog" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="info" type="string" title="Информация" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_soveshanie_info" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_soveshanie" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_soveshanie_info_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_soveshanie_info_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select sov_info.kod_dog as kod_dog, /*Договор*//*number*/
+sov_info.info as info, /*Информация*//*string*/
+kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+sov_info.is_new as is_new, /*number*/
+sov_info.is_not_new as is_not_new, /*number*/
+sov_info.kod_soveshanie_info as kod_soveshanie_info, /*number*//*key*/
+sov_info.kod_soveshanie as kod_soveshanie/*number*/
+
+from (
+--sqlb_55300_soveshanie_info
+select a.kod_soveshanie_info as kod_soveshanie_info, /*number*//*key*/
+a.kod_soveshanie as kod_soveshanie, /*number*/
+a.kod_dog as kod_dog, /*number*/
+a.info as info, /**//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_soveshanie_info as kod_soveshanie_info,a.kod_soveshanie as kod_soveshanie,a.kod_dog as kod_dog,a.info as info,0 as is_new,1 as is_not_new  from sqlb_55300_soveshanie_info a where not exists (select * from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and a.kod_soveshanie_info=t.f2 ) and   a.kod_soveshanie_info in :kod_soveshanie_info_prm   union all  select t.n2 as kod_soveshanie_info,t.n3 as kod_soveshanie,t.n1 as kod_dog,t.s1 as info,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_info_prm )
+a
+--\(select a.kod_soveshanie_info as kod_soveshanie_info,a.kod_soveshanie as kod_soveshanie,a.kod_dog as kod_dog,a.info as info,0 as is_new,1 as is_not_new  from sqlb_55300_soveshanie_info a where not exists (select * from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and a.kod_soveshanie_info=t.f2 ) and   a.kod_soveshanie_info in :kod_soveshanie_info_prm   union all  select t.n2 as kod_soveshanie_info,t.n3 as kod_soveshanie,t.n1 as kod_dog,t.s1 as info,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sov_info' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_soveshanie_info_prm )
+)
+sov_info
+--\sqlb_55300_soveshanie_info
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sov_info.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

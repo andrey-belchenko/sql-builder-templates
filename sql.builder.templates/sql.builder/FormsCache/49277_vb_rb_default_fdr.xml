@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="49277_vb_rb_default_fdr" timestamp="30.01.2023 11:53:04" title="Изменить список фидеров" file="sql.builder.templates\sql.builder\projects\49277\form\forms.xml" elid="86" ord="86" leaf="0" lvl="2" pelid="">
+    <grid table="a" show-toolbar="1" show-checkbox="1" auto-filter="1" id="29980847">
+      <toolbar id="20718568">
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="65417150" />
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="50764118" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="21712643" />
+        <uicommand action-type="custom" title="Добавить выбранные" button-type="custom-ok" name="custom-ok" icon="Ok_24" file="sql.builder.templates\sql.builder\projects\common\main.xml" id="13805372">
+          <useaction action-type="save" id="53377054" />
+          <useaction action-type="close" id="52937369" />
+        </uicommand>
+      </toolbar>
+      <columns id="59697524">
+        <field table="a" name="pwrc_kod_id_fdrid" title="" controlType="UIText" rows-limit="100" id="30608857" />
+        <field table="a" name="pwrc_fdrid" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="39435902" />
+        <field table="a" name="pwrc_id" title="" controlType="UICombo" rows-limit="100" id="54517718" />
+        <field table="a" name="kod_id_pwrc" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="57194886" />
+        <field table="a" name="name" title="Филиал" controlType="UIText" rows-limit="100" id="43867349" />
+        <field table="a" name="pwrcname" title="ПС" width="266" controlType="UIText" rows-limit="100" id="15549877" />
+        <field table="a" name="pwrc_fdrname" title="Фидер" controlType="UIText" rows-limit="100" id="12504372" />
+        <field table="a" name="pwrc_fdr_explname" title="Экспл.отв." controlType="UIText" rows-limit="100" id="11994121" />
+      </columns>
+      <events id="43316697">
+        <useaction event-name="checked-row-save" action-type="custom" id="3502833">
+          <useaction action-type="execute-add" call="vb_rb_default_fdr_add" id="30954677">
+            <useparam name="pwrc_fdrid" id="11479400" />
+            <useparam name="pwrc_id" id="15033717" />
+            <useparam name="kod_id_pwrc" id="62932476" />
+          </useaction>
+        </useaction>
+      </events>
+    </grid>
+  </form>
+  <params>
+    <param name="kod_fl" type="array" />
+  </params>
+  <dataset>
+    <params>
+      <param name="kod_fl" type="array" />
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="vb_rb_default_fdr_list" column-editable="0" key="pwrc_kod_id_fdrid" is-ms-upd="0" is-top="1">
+      <select-text>
+--
+select a.pwrc_kod_id_fdrid as pwrc_kod_id_fdrid, /*string*//*key*/
+a.pwrc_fdrid as pwrc_fdrid, /*number*/
+a.pwrc_id as pwrc_id, /*number*/
+a.kod_id as kod_id_pwrc, /*number*/
+a.name as name, /*Филиал*//*string*/
+a.pwrcname as pwrcname, /*ПС*//*string*/
+a.pwrc_fdrname as pwrc_fdrname, /*Фидер*//*string*/
+a.pwrc_fdr_explname as pwrc_fdr_explname/*Экспл.отв.*//*string*/
+
+from (
+--vb_rb_default_fdr_list
+select def_pwrc.kod_id || '-' || a.pwrc_fdrid as pwrc_kod_id_fdrid, /*string*//*key*/
+a.pwrc_fdrid as pwrc_fdrid, /*number*/
+a.pwrc_fdrname as pwrc_fdrname, /*Фидер*//*string*/
+a.pwrc_id as pwrc_id, /*number*/
+a.pwrcname as pwrcname, /*ПС*//*string*/
+a.pwrc_fdr_explname as pwrc_fdr_explname, /*Экспл.отв.*//*string*/
+kod_fl.name as name, /*Филиал*//*string*/
+def_pwrc.kod_id as kod_id/*number*/
+
+from (
+--vr_rb_fider
+select a.pwrc_fdrid as pwrc_fdrid, /**//*number*//*key*/
+a.pwrc_fdrname as pwrc_fdrname, /**//*string*/
+a.pwrc_id as pwrc_id, /**//*number*/
+a.pwrcname as pwrcname, /**//*string*/
+a.pwrc_fdr_explname as pwrc_fdr_explname/**//*string*/
+
+from vr_rb_fider
+a
+--\vr_rb_fider
+)
+a
+--\vr_rb_fider
+left outer join
+(
+--vb_rb_default_pwrc
+select a.kod_id as kod_id, /*number*//*key*/
+a.kod_fl as kod_fl, /*number*/
+a.pwrc_id as pwrc_id/**//*number*/
+
+from vb_rb_default_pwrc
+a
+--\vb_rb_default_pwrc
+)
+def_pwrc on a.pwrc_id = def_pwrc.pwrc_id--\vb_rb_default_pwrc
+left outer join
+(
+--jv_rep_cons_d_fl
+select a.kod_fl as kod_fl, /*number*//*key*/
+a.name as name/*Филиал*//*string*/
+
+from jv_rep_cons_d_fl
+a
+--\jv_rep_cons_d_fl
+)
+kod_fl on def_pwrc.kod_fl = kod_fl.kod_fl--\jv_rep_cons_d_fl
+left outer join
+(
+--vb_rb_default_fdr
+select a.kod_id as kod_id, /*number*//*key*/
+a.pwrc_fdrid as pwrc_fdrid, /**//*number*/
+a.kod_id_pwrc as kod_id_pwrc/**//*number*/
+
+from vb_rb_default_fdr
+a
+--\vb_rb_default_fdr
+)
+def_fdr on (a.pwrc_fdrid = def_fdr.pwrc_fdrid)  and (def_pwrc.kod_id = def_fdr.kod_id_pwrc) --\vb_rb_default_fdr
+where
+(def_fdr.pwrc_fdrid is null )  and (kod_fl.kod_fl in :kod_fl ) 
+order by name, pwrcname, pwrc_fdrname)
+a
+--\vb_rb_default_fdr_list
+--\
+</select-text>
+      <columns>
+        <column name="pwrc_kod_id_fdrid" table="a" type="string" title="" ColumnVisible="0" />
+        <column name="pwrc_fdrid" table="a" type="number" title="" parname="pwrc_fdrid" ColumnVisible="0" ColumnMandatory="1" is-refreshed="1" />
+        <column name="pwrc_id" table="a" type="number" title="" parname="pwrc_id" ColumnVisible="0" is-refreshed="1" />
+        <column name="kod_id_pwrc" table="a" type="number" title="" parname="kod_id_pwrc" ColumnVisible="0" is-refreshed="1" />
+        <column name="name" table="a" type="string" title="Филиал" is-user-editable="1" is-refreshed="1" />
+        <column name="pwrcname" table="a" type="string" title="ПС" is-user-editable="1" is-refreshed="1" />
+        <column name="pwrc_fdrname" table="a" type="string" title="Фидер" is-user-editable="1" is-refreshed="1" />
+        <column name="pwrc_fdr_explname" table="a" type="string" title="Экспл.отв." is-user-editable="1" is-refreshed="1" />
+      </columns>
+      <scheme>
+        <table name="vb_rb_default_fdr_list" as="a">
+          <columns>
+            <column name="pwrc_kod_id_fdrid" type="string" title="" visible="0" />
+            <column name="pwrc_fdrid" type="number" title="" visible="0" />
+            <column name="pwrc_id" type="number" title="" visible="0" />
+            <column name="kod_id_pwrc" type="number" title="" visible="0" />
+            <column name="name" type="string" title="Филиал" />
+            <column name="pwrcname" type="string" title="ПС" />
+            <column name="pwrc_fdrname" type="string" title="Фидер" />
+            <column name="pwrc_fdr_explname" type="string" title="Экспл.отв." />
+          </columns>
+          <viewcolumns>
+            <column name="pwrc_kod_id_fdrid" type="string" title="" visible="0" />
+            <column name="pwrc_fdrid" type="number" title="" visible="0" />
+            <column name="pwrc_id" type="number" title="" visible="0" />
+            <column name="kod_id_pwrc" type="number" title="" visible="0" />
+            <column name="name" type="string" title="Филиал" />
+            <column name="pwrcname" type="string" title="ПС" />
+            <column name="pwrc_fdrname" type="string" title="Фидер" />
+            <column name="pwrc_fdr_explname" type="string" title="Экспл.отв." />
+          </viewcolumns>
+        </table>
+      </scheme>
+    </table>
+  </dataset>
+</root>

@@ -1,0 +1,563 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vb_add_fdr" timestamp="21.11.2019 14:25:50" update-target="vb_kol_gr_fdr">
+      <params>
+        <param name="pwrc_fdrid" type="number" />
+        <param name="kod_kol_gr_pwrc" type="number" />
+        <param name="entire_fdr" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="kod_kol_gr_pwrc">
+          <useparam name="kod_kol_gr_pwrc" />
+        </call>
+        <call function="()" type="number" as="pwrc_fdrid">
+          <useparam name="pwrc_fdrid" />
+        </call>
+        <call function="()" type="number" as="entire_fdr">
+          <useparam name="entire_fdr" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vb_add_pwrc" timestamp="27.11.2018 19:17:46" update-target="vb_kol_gr_pwrc">
+      <params>
+        <param name="pwrc_id" type="number" />
+        <param name="kod_nastr" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="kod_kol_gr_nastr">
+          <useparam name="kod_nastr" />
+        </call>
+        <call function="()" type="number" as="pwrc_id">
+          <useparam name="pwrc_id" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vb_nastr_fdr_list" timestamp="21.11.2019 14:24:06" class="1">
+      <params>
+        <param name="kod_nastr" type="number" />
+        <param name="ym" type="number" />
+      </params>
+      <select>
+        <call function="||-" key="1" as="pk">
+          <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+          <column table="a" column="pwrc_fdrid" />
+        </call>
+        <column table="a" column="pwrc_fdrid" />
+        <column table="a" column="pwrc_fdrname" />
+        <column table="a" column="pwrcname" />
+        <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+        <column table="pwrc_fdrid" column="entire_fdr" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_fdrs" as="a" auto-refresh="1" column-editable="0" />
+        <query name="vb_kol_gr_pwrc" as="pwrc_id" join="left outer">
+          <call function="=">
+            <column table="a" column="pwrc_id" />
+            <column table="pwrc_id" column="pwrc_id" />
+          </call>
+        </query>
+        <query name="vb_kol_gr_fdr" as="pwrc_fdrid" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_fdrid" />
+              <column table="pwrc_fdrid" column="pwrc_fdrid" />
+            </call>
+            <call function="=">
+              <column table="this" column="kod_kol_gr_pwrc" />
+              <column table="pwrc_fdrid" column="kod_kol_gr_pwrc" />
+            </call>
+          </call>
+        </query>
+        <query name="vb_nastr_fdr_list_exclude" as="pwrc_fdrid_exclude" join="left outer">
+          <withparams>
+            <useparam name="ym" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="pwrc_fdrid" />
+            <column table="pwrc_fdrid_exclude" column="pwrc_fdrid" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="pwrc_id" column="kod_kol_gr_nastr" />
+            <useparam name="kod_nastr" />
+          </call>
+          <call function="is not null">
+            <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+          </call>
+          <call function="is null">
+            <column table="pwrc_fdrid" column="kod_kol_gr_fdr" />
+          </call>
+          <call function="is null">
+            <column table="pwrc_fdrid_exclude" column="pwrc_fdrid" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vb_nastr_tp_list" timestamp="21.11.2019 14:41:03" class="1">
+      <params>
+        <param name="kod_nastr" type="number" />
+        <param name="ym" type="number" />
+      </params>
+      <select>
+        <call function="||-" key="1" as="pk">
+          <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+          <column table="pwrc_fdrid" column="kod_kol_gr_fdr" />
+          <column table="a" column="pwrc_fdrid" />
+          <column table="a" column="src_id" />
+        </call>
+        <column table="a" column="src_id" />
+        <column table="a" column="srcname" title="ТП" />
+        <column table="a" column="pwrc_fdrname" title="Фидер" />
+        <column table="a" column="pwrcname" title="ПС" />
+        <column table="pwrc_fdrid" column="kod_kol_gr_fdr" />
+        <column table="pwrc_fdrid" column="kod_kol_gr_pwrc" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_grid" as="a" auto-refresh="1" column-editable="0" />
+        <query name="vb_kol_gr_fdr" as="pwrc_fdrid" auto-refresh="1" column-editable="0" join="left outer">
+          <call function="=">
+            <column table="a" column="pwrc_fdrid" />
+            <column table="pwrc_fdrid" column="pwrc_fdrid" />
+          </call>
+        </query>
+        <query name="vb_kol_gr_pwrc" as="pwrc_id" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_kol_gr_pwrc" />
+            <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+          </call>
+        </query>
+        <query name="vb_kol_gr_tp" as="src_id" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="src_id" />
+              <column table="src_id" column="src_id" />
+            </call>
+            <call function="=">
+              <column table="this" column="kod_kol_gr_fdr" />
+              <column table="src_id" column="kod_kol_gr_fdr" />
+            </call>
+          </call>
+        </query>
+        <query name="vb_nastr_tp_list_exclude" join="left outer" as="src_id_exclude">
+          <withparams>
+            <useparam name="ym" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="src_id" />
+            <column table="src_id_exclude" column="src_id" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="pwrc_id" column="kod_kol_gr_nastr" />
+            <useparam name="kod_nastr" />
+          </call>
+          <call function="is not null">
+            <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+          </call>
+          <call function="is not null">
+            <column table="pwrc_fdrid" column="kod_kol_gr_fdr" />
+          </call>
+          <call function="!=">
+            <call function="nvl0">
+              <column table="pwrc_fdrid" column="entire_fdr" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="is not null" comment="Если после открытия формы запущен отчет 2, то в списке ТП появятся пустые записи (уровень фидера с пустыми ТП, параметр is_test=1 процедуры схемы сети)">
+            <column table="a" column="src_id" />
+          </call>
+          <call function="is null">
+            <column table="src_id" column="kod_kol_gr_tp" />
+          </call>
+          <call function="is null">
+            <column table="src_id_exclude" column="src_id" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vb_add_tp" timestamp="28.11.2018 12:46:23" update-target="vb_kol_gr_tp">
+      <params>
+        <param name="src_id" type="number" />
+        <param name="kod_kol_gr_fdr" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="kod_kol_gr_fdr">
+          <useparam name="kod_kol_gr_fdr" />
+        </call>
+        <call function="()" type="number" as="src_id">
+          <useparam name="src_id" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vb_nastr_pwrc_list" timestamp="22.02.2019 12:53:57" class="1">
+      <params>
+        <param name="kod_fl" type="number" />
+        <param name="kod_nastr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="ПС" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_list_def" as="a" auto-refresh="1" column-editable="0">
+          <withparams>
+            <useparam name="kod_fl" />
+          </withparams>
+        </query>
+        <query name="vb_kol_gr_pwrc" as="pwrc_id" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_id" />
+              <column table="pwrc_id" column="pwrc_id" />
+            </call>
+            <call function="=">
+              <column table="pwrc_id" column="kod_kol_gr_nastr" />
+              <useparam name="kod_nastr" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="is null">
+          <column table="pwrc_id" column="kod_kol_gr_pwrc" />
+        </call>
+      </where>
+    </query>
+    <query name="45862_vb_kg_schema" class="1" timestamp="29.11.2018 17:53:26">
+      <params>
+        <param name="kod_fl" type="number" />
+        <param name="period_s" type="number" />
+        <param name="period_po" type="number" />
+      </params>
+      <select>
+        <column table="a" column="rn" type="string" data-size="4000" />
+        <column table="a" column="name" type="string" data-size="4000" title="КГ" />
+        <column table="a" column="kod_fl" type="number" />
+        <column table="a" column="s" type="number" title="С" />
+        <column table="a" column="po" type="number" title="По" />
+        <column table="a" column="pwrc_id" type="number" title="" />
+        <column table="a" column="pwrc_fdrid" type="number" title="" />
+        <column table="a" column="src_id" type="number" title="" />
+        <column table="a" column="pwrcname" type="string" data-size="121" title="ПС" />
+        <column table="a" column="pwrc_fdrname" type="string" data-size="206" title="Фидер" />
+        <column table="a" column="srcname" type="string" data-size="123" title="ТП" />
+        <column table="a" column="is_new" type="string" data-size="123" />
+        <column table="a" column="is_not_new" type="string" data-size="123" />
+        <column table="ymm" column="ym" />
+      </select>
+      <from>
+        <query name="vb_kg_schema" as="a" />
+        <query join="left outer" name="spr_time_ym" as="s">
+          <call function="=">
+            <column table="a" column="s" />
+            <column table="s" column="ym" />
+          </call>
+        </query>
+        <query join="left outer" name="spr_time_ym" as="po">
+          <call function="=">
+            <column table="po" column="ym" />
+            <column table="a" column="po" />
+          </call>
+        </query>
+        <query name="spr_time_ym" join="left outer" as="ymm">
+          <call function="and">
+            <call function="between">
+              <column table="ymm" column="ym" />
+              <call function="nvl">
+                <column table="a" column="s" />
+                <const>1.01</const>
+              </call>
+              <call function="nvl">
+                <column table="a" column="po" />
+                <const>9999.12</const>
+              </call>
+            </call>
+            <call function="between">
+              <column table="ymm" column="ym" />
+              <call function="nvl">
+                <useparam name="period_s" />
+                <const>1.01</const>
+              </call>
+              <call function="nvl">
+                <useparam name="period_po" />
+                <const>9999.12</const>
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_fl" />
+            <useparam name="kod_fl" />
+          </call>
+          <call function="is not null">
+            <column table="ymm" column="ym" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="45862_init_filial" class="1" timestamp="10.12.2018 02:16:46">
+      <procedure>
+        <text>
+          BEGIN
+       jg_reports_ise.jr_rep_blns_pwrc_sx_init(:kod_fl);
+	END;
+        </text>
+      </procedure>
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <call function="()" type="number" as="val">
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+      <where>
+        <call function="is not null">
+          <useparam name="kod_fl" />
+        </call>
+      </where>
+    </query>
+    <query name="45862_ym_editable" class="1" timestamp="17.04.2020 19:43:22">
+      <params>
+        <param name="ym" type="number" />
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <call function="if" as="save_active" type="number">
+          <call function="ge">
+            <useparam name="ym" />
+            <call function="max">
+              <column table="a" column="ym" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="vr_rb_filial_for_param" as="a" />
+      </from>
+      <where>
+        <call function="=" optional="1">
+          <column table="a" column="kod_fl" />
+          <useparam name="kod_fl" />
+        </call>
+      </where>
+    </query>
+    <query name="45862_kg_add_allow_flag" class="1" timestamp="17.04.2020 19:43:35">
+      <params>
+        <param name="ym" type="number" />
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <call function="if" as="save_active">
+          <call function="ge">
+            <useparam name="ym" />
+            <call function="max">
+              <column table="b" column="ym" />
+            </call>
+          </call>
+          <useparam name="kod_fl" />
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="vr_rb_filial_for_param" as="b" />
+      </from>
+      <where>
+        <call function="=" optional="1">
+          <column table="b" column="kod_fl" />
+          <useparam name="kod_fl" />
+        </call>
+      </where>
+    </query>
+    <query name="vb_nastr_tp_list_exclude" timestamp="21.10.2019 16:05:36" class="1">
+      <params>
+        <param name="ym" type="number" />
+      </params>
+      <select>
+        <column table="vb_kol_gr_tp" column="src_id" group="1" />
+      </select>
+      <from>
+        <query name="vb_kol_gr_tp">
+          <link name="kod_kol_gr_fdr">
+            <link name="kod_kol_gr_pwrc">
+              <link name="kod_kol_gr_nastr" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="or">
+            <call function="is null">
+              <column table="kod_kol_gr_nastr" column="po" />
+            </call>
+            <call function="ge">
+              <column table="kod_kol_gr_nastr" column="po" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="kod_kol_gr_nastr" column="s" />
+            <useparam name="ym" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vb_nastr_fdr_list_exclude" timestamp="21.10.2019 15:33:59" class="1">
+      <params>
+        <param name="ym" type="number" />
+      </params>
+      <select>
+        <column table="vb_kol_gr_fdr" column="pwrc_fdrid" group="1" />
+      </select>
+      <from>
+        <query name="vb_kol_gr_fdr">
+          <elink name="vb_kol_gr_tp" />
+          <link name="kod_kol_gr_pwrc">
+            <link name="kod_kol_gr_nastr" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="or">
+            <call function="is null">
+              <column table="kod_kol_gr_nastr" column="po" />
+            </call>
+            <call function="ge">
+              <column table="kod_kol_gr_nastr" column="po" />
+              <useparam name="ym" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="kod_kol_gr_nastr" column="s" />
+            <useparam name="ym" />
+          </call>
+          <call function="is null">
+            <column table="vb_kol_gr_tp" column="kod_kol_gr_tp" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="45862_vb_kol_gr_allow_edit" class="1" timestamp="18.05.2020 11:56:21">
+      <params>
+        <param name="ym" type="number" />
+        <param name="kod_kol_gr_nastr" type="number" />
+        <param type="number" name="kod_fl" />
+      </params>
+      <select>
+        <call function="if" as="save_active" type="number">
+          <call function="and">
+            <call function="=0">
+              <call function="nvl0">
+                <column table="this" column="is_auto_kg" />
+              </call>
+            </call>
+            <call function="ge">
+              <useparam name="ym" />
+              <column table="this" column="ym_last" />
+            </call>
+            <call function="=">
+              <useparam name="ym" />
+              <call function="nvl">
+                <column table="this" column="kg_ym_s" />
+                <useparam name="ym" />
+              </call>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <query as="is_auto_kg">
+          <select>
+            <column table="vb_kol_gr_nastr_sq" column="is_auto_kg" />
+          </select>
+          <from>
+            <query name="vb_kol_gr_nastr" as="vb_kol_gr_nastr_sq" />
+          </from>
+          <where>
+            <call function="=">
+              <column table="vb_kol_gr_nastr_sq" column="kod_kol_gr_nastr" />
+              <useparam name="kod_kol_gr_nastr" />
+            </call>
+          </where>
+        </query>
+        <query as="kg_ym_s">
+          <select>
+            <call function="min">
+              <column table="vb_kol_gr_nastr_sq" column="s" />
+            </call>
+          </select>
+          <from>
+            <query name="vb_kol_gr_nastr" as="vb_kol_gr_nastr_sq" />
+          </from>
+          <where>
+            <call function="=">
+              <column table="vb_kol_gr_nastr_sq" column="kod_kol_gr_nastr" />
+              <useparam name="kod_kol_gr_nastr" />
+            </call>
+          </where>
+        </query>
+        <query as="ym_last">
+          <select>
+            <call function="max" as="max_ym">
+              <column table="vr_rb_filial_for_param_sq" column="ym" />
+            </call>
+          </select>
+          <from>
+            <query name="vr_rb_filial_for_param" as="vr_rb_filial_for_param_sq" />
+          </from>
+          <where>
+            <call function="=" optional="1">
+              <column table="vr_rb_filial_for_param_sq" column="kod_fl" />
+              <useparam name="kod_fl" />
+            </call>
+          </where>
+        </query>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="vr_rb_filial_for_param" class="1" timestamp="17.04.2020 19:42:49">
+      <select>
+        <column table="a" column="kod_fl" type="number" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="ym" type="number" title="Отчетный период" />
+      </select>
+      <from>
+        <table as="a" name="vr_rb_filial" />
+      </from>
+      <links exclude="1">
+        <dlink name="vr_rb_pwrc" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d49277_fdrid" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="d49277_pwrc" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+      </links>
+    </query>
+  </queries>
+</root>

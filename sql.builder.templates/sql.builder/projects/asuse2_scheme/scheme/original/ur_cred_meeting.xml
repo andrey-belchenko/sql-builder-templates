@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_cred_meeting" title="Собрание/ Комитет кредиторов" timestamp="11.11.2024 16:20:00">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <select>
+        <column table="a" column="kod_cred_meeting" key="1" type="number" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_cred_meeting_type" type="number" comment="1 - собрание, 2 - комитет" />
+        <column table="a" column="dat_meeting" type="date" comment="Дата проведения" />
+        <column table="a" column="kod_cred_meeting_in_time" type="number" comment="Своевременность проведения собрания/комитета кредиторов: 0 - несвоевременно, 1 - своевременно" />
+        <column table="a" column="voprosy_povestki" type="string" comment="Вопросы повестки (основные, дополнительные)" />
+        <column table="a" column="kod_cred_meeting_num" type="number" comment="1 - первое, 2 - последующее" />
+        <column table="a" column="resheniya" type="string" comment="Принятые решения/Информация о признании собрания несостоявшимся" />
+        <column table="a" column="kod_pov_corresp" type="number" comment="Соответствие повестки требованиям ст. 73 ФЗ: 0 - не соответствует, 1 - соответствует" />
+        <column table="a" column="kod_rep_provide_deyat" type="number" comment="Арбитражным управляющим предоставлен отчёт о деятельности: 0 - не предоставлен, 1 - предоставлен" />
+        <column table="a" column="kod_rep_deyat_corresp" type="number" comment="Отчёт о деятельности соответствует требованиям зак-ва: 0 - не соответствует, 1 - соответствует" />
+        <column table="a" column="kod_rep_deyat_info_true" type="number" comment="Содержащаяся в отчёте о деятельности информация достоверна: 0 - не достоверна, 1 - достоверна" />
+        <column table="a" column="kod_rep_provide_ds" type="number" comment="Арбитражным управляющим предоставлен отчёт об использовании ден. средств: 0 - не предоставлен, 1 - предоставлен" />
+        <column table="a" column="kod_rep_ds_corresp" type="number" comment="Отчёт об использовании ден. средств соответствует требованиям зак-ва: 0 - не соответствует, 1 - соответствует" />
+        <column table="a" column="kod_rep_ds_info_true" type="number" comment="Содержащаяся в отчёте об использовании ден. средств информация достоверна: 0 - не достоверна, 1 - достоверна" />
+        <column table="a" column="prim" type="string" comment="Примечание" />
+      </select>
+      <from>
+        <table name="ur_cred_meeting" as="a" />
+        <query name="ur_folders" as="kod_folders" join="left outer" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_type" as="kod_cred_meeting_type" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_cred_meeting_type" />
+            <column table="kod_cred_meeting_type" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_in_time" as="kod_cred_meeting_in_time" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_cred_meeting_in_time" />
+            <column table="kod_cred_meeting_in_time" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_num" as="kod_cred_meeting_num" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_cred_meeting_num" />
+            <column table="kod_cred_meeting_num" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_corresp" as="kod_pov_corresp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_pov_corresp" />
+            <column table="kod_pov_corresp" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_rep_provide" as="kod_rep_provide_deyat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rep_provide_deyat" />
+            <column table="kod_rep_provide_deyat" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_corresp" as="kod_rep_deyat_corresp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rep_deyat_corresp" />
+            <column table="kod_rep_deyat_corresp" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_info_true" as="kod_rep_deyat_info_true" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rep_deyat_info_true" />
+            <column table="kod_rep_deyat_info_true" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_rep_provide" as="kod_rep_provide_ds" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rep_provide_ds" />
+            <column table="kod_rep_provide_ds" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_corresp" as="kod_rep_ds_corresp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rep_ds_corresp" />
+            <column table="kod_rep_ds_corresp" column="kod" />
+          </call>
+        </query>
+        <query name="us_cred_meeting_info_true" as="kod_rep_ds_info_true" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_rep_ds_info_true" />
+            <column table="kod_rep_ds_info_true" column="kod" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

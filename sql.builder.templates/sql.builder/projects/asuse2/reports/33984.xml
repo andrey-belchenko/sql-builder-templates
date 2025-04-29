@@ -1,0 +1,565 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="33984-1" timestamp="21.11.2016 14:27:13" with-behavior="0">
+      <content>
+        <usefield field="asuse_dep" title="Филиал" />
+        <field controlType="UIList" name-field-name="sname" rows-limit="100" show-nulls="1" title="Филиал" name="dep" exclude="1">
+          <listquery>
+            <query name="hg_controlpoint_net_pl_getfsk" />
+          </listquery>
+        </field>
+        <usefield field="asuse_year" title="Отчётный год" />
+      </content>
+    </form>
+    <form name="33984-2" timestamp="11.01.2021 15:54:48" with-behavior="0">
+      <content>
+        <usefield field="asuse_dep" title="Филиал" exclude="1" />
+        <field controlType="UIList" name-field-name="sname" rows-limit="100" show-nulls="1" title="Филиал" name="dep">
+          <listquery>
+            <query name="hg_controlpoint_net_pl_getfsk" />
+          </listquery>
+        </field>
+        <usefield field="asuse_year" title="Отчётный год" />
+        <field name="kod_rsk" controlType="UIList" name-field-name="sname" rows-limit="100" show-nulls="1" title="РЭС">
+          <listquery>
+            <query name="hg_controlpoint_net_pl_getrsk" />
+          </listquery>
+        </field>
+        <field name="kod_net" controlType="UIList" name-field-name="sname" rows-limit="100" show-nulls="1" title="Граница с сетями">
+          <listquery>
+            <query name="hg_controlpoint_net_pl_getorgs" />
+          </listquery>
+        </field>
+        <field name="kod_pwrcompany" controlType="UIList" name-field-name="sname" rows-limit="100" show-nulls="1" title="Входит в группу потребителей по сети">
+          <listquery>
+            <query name="hg_controlpoint_net_pl_getorgs" />
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="33984-1" form="33984-1" nogrid="1" title="Отчёт по величине резервируемой мощности" folder="rez_power_reports">
+      <params>
+        <param name="dep" />
+        <param name="year" />
+      </params>
+      <customers>
+        <customer id="102" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="33984-1.xml" title="Отчёт по величине резервируемой мощности" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="33984-rep" as="m" title="Параметры">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+        <query name="33984-1" as="a" main="1" title="Данные">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="33984-2" form="33984-2" nogrid="1" title="Отчёт по точкам поставки потребителей" folder="rez_power_reports" timestamp="10.07.2016 22:38:29">
+      <params>
+        <param name="dep" />
+        <param name="year" />
+        <param name="kod_rsk" />
+        <param name="kod_net" />
+        <param name="kod_pwrcompany" />
+      </params>
+      <customers>
+        <customer id="102" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="33984-2.xml" title="Отчёт по точкам поставки потребителей" print-proc="2" cells-merge="1" />
+        </excel>
+      </print-templates>
+      <procedure>
+        <text>BEGIN
+    JG_COMMON.set_dateinterval (TO_DATE ('01.01.2000', 'DD.MM.YYYY'), NULL);
+    JG_COMMON.set_podrid (NULL);
+END;</text>
+      </procedure>
+      <queries>
+        <query name="33984-rep" as="m" title="Параметры">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+        <query name="33984-2" as="a" main="1" title="Данные">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="year" />
+            <useparam name="kod_rsk" />
+            <useparam name="kod_net" />
+            <useparam name="kod_pwrcompany" />
+          </withparams>
+        </query>
+        <query name="form:33984-2" as="b" title="Параметры" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="33984-rep">
+      <params>
+        <param name="dep" />
+        <param name="year" />
+      </params>
+      <select>
+        <call function="" as="year" title="Отчётный год" type="string">
+          <call function="to_char">
+            <useparam name="year" />
+          </call>
+        </call>
+        <call function="if" as="deps_name" type="string" title="Филиалы">
+          <call function="is not null">
+            <column table="a" column="name" group="stragg_dist" />
+          </call>
+          <column table="a" column="sname" group="stragg_dist" />
+          <const>'Все'</const>
+        </call>
+      </select>
+      <from>
+        <query name="kr_org" as="a" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="33984-1" order="ndog, abon_name, numobj_name, voltage_name, kod_f46_order" timestamp="19.09.2018 16:25:28">
+      <params>
+        <param name="dep" />
+        <param name="year">
+          <const>2015</const>
+        </param>
+      </params>
+      <select>
+        <column table="voltage" column="voltage" group="1" />
+        <column table="kod_f46" column="kod_f46" group="1" />
+        <column table="kod_dog" column="kod_dog" group="1" />
+        <call function="if" as="kod_numobj1" group="1">
+          <call function="is not null">
+            <call function="over" as="kod_numobj_ym" title="kod_numobj_ym">
+              <call function="first_value">
+                <column table="kod_numobj" column="kod_numobj" />
+              </call>
+              <call function="partition by">
+                <column table="kod_dog" column="kod_dog" />
+                <column table="ym" column="val" as="ym" />
+              </call>
+              <call function="order by rows * *">
+                <call function="asc nulls first">
+                  <column table="kod_numobj" column="kod_numobj" />
+                </call>
+              </call>
+            </call>
+          </call>
+          <column table="kod_numobj" column="kod_numobj" />
+        </call>
+        <column table="kod_dog" column="ndog" group="max" title="№ Дог" />
+        <column table="kodp" column="name" as="abon_name" group="max" title="Наим. потр." />
+        <column table="kod_numobj" column="name" as="numobj_name" group="max" title="Наим. объекта" />
+        <column table="voltage" column="abbr" as="voltage_name" group="max" title="Ур. Напр." />
+        <call function="if" as="group_name" group="max" title="Группа потр.">
+          <call function="in">
+            <column table="voltage" column="voltage" />
+            <array>5,6,7,8,9</array>
+          </call>
+          <const>'Потребители, непосредственно присоедененные к шинам станций'</const>
+          <column table="kod_f46" column="name" />
+        </call>
+        <fact column="ar_point_name_net" title="Сетевая организация" group="max" />
+        <fact table="a" column="nr_account_cust" as="cust" group="sum" title="Фактическая мощность" />
+        <fact table="a" column="nr_account_cust" group="sum" />
+        <fact table="a" column="nr_account_cust" as="cust_per" group="sum" dimname="mon" title="Фактическая мощность (по периодам)">
+          <pivot>
+            <call function="between">
+              <column table="ym" column="val" as="ym" />
+              <column table="dim" column="ym_beg" />
+              <column table="dim" column="ym_end" />
+            </call>
+            <query>
+              <select>
+                <column table="a" column="in_year_id" />
+                <column table="a" column="name" as="title" />
+                <call function="date to ym" as="ym_beg">
+                  <column table="a" column="date_begin" />
+                </call>
+                <call function="date to ym" as="ym_end">
+                  <column table="a" column="date_end" />
+                </call>
+              </select>
+              <from>
+                <query name="spr_time_intervals" as="a" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="in">
+                    <column table="a" column="time_type" />
+                    <call function="array">
+                      <!--<const>'Квартал'</const>-->
+                      <const>'Месяц'</const>
+                    </call>
+                  </call>
+                  <call function="=">
+                    <call function="year">
+                      <column table="a" column="date_begin" />
+                    </call>
+                    <useparam name="year" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </fact>
+        <fact column="hr_point_har_rpower" as="power_per" group="sum" dimname="mon" title="Макс. мощн. (по периодам)" />
+        <!--<call function="/" as="res_pow_kv"   group="sum" title="Рез. мощн. (по кварталам)"  dimname="kv">
+          <call function="-nvl">
+            <fact  column="hr_point_har_rpower" />
+            <fact table="a" column="nr_account_cust"/>
+          </call>
+          <const>3</const>
+          <pivot >
+            <call function="=">
+              <call function="ym to kv">
+                <column table="ym" column="val" as="ym"/>
+              </call>
+              <column table="dim" column="id"/>
+            </call>
+            <query>
+              <select>
+                <column table="a" column="id"/>
+                <column table="a" column="name"/>
+              </select>
+              <from>
+                <query name="spr_time_kv" as="a"/>
+              </from>
+            </query>
+          </pivot>
+        </call>-->
+        <call function="case" as="kod_f46_order" group="max">
+          <call function="when">
+            <call function="in">
+              <column table="voltage" column="voltage" />
+              <array>
+                <const>5</const>
+                <const>6</const>
+                <const>7</const>
+                <const>8</const>
+                <const>9</const>
+              </array>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="kod_f46" column="kod_f46" />
+              <const>-3</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="kod_f46" column="kod_f46" />
+              <const>384</const>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="kod_f46" column="kod_f46" />
+              <const>385</const>
+            </call>
+            <const>4</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="kod_f46" column="kod_f46" />
+              <const>-2</const>
+            </call>
+            <const>5</const>
+          </call>
+          <call function="else">
+            <const>6</const>
+          </call>
+        </call>
+        <fact column="hr_point_har_rpower" as="power" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="a">
+            <link name="kod_account" />
+            <where>
+              <call function="in">
+                <column table="kod_account" column="vid_t" />
+                <array>
+                  <const>22</const>
+                </array>
+              </call>
+            </where>
+          </dimset>
+          <link name="kod_dog">
+            <link name="kodp" />
+          </link>
+          <link name="kod_numobj" />
+          <link name="tarif">
+            <link name="kod_f46" />
+          </link>
+          <link name="voltage" />
+          <link name="ym" />
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="kod_dog" column="tep_el" />
+                <const>1</const>
+              </call>
+              <call function="is not null">
+                <column table="voltage" column="voltage" />
+              </call>
+              <call function="=">
+                <call function="year">
+                  <call function="ym begin time">
+                    <column table="ym" column="val" />
+                  </call>
+                </call>
+                <useparam name="year" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <having>
+        <call function="or">
+          <call function="!=0">
+            <fact table="a" column="nr_account_cust" group="sum" />
+          </call>
+          <call function="and">
+            <call function="=">
+              <fact table="a" column="nr_account_cust" group="sum" />
+              <const>0</const>
+            </call>
+            <call function="!=0">
+              <fact column="hr_point_har_rpower" group="sum" />
+            </call>
+          </call>
+        </call>
+      </having>
+    </query>
+    <query name="33984-2" timestamp="08.07.2016 16:42:05">
+      <params>
+        <param name="dep" />
+        <param name="year" />
+        <param name="kod_rsk" />
+        <param name="kod_net" />
+        <param name="kod_pwrcompany" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="33984-2-pre" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="year" />
+            <useparam name="kod_rsk" />
+            <useparam name="kod_net" />
+            <useparam name="kod_pwrcompany" />
+          </withparams>
+          <grsets>
+            <grset as="itog" order="month" level="1">
+              <grset as="detail" order="month, kod_f46_order, voltage_name" level="2,3" />
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="33984-2-pre" timestamp="08.07.2016 15:56:48" grouplevel="no">
+      <params>
+        <param name="dep" />
+        <param name="year" />
+        <param name="kod_rsk" />
+        <param name="kod_net" />
+        <param name="kod_pwrcompany" />
+      </params>
+      <select>
+        <column table="a" column="voltage" group="3" />
+        <column table="a" column="kod_f46" group="2" />
+        <column table="a" column="ym" as="ym" group="1" />
+        <call function="mes" as="month" group="ym">
+          <column table="a" column="ym" as="ym" />
+        </call>
+        <call function="mes-name" as="month_name" title="Период" group="max">
+          <call function="mes" as="month" thissrc="month">
+            <column table="a" column="ym" as="ym" />
+          </call>
+        </call>
+        <call function="if" as="group_name" group="max" title="Тарифная группа">
+          <call function="in">
+            <column table="a" column="voltage" />
+            <array>5,6,7,8,9</array>
+          </call>
+          <const>'Потребители, непосредственно присоедененные к шинам станций'</const>
+          <column table="a" column="f46_name" />
+        </call>
+        <column column="kod_numobj" group="count_dist" as="cnt_obj" title="Кол-во потребителей" table="a" />
+        <column table="a" column="voltage_abbr" as="voltage_name" group="max" title="Уровень напряжения" />
+        <column column="kod_point" as="cnt_tu" group="count_dist" title="К-во точек" table="a" />
+        <call function="/" as="power" group="sum" title="Pmax в точке поставки, МВт">
+          <column table="a" column="rpower" />
+          <const>1000</const>
+        </call>
+        <call function="/" as="cust" group="sum" title="Объём потребления, тыс.кВтч">
+          <column column="cust" table="a" />
+          <const>1000</const>
+        </call>
+        <!--<column table="kod_f46" column="npp" group="max"/>-->
+        <call function="case" as="kod_f46_order" group="max">
+          <call function="when">
+            <call function="in">
+              <column table="a" column="voltage" />
+              <array>
+                <const>5</const>
+                <const>6</const>
+                <const>7</const>
+                <const>8</const>
+                <const>9</const>
+              </array>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_f46" />
+              <const>-3</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_f46" />
+              <const>384</const>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_f46" />
+              <const>385</const>
+            </call>
+            <const>4</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="kod_f46" />
+              <const>-2</const>
+            </call>
+            <const>5</const>
+          </call>
+          <call function="else">
+            <const>6</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ov_e_priem_analyse1" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <call function="year">
+              <call function="ym begin time">
+                <column table="a" column="ym" />
+              </call>
+            </call>
+            <useparam name="year" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp_fsk" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp_rsk" />
+            <useparam name="kod_rsk" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp_net" />
+            <useparam name="kod_net" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp_pwrcompany" />
+            <useparam name="kod_pwrcompany" />
+          </call>
+        </call>
+      </where>
+      <!--<having>
+        <call function="and">
+          <call function="is not null">
+            <fact table="a" column="nr_account_cust"  group="sum"/>
+          </call>
+        </call>
+      </having>-->
+    </query>
+    <query name="33984-test" order="ndog, abon_name, numobj_name, voltage_name, kod_f46_order" timestamp="19.09.2018 16:16:50">
+      <params>
+        <param name="dep" />
+        <param name="year">
+          <const>2015</const>
+        </param>
+      </params>
+      <select>
+        <column table="voltage" column="voltage" group="1" />
+        <!--<call function="/" as="res_pow_kv"   group="sum" title="Рез. мощн. (по кварталам)"  dimname="kv">
+          <call function="-nvl">
+            <fact  column="hr_point_har_rpower" />
+            <fact table="a" column="nr_account_cust"/>
+          </call>
+          <const>3</const>
+          <pivot >
+            <call function="=">
+              <call function="ym to kv">
+                <column table="ym" column="val" as="ym"/>
+              </call>
+              <column table="dim" column="id"/>
+            </call>
+            <query>
+              <select>
+                <column table="a" column="id"/>
+                <column table="a" column="name"/>
+              </select>
+              <from>
+                <query name="spr_time_kv" as="a"/>
+              </from>
+            </query>
+          </pivot>
+        </call>-->
+        <fact column="hr_point_har_rpower" as="power" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="voltage" />
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

@@ -1,0 +1,450 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="is_spr_direct" class="1" timestamp="15.08.2019 18:14:54">
+      <select>
+        <column table="a" column="kod_direct" type="number" />
+        <column table="a" column="kod_predpr" type="string" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="name_kr" type="string" title="" />
+        <column table="a" column="mes" type="number" title="Месяц оконч." />
+        <column table="a" column="god" type="number" title="Год оконч." />
+        <column table="a" column="gor_obl" type="number" title="" />
+        <column table="a" column="kod_podr" type="number" />
+        <column table="a" column="en_gor" type="number" title="" />
+        <column table="a" column="en_obl" type="number" title="" />
+        <column table="a" column="tep_gor" type="number" title="" />
+        <column table="a" column="kod_plant" type="string" />
+        <column table="a" column="tep_obl" type="number" title="" />
+        <column table="a" column="prizn_isp" type="number" title="" />
+        <column table="a" column="crkp" type="number" title="" />
+        <column table="a" column="kod_spr_doc" type="number" />
+        <column table="a" column="kod_dir_old" type="number" />
+        <column table="a" column="kod_gkpz" type="number" />
+        <column table="a" column="path_doc" type="string" title="" comment="путь хранения док-тов дог-ра (только для верхнего уровня)" />
+        <column table="a" column="d_c" type="date" title="" comment="дата создания строки в БД" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="kod_kazn" type="string" comment="код из программы ЛЭИВО" />
+        <column table="a" column="kod_nemo" type="number" comment="для синхронизации справочников НеМо" />
+        <column table="a" column="fl_branch" type="number" title="" comment="флаг филилала (ППЭ)" />
+        <column table="a" column="kod_xml_plan" type="number" />
+        <column table="a" column="invest_pr" type="number" title="" />
+        <column table="a" column="fl_ask_atp" type="number" title="" />
+        <column table="a" column="kod_spr_pfm" type="number" />
+        <column table="a" column="full_name" type="string" title="" comment="Полное наим. подразд(без сокращений)" />
+        <column table="a" column="pr_vks_ofz" type="number" title="" />
+        <column table="a" column="zone" type="number" title="" comment="тарифная зона (для города)" />
+        <column table="a" column="kodp" type="number" title="" />
+        <call function="trim" as="name_orig">
+          <column table="a" column="name" />
+        </call>
+        <call function="if" type="number" as="kod_parent_i" title="-">
+          <call function="and">
+            <call function="!=0">
+              <column table="a" column="kod_direct" />
+              <const>0</const>
+            </call>
+            <call function="is null">
+              <column table="a" column="kod_parent" />
+            </call>
+          </call>
+          <const>0</const>
+          <column table="a" column="kod_parent" title="Подразделение" is-name="1" vid="1" />
+        </call>
+        <call function="if" as="namex" type="string" is-name="1">
+          <call function="=">
+            <column table="a" column="kod_direct" />
+            <const>0</const>
+          </call>
+          <const>'ТГК-1'</const>
+          <column table="this" column="name_orig" title="Подразделение" is-name="1" vid="1" />
+        </call>
+        <column table="a" column="mvp_code" type="string" comment="SAP код МВП" />
+        <column table="a" column="mvp_name" type="string" comment="Наименование кода SAP" />
+        <column table="a" column="mb3_code" type="string" comment="Маска SAP кода МВЗ (детализация кода SAP)" />
+        <column table="a" column="kod_spr_group" type="number" comment="Код группировки из справочника vb_spr_grouping" />
+        <column table="a" column="use_in_mped" type="number" comment="1 - Показывать в новом МПЕД, 0 (null) - нет" />
+        <call as="valid_mvp" function="case" type="string">
+          <call function="when">
+            <call function="lt">
+              <call function="length">
+                <column table="this" column="mvp_code" />
+              </call>
+              <const>4</const>
+            </call>
+            <const>'[inf]Код МВП должен состоять из 4 символов. Код не будет сохранен'</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <call function="trim">
+                <call function="translate">
+                  <call function="substr">
+                    <column table="this" column="mvp_code" />
+                    <const>2</const>
+                    <const>3</const>
+                  </call>
+                  <const>'0123456789'</const>
+                  <const>' '</const>
+                </call>
+              </call>
+            </call>
+            <const>'[inf]Код МВП должен быть вида Dxxx, где x - цифра. Код не будет сохранен'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="gt">
+                <call function="length">
+                  <column table="this" column="mvp_code" />
+                </call>
+                <const>4</const>
+              </call>
+              <call function="=">
+                <call function="substr">
+                  <column column="mvp_code" table="this" />
+                  <const>1</const>
+                  <const>1</const>
+                </call>
+                <const>'D'</const>
+              </call>
+            </call>
+            <const>'[inf]Код МВП должен состоять из 4 символов. Код будет автоматически образен до 4 символов'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="!=">
+                <call function="substr">
+                  <column table="this" column="mvp_code" />
+                  <const>1</const>
+                  <const>1</const>
+                </call>
+                <const>'D'</const>
+              </call>
+              <call function="is null">
+                <call function="trim">
+                  <call function="translate">
+                    <call function="substr">
+                      <column table="this" column="mvp_code" />
+                      <const>2</const>
+                      <const>3</const>
+                    </call>
+                    <const>'0123456789'</const>
+                    <const>' '</const>
+                  </call>
+                </call>
+              </call>
+            </call>
+            <const>'[inf]Код МВП должен начинаться с буквы D. Код будет автоматически исправлен'</const>
+          </call>
+        </call>
+        <call as="has_mvp" type="string" function="()">
+          <query>
+            <select>
+              <call function="replace">
+                <call function="sys_connect_by_path">
+                  <column table="d" column="mvp_code" />
+                  <const>'/'</const>
+                </call>
+                <const>'/'</const>
+                <const>''</const>
+              </call>
+            </select>
+            <from>
+              <query name="is_spr_direct" as="d" />
+            </from>
+            <where>
+              <call function="and">
+                <call function="is not null">
+                  <column table="d" column="mvp_code" />
+                </call>
+                <call function="=">
+                  <call function="rownum" />
+                  <const>1</const>
+                </call>
+              </call>
+            </where>
+            <connect>
+              <call function="and">
+                <call function="=">
+                  <column table="d" column="kod_parent_i" prior="1" />
+                  <column table="d" column="kod_direct" />
+                </call>
+              </call>
+            </connect>
+            <start>
+              <call function="=">
+                <column table="d" column="kod_direct" />
+                <column table="a" column="kod_direct" />
+              </call>
+            </start>
+          </query>
+        </call>
+        <call as="has_mvp_bool" function="if" type="number">
+          <call function="or">
+            <call function="is not null">
+              <column table="this" column="has_mvp" />
+            </call>
+            <call function="gt">
+              <call function="length">
+                <column column="mb3_code" table="a" />
+              </call>
+              <const>0</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call as="valid_mb3" function="case" type="string">
+          <call function="when" exclude="1">
+            <call function="and">
+              <call function="is not null" exclude="1">
+                <column table="this" column="mb3_code" />
+              </call>
+              <call function="=0">
+                <column table="this" column="has_mvp_bool" />
+              </call>
+            </call>
+            <const>'[inf]Нет кода МВП у подразделения или головного подразделения'</const>
+          </call>
+          <call function="when">
+            <call function="lt">
+              <call function="length">
+                <column table="this" column="mb3_code" />
+              </call>
+              <const>10</const>
+            </call>
+            <const>'[inf]Код МВЗ должен состоять из 10 символов. Код не будет сохранен'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="gt">
+                <call function="length">
+                  <column table="this" column="mb3_code" />
+                </call>
+                <const>10</const>
+              </call>
+            </call>
+            <const>'[inf]Код МВЗ должен состоять из 10 символов. Код будет автоматически образен до 10 символов'</const>
+          </call>
+          <call function="when" exclude="1">
+            <call function="and">
+              <call function="=">
+                <call function="length">
+                  <column table="this" column="mb3_code" />
+                </call>
+                <const>10</const>
+              </call>
+              <call function="!=">
+                <call function="substr">
+                  <column table="this" column="mb3_code" />
+                  <const>1</const>
+                  <const>4</const>
+                </call>
+                <call function="||">
+                  <const>'D'</const>
+                  <call function="substr">
+                    <column table="this" column="has_mvp" />
+                    <const>2</const>
+                    <const>3</const>
+                  </call>
+                </call>
+              </call>
+            </call>
+            <const>'[inf]Не совпадает код МВП. Код МВЗ будет автоматически изменен'</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="mb3_code1" column="cnt" />
+              <const>1</const>
+            </call>
+            <const>'[inf]Дублированная маска! Это приведет к дублированию данных'</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="is_spr_direct" as="a" />
+        <query name="is_spr_doc" as="kod_spr_doc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_doc" />
+            <column table="kod_spr_doc" column="kod_spr_doc" />
+          </call>
+        </query>
+        <query name="is_spr_direct" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_direct" />
+          </call>
+        </query>
+        <query name="is_spr_pfm" as="kod_spr_pfm" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spr_pfm" />
+            <column table="kod_spr_pfm" column="kod_spr_pfm" />
+          </call>
+        </query>
+        <query name="vb_spr_grouping" as="kod_spr_group" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_spr_group" />
+            <column table="kod_spr_group" column="kod_spr_group" />
+          </call>
+        </query>
+        <query name="is_spr_direct_count_mb3" as="mb3_code1" join="left outer">
+          <call function="=">
+            <column table="this" column="mb3_code" />
+            <column table="mb3_code1" column="mb3_code" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="is_spr_direct_count_mb3" class="1" timestamp="18.07.2019 17:18:20">
+      <select>
+        <column table="a" column="mb3_code" group="1" />
+        <column table="a" column="kod_direct" group="count" as="cnt" />
+      </select>
+      <from>
+        <query name="is_spr_direct" as="a" />
+      </from>
+      <where>
+        <call function="is not null">
+          <call function="trim">
+            <column table="a" column="mb3_code" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="is_spr_direct_mask" class="1" timestamp="23.07.2019 11:57:26" materialize="1">
+      <select>
+        <column table="a" column="kod_direct" />
+        <call as="mb3_code" function="replace">
+          <column table="a" column="mb3_code" />
+          <const>'X'</const>
+          <const>'_'</const>
+        </call>
+      </select>
+      <from>
+        <query as="a" name="is_spr_direct" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="mb3_code" />
+          </call>
+          <call function="!=">
+            <column table="a" column="mb3_code" />
+            <call function="||">
+              <column table="a" column="mvp_code" />
+              <const>'XXXXXX'</const>
+            </call>
+          </call>
+        </call>
+      </where>
+      <start>
+        <call function="=">
+          <column table="a" column="mb3_code" />
+          <call function="||">
+            <column table="a" column="mvp_code" />
+            <const>'XXXXXX'</const>
+          </call>
+        </call>
+      </start>
+      <connect>
+        <call function="=">
+          <column table="a" column="kod_direct" prior="1" />
+          <column table="a" column="kod_parent" />
+        </call>
+      </connect>
+    </query>
+    <query name="is_spr_direct_for_mped_has_mvp" class="1" timestamp="16.08.2019 18:08:48" order="mvp_code nulls first, name" comment="Подразделение. Запрос для заполнения выпадающего списка">
+      <select>
+        <column table="a" column="kod_direct" key="1" />
+        <column table="a" column="kod_parent" />
+        <column table="a" column="name_orig" />
+        <call function="if" as="name" type="string" is-name="1" title="Подразделение">
+          <call function="=">
+            <column table="this" column="kod_direct" />
+            <const>0</const>
+          </call>
+          <const>'ТГК-1'</const>
+          <column table="this" column="name_orig" />
+        </call>
+        <column table="a" column="mvp_code" title="Код МВП" />
+        <call function="if" as="parent_id" type="number" title="-">
+          <call function="and">
+            <call function="!=0">
+              <column table="this" column="kod_direct" />
+              <const>0</const>
+            </call>
+            <call function="is null">
+              <column table="this" column="kod_parent" />
+            </call>
+          </call>
+          <const>0</const>
+          <column table="this" column="kod_parent" />
+        </call>
+        <column table="a" column="use_in_mped" />
+      </select>
+      <from>
+        <query name="is_spr_direct" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="this" column="use_in_mped" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="is_spr_direct_for_mped" class="1" timestamp="16.08.2019 18:14:21" order="name" comment="Подразделение. Запрос для заполнения выпадающего списка">
+      <select>
+        <column table="a" column="kod_direct" key="1" />
+        <column table="a" column="kod_parent" />
+        <column table="a" column="name_orig" />
+        <call function="if" as="name" type="string" is-name="1" title="Подразделение">
+          <call function="=">
+            <column table="this" column="kod_direct" />
+            <const>0</const>
+          </call>
+          <const>'ТГК-1'</const>
+          <column table="this" column="name_orig" />
+        </call>
+        <call function="if" as="parent_id" type="number" title="-">
+          <call function="and">
+            <call function="!=0">
+              <column table="this" column="kod_direct" />
+              <const>0</const>
+            </call>
+            <call function="is null">
+              <column table="this" column="kod_parent" />
+            </call>
+          </call>
+          <const>0</const>
+          <column table="this" column="kod_parent" />
+        </call>
+        <column table="a" column="use_in_mped" />
+      </select>
+      <from>
+        <query name="is_spr_direct" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="this" column="use_in_mped" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="is_spr_direct_for_mped_only_w_mvp" class="1" timestamp="18.08.2019 14:38:11" order="mvp_code nulls first, name">
+      <select>
+        <column table="a" column="kod_direct" key="1" />
+        <column table="a" column="name" />
+        <column table="a" column="mvp_code" />
+      </select>
+      <from>
+        <query name="is_spr_direct_for_mped_has_mvp" as="a" />
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="this" column="mvp_code" />
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

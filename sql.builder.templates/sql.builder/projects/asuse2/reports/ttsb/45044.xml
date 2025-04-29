@@ -1,0 +1,680 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="45044-1" timestamp="16.05.2018 14:55:31" is-report="1" title="Отчет о ходе исполнительного производства" nogrid="1">
+      <params exclude="1">
+        <usepart part="45044-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="45044-1.xlsx" title="Отчёт о ходе исполнительного производства" print-xlsx="1" print-proc="2" post-process="0" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" />
+        <fieldgroup title="Дата подачи">
+          <usefield field="cmn_date" name="dat_s" mandatory="1" title="С" width-perc="50">
+            <defaultquery>
+              <query name="start_of_year" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date" name="dat_po" mandatory="1" title="По" width-perc="50">
+            <defaultquery>
+              <query name="today" />
+            </defaultquery>
+          </usefield>
+        </fieldgroup>
+        <usefield field="cmn_date_cur" name="dat_cur" mandatory="1" width-perc="50" visible="0" />
+      </content>
+      <expressions>
+        <call function="and" as="is_not_opl_isp" dont-push="1" dontpushpred="1">
+          <call function="=">
+            <column table="kod_isp" column="kod_status_opl" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="and" as="is_part_opl_isp" dont-push="1" dontpushpred="1">
+          <call function="=">
+            <column table="kod_isp" column="kod_status_opl" />
+            <const>1</const>
+          </call>
+        </call>
+        <call function="and" as="is_full_opl_isp" dont-push="1" dontpushpred="1">
+          <call function="=">
+            <column table="kod_isp" column="kod_status_opl" />
+            <const>2</const>
+          </call>
+        </call>
+        <call function="()" group="sum" as="ur_kazn_not_opl_count">
+          <fact column="ur_kazn_count" condition="is_not_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_kazn_part_opl_count">
+          <fact column="ur_kazn_count" condition="is_part_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_kazn_full_opl_count">
+          <fact column="ur_kazn_count" condition="is_full_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_inkasso_not_opl_count">
+          <fact column="ur_inkasso_count" condition="is_not_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_inkasso_part_opl_count">
+          <fact column="ur_inkasso_count" condition="is_part_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_inkasso_full_opl_count">
+          <fact column="ur_inkasso_count" condition="is_full_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_mat_isp_not_opl_count">
+          <fact column="ur_mat_isp_count" condition="is_not_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_mat_isp_part_opl_count">
+          <fact column="ur_mat_isp_count" condition="is_part_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_mat_isp_full_opl_count">
+          <fact column="ur_mat_isp_count" condition="is_full_opl_isp" />
+        </call>
+      </expressions>
+      <select>
+        <column table="dates" column="dat_day" as="dat_podachi" />
+        <call function="year" as="year_podachi">
+          <column table="this" column="dat_podachi" />
+        </call>
+        <call function="date to kv" as="kv_podachi">
+          <column table="this" column="dat_podachi" />
+        </call>
+        <call function="||" as="kv_text" title="Период">
+          <call function="to_char">
+            <column table="this" column="year_podachi" />
+          </call>
+          <const>' г., '</const>
+          <call function="to_char">
+            <column table="this" column="kv_podachi" />
+          </call>
+          <const>' кв.'</const>
+        </call>
+        <fact column="ur_mat_isp_count" group="sum" nvl="0" title="ССП. Количество поданных" />
+        <fact column="ur_mat_isp_full_opl_count" group="sum" nvl="0" title="ССП. Количество полностью исполненных" />
+        <fact column="ur_mat_isp_part_opl_count" group="sum" nvl="0" title="ССП. Количество частично исполненных" />
+        <fact column="ur_mat_isp_not_opl_count" group="sum" nvl="0" title="ССП. Количество неисполненных" />
+        <fact column="ur_inkasso_count" group="sum" nvl="0" title="Инкассо. Количество поданных" />
+        <fact column="ur_inkasso_full_opl_count" group="sum" nvl="0" title="Инкассо. Количество полностью исполненных" />
+        <fact column="ur_inkasso_part_opl_count" group="sum" nvl="0" title="Инкассо. Количество частично исполненных" />
+        <fact column="ur_inkasso_not_opl_count" group="sum" nvl="0" title="Инкассо. Количество неисполненных" />
+        <fact column="ur_kazn_count" group="sum" nvl="0" title="Казначейство. Количество поданных" />
+        <fact column="ur_kazn_full_opl_count" group="sum" nvl="0" title="Казначейство. Количество полностью исполненных" />
+        <fact column="ur_kazn_part_opl_count" group="sum" nvl="0" title="Казначейство. Количество частично исполненных" />
+        <fact column="ur_kazn_not_opl_count" group="sum" nvl="0" title="Казначейство. Количество неисполненных" />
+        <column table="kod_isp" column="dolg_on_il_hnd" group="sum" title="Взысканная сумма" nvl="0" />
+        <call function="-nvl" as="dolg_on_cur" title="Остаток суммы" nvl="0" group="sum">
+          <column table="kod_isp" column="dolg_on_il_hnd" />
+          <column table="kod_isp" column="ur_opl_posl_il_hnd" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_folders_isp">
+            <link name="kod_isp" />
+          </link>
+          <link name="isp_dat_podachi" />
+          <where>
+            <call function="is not null">
+              <column table="isp_dat_podachi" column="val" />
+            </call>
+            <call function="is null" exclude="1">
+              <column table="kod_folders_isp" column="dat_finish" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_folders_isp" column="kod_podr" />
+              <useparam name="dep" />
+            </call>
+          </where>
+        </qube>
+        <query name="vv_day" join="right outer" as="dates">
+          <call function="and">
+            <call function="=">
+              <column table="dates" column="dat_day" />
+              <call function="trunc">
+                <column table="isp_dat_podachi" column="val" />
+              </call>
+            </call>
+            <call function="between" exclude="1">
+              <column table="dates" column="dat_day" />
+              <const>to_date('01.01.2018','dd.mm.yyyy')</const>
+              <const>to_date('01.01.2019','dd.mm.yyyy')</const>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="between">
+          <column table="dates" column="dat_day" />
+          <useparam name="dat_s" />
+          <useparam name="dat_po" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="all" title="Всего">
+          <grset as="kv" title="По кварталам" order="year_podachi desc, kv_podachi desc">
+            <group>
+              <column table="this" column="year_podachi" />
+              <column table="this" column="kv_podachi" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="45044-dat-podachi-min" timestamp="11.01.2018 15:10:40">
+      <select>
+        <column table="a" column="dat_podachi" as="val" group="min" />
+      </select>
+      <from>
+        <query name="45044-dat-podachi" as="a" />
+      </from>
+    </query>
+    <query name="45044-dat-podachi" timestamp="11.01.2018 15:01:56">
+      <select>
+        <column table="a" column="dat_podachi" />
+      </select>
+      <from>
+        <query as="a">
+          <union>
+            <query>
+              <select>
+                <column table="ur_mat" column="dat_doc" as="dat_podachi" />
+              </select>
+              <from>
+                <query name="ur_mat">
+                  <link name="kod_folders" />
+                </query>
+              </from>
+              <where>
+                <call function="=">
+                  <column table="kod_folders" column="kod_sdp" />
+                  <const>2</const>
+                </call>
+              </where>
+            </query>
+            <query>
+              <select>
+                <column table="ur_kazn" column="dat_podachi" />
+              </select>
+              <from>
+                <query name="ur_kazn" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <column table="ur_inkasso" column="dat_podachi" />
+              </select>
+              <from>
+                <query name="ur_inkasso" />
+              </from>
+            </query>
+          </union>
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="a" column="dat_podachi" />
+        </call>
+      </where>
+    </query>
+    <query name="45044-dat-podachi-max" timestamp="11.01.2018 15:11:53">
+      <select>
+        <column table="a" column="dat_podachi" as="val" group="max" />
+      </select>
+      <from>
+        <query name="45044-dat-podachi" as="a" />
+      </from>
+    </query>
+    <query name="45044-2" timestamp="27.04.2018 15:50:45" is-report="1" title="Журнал по исполнительному производству (полный)" nogrid="1">
+      <params exclude="1">
+        <usepart part="45044-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="45044-2.xlsx" title="Журнал по исполнительному производству (полный)" print-xlsx="1" print-proc="2" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" part-id="45044-fields" />
+        <usefield field="cmn_date_cur" name="dat_cur" mandatory="1" width-perc="50" visible="0" part-id="45044-fields" />
+        <usefield field="cmn_string" name="title" visible="0" part-id="45044-fields">
+          <defaultquery>
+            <query name="45044-2-title">
+              <withparams exclude="1">
+                <useparam name="dep" />
+                <useparam name="repnum" />
+              </withparams>
+            </query>
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_integer" name="repnum" visible="0">
+          <defaultquery>
+            <query name="45044-2-repnum1" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <expressions>
+        <call function="-nvl" as="dolg_il_current" title="Остаток суммы" nvl="0" group="sum" part-id="45044-expressions" exclude="1">
+          <fact column="dolg_on_il_hnd" if="ssp_exists" />
+          <fact column="ur_opl_posl_il_hnd" if="ssp_exists" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_isp" column="kod_isp" part-id="45044-main-cols" />
+        <column table="kodp" column="name" title="Наименование абонента, ФИО должника" part-id="45044-main-cols" />
+        <column table="kod_mat" column="num_delo" title="№ судебного дела" part-id="45044-main-cols" />
+        <column table="kod_hist_mat" column="dat_entry" title="Дата вступления судебного акта в законную силу" part-id="45044-main-cols" />
+        <column table="kod_hist_mat" column="dat_send_il" title="Дата направления ИЛ в филиал" part-id="45044-main-cols" />
+        <column table="kod_isp" column="dat_post" part-id="45044-main-cols" />
+        <fact column="dolg_on_il_hnd" title="Общая сумма" group="sum" part-id="45044-main-cols" nvl="0" />
+        <fact column="dolg_on_il_osn" title="Долг" group="sum" part-id="45044-main-cols" nvl="0" />
+        <fact column="dolg_on_il_peni" title="Проценты" group="sum" part-id="45044-main-cols" nvl="0" />
+        <fact column="dolg_on_il_gp" title="Госпошлина" group="sum" part-id="45044-main-cols" nvl="0" />
+        <fact column="ur_ssp_dat_doc_min" title="Дата направления ИЛ в ССП" as="ssp_dat_doc" group="max" part-id="45044-ssp-cols" />
+        <fact column="ur_folders_isp_dat_create" if="ssp_exists" as="ssp_dat_isp" title="Дата возбуждения исполнительного производства" group="max" part-id="45044-ssp-cols">
+          <if>
+            <call function="is not null">
+              <fact column="ur_ssp_dat_doc_min" />
+            </call>
+          </if>
+        </fact>
+        <fact column="dolg_on_il_hnd" title="Взысканная сумма " as="ssp_sum" group="sum" part-id="45044-ssp-cols" table="ssp" />
+        <fact column="dolg_resh_tek_hnd" title="Остаток суммы" as="ssp_dolg" group="sum" part-id="45044-ssp-cols" table="ssp" />
+        <fact column="ur_inkasso_dat_podachi_min" as="inkasso_dat_doc" title="Дата направления ИЛ в банк" group="max" />
+        <fact column="ur_folders_isp_dat_create" if="inkasso_exists" as="inkasso_dat_isp" title="Дата возбуждения исполнительного производства" group="max">
+          <if>
+            <call function="is not null">
+              <fact column="ur_inkasso_dat_podachi_min" />
+            </call>
+          </if>
+        </fact>
+        <fact column="dolg_on_il_hnd" title="Взысканная сумма " as="inkasso_sum" group="sum" table="ink" />
+        <fact column="dolg_resh_tek_hnd" title="Остаток суммы" as="inkasso_dolg" group="sum" table="ink" />
+        <fact column="ur_inkasso_info" title="Исполнение" as="inkasso_info" group="max" />
+        <fact column="ur_kazn_dat_podachi_min" as="kazn_dat_doc" group="max" />
+        <fact column="ur_folders_isp_dat_create" if="kazn_exists" as="kazn_dat_isp" title="Дата возбуждения исполнительного производства" group="max">
+          <if>
+            <call function="is not null">
+              <fact column="ur_kazn_dat_podachi_min" />
+            </call>
+          </if>
+        </fact>
+        <fact column="dolg_on_il_hnd" title="Взысканная сумма " as="kazn_sum" group="sum" table="kazn" />
+        <fact column="dolg_resh_tek_hnd" title="Остаток суммы" as="kazn_dolg" group="sum" table="kazn" />
+        <fact column="ur_kazn_info" title="Исполнение" as="kazn_info" group="max" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_isp" part-id="45044-qube-links">
+            <link name="kod_hist_mat">
+              <link name="kod_mat">
+                <link name="kod_folders">
+                  <link name="kodp" />
+                </link>
+              </link>
+            </link>
+          </link>
+          <link name="kod_folders_isp" part-id="45044-qube-links" />
+          <where>
+            <call function="is not null" part-id="45044-qube-where">
+              <column table="kodp" column="kodp" />
+            </call>
+            <call function="=1" part-id="45044-qube-where">
+              <column table="kod_folders_isp" column="is_active" />
+            </call>
+            <call function="=1" part-id="45044-qube-where">
+              <column table="kod_folders" column="is_active" />
+            </call>
+            <call function="in" optional="1" part-id="45044-qube-where">
+              <column table="kod_folders" column="kod_podr" />
+              <useparam name="dep" />
+            </call>
+          </where>
+          <dimset as="ssp">
+            <link name="kod_mat_isp" only-for-cond="1" />
+            <where>
+              <call function="is not null">
+                <column table="kod_mat_isp" column="kod_mat_isp" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="ink">
+            <link name="kod_inkasso" only-for-cond="1" />
+            <where>
+              <call function="is not null">
+                <column table="kod_inkasso" column="kod_inkasso" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="kazn">
+            <link name="kod_kazn" only-for-cond="1" />
+            <where>
+              <call function="is not null">
+                <column table="kod_kazn" column="kod_kazn" />
+              </call>
+            </where>
+          </dimset>
+        </qube>
+      </from>
+      <where>
+        <call function="is not null">
+          <fact column="ur_kazn_count" />
+          <fact column="ur_inkasso_count" />
+          <fact column="ur_mat_isp_count" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="all" title="Всего" part-id="45044-grsets">
+          <grset as="isp" title="По ИЛ" order="dat_entry desc">
+            <group>
+              <sourcelink table="kod_isp" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="45044-2-ssp" timestamp="27.04.2018 15:31:17" is-report="1" title="Журнал по исполнительному производству (ССП)" nogrid="1">
+      <params exclude="1">
+        <usepart part="45044-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="45044-2.xlsx" title="Журнал по исполнительному производству (ССП)" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usepart part="45044-fields" />
+        <usefield field="cmn_integer" name="repnum" visible="0">
+          <defaultquery>
+            <query name="45044-2-repnum2" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <expressions>
+        <usepart part="45044-expressions" />
+      </expressions>
+      <select>
+        <usepart part="45044-main-cols" />
+        <usepart part="45044-ssp-cols" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <usepart part="45044-qube-links" />
+          <link name="kod_mat_isp" />
+          <where>
+            <usepart part="45044-qube-where" />
+            <call function="is not null">
+              <column table="kod_mat_isp" column="kod_mat_isp" />
+            </call>
+          </where>
+          <dimset as="ssp">
+            <link name="kod_mat_isp" only-for-cond="1" />
+            <where>
+              <call function="is not null">
+                <column table="kod_mat_isp" column="kod_mat_isp" />
+              </call>
+            </where>
+          </dimset>
+        </qube>
+      </from>
+      <grouping>
+        <usepart part="45044-grsets" />
+      </grouping>
+    </query>
+    <query name="45044-2-title" timestamp="24.01.2018 14:27:11" nogrid="1">
+      <params>
+        <param name="dep" type="array">
+          <const exclude="1">(1171)</const>
+        </param>
+        <param name="repnum" type="number">
+          <const exclude="1">2</const>
+        </param>
+      </params>
+      <select>
+        <call function="||" as="val">
+          <column table="this" column="t1" />
+          <column table="this" column="t2" />
+        </call>
+        <column table="a" column="dummy" group="1" />
+        <call function="case" as="t1" type="string" group="max">
+          <call function="when">
+            <call function="=">
+              <useparam name="repnum" />
+              <const>1</const>
+            </call>
+            <const>'Журнал по исполнительному производству'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <useparam name="repnum" />
+              <const>2</const>
+            </call>
+            <const>'Журнал по исполнительному производству по исполнительным листам, направленным в службу судебных приставов'</const>
+          </call>
+        </call>
+        <call function="if" as="t2" type="string">
+          <call function="is not null">
+            <column table="dep" column="sname" group="stragg" />
+          </call>
+          <call function="||">
+            <const>' филиала(ов) '</const>
+            <column table="dep" column="sname" group="stragg" />
+          </call>
+          <const>' всех филиалов'</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+        <query name="kr_org" as="dep" join="left outer">
+          <call function="or">
+            <call function="false" />
+            <call function="in" optional="1">
+              <column table="dep" column="kodp" />
+              <useparam name="dep" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="45044-2-repnum1" timestamp="24.01.2018 13:16:37" nogrid="1">
+      <select>
+        <const as="val" type="number">1</const>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+    </query>
+    <query name="45044-2-repnum2" timestamp="24.01.2018 13:16:55" nogrid="1">
+      <select>
+        <const as="val" type="number">2</const>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+    </query>
+    <query name="45044-1_test" timestamp="23.05.2018 14:51:07" is-report="1" title="Отчет о ходе исполнительного производства" nogrid="1">
+      <params>
+        <usepart part="45044-params" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="45044-1.xlsx" title="Отчёт о ходе исполнительного производства" print-xlsx="1" print-proc="2" post-process="0" />
+        </excel>
+      </print-templates>
+      <content exclude="1">
+        <usefield field="asuse_dep" />
+        <fieldgroup title="Дата подачи">
+          <usefield field="cmn_date" name="dat_s" mandatory="1" title="С" width-perc="50">
+            <defaultquery>
+              <query name="start_of_year" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date" name="dat_po" mandatory="1" title="По" width-perc="50">
+            <defaultquery>
+              <query name="today" />
+            </defaultquery>
+          </usefield>
+        </fieldgroup>
+        <usefield field="cmn_date_cur" name="dat_cur" mandatory="1" width-perc="50" visible="0" />
+      </content>
+      <expressions>
+        <call function="and" as="is_not_opl_isp" dont-push="1" dontpushpred="1">
+          <call function="=">
+            <column table="kod_isp" column="kod_status_opl" />
+            <const>0</const>
+          </call>
+        </call>
+        <call function="and" as="is_part_opl_isp" dont-push="1" dontpushpred="1">
+          <call function="=">
+            <column table="kod_isp" column="kod_status_opl" />
+            <const>1</const>
+          </call>
+        </call>
+        <call function="and" as="is_full_opl_isp" dont-push="1" dontpushpred="1">
+          <call function="=">
+            <column table="kod_isp" column="kod_status_opl" />
+            <const>2</const>
+          </call>
+        </call>
+        <call function="()" group="sum" as="ur_kazn_not_opl_count">
+          <fact column="ur_kazn_count" condition="is_not_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_kazn_part_opl_count">
+          <fact column="ur_kazn_count" condition="is_part_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_kazn_full_opl_count">
+          <fact column="ur_kazn_count" condition="is_full_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_inkasso_not_opl_count">
+          <fact column="ur_inkasso_count" condition="is_not_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_inkasso_part_opl_count">
+          <fact column="ur_inkasso_count" condition="is_part_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_inkasso_full_opl_count">
+          <fact column="ur_inkasso_count" condition="is_full_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_mat_isp_not_opl_count">
+          <fact column="ur_mat_isp_count" condition="is_not_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_mat_isp_part_opl_count">
+          <fact column="ur_mat_isp_count" condition="is_part_opl_isp" />
+        </call>
+        <call function="()" group="sum" as="ur_mat_isp_full_opl_count">
+          <fact column="ur_mat_isp_count" condition="is_full_opl_isp" />
+        </call>
+      </expressions>
+      <select>
+        <column table="dates" column="dat_day" as="dat_podachi" />
+        <column table="isp_dat_podachi" column="val" />
+        <call function="year" as="year_podachi" exclude="1">
+          <column table="this" column="dat_podachi" />
+        </call>
+        <call function="date to kv" as="kv_podachi" exclude="1">
+          <column table="this" column="dat_podachi" />
+        </call>
+        <call function="||" as="kv_text" title="Период" exclude="1">
+          <call function="to_char">
+            <column table="this" column="year_podachi" />
+          </call>
+          <const>' г., '</const>
+          <call function="to_char">
+            <column table="this" column="kv_podachi" />
+          </call>
+          <const>' кв.'</const>
+        </call>
+        <fact column="ur_mat_isp_count" group="sum" nvl="0" title="ССП. Количество поданных" exclude="1" />
+        <fact column="ur_mat_isp_full_opl_count" group="sum" nvl="0" title="ССП. Количество полностью исполненных" exclude="1" />
+        <fact column="ur_mat_isp_part_opl_count" group="sum" nvl="0" title="ССП. Количество частично исполненных" exclude="1" />
+        <fact column="ur_mat_isp_not_opl_count" group="sum" nvl="0" title="ССП. Количество неисполненных" exclude="1" />
+        <fact column="ur_inkasso_count" group="sum" nvl="0" title="Инкассо. Количество поданных" />
+        <fact column="ur_inkasso_full_opl_count" group="sum" nvl="0" title="Инкассо. Количество полностью исполненных" exclude="1" />
+        <fact column="ur_inkasso_part_opl_count" group="sum" nvl="0" title="Инкассо. Количество частично исполненных" exclude="1" />
+        <fact column="ur_inkasso_not_opl_count" group="sum" nvl="0" title="Инкассо. Количество неисполненных" exclude="1" />
+        <fact column="ur_kazn_count" group="sum" nvl="0" title="Казначейство. Количество поданных" exclude="1" />
+        <fact column="ur_kazn_full_opl_count" group="sum" nvl="0" title="Казначейство. Количество полностью исполненных" exclude="1" />
+        <fact column="ur_kazn_part_opl_count" group="sum" nvl="0" title="Казначейство. Количество частично исполненных" exclude="1" />
+        <fact column="ur_kazn_not_opl_count" group="sum" nvl="0" title="Казначейство. Количество неисполненных" exclude="1" />
+        <column table="kod_isp" column="dolg_on_il_hnd" group="sum" title="Взысканная сумма" nvl="0" />
+        <call function="-nvl" as="dolg_on_cur" title="Остаток суммы" nvl="0" group="sum">
+          <column table="kod_isp" column="dolg_on_il_hnd" />
+          <column table="kod_isp" column="ur_opl_posl_il_hnd" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="kod_folders_isp">
+            <link name="kod_isp" />
+          </link>
+          <link name="isp_dat_podachi" />
+          <where>
+            <call function="is not null">
+              <column table="isp_dat_podachi" column="val" />
+            </call>
+            <call function="is null">
+              <column table="kod_folders_isp" column="dat_finish" />
+            </call>
+            <call function="in" optional="1">
+              <column table="kod_folders_isp" column="kod_podr" />
+              <useparam name="dep" />
+            </call>
+          </where>
+        </qube>
+        <query name="vv_day" join="right outer" as="dates">
+          <call function="and">
+            <call function="=">
+              <column table="dates" column="dat_day" />
+              <call function="trunc">
+                <column table="isp_dat_podachi" column="val" />
+              </call>
+            </call>
+            <call function="between" exclude="1">
+              <column table="dates" column="dat_day" />
+              <const>to_date('01.01.2018','dd.mm.yyyy')</const>
+              <const>to_date('01.01.2019','dd.mm.yyyy')</const>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="between">
+          <column table="isp_dat_podachi" column="val" />
+          <useparam name="dat_s" />
+          <useparam name="dat_po" />
+        </call>
+      </where>
+      <grouping>
+        <grset as="all" title="Всего" exclude="1">
+          <grset as="kv" title="По кварталам" order="year_podachi desc, kv_podachi desc">
+            <group>
+              <column table="this" column="year_podachi" />
+              <column table="this" column="kv_podachi" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+  <dimension-packages>
+    <dimension-package name="45044" timestamp="10.01.2018 16:46:57">
+      <dimension time-type="day" name="isp_dat_podachi" />
+    </dimension-package>
+  </dimension-packages>
+  <parts>
+    <part id="45044-params" timestamp="04.05.2018 15:32:32">
+      <param type="date" name="dat_s">
+        <const>to_date('01.01.2018','DD.MM.YYYY')</const>
+      </param>
+      <param type="date" name="dat_po">
+        <const>to_date('01.04.2018','DD.MM.YYYY')</const>
+      </param>
+      <param type="number" name="dep" />
+    </part>
+    <part id="45044-withparams">
+      <useparam name="dat_s" />
+      <useparam name="dat_po" />
+      <useparam name="dep" />
+    </part>
+  </parts>
+</root>

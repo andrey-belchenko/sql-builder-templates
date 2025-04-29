@@ -1,0 +1,99 @@
+<root>
+  <queries>
+    <query name="n_opl">
+      <params>
+        <param name="date">
+          <call function="doomsday" />
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_opl" type="number">
+        </column>
+        <column table="a" column="kodp" type="number">
+        </column>
+        <column table="a" column="opl" type="number">
+        </column>
+        <call function="+" as="ym" type="number">
+          <column table="a" column="god" />
+          <call function="/">
+            <column table="a" column="mes" />
+            <const>100</const>
+          </call>
+        </call>
+        <column table="a" column="opls" type="number">
+        </column>
+        <column table="a" column="datao" type="date">
+        </column>
+        <column table="a" column="kod_sf" type="number">
+        </column>
+        <column table="sf" column="codeabon">
+        </column>
+        <call function="+nvl" as="oplf">
+          <column table="a" column="opl">
+          </column>
+          <column table="a" column="opls">
+          </column>
+        </call>
+      </select>
+      <from>
+        <table name="n_opl" as="a">
+        </table>
+        <query name="n_facvip" as="sf" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="sf" column="kod_sf">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ls=">
+            <column table="this" column="ym" />
+            <call function="date to ym">
+              <useparam name="date">
+              </useparam>
+            </call>
+          </call>
+          <call function="ls=">
+            <column table="a" column="datao" />
+            <useparam name="date">
+            </useparam>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="n_facvip.n_opl">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_sf" group="1" />
+        <column table="a" column="opl" group="sum" />
+        <column table="a" column="oplf" group="sum" />
+      </select>
+      <from>
+        <query name="n_opl" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

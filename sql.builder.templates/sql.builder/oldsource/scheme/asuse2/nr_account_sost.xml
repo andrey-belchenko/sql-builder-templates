@@ -1,0 +1,69 @@
+<root>
+  <queries>
+    <query name="nr_account_sost">
+      <select>
+        <column table="a" column="kod_account_sost" type="number"></column>
+        <column table="a" column="kod_account_priem" type="number"></column>
+        <column table="a" column="tip_tarif_sost" type="number"></column>
+        <column table="a" column="cust" type="number"></column>
+        <column table="a" column="price" type="number"></column>
+        <call function="*" as="nachisl">
+          <column table="a" column="cust"></column>
+          <column table="a" column="price"></column>
+        </call>
+        <column table="a" column="kod_account" type="number"></column>
+        <column table="a" column="tarif" type="number"></column>
+      </select>
+      <from>
+        <table name="nr_account_sost" as="a"></table>
+        <query name="nr_account" as="kod_account" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_account"></column>
+            <column table="kod_account" column="kod_account"></column>
+          </call>
+        </query>
+        <query name="kk_tarif_sost" as="tip_tarif_sost" join="left outer">
+          <call function="=">
+            <column table="a" column="tip_tarif_sost"></column>
+            <column table="tip_tarif_sost" column="tip_tarif_sost"></column>
+          </call>
+        </query>
+        <query name="nr_account_priem" as="kod_account_priem" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_account_priem"></column>
+            <column table="kod_account_priem" column="kod_account_priem"></column>
+          </call>
+        </query>
+        <query name="ks_tarif" as="tarif" join="left outer">
+          <call function="=">
+            <column table="a" column="tarif"></column>
+            <column table="tarif" column="tarif"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+
+
+    <query name="nr_account.nr_account_sost(tip_tarif_sost)">
+      <params>
+        <param name="tip_tarif_sost"/>
+      </params>
+      <select>
+        <column table="a" column="kod_account" group="1"></column>
+        <column table="a" column="cust" group="sum"></column>
+        <column table="a" column="price" group="sum"></column>
+        <column table="a" column="nachisl" group="sum"></column>
+      </select>
+      <from>
+        <query name="nr_account_sost" as="a"/>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="tip_tarif_sost"></column>
+          <useparam name="tip_tarif_sost"></useparam>
+        </call>
+      </where>
+    </query>
+
+  </queries>
+</root>

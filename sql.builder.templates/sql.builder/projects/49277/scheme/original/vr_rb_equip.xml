@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vr_rb_equip" class="1" timestamp="16.12.2022 02:29:03">
+      <select>
+        <call function="rowid" as="vr_rb_equip_id" key="1" />
+        <column table="a" column="pwrc_fdrid" type="number" title="" />
+        <column table="a" column="pwrc_fdrname" type="string" data-size="206" title="" />
+        <column table="a" column="src_id" type="number" title="" />
+        <column table="a" column="srcname" type="string" data-size="123" title="" />
+        <column table="a" column="src_fdrid" type="number" title="" />
+        <column table="a" column="src_fdrname" type="string" data-size="100" title="" comment="Наименование может содержаь смещение, указывающее на подчиненность более старшему элементу" />
+        <column table="a" column="pwrc_id" type="number" title="" />
+        <column table="a" column="pwrcname" type="string" data-size="121" title="" />
+        <column table="a" column="srckodp_fsk" type="number" title="" />
+        <column table="a" column="pwrc_fdr_bkod_ecls" type="number" />
+        <column table="a" column="isprm_fdr" type="string" data-size="3" title="" />
+        <column table="a" column="kod_eqsep" type="number" />
+        <column table="a" column="pwrc_fdr_expl_id" type="number" title="" />
+        <column table="a" column="src_fdrord" type="number" column-mandatory="1" title="" comment="Порядок сортировки оборудования в энергообъекте" />
+        <column table="a" column="src_fdrname_orig" type="string" data-size="100" title="" comment="Исходное наименование оборудования" />
+        <column table="a" column="src_balnamex" type="string" data-size="100" title="" comment="Балансовая принадлежность энергообъекта. Особеность - если филиал. то его наименование, прочие - Потребитель" />
+        <call function="||-" as="hv_eopwrc_grid_id">
+          <column table="a" column="pwrc_fdrid" type="number" column-mandatory="1" title="" />
+          <column table="a" column="src_id" type="number" column-mandatory="1" title="" />
+        </call>
+      </select>
+      <from>
+        <table name="vr_rb_equip" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <const>1</const>
+          <const>2</const>
+        </call>
+      </where>
+    </query>
+    <query name="vr_rb_eq_kg" class="1" timestamp="26.06.2019 14:33:42">
+      <select>
+        <call as="grid_dtl_kg" function="||-" key="1">
+          <column table="a" column="pwrc_fdrid" />
+          <column table="a" column="src_fdrid" />
+          <column table="this" column="ym" />
+        </call>
+        <column table="a" column="src_fdrid" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrc_fdrid" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrc_fdrname" type="string" column-mandatory="1" title="" />
+        <column table="a" column="src_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="srcname" type="string" title="" />
+        <column table="a" column="src_fdrname" type="string" column-mandatory="1" title="" />
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" is-fact="1" agg="max" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="srckodp_fsk" type="number" column-mandatory="1" title="" />
+        <column table="a" column="hv_eopwrc_grid_id" type="string" title="" />
+        <column table="a" column="src_fdrord" type="number" />
+        <column table="k_f_tp" column="id" is-private-dimension="k_gr_f_tp" is-final-dimension="k_gr_f_tp" dimension="k_gr_f_tp" />
+        <column table="k_f_tp" column="ym" is-private-dimension="ym" is-final-dimension="ym" dimension="ym" />
+        <column table="k_pwrc_fdr" column="pwrc_id" as="m2m_pwrc_id" />
+        <column table="pwrc_fdrid" column="bal_id" />
+        <column table="kod_fl" column="kod_fl" />
+        <column table="def_pwrc" column="kod_id" is-private-dimension="def_pwrc" is-final-dimension="def_pwrc" dimension="def_pwrc" />
+      </select>
+      <from>
+        <query name="vr_rb_equip" as="a" />
+        <query name="d45862_fdr_kg" as="k_f_tp" join="left outer">
+          <call function="=">
+            <column table="this" column="hv_eopwrc_grid_id" />
+            <column table="k_f_tp" column="k_f_tp" />
+          </call>
+        </query>
+        <query name="vr_rb_fider" as="pwrc_fdrid" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="pwrc_fdrid" />
+            <column table="pwrc_fdrid" column="pwrc_fdrid" />
+          </call>
+        </query>
+        <query name="45862_m2m_pwrc_fdr" as="k_pwrc_fdr" join="left outer">
+          <call function="=">
+            <column table="this" column="id" />
+            <column table="k_pwrc_fdr" column="k_gr_f_tp" />
+          </call>
+        </query>
+        <query as="pwrc_id" dimension="1" is-final-dimension="1" is-private-dimension="1" join="left outer" name="vr_rb_pwrc_g">
+          <call function="=">
+            <column column="m2m_pwrc_id" table="this" />
+            <column column="pwrc_id" table="pwrc_id" />
+          </call>
+        </query>
+        <query name="vr_rb_filial" as="kod_fl" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="bal_id" />
+            <column table="kod_fl" column="kod_fl" />
+          </call>
+        </query>
+        <query as="hv_eopwrc_id" dimension="1" is-final-dimension="1" is-private-dimension="1" join="left outer" name="vr_rb_pwrc">
+          <call function="and">
+            <call function="=">
+              <column column="m2m_pwrc_id" table="this" />
+              <column column="pwrc_id" table="hv_eopwrc_id" />
+            </call>
+            <call function="=">
+              <column column="kod_fl" table="this" />
+              <column column="bal_id" table="hv_eopwrc_id" />
+            </call>
+          </call>
+        </query>
+        <query name="vb_rb_default_pwrc" as="def_pwrc" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="this" column="m2m_pwrc_id" />
+              <column table="def_pwrc" column="pwrc_id" />
+            </call>
+            <call function="=">
+              <column table="this" column="bal_id" />
+              <column table="def_pwrc" column="kod_fl" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <links>
+        <link name="k_f_tp">
+          <dimlink name="kg_name" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="pwrc_id" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_fl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+      </links>
+    </query>
+  </queries>
+</root>

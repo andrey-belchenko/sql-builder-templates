@@ -1,0 +1,394 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="50060" is-report="1" title="Журнал поступивших в ПИО материалов для взыскания в судебном порядке" nogrid="1" order="pio_date" timestamp="30.10.2023 11:36:56">
+      <print-templates>
+        <excel>
+          <template name="50060.xlsx" title="Журнал поступивших в ПИО материалов для взыскания в судебном порядке" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <events>
+        <useaction event-name="double-click" action-type="dynamic-form" call="ur_folders_main">
+          <column table="this" column="kod_folders" />
+        </useaction>
+      </events>
+      <content>
+        <usefield field="asuse_dep" />
+        <usefield field="cmn_date_cur" name="dat" title="Отчет на дату" visible="1" mandatory="1" />
+        <usefield field="cmn_date" title="Дата поступления с" name="dat_pio_min">
+          <defaultquery>
+            <query name="start_of_year" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_date" title="Дата поступления по" name="dat_pio_max">
+          <defaultquery>
+            <query name="today" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="kod_emp_urist" type="number" title="Юрист">
+          <listquery>
+            <query name="kr_employee_urists">
+              <withparams>
+                <useparam name="dep" />
+              </withparams>
+            </query>
+          </listquery>
+        </usefield>
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust_recursive" />
+        <usefield field="asuse_kod_group_cust_recursive" name="kod_group_cust_recursive_h" title="Подгруппа потребления вся" visible="0">
+          <defaultquery>
+            <query name="ks_group_cust_list_recursive">
+              <withparams>
+                <useparam name="kod_group_cust_parent" />
+              </withparams>
+            </query>
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" type="number" title="Дата подачи в суд заполнена" name="l_dat_sud">
+          <listquery>
+            <query name="yn" />
+          </listquery>
+        </usefield>
+        <usefield name="arch" field="asuse_prizn_arch_folder_all" title="Активный/Архивный" default="arch" checked="1" />
+      </content>
+      <select>
+        <call function="rownum" key="1" as="id" />
+        <column table="kod_folders" column="kod_folders" />
+        <column table="kod_pretenz" column="kod_pretenz" />
+        <column table="kod_dep" column="sname" as="name_podr" />
+        <column table="kod_pretenz" column="pio_date" title="Дата поступления материалов в ПИО" />
+        <column table="kod_pretenz" column="num_sz" title="Номер с/з филиала" />
+        <column table="kodp" column="name" />
+        <fact column="kr_dog_name" title="№ договора" exclude="1" />
+        <column table="kod_dog" column="ndog" as="kr_dog_name" title="№ договора" />
+        <call as="ur_dp_sum_osn" type="number" title="Основной долг, руб." function="if">
+          <call function="=1">
+            <column table="kod_folders" column="vvod" />
+          </call>
+          <fact column="ur_pretenz_vvod_sum_osn" />
+          <fact column="ur_dp_sum_osn" as="" type="" />
+        </call>
+        <call function="ym to char" title="Период задолженности с" as="ur_dogplat_ym_min">
+          <call type="" function="if">
+            <call function="=1">
+              <column table="kod_folders" column="vvod" />
+            </call>
+            <column table="kod_pretenz" column="vvod_per_s" />
+            <fact column="ur_dogplat_ym_min" format="F2" as="" type="" />
+          </call>
+        </call>
+        <call function="ym to char" as="ur_dogplat_ym_max" title="Период задолженности по">
+          <call type="" function="if">
+            <call function="=1">
+              <column table="kod_folders" column="vvod" />
+            </call>
+            <column table="kod_pretenz" column="vvod_per_po" />
+            <fact column="ur_dogplat_ym_max" format="F2" as="" type="" />
+          </call>
+        </call>
+        <call as="ur_dp_sum_peni" type="number" title="Проценты/ пени, руб." function="if">
+          <call function="=1">
+            <column table="kod_folders" column="vvod" />
+          </call>
+          <fact column="ur_pretenz_vvod_sum_peni" as="" type="" />
+          <fact column="ur_dp_sum_peni" as="" type="" />
+        </call>
+        <call as="peni_period_str" type="string" title="Период пени" function="if">
+          <call function="=1">
+            <column table="kod_folders" column="vvod" />
+          </call>
+          <fact column="pretenz_peni_period_str" />
+          <fact column="peni_period_str" as="" type="" />
+        </call>
+        <column table="kod_pretenz" column="ogr" title="Расходы за отключения/подключения, руб." />
+        <call function="+" as="total_debt" title="Общая сумма иска" type="number">
+          <column column="ur_dp_sum_peni" table="this" />
+          <column column="ur_dp_sum_osn" table="this" />
+          <column column="ogr" table="this" />
+        </call>
+        <column table="kod_pretenz" column="dat_doc" title="Дата направления претензии" />
+        <column table="kod_pretenz" column="dat_do" title="Дата истечения претензионного срока" />
+        <column table="kod_emp" column="fio" as="pio_fio" />
+        <column table="kod_pretenz" column="prim" />
+        <column table="kod_mat" column="dat_doc" title="Дата подачи иска в суд" as="dat_sud" />
+        <column table="kod_dog" column="kod_gr_parent" title="gr_p" exclude="1" />
+        <column table="kod_dog" column="kod_group_cust" title="gr_c" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_pretenz">
+            <link name="kod_folders">
+              <link name="kod_dep" />
+              <link name="kodp" />
+            </link>
+            <link name="kod_emp" />
+            <link name="kod_mat" />
+          </link>
+          <link name="kod_dog" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="kod_pretenz" column="dat_doc" />
+                <useparam name="dat" />
+              </call>
+              <call function="gt" exclude="1">
+                <call function="earliest">
+                  <column table="kod_pretenz" column="dat_arh" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="dat" />
+              </call>
+              <call function="gt" exclude="1">
+                <call function="earliest">
+                  <column table="kod_folders" column="dat_finish" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="dat" />
+              </call>
+              <call function="in" optional="1">
+                <column column="kodp" table="kod_dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="is not null">
+                <column table="kod_pretenz" column="pio_date" />
+              </call>
+              <call function="or" optional="1">
+                <call function="and">
+                  <call function="in">
+                    <const comment="Активный">1</const>
+                    <useparam name="arch" />
+                  </call>
+                  <call function="is null">
+                    <column table="kod_pretenz" column="dat_arh" />
+                  </call>
+                  <call function="is null">
+                    <column table="kod_folders" column="dat_finish" />
+                  </call>
+                </call>
+                <call function="and">
+                  <call function="in">
+                    <const comment="Архивный">0</const>
+                    <useparam name="arch" />
+                  </call>
+                  <call type="" function="or">
+                    <call function="is not null">
+                      <column table="kod_folders" column="dat_finish" />
+                    </call>
+                    <call function="is not null">
+                      <column table="kod_pretenz" column="dat_finish" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="!=">
+          <call function="nvl0">
+            <column table="this" column="total_debt" />
+          </call>
+          <const type="number">0</const>
+        </call>
+        <call function="le" optional="1">
+          <column table="this" column="pio_date" />
+          <useparam name="dat_pio_max" />
+        </call>
+        <call function="ge" optional="1">
+          <column table="this" column="pio_date" />
+          <useparam name="dat_pio_min" />
+        </call>
+        <call function="in" optional="1">
+          <column table="kod_pretenz" column="kod_emp" />
+          <useparam name="kod_emp_urist" />
+        </call>
+        <call function="in" optional="1">
+          <column column="kod_group_cust" table="kod_dog" />
+          <useparam name="kod_group_cust_recursive" />
+        </call>
+        <call function="or" optional="1">
+          <call function="in" optional="1">
+            <column column="kod_group_cust" table="kod_dog" />
+            <useparam name="kod_group_cust_recursive_h" />
+          </call>
+          <call function="in" optional="1">
+            <column column="kod_group_cust" table="kod_dog" />
+            <useparam name="kod_group_cust_parent" />
+          </call>
+        </call>
+        <call function="in" optional="1">
+          <call function="if">
+            <call function="is null">
+              <column table="kod_mat" column="dat_doc" />
+            </call>
+            <const>0</const>
+            <const>1</const>
+          </call>
+          <useparam name="l_dat_sud" />
+        </call>
+      </where>
+    </query>
+    <query name="50060_test" timestamp="11.03.2019 16:36:37" is-report="1" title="Журнал поступивших в ПИО материалов для взыскания в судебном порядке" nogrid="1" order="pio_date" visible="0">
+      <print-templates>
+        <excel>
+          <template name="50060.xlsx" title="Журнал поступивших в ПИО материалов для взыскания в судебном порядке" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <events>
+        <useaction event-name="double-click" action-type="dynamic-form" call="ur_folders_main">
+          <column table="this" column="kod_folders" />
+        </useaction>
+      </events>
+      <content>
+        <usefield field="asuse_dep" />
+        <usefield field="cmn_date_cur" name="dat" title="Отчет на дату" visible="1" />
+        <usefield field="cmn_date" title="Дата поступления с" name="dat_pio_min">
+          <defaultquery>
+            <query name="start_of_year" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_date" title="Дата поступления по" name="dat_pio_max">
+          <defaultquery>
+            <query name="today" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="kod_emp_urist" type="number" title="Юрист">
+          <listquery>
+            <query name="kr_employee_urists_singl_dep" />
+          </listquery>
+        </usefield>
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust" />
+        <usefield field="cmn_list" type="number" title="Дата подачи в суд заполнена" name="l_dat_sud">
+          <listquery>
+            <query name="yn" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_check" title="Дата подачи в суд не заполнена" name="is_dat_sud" exclude="1">
+          <defaultquery>
+            <query name="false" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <select>
+        <call function="rownum" key="1" as="id" />
+        <column table="kod_folders" column="kod_folders" />
+        <column table="kod_pretenz" column="kod_pretenz" />
+        <column table="kod_dep" column="sname" as="name_podr" />
+        <column table="kod_pretenz" column="pio_date" title="Дата поступления материалов в ПИО" />
+        <column table="kod_pretenz" column="num_sz" title="Номер с/з филиала" />
+        <column table="kodp" column="name" />
+        <fact column="kr_dog_name" title="№ договора" exclude="1" />
+        <column table="kod_dog" column="ndog" as="kr_dog_name" title="№ договора" />
+        <fact column="ur_dp_sum_osn" title="Основной долг, руб." />
+        <call function="ym to char" title="Период задолженности с" as="ur_dogplat_ym_min">
+          <fact column="ur_dogplat_ym_min" format="F2" />
+        </call>
+        <call function="ym to char" as="ur_dogplat_ym_max" title="Период задолженности по">
+          <fact column="ur_dogplat_ym_max" format="F2" />
+        </call>
+        <fact column="ur_dp_sum_peni" title="Проценты/ пени, руб." />
+        <fact column="peni_period_str" title="Период пени" />
+        <column table="kod_pretenz" column="ogr" title="Расходы за отключения/подключения, руб." />
+        <call function="+" as="total_debt" title="Общая сумма иска" type="number">
+          <fact column="ur_dp_sum_osn" title="Основной долг, руб." />
+          <fact column="ur_dp_sum_peni" title="Проценты/ пени, руб." />
+          <column column="ogr" title="Расходы за отключения/подключения, руб." />
+        </call>
+        <column table="kod_pretenz" column="dat_doc" title="Дата направления претензии" />
+        <column table="kod_pretenz" column="dat_do" title="Дата истечения претензионного срока" />
+        <column table="kod_emp" column="fio" as="pio_fio" />
+        <column table="kod_pretenz" column="prim" />
+        <column table="kod_mat" column="dat_doc" title="Дата подачи иска в суд" as="dat_sud" />
+        <column table="kod_folders" column="kod_emp" title="-Юрист" exclude="1" />
+        <column table="kod_dog" column="kod_gr_parent" title="-kod_gr_parent" exclude="1" />
+        <column table="kod_dog" column="kod_group_cust" title="-kod_group_cust" exclude="1" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_pretenz">
+            <link name="kod_folders">
+              <link name="kod_dep" />
+              <link name="kodp" />
+            </link>
+            <link name="kod_emp" />
+            <link name="kod_mat" />
+          </link>
+          <link name="kod_dog" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="kod_pretenz" column="dat_doc" />
+                <useparam name="dat" />
+              </call>
+              <call function="gt">
+                <call function="earliest">
+                  <column table="kod_pretenz" column="dat_arh" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="dat" />
+              </call>
+              <call function="gt">
+                <call function="earliest">
+                  <column table="kod_folders" column="dat_finish" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="dat" />
+              </call>
+              <call function="in" optional="1">
+                <column column="kodp" table="kod_dep" />
+                <useparam name="dep" />
+              </call>
+              <call function="is not null">
+                <column table="kod_pretenz" column="pio_date" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="!=">
+          <call function="nvl0">
+            <column table="this" column="total_debt" />
+          </call>
+          <const type="number">0</const>
+        </call>
+        <call function="le" optional="1">
+          <column table="this" column="pio_date" />
+          <useparam name="dat_pio_max" />
+        </call>
+        <call function="ge" optional="1">
+          <column table="this" column="pio_date" />
+          <useparam name="dat_pio_min" />
+        </call>
+        <call function="=" optional="1">
+          <column table="kod_folders" column="kod_emp" />
+          <useparam name="kod_emp_urist" />
+        </call>
+        <call function="=" optional="1">
+          <column table="kod_dog" column="kod_group_cust" />
+          <useparam name="kod_group_cust" />
+        </call>
+        <call function="=" optional="1">
+          <call function="nvl">
+            <column table="kod_dog" column="kod_gr_parent" />
+            <column table="kod_dog" column="kod_group_cust" />
+          </call>
+          <useparam name="kod_group_cust_parent" />
+        </call>
+        <call function="in" optional="1">
+          <call function="if">
+            <call function="is null">
+              <column table="kod_mat" column="dat_doc" />
+            </call>
+            <const>0</const>
+            <const>1</const>
+          </call>
+          <useparam name="l_dat_sud" />
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

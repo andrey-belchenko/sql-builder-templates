@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="sr_facvip_intervals" with-behavior="0" timestamp="21.11.2016 14:27:16">
+      <content>
+        <field name="interval" controlType="UIList" title="Временной интервал" parent-field-name="kod_parent" auto-check="1">
+          <listquery>
+            <query name="spr_time_intervals"></query>
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="sr_facvip_intervals" title="Счёт-фактуры по дате" form="sr_facvip_intervals" autobands="1" visible="0">
+      <params>
+        <param name="interval" />
+      </params>
+      <customers>
+        <customer id="101" />
+        <customer id="10" />
+      </customers>
+      <queries>
+        <query name="sr_facvip_intervals" as="a">
+          <withparams>
+            <useparam name="interval" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="sr_facvip_intervals">
+      <params>
+        <param name="interval" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="sr_facvip" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="exists" optional="1">
+            <query>
+              <select>
+                <column table="b" column="kod" />
+              </select>
+              <from>
+                <query name="spr_time_intervals" as="b"></query>
+              </from>
+              <where>
+                <call function="and">
+                  <call function="in">
+                    <column table="b" column="kod" />
+                    <useparam name="interval" />
+                  </call>
+                  <call function="between">
+                    <column table="a" column="dat_sf" />
+                    <column table="b" column="date_begin" />
+                    <column table="b" column="date_end" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

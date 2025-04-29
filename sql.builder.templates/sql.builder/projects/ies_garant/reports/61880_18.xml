@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="61880_18" is-report="1" title="Отчет по планированию сборов" timestamp="01.02.2023 17:52:12">
+      <print-templates exclude="1">
+        <excel>
+          <template name="61880_15.xlsx" title="Структура потребления электрической энергии (в разрезе ОКВЭД)" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep_single" name="p_dep" mandatory="1" />
+        <usefield field="cmn_date" name="p_date" />
+        <usefield field="asuse_adr_m_subject_dep" />
+        <fieldgroup title="Период" exclude="1">
+          <usefield field="asuse_ym_tek" title="с" name="p_ym_beg" mandatory="1" />
+          <usefield field="asuse_ym_tek" title="по" name="p_ym_end" mandatory="1" />
+        </fieldgroup>
+      </content>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_18.fill_table(:p_date);
+end;
+      </text>
+      </procedure>
+      <select>
+        <column table="a" column="ndog" title="№ Договора" group="max" />
+        <column table="a" column="namep" title="Полное наименование" group="max" />
+        <column table="d" column="adress_region" group="max" exclude="1" />
+        <column table="a" column="kod_dog" />
+        <column group="max" table="a" column="day_av" title="Дни выставления авансов" type="string" exclude="1" comment="Удалено 01.02.2023 задача 65245(3)" />
+        <column table="a" column="period_av" group="max" title="Периоды выставления авансов" />
+        <column group="max" table="a" column="perc" title="Проценты авансов" type="string" />
+        <column table="a" column="pr_rasch_av" group="max" title="Признак расчета авансов" />
+        <column table="a" column="dz_beg" group="sum" />
+        <column table="a" column="dz_beg" group="sum" title="ДЗ на 01  число, тыс. руб." as="dz_beg1" mp="-3" />
+        <column table="a" column="pros_dz_on_dat" title="В т.ч. просроченная ДЗ не погашенная на дату формирования, тыс. руб." group="sum" mp="-3" />
+        <column table="a" column="kz_beg" group="sum" />
+        <column table="a" column="kz_beg" title="КЗ на 01  число, тыс. руб." group="sum" as="kz_beg1" mp="-3" />
+        <column table="a" column="nahisl" title="План оплат по условиям договора, тыс. руб." group="sum" mp="-3" />
+        <column table="a" column="av_all" group="sum" mp="-3" title="Авансы по условия договора за Р/п, тыс. руб." />
+        <column table="a" column="opl_on_dat" title="Итого поступившие оплаты на текущую дату, тыс. руб." group="sum" as="opl_on_dat1" mp="-3" />
+        <column table="a" column="av_10" group="sum" />
+        <column table="a" column="av_10" title="Аванс до 10 числа, тыс. руб." group="sum" as="av_101" mp="-3" />
+        <column table="a" column="opl_av_10" title="Оплата в счет аванса на 10 числоб тыс. руб." group="sum" mp="-3" />
+        <call function="-nvl" group="sum" as="plan_11_18" title="План с 11 по 18 числа, тыс. руб." mp="-3">
+          <column table="this" column="nahisl" />
+          <column table="this" column="av_101" />
+          <column table="this" column="av_251" />
+        </call>
+        <column table="a" column="opl_sf_18" group="sum" title="Оплата с 11 по 18 числа (в счет погашения фактической счет-фактуры), тыс. руб." mp="-3" />
+        <column table="a" column="av_25" group="sum" />
+        <column table="a" column="av_25" title="Аванс до 25 числа, тыс. руб." group="sum" as="av_251" mp="-3" />
+        <column table="a" column="opl_av_25" title="Оплата в счет аванса на 25 число, тыс. руб." group="sum" mp="-3" />
+        <column table="a" column="opl_on_dat" group="sum" />
+        <call function="-nvl" group="sum" as="sbor_prognoz" title="Сбор на конец месяца 26-30/31 число прогноз, тыс. руб." mp="-3">
+          <column table="this" column="av_251" />
+          <column table="this" column="opl_av_25" />
+        </call>
+        <column table="a" column="sbor_26_31_fact" group="sum" title="Сбор на конец месяца 26-30/31 число факт, тыс. руб." mp="-3" />
+        <call function="-nvl" group="sum" as="ostatok" title="Обязательства клиента, тыс. руб." mp="-3">
+          <call function="+nvl" title="ДЗ/КЗ на конец месяца">
+            <column table="this" column="dz_beg1" />
+            <column table="this" column="kz_beg1" />
+            <column table="this" column="av_101" />
+            <column table="this" column="plan_11_18" />
+            <column table="this" column="av_251" />
+          </call>
+          <column table="this" column="opl_av_10" />
+          <column table="this" column="opl_sf_18" />
+          <column table="this" column="opl_av_25" />
+        </call>
+        <call function="+nvl" as="dolg">
+          <column table="this" column="dz_beg" />
+          <column table="this" column="kz_beg" />
+          <call function="0-" exclude="1">
+            <column table="this" column="kz_beg" />
+          </call>
+          <column table="this" column="av_10" />
+          <column table="this" column="nahisl" exclude="1" />
+          <column table="this" column="av_25" />
+          <call function="0-">
+            <column table="this" column="opl_on_dat" />
+          </call>
+        </call>
+        <call function="+nvl" title="ДЗ/КЗ на конец месяца, тыс. руб." as="ob_end" mp="-3">
+          <column table="this" column="dz_end" />
+          <column table="this" column="kz_end" />
+        </call>
+        <column table="a" column="kz_end" title="КЗ на конец месяца" group="sum" exclude="1" />
+        <column table="a" column="dz_end" group="sum" />
+        <column table="a" column="kz_end" group="sum" />
+        <column table="a" column="sdat_beg" group="max" />
+        <column table="a" column="sdat_end" group="max" />
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_18_tbl" as="a" />
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="d" column="adress_region" />
+            <useparam name="kod_adr_m" />
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="kod_dog" order="namep">
+          <group>
+            <column table="this" column="kod_dog" />
+          </group>
+        </grset>
+      </grouping>
+      <grouping exclude="1">
+        <grset as="itog">
+          <grset as="kodp" order="namep">
+            <group>
+              <column table="a" column="kod_dog" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

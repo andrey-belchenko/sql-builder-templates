@@ -1,0 +1,239 @@
+<root>
+  
+  <queries>
+    
+
+    <query name="20877(6)-dolg-abon">
+      <params>
+        <param name="date">
+            <const>p_date</const>
+        </param>
+        <param name="kodp">
+          <const>p_kodp</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp">
+        </column>
+        <column table="a" column="dolg">
+        </column>
+      </select>
+      <from>
+        <query name="kr_payer" as="a">
+          <withparams>
+            <useparam name="date"/>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kodp"/>
+          <useparam name="kodp"/>
+        </call>
+      </where>
+    </query>
+
+
+    <query name="20877(6)-dolg-dog">
+      <params>
+        <param name="date">
+            <const>p_date</const>
+        </param>
+        <param name="kod_dog">
+          <const>p_kod_dog</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog">
+        </column>
+        <column table="a" column="dolg">
+        </column>
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <withparams>
+            <useparam name="date"/>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_dog"/>
+          <useparam name="kod_dog"/>
+        </call>
+      </where>
+    </query>
+
+
+
+    
+
+
+    <query name="20877(6)-nachisl">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+        <param name="kod_dog">
+          <const>277001</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_sf">
+        </column>
+        <column table="a" column="payer_name" title="Наименование потребителя">
+        </column>
+        <column table="a" column="kod_dog" title="Код договора">
+        </column>
+        <column table="a" column="ndog" title="Номер договора">
+        </column>
+        <column table="a" column="dat_dog" title="Дата договора">
+        </column>
+        <column table="a" column="ym" title="Период начислений">
+        </column>
+        <call function="||" as="vid_real_name_rym" title="Вид и период реализации">
+          <column table="a" column="vid_real_name"/>
+          <const>' '</const>
+          <call function="ym to char">
+            <column table="a" column="rym"/>
+          </call>
+        </call>
+        <column table="a" column="num_sf" title="Номер документа начисления">
+        </column>
+        <column table="a" column="dat_sf" title="Дата документа начисления">
+        </column>
+        <column table="a" column="nachisl" title="Начислено с НДС, руб">
+        </column>
+        <column table="a" column="dat_bzad" as="dat_bzad" title="Требуемый срок оплаты">
+        </column>
+        <column table="a" column="opl" title="Оплачено, руб">
+        </column>
+        <column table="a" column="dolg_na_dat" as="dolg" title="Задолженность, руб">
+        </column>
+        <column table="a" column="dat_opl_max" as="dat_opl" title="Дата оплаты">
+        </column>
+        <column table="a" column="num_opl_max" as="num_opl" title="Номер документа">
+        </column>
+      </select>
+      <from>
+        <query name="sr_facvip" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_dog_fin"/>
+            <useparam name="kod_dog"/>
+          </call>
+          <call function="!=">
+            <column table="a" column="vid_sf_plate"/>
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+
+    
+    
+    
+    <!--
+    
+    <query name="20877(6)-dolg-dog-old">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+        <param name="kod_dog">
+          <const>2189</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog_fin" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="20877(6)-dolg" as="a">
+          <withparams>
+            <useparam name="date"/>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_dog_fin"/>
+          <useparam name="kod_dog"/>
+        </call>
+      </where>
+    </query>
+
+
+
+    <query name="20877(6)-dolg-abon-old">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+        <param name="kodp">
+          <const>9908</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kodp_fin" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="20877(6)-dolg" as="a">
+          <withparams>
+            <useparam name="date"/>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kodp_fin"/>
+          <useparam name="kodp"/>
+        </call>
+      </where>
+    </query>
+
+
+
+
+
+    <query name="20877(6)-dolg">
+      <params>
+        <param name="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_dog_fin" group="1">
+        </column>
+        <column table="a" column="kodp_fin" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="sr_facvip" as="a">
+          <withparams>
+            <useparam name="date"/>
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="ls">
+          <column table="a" column="dat_bzad_nvl"/>
+          <useparam name="date"/>
+        </call>
+      </where>
+    </query>
+
+    -->
+    
+  </queries>
+</root>

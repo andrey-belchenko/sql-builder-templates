@@ -1,0 +1,842 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="64627" form="64627" nogrid="1" title="Журнал регистрации исходящих заявлений о вынесении СП и исков по юридическим лицам" timestamp="17.01.2023 14:00:00">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="p_dat_doc_1" type="date" />
+        <param name="p_dat_doc_2" type="date" />
+        <param name="p_dat_receipt_post_1" type="date" />
+        <param name="p_dat_receipt_post_2" type="date" />
+        <param name="p_dat_entry_1" type="date" />
+        <param name="p_dat_entry_2" type="date" />
+        <param name="p_date_rassm_approx_1" type="date" />
+        <param name="p_date_rassm_approx_2" type="date" />
+        <param name="p_dat_post_upr_approx_1" type="date" />
+        <param name="p_dat_post_upr_approx_2" type="date" />
+        <param name="p_kod_emp" type="array" />
+        <param name="p_kod_group_cust_parent" type="array" />
+        <param name="p_kod_group_cust" type="array" />
+        <param name="p_kod_category" type="array" />
+        <param name="p_prizn_arch" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="64627.xml" print-proc="2" title="Журнал регистрации исходящих заявлений о вынесении СП и исков по юридическим лицам" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="64627_data" as="data">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_dat_doc_1" />
+            <useparam name="p_dat_doc_2" />
+            <useparam name="p_dat_receipt_post_1" />
+            <useparam name="p_dat_receipt_post_2" />
+            <useparam name="p_dat_entry_1" />
+            <useparam name="p_dat_entry_2" />
+            <useparam name="p_date_rassm_approx_1" />
+            <useparam name="p_date_rassm_approx_2" />
+            <useparam name="p_dat_post_upr_approx_1" />
+            <useparam name="p_dat_post_upr_approx_2" />
+            <useparam name="p_kod_emp" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_kod_group_cust" />
+            <useparam name="p_kod_category" />
+            <useparam name="p_prizn_arch" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="64627" title="Параметры отчёта 64627 &quot;Журнал регистрации исходящих заявлений о вынесении СП и исков по юридическим лицам&quot;" timestamp="17.01.2023 14:00:00">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <content>
+        <field name="p_dep" type="number" controlType="UIList" val-field-name="kodp" name-field-name="name" title="Филиал">
+          <listquery>
+            <query name="kr_dep" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_dep_current" />
+          </defaultquery>
+        </field>
+        <field name="p_dat_doc_" type="date" controlType="UIDateRange" title="Дата подачи заявления/иска в суд">
+          <defaultquery>
+            <query name="64630_date_default" />
+          </defaultquery>
+        </field>
+        <field name="p_dat_receipt_post_" type="date" controlType="UIDateRange" title="Дата получения судебного акта" />
+        <field name="p_dat_entry_" type="date" controlType="UIDateRange" title="Дата вступления решения суда в законную силу" />
+        <field name="p_date_rassm_approx_" type="date" controlType="UIDateRange" title="Ориентировочный срок рассмотрения дела" />
+        <field name="p_dat_post_upr_approx_" type="date" controlType="UIDateRange" title="Ориентировочный срок получения ИЛ" />
+        <field name="p_kod_emp" type="number" controlType="UIList" val-field-name="kod_emp" name-field-name="fio" title="Ответственный исполнитель">
+          <listquery>
+            <query name="kr_employee_urists" />
+          </listquery>
+        </field>
+        <field name="p_kod_group_cust_parent" type="number" controlType="UIList" val-field-name="kod_group_cust" name-field-name="name" title="Группа потребителей">
+          <listquery>
+            <query name="ks_group_cust_parent_list" />
+          </listquery>
+        </field>
+        <field name="p_kod_group_cust" type="number" controlType="UIList" val-field-name="kod_group_cust" name-field-name="name" title="Подгруппа потребителей">
+          <listquery>
+            <query name="ks_group_cust_list" />
+          </listquery>
+        </field>
+        <field name="p_kod_category" type="number" controlType="UIList" val-field-name="kod_category" name-field-name="name" title="Категория потребителей">
+          <listquery>
+            <query name="64627_category" />
+          </listquery>
+        </field>
+        <field name="p_prizn_arch" type="number" controlType="UICombo" mandatory="1" val-field-name="kod" name-field-name="name" title="Статус">
+          <listquery>
+            <query name="64627_arch" />
+          </listquery>
+          <defaultquery>
+            <query name="zero" />
+          </defaultquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <views>
+    <view name="64627_data" timestamp="13.07.2024 08:50:00"><![CDATA[
+
+/* 27.06.2025 изменения по заявке SD 74846 (Бельченко) */
+SELECT
+    v.kod_folders,
+    v.kodp,
+    v.dep,
+    v.kod_category,
+    v.dat_finish,
+    v.kod_mat,
+    v.kod_emp,
+    v.pio_date,
+    v.num_reg,
+    v.dat_doc,
+    v.kod_sud,
+    v.num_delo,
+    v.type_rassm,
+    v.kod_dog,
+    v.ogr       AS isk_sum_ogr,
+    v.sum_gp    AS isk_sum_gp,
+    dp.kod      AS isk_kod,
+    dp.isk_min_ym,
+    dp.isk_max_ym,
+    dp.isk_sum_osn,
+    dp.priz_sum_osn,
+    dp_peni.kod AS isk_peni_kod,
+    dp_peni.isk_peni_ym,
+    dp_peni.isk_sum_peni,
+    dp_peni.priz_sum_peni,
+    hm.kod_hist_mat,
+    hm.kod_result,
+    hm.dat_post,
+    hm.ogr      AS priz_sum_ogr,
+    hm.gp_otv   AS priz_sum_gp,
+    hm.gp_ret,
+    hm.dat_entry,
+    hm.dat_receipt_post,
+    hm.dat_send_petition_il,
+    CASE
+        WHEN v.kod_doc = 63 /* Заявление о выдаче судебного приказа */
+             AND hm.kod_result = 99 /* Определение / Отменить судебный приказ */ THEN
+            (
+                SELECT
+                    MAX(m.dat_doc)
+                FROM
+                    ur_mat m
+                WHERE
+                        m.kod_folders = v.kod_folders
+                    AND m.kod_mat != v.kod_mat
+                    AND m.kod_doc = 1 /* Исковое заявление */
+            )
+        ELSE
+            NULL
+    END         AS dat_doc_after_prikaz,
+    (
+        SELECT
+            isp.dat_post_upr
+        FROM
+            ur_isp isp
+        WHERE
+            isp.kod_hist_mat = hm.kod_hist_mat
+    )           AS dat_post_isp
+FROM
+    (
+        SELECT
+            f.kod_folders,
+            f.kodp,
+            f.kod_podr AS dep,
+            f.kod_category,
+            f.dat_finish,
+            m.kod_mat,
+            m.kod_emp,
+            m.pio_date,
+            m.kod_doc,
+            m.num_reg,
+            m.dat_doc,
+            m.kod_sud,
+            m.num_delo,
+            m.type_rassm,
+            m.ogr,
+            m.sum_gp,
+            (
+                SELECT
+                    MAX(hm.kod_hist_mat)
+                FROM
+                    ur_hist_mat hm
+                WHERE
+                        hm.kod_mat = m.kod_mat
+                    AND hm.kod_result IS NOT NULL
+            )          AS last_kod_hist_mat,
+            (
+                SELECT
+                    MAX(hm.kod_hist_mat)
+                FROM
+                         ur_hist_mat hm
+                    JOIN us_result r ON hm.kod_result = r.kod_result
+                                        AND r.decision = 1
+                WHERE
+                    hm.kod_mat = m.kod_mat
+            )          AS dec_kod_hist_mat, /*SD 74846*/ 
+            nvl((
+                SELECT
+                    MAX(dp.kod_dog)
+                FROM
+                    ur_dogplat dp
+                WHERE
+                        dp.kod = m.kod_mat
+                    AND dp.kod_sdp = 6
+                    AND dp.kod_dog IS NOT NULL
+            ),
+                (
+                SELECT
+                    MAX(d.kod_dog)
+                FROM
+                    kr_dogovor d
+                WHERE
+                        d.kodp = f.kodp
+                    AND d.dep = f.kod_podr
+                    AND d.tep_el = 1
+            ))         AS kod_dog
+        FROM
+                 ur_folders f
+            JOIN ur_mat m ON m.kod_folders = f.kod_folders
+        WHERE
+                f.kod_sdp = 1
+            AND ( f.vvod = 0
+                  OR f.kod_dog IS NULL )
+    )           v
+    LEFT OUTER JOIN ur_hist_mat hm ON hm.kod_hist_mat =  nvl( v.dec_kod_hist_mat, v.last_kod_hist_mat) /*SD 74846*/ 
+    LEFT OUTER JOIN (
+        SELECT
+            dp.kod,
+            MIN(dp.ym) AS isk_min_ym,
+            MAX(dp.ym) AS isk_max_ym,
+            SUM(
+                CASE
+                    WHEN dp.vid_real = 2 THEN
+                        dp.summa
+                    ELSE
+                        NULL
+                END
+            )          AS isk_sum_osn,
+            SUM(
+                CASE
+                    WHEN dp.vid_real = 2 THEN
+                        dp.sum_v
+                    ELSE
+                        NULL
+                END
+            )          AS priz_sum_osn
+        FROM
+            ur_dogplat dp
+        WHERE
+                dp.kod_sdp = 6
+            AND dp.vid_real NOT IN ( 7, 9 )
+            AND dp.summa != 0
+        GROUP BY
+            dp.kod
+    )           dp ON dp.kod = v.kod_mat
+    LEFT OUTER JOIN (
+        SELECT
+            dp.kod,
+            LISTAGG(pp.per, ', ') WITHIN GROUP (ORDER BY pp.per) AS isk_peni_ym, -- для случая если к иску привязано две и более СФ на пени
+            SUM(dp.summa) AS isk_sum_peni,
+            SUM(dp.sum_v) AS priz_sum_peni
+        FROM
+                 ur_dogplat dp
+            JOIN vv_all_deb_sf  v ON v.kod_deb_sf = dp.kod_deb_sf
+            JOIN (
+                SELECT 
+                    vg_period.ym_enum_str_to_ym_ranges_str(stragg(to_char(ym, 'FM9999D99'))) per,
+                    kod_sf
+                from vr_peni_period
+                group by kod_sf
+            ) pp ON pp.kod_sf = v.kod_sf
+        WHERE
+                dp.kod_sdp = 6
+            AND dp.vid_real = 7
+            AND dp.summa != 0
+        GROUP BY
+            dp.kod
+    ) dp_peni ON dp_peni.kod = v.kod_mat
+UNION ALL /*папки с ручным вводом по задаче 65212 (за основу взят тот же запрос, подкоректировал места касающиеся сумм и периодов)*/
+SELECT
+    v.kod_folders,
+    v.kodp,
+    v.dep,
+    v.kod_category,
+    v.dat_finish,
+    v.kod_mat,
+    v.kod_emp,
+    v.pio_date,
+    v.num_reg,
+    v.dat_doc,
+    v.kod_sud,
+    v.num_delo,
+    v.type_rassm,
+    v.kod_dog,
+    v.ogr                  AS isk_sum_ogr,
+    v.sum_gp               AS isk_sum_gp,
+    v.kod_mat              AS isk_kod,
+    v.period_zadol_s_vvod  AS isk_min_ym,
+    v.period_zadol_po_vvod AS isk_max_ym,
+    v.osnreal              AS isk_sum_osn,
+    hmd.osnreal            AS priz_sum_osn,
+    v.kod_mat              AS isk_peni_kod,
+    pp.isk_peni_ym,
+    v.peni                 AS isk_sum_peni,
+    hmd.peni               AS priz_sum_peni,
+    hmd.kod_hist_mat,
+    hmd.kod_result,
+    hmd.dat_post,
+    hmd.ogr                AS priz_sum_ogr,
+    hmd.gp_otv             AS priz_sum_gp,
+    hmd.gp_ret,
+    hmd.dat_entry,
+    hmd.dat_receipt_post,
+    hmd.dat_send_petition_il,
+    CASE
+        WHEN v.kod_doc = 63 /* Заявление о выдаче судебного приказа */
+             AND hmd.kod_result = 99 /* Определение / Отменить судебный приказ */ THEN
+            (
+                SELECT
+                    MAX(m.dat_doc)
+                FROM
+                    ur_mat m
+                WHERE
+                        m.kod_folders = v.kod_folders
+                    AND m.kod_mat != v.kod_mat
+                    AND m.kod_doc = 1 /* Исковое заявление */
+            )
+        ELSE
+            NULL
+    END                    AS dat_doc_after_prikaz,
+    (
+        SELECT
+            isp.dat_post_upr
+        FROM
+            ur_isp isp
+        WHERE
+            isp.kod_hist_mat = hmd.kod_hist_mat
+    )                      AS dat_post_isp
+FROM
+    (
+        SELECT
+            f.kod_folders,
+            f.kodp,
+            f.kod_podr AS dep,
+            f.kod_category,
+            f.dat_finish,
+            m.kod_mat,
+            m.kod_emp,
+            m.pio_date,
+            m.kod_doc,
+            m.num_reg,
+            m.dat_doc,
+            m.kod_sud,
+            m.num_delo,
+            m.type_rassm,
+            m.ogr,
+            m.sum_gp,
+             (
+                SELECT
+                    MAX(hm.kod_hist_mat)
+                FROM
+                    ur_hist_mat hm
+                WHERE
+                        hm.kod_mat = m.kod_mat
+                    AND hm.kod_result IS NOT NULL
+            )          AS last_kod_hist_mat, /*SD 74846*/ 
+            (
+                SELECT
+                    MAX(hm.kod_hist_mat)
+                FROM
+                         ur_hist_mat hm
+                    JOIN us_result r ON hm.kod_result = r.kod_result
+                                        AND r.decision = 1
+                WHERE
+                    hm.kod_mat = m.kod_mat
+            )          AS dec_kod_hist_mat,
+            f.kod_dog,
+            m.osnreal,
+            m.period_zadol_s_vvod,
+            m.period_zadol_po_vvod,
+            m.peni
+        FROM
+                 ur_folders f
+            JOIN ur_mat m ON m.kod_folders = f.kod_folders
+        WHERE
+                f.kod_sdp = 1
+            AND f.vvod = 1
+            AND f.kod_dog IS NOT NULL
+    )           v
+    LEFT OUTER JOIN ur_hist_mat hmd ON hmd.kod_hist_mat = nvl( v.dec_kod_hist_mat, v.last_kod_hist_mat) /*SD 74846*/ 
+    LEFT OUTER JOIN (
+        SELECT
+            a.kod_mat,
+            vg_period.ym_enum_str_to_ym_ranges_str(stragg(to_char(a.ym, 'FM9999D99'))) AS isk_peni_ym
+        FROM
+            ur_mat_peni_period a
+        GROUP BY
+            a.kod_mat
+    )           pp ON pp.kod_mat = v.kod_mat
+]]></view>
+  </views>
+  <queries>
+    <query name="64627_data" order="pio_date ASC NULLS LAST" title="Основной запрос отчёта 64627 &quot;Журнал регистрации исходящих заявлений о вынесении СП и исков по юридическим лицам&quot;" timestamp="13.07.2024 11:03:32">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <params>
+        <param name="p_dep" type="array">
+          <array exclude="1">1172</array>
+        </param>
+        <param name="p_dat_doc_beg" type="date" />
+        <param name="p_dat_doc_end" type="date" />
+        <param name="p_dat_receipt_post_beg" type="date" />
+        <param name="p_dat_receipt_post_end" type="date" />
+        <param name="p_dat_entry_beg" type="date" />
+        <param name="p_dat_entry_end" type="date" />
+        <param name="p_date_rassm_approx_beg" type="date" />
+        <param name="p_date_rassm_approx_end" type="date" />
+        <param name="p_dat_post_upr_approx_beg" type="date" />
+        <param name="p_dat_post_upr_approx_end" type="date" />
+        <param name="p_kod_emp" type="array" />
+        <param name="p_kod_group_cust_parent" type="array" />
+        <param name="p_kod_group_cust" type="array" />
+        <param name="p_kod_category" type="array" />
+        <param name="p_prizn_arch" type="number" />
+      </params>
+      <select>
+        <column table="v" column="kod_mat" type="number" key="1" />
+        <column table="e" column="fio" as="emp_fio" title="Ответственный исполнитель" intern="1" />
+        <column table="v" column="pio_date" type="date" title="Дата поступления материалов в ПИО" />
+        <column table="v" column="num_reg" type="string" title="Номер заявления/иска" />
+        <column table="dep" column="sname" as="dep_name" title="Филиал" intern="1" />
+        <call function="||" type="string" as="payer_name" title="Наименование потребителя" intern="1">
+          <column table="p" column="nump" />
+          <const>' '</const>
+          <column table="p" column="name" />
+        </call>
+        <column table="cat" column="abbr" as="category_abbr" title="Категория потребителя" intern="1" />
+        <call function="||" type="string" as="subject" title="Предмет заявления/иска">
+          <const>'договор энергоснабжения №'</const>
+          <column table="d" column="ndog" />
+          <const>' от '</const>
+          <call function="to_char">
+            <column table="d" column="dat_dog" />
+            <const>'DD.MM.YYYY'</const>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="v" column="isk_kod" />
+            </call>
+            <call function="||">
+              <const>', долг за период '</const>
+              <call function="to_char">
+                <column table="v" column="isk_min_ym" />
+                <const>'FM9990D00'</const>
+              </call>
+              <call function="if">
+                <call function="!=">
+                  <column table="v" column="isk_min_ym" />
+                  <column table="v" column="isk_max_ym" />
+                </call>
+                <call function="||">
+                  <const>'...'</const>
+                  <call function="to_char">
+                    <column table="v" column="isk_max_ym" />
+                    <const>'FM9990D00'</const>
+                  </call>
+                </call>
+                <const>''</const>
+              </call>
+            </call>
+            <const>''</const>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="v" column="isk_peni_kod" />
+            </call>
+            <call function="||">
+              <const>', пени за период '</const>
+              <column table="v" column="isk_peni_ym" />
+            </call>
+            <const>''</const>
+          </call>
+          <call function="if">
+            <call function="!=">
+              <column table="v" column="isk_sum_ogr" />
+              <const>0</const>
+            </call>
+            <const>', расходы за ограничение/возобновление энергоснабжения'</const>
+            <const>''</const>
+          </call>
+        </call>
+        <column table="v" column="dat_doc" type="date" title="Дата подачи заявления/иска в суд" />
+        <call function="if" type="string" as="sud_name" title="Наименование суда" intern="1">
+          <call function="=">
+            <column table="sud" column="kod_sud" />
+            <const>5</const>
+          </call>
+          <const>'АС РТ'</const>
+          <column table="sud" column="name" />
+        </call>
+        <column table="v" column="num_delo" type="string" title="Номер дела" />
+        <call function="decode" type="string" as="type_rassm" title="Порядок судопроизводства" intern="1">
+          <column table="v" column="type_rassm" />
+          <const>1</const>
+          <const>'упр. пр-во'</const>
+          <const>2</const>
+          <const>'общий порядок'</const>
+          <const>3</const>
+          <const>'приказное пр-во'</const>
+          <const>''</const>
+        </call>
+        <column table="v" column="isk_sum_osn" type="number" title="Предъявлено по заявлению/иску - Основной долг, руб." />
+        <column table="v" column="isk_sum_peni" type="number" title="Предъявлено по заявлению/иску - Проценты/пени, руб." />
+        <column table="v" column="isk_sum_ogr" type="number" title="Предъявлено по заявлению/иску - Расходы за огр./воз. реж. энерг., руб." />
+        <column table="v" column="isk_sum_gp" type="number" title="Предъявлено по заявлению/иску - Госпошлина, руб." />
+        <call function="case" type="date" as="date_rassm_approx" title="Ориентировочный срок рассмотрения дела (приказное - 45 дней, упрощенка - 65 дней)">
+          <call function="when">
+            <call function="=">
+              <column table="v" column="type_rassm" />
+              <const>1</const>
+            </call>
+            <call function="date add days">
+              <column table="v" column="dat_doc" />
+              <const>65</const>
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="v" column="type_rassm" />
+              <const>3</const>
+            </call>
+            <call function="date add days">
+              <column table="v" column="dat_doc" />
+              <const>45</const>
+            </call>
+          </call>
+          <call function="else">
+            <const>NULL</const>
+          </call>
+        </call>
+        <call function="||" type="string" as="post" title="Наименование СА" intern="1">
+          <column table="us_post" column="name" />
+          <const>' '</const>
+          <call function="lower">
+            <column table="us_result" column="name" />
+          </call>
+        </call>
+        <column table="v" column="dat_post" type="date" title="Дата вынесения СА" />
+        <column table="v" column="priz_sum_osn" type="number" title="Взыскано по заявлению/иску - Основной долг, руб." />
+        <column table="v" column="priz_sum_peni" type="number" title="Взыскано по заявлению/иску - Проценты/пени, руб." />
+        <column table="v" column="priz_sum_ogr" type="number" title="Взыскано по заявлению/иску - Расходы за введ.огр.реж.энерг., руб." />
+        <column table="v" column="priz_sum_gp" type="number" title="Взыскано по заявлению/иску - Госпошлина, руб." />
+        <column table="v" column="gp_ret" type="number" title="Справка на возврат - Госпошлина, руб." />
+        <column table="v" column="dat_doc_after_prikaz" type="date" title="Дата подачи иска (после отмены СП)" />
+        <column table="v" column="dat_receipt_post" type="date" title="Дата получения судебного акта" />
+        <call function="if" type="date" as="dat_entry" title="Дата вступления решения суда в законную силу (для СП не заполняется)">
+          <call function="!=">
+            <column table="us_result" column="kod_post" />
+            <const>27</const>
+          </call>
+          <column table="v" column="dat_entry" />
+          <const>NULL</const>
+        </call>
+        <column table="v" column="dat_send_petition_il" type="date" title="Дата направления ходатайства о выдаче ИЛ" />
+        <call function="if" type="date" as="dat_post_upr_approx" title="Ориентировочный срок получения ИЛ">
+          <call function="!=">
+            <column table="us_result" column="kod_post" />
+            <const>27</const>
+          </call>
+          <call function="date add days">
+            <column table="v" column="dat_entry" />
+            <const>13</const>
+          </call>
+          <const>NULL</const>
+        </call>
+        <column table="v" column="dat_post_isp" type="date" title="Дата получения ИЛ" />
+      </select>
+      <from>
+        <table name="64627_data" as="v" view="1" />
+        <query name="kr_org" as="dep" join="inner">
+          <call function="=">
+            <column table="dep" column="kodp" />
+            <column table="v" column="dep" />
+          </call>
+        </query>
+        <query name="kr_payer" as="p" join="inner">
+          <call function="=">
+            <column table="p" column="kodp" />
+            <column table="v" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="d" join="inner">
+          <call function="=">
+            <column table="d" column="kod_dog" />
+            <column table="v" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_dogovor_dop" as="dd" join="left outer">
+          <call function="=">
+            <column table="dd" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_employee" as="e" join="left outer">
+          <call function="=">
+            <column table="e" column="kod_emp" />
+            <column table="v" column="kod_emp" />
+          </call>
+        </query>
+        <query name="us_category" as="cat" join="left outer">
+          <call function="=">
+            <column table="cat" column="kod_category" />
+            <column table="v" column="kod_category" />
+          </call>
+        </query>
+        <query name="us_sud" as="sud" join="left outer">
+          <call function="=">
+            <column table="sud" column="kod_sud" />
+            <column table="v" column="kod_sud" />
+          </call>
+        </query>
+        <query name="us_result" as="us_result" join="left outer">
+          <call function="=">
+            <column table="us_result" column="kod_result" />
+            <column table="v" column="kod_result" />
+          </call>
+        </query>
+        <query name="us_post" as="us_post" join="left outer">
+          <call function="=">
+            <column table="us_post" column="kod_post" />
+            <column table="us_result" column="kod_post" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="or">
+            <call function="=">
+              <useparam name="p_prizn_arch" />
+              <const>0</const>
+            </call>
+            <call function="and">
+              <call function="=">
+                <useparam name="p_prizn_arch" />
+                <const>1</const>
+              </call>
+              <call function="is null">
+                <column table="v" column="dat_finish" />
+              </call>
+            </call>
+            <call function="and">
+              <call function="=">
+                <useparam name="p_prizn_arch" />
+                <const>2</const>
+              </call>
+              <call function="is not null">
+                <column table="v" column="dat_finish" />
+              </call>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="v" column="dep" />
+            <useparam name="p_dep" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="v" column="dat_doc" />
+            <useparam name="p_dat_doc_beg" />
+          </call>
+          <call function="le" optional="1">
+            <column table="v" column="dat_doc" />
+            <useparam name="p_dat_doc_end" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="v" column="dat_receipt_post" />
+            <useparam name="p_dat_receipt_post_beg" />
+          </call>
+          <call function="le" optional="1">
+            <column table="v" column="dat_receipt_post" />
+            <useparam name="p_dat_receipt_post_end" />
+          </call>
+          <call function="ge" optional="1">
+            <column table="v" column="dat_entry" />
+            <useparam name="p_dat_entry_beg" />
+          </call>
+          <call function="le" optional="1">
+            <column table="v" column="dat_entry" />
+            <useparam name="p_dat_entry_end" />
+          </call>
+          <call function="or" optional="1">
+            <call function="and">
+              <call function="=">
+                <column table="v" column="type_rassm" />
+                <const>1</const>
+              </call>
+              <call function="ge">
+                <column table="v" column="dat_doc" />
+                <call function="date add days">
+                  <useparam name="p_date_rassm_approx_beg" />
+                  <const>-65</const>
+                </call>
+              </call>
+            </call>
+            <call function="and">
+              <call function="=">
+                <column table="v" column="type_rassm" />
+                <const>3</const>
+              </call>
+              <call function="ge">
+                <column table="v" column="dat_doc" />
+                <call function="date add days">
+                  <useparam name="p_date_rassm_approx_beg" />
+                  <const>-45</const>
+                </call>
+              </call>
+            </call>
+          </call>
+          <call function="or" optional="1">
+            <call function="and">
+              <call function="=">
+                <column table="v" column="type_rassm" />
+                <const>1</const>
+              </call>
+              <call function="le">
+                <column table="v" column="dat_doc" />
+                <call function="date add days">
+                  <useparam name="p_date_rassm_approx_end" />
+                  <const>-65</const>
+                </call>
+              </call>
+            </call>
+            <call function="and">
+              <call function="=">
+                <column table="v" column="type_rassm" />
+                <const>3</const>
+              </call>
+              <call function="le">
+                <column table="v" column="dat_doc" />
+                <call function="date add days">
+                  <useparam name="p_date_rassm_approx_end" />
+                  <const>-45</const>
+                </call>
+              </call>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="!=">
+              <column table="us_result" column="kod_post" />
+              <const>27</const>
+            </call>
+            <call function="ge">
+              <column table="v" column="dat_entry" />
+              <call function="date add days">
+                <useparam name="p_dat_post_upr_approx_beg" />
+                <const>-13</const>
+              </call>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="!=">
+              <column table="us_result" column="kod_post" />
+              <const>27</const>
+            </call>
+            <call function="le">
+              <column table="v" column="dat_entry" />
+              <call function="date add days">
+                <useparam name="p_dat_post_upr_approx_end" />
+                <const>-13</const>
+              </call>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="v" column="kod_emp" />
+            <useparam name="p_kod_emp" />
+          </call>
+          <call function="in" optional="1">
+            <column table="dd" column="kod_group_cust" />
+            <query>
+              <select>
+                <column table="ks_group_cust" column="kod_group_cust" />
+              </select>
+              <from>
+                <query name="ks_group_cust" as="ks_group_cust" />
+              </from>
+              <start>
+                <call function="in">
+                  <column table="ks_group_cust" column="kod_group_cust" />
+                  <useparam name="p_kod_group_cust_parent" />
+                </call>
+              </start>
+              <connect>
+                <call function="=">
+                  <column table="ks_group_cust" column="kod_gr_parent" />
+                  <column table="ks_group_cust" column="kod_group_cust" prior="1" />
+                </call>
+              </connect>
+            </query>
+          </call>
+          <call function="in" optional="1">
+            <column table="dd" column="kod_group_cust" />
+            <useparam name="p_kod_group_cust" />
+          </call>
+          <call function="in" optional="1">
+            <column table="v" column="kod_category" />
+            <useparam name="p_kod_category" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="64627_category" order="name" title="Запрос комбика &quot;Категория потребителей&quot;" comment="Используется в form 64627 и 64630" timestamp="22.12.2022 13:30:00">
+      <select>
+        <column table="us_category" column="kod_category" key="1" />
+        <column table="us_category" column="name" is-name="1" title="Наименование" />
+        <column table="us_category" column="abbr" title="Сокращение" />
+      </select>
+      <from>
+        <query name="us_category" as="us_category" />
+      </from>
+    </query>
+    <query name="64627_arch" order="kod" title="Запрос комбика &quot;Статус&quot;" comment="Используется в form 64627 и 64630" timestamp="22.12.2022 14:15:00">
+      <const type="number" as="kod">0</const>
+      <const type="string" as="name">'Все'</const>
+      <const>1</const>
+      <const>'Активный'</const>
+      <const>2</const>
+      <const>'Архив'</const>
+    </query>
+  </queries>
+</root>

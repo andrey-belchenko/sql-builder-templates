@@ -1,0 +1,1049 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T01:40:58.7742822+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="48202-title" timestamp="23.11.2018 18:23:58" title="Договоры" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_numobj" type="number" />
+        <column table="a" column="kod_dog" type="number" />
+        <column table="a" column="ndog" title="Номер договора" type="string" />
+        <column table="a" column="num_obj" title="Номер объекта" type="number" format="F0" />
+        <column table="a" title="Наименование объекта" type="string" column="obj_name" />
+        <column table="a" column="abon_name" type="string" title="Наименование абонента" />
+        <column table="a" column="address" type="string" title="Адрес объекта" />
+        <column table="a" column="name_s" type="string" title="Район" />
+        <call function="()" type="date" as="dat_otch">
+          <useparam name="date" />
+        </call>
+        <column table="a" column="sbyt_comp" type="string" title="Сбытовая компания" />
+        <column table="a" column="sub_abons" type="number" />
+        <call type="string" title="Наличие субабонентов" function="if" as="is_abons">
+          <call function="=">
+            <column table="a" column="sub_abons" />
+            <const>0</const>
+          </call>
+          <const>'Нет'</const>
+          <const>'Да'</const>
+        </call>
+        <column table="a" column="point_name" type="string" title="Точка подключения" />
+      </select>
+      <from>
+        <table name="titles" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-obj_employees" timestamp="11.06.2019 11:07:38" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <call as="id" key="1" function="||-">
+          <column table="this" column="kod_numobj" />
+          <column table="this" column="kod_namedolzh" />
+        </call>
+        <column table="a" column="kod_dog" type="number" />
+        <column table="a" column="kod_numobj" type="number" />
+        <column table="a" column="kodp" type="number" />
+        <column table="kodp" column="kod_namedolzh" format="F0" />
+        <column table="kodp" column="name" />
+        <column table="kodp" column="fios" />
+        <column table="kodp" column="tels" />
+      </select>
+      <from>
+        <table name="obj_employees" as="a" view="1" />
+        <query name="48202-credent_emp" as="kodp" join="left outer">
+          <withparams>
+            <usepart part="48202-withparams" />
+          </withparams>
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="48202-point_titles" timestamp="07.05.2019 12:18:21" order="nomer" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <call as="id" key="1" function="||-">
+          <column table="a" column="kod_numobj" />
+          <column table="a" column="kod_point" />
+        </call>
+        <column table="a" column="kod_point" format="F0" type="number" comment="Код ТУ" />
+        <column table="a" column="kod_dog" type="number" />
+        <column table="a" column="kod_numobj" type="number" />
+        <column table="a" column="dognum" type="string" title="Номер договора" />
+        <column table="a" column="sbyt_comp" type="string" title="Сбытовая компания" exclude="1" />
+        <column table="a" column="sub_abons" type="number" exclude="1" />
+        <call type="string" title="Наличие субабонентов" function="if" as="is_abons" exclude="1">
+          <call function="=">
+            <column table="a" column="sub_abons" />
+            <const>0</const>
+          </call>
+          <const>'Нет'</const>
+          <const>'Да'</const>
+        </call>
+        <column table="a" column="point_name" type="string" title="Точка подключения" exclude="1" />
+        <column table="a" column="nomer" title="Номер ТУ" type="number" />
+        <column table="a" column="numobjname" title="Наименование объекта" type="string" />
+        <column table="a" column="name" title="Место" type="string" />
+        <column table="a" column="srcname" title="Точка подключения" type="string" exclude="1" />
+        <call function="upper" as="polbalans" title="Баланс на границе" type="string">
+          <column table="a" column="polbalans" type="string" />
+        </call>
+        <column table="a" column="tpoint" title="Код типа ТУ" type="number" />
+        <call title="Тип ТУ" function="case" as="point_type" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="tpoint" />
+              <const>0</const>
+            </call>
+            <const>'Основная'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="tpoint" />
+              <const>1</const>
+            </call>
+            <const>'Прочее потребление'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="tpoint" />
+              <const>2</const>
+            </call>
+            <const>'Субабонент'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="tpoint" />
+              <const>3</const>
+            </call>
+            <const>'Транзит'</const>
+          </call>
+        </call>
+        <column table="a" column="id_askue" title="АСКУЭ" type="number" />
+        <column table="a" column="pmax_kvt" type="number" title="Мощность (выводится как Сетевое ограничение)" />
+        <call function="if" as="askue" title="Наличие АСКУЭ" type="string">
+          <call function="is null">
+            <column table="a" column="id_askue" />
+          </call>
+          <const>'Нет'</const>
+          <const>'Да'</const>
+        </call>
+        <call type="string" as="my0" function="||" exclude="1">
+          <call function="if">
+            <call function="lt">
+              <call function="month">
+                <useparam name="date" />
+              </call>
+              <const>10</const>
+            </call>
+            <const>'0'</const>
+            <const>''</const>
+          </call>
+          <call function="month">
+            <useparam name="date" />
+          </call>
+          <const>'.'</const>
+          <call function="year">
+            <useparam name="date" />
+          </call>
+        </call>
+        <call type="string" as="my1" function="||">
+          <call function="if">
+            <call function="lt">
+              <call function="month">
+                <call function="add_months">
+                  <useparam name="date" />
+                  <const>-1</const>
+                </call>
+              </call>
+              <const>10</const>
+            </call>
+            <const>'0'</const>
+            <const>''</const>
+          </call>
+          <call function="month">
+            <call function="add_months">
+              <useparam name="date" />
+              <const>-1</const>
+            </call>
+          </call>
+          <const>'.'</const>
+          <call function="year">
+            <call function="add_months">
+              <useparam name="date" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call type="string" as="my2" function="||">
+          <call function="if">
+            <call function="lt">
+              <call function="month">
+                <call function="add_months">
+                  <useparam name="date" />
+                  <const>-2</const>
+                </call>
+              </call>
+              <const>10</const>
+            </call>
+            <const>'0'</const>
+            <const>''</const>
+          </call>
+          <call function="month">
+            <call function="add_months">
+              <useparam name="date" />
+              <const>-2</const>
+            </call>
+          </call>
+          <const>'.'</const>
+          <call function="year">
+            <call function="add_months">
+              <useparam name="date" />
+              <const>-2</const>
+            </call>
+          </call>
+        </call>
+        <call type="string" as="my3" function="||">
+          <call function="if">
+            <call function="lt">
+              <call function="month">
+                <call function="add_months">
+                  <useparam name="date" />
+                  <const>-3</const>
+                </call>
+              </call>
+              <const>10</const>
+            </call>
+            <const>'0'</const>
+            <const>''</const>
+          </call>
+          <call function="month">
+            <call function="add_months">
+              <useparam name="date" />
+              <const>-3</const>
+            </call>
+          </call>
+          <const>'.'</const>
+          <call function="year">
+            <call function="add_months">
+              <useparam name="date" />
+              <const>-3</const>
+            </call>
+          </call>
+        </call>
+        <call function="to_number" as="poteri">
+          <column table="a" column="poteri" />
+        </call>
+        <column title="Процент потерь" table="a" column="poteri" comment="Номер потери = номер соответствующего месяца" type="string" exclude="1" />
+        <call title="Текущий месяц" type="number" function="month" as="m" exclude="1">
+          <useparam name="date" />
+        </call>
+        <call type="number" title="Потери в отчет" function="case" as="poteri" exclude="1">
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>1</const>
+            </call>
+            <column table="a" column="poteri1" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>2</const>
+            </call>
+            <column table="a" column="poteri2" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>3</const>
+            </call>
+            <column table="a" column="poteri3" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>4</const>
+            </call>
+            <column table="a" column="poteri4" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>5</const>
+            </call>
+            <column table="a" column="poteri5" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>6</const>
+            </call>
+            <column table="a" column="poteri6" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>7</const>
+            </call>
+            <column table="a" column="poteri7" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>8</const>
+            </call>
+            <column table="a" column="poteri8" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>9</const>
+            </call>
+            <column table="a" column="poteri9" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>10</const>
+            </call>
+            <column table="a" column="poteri10" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>11</const>
+            </call>
+            <column table="a" column="poteri11" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="this" column="m" />
+              <const>12</const>
+            </call>
+            <column table="a" column="poteri12" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="point_titles" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-point_prib_uch" timestamp="13.08.2018 14:36:46" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <select>
+        <column table="a" column="kod_point" format="F0" title="Код ТУ" type="number" />
+        <column table="a" column="dognum" type="string" title="Номер договора" />
+        <column table="a" column="nomer" title="Номер ТУ" type="number" />
+        <column table="a" column="numobjname" title="Наименование объекта" type="string" />
+        <column table="a" column="name" title="Место" type="string" />
+        <column table="a" column="srcname" title="Точка подключения" type="string" />
+        <call function="upper" as="polbalans" title="Баланс на границе">
+          <column table="a" column="polbalans" type="string" />
+        </call>
+        <column table="a" column="point_type" title="Тип ТУ" type="string" />
+        <column table="a" column="id_askue" title="АСКУЭ" type="number" />
+      </select>
+      <from>
+        <table name="point_titles" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-contract_list" timestamp="13.08.2018 19:52:35" title="Договоры" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <select>
+        <column table="a" type="number" column="kod_dog" />
+        <column table="a" column="ndog" title="Номер договора" type="string" />
+        <column table="a" column="nump" title="Код абонента" type="string" />
+        <column table="a" title="Наименование абонента" type="string" column="abon_name" />
+        <column table="a" column="sbyt_comp" title="Сбытовая компания" type="string" />
+      </select>
+      <from>
+        <table name="contracts" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-object" timestamp="14.05.2019 14:50:09" title="Объекты" order="num_obj" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params exclude="1">
+        <param name="kod_dog" type="number" />
+      </params>
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_numobj" type="number" />
+        <column table="a" column="num_obj" title="Номер объекта" type="string" />
+        <column table="a" column="ndog" title="Номер договора" type="string" />
+        <column table="a" title="Наименование объекта" type="string" column="objname" />
+        <call function="()" type="date" as="dat_otch">
+          <useparam name="date" />
+        </call>
+      </select>
+      <from>
+        <table name="object" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-point_pribory" timestamp="14.05.2019 14:44:43" order="nom_pu" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <call function="||-" as="pk">
+          <column table="a" column="kod_numobj" />
+          <call function="to_char">
+            <column table="a" column="kod_point" />
+          </call>
+          <call function="to_char">
+            <column table="a" column="nom_pu" />
+          </call>
+          <column table="a" column="napravl" />
+        </call>
+        <call function="||-" as="parent_id">
+          <column table="a" column="kod_numobj" />
+          <column table="a" column="kod_point" />
+        </call>
+        <column table="a" column="kod_dog" type="number" />
+        <column table="a" column="kod_numobj" type="number" />
+        <column table="a" column="block" type="number" comment="0 - ПУ, 1 - трансформатор" />
+        <column table="a" column="kod_point" format="F0" title="Код ТУ" type="number" />
+        <column table="a" column="nom_pu" type="string" title="Номер ПУ" />
+        <column table="a" type="string" title="Тип прибора" column="name_pk" />
+        <column table="a" column="owner" type="string" />
+        <column table="a" column="razr" title="Разрядность" type="number" />
+        <column table="a" column="i" title="Ток" type="string" />
+        <column table="a" column="u" title="Напряжение" type="string" />
+        <call function="if" as="nominal" title="Ток / Напряжение">
+          <call function="=">
+            <column table="a" column="block" />
+            <const>0</const>
+          </call>
+          <call function="||">
+            <column table="a" column="i" />
+            <const>'А, '</const>
+            <column table="a" column="u" />
+            <const>'В'</const>
+          </call>
+          <call function="||">
+            <column table="a" column="i" />
+            <const>'/ '</const>
+            <column table="a" column="u" />
+          </call>
+        </call>
+        <column table="a" column="dat_s" title="Дата установки" type="date" />
+        <column table="a" column="kvartal_pp" title="Квартал поверки" type="number" />
+        <column table="a" column="god_pp" title="Год поверки" type="number" />
+        <column table="a" title="Лет до ОП" type="number" column="years_op" />
+        <call type="string" as="dats" title="Установка, поверка, ОП" function="||">
+          <call function="year">
+            <column table="a" column="dat_s" />
+          </call>
+          <const>'/'</const>
+          <call function="case">
+            <call function="when">
+              <call function="=">
+                <column table="a" column="kvartal_pp" />
+                <const>1</const>
+              </call>
+              <const>'I'</const>
+            </call>
+            <call function="when">
+              <call function="=">
+                <column table="a" column="kvartal_pp" />
+                <const>2</const>
+              </call>
+              <const>'II'</const>
+            </call>
+            <call function="when">
+              <call function="=">
+                <column table="a" column="kvartal_pp" />
+                <const>3</const>
+              </call>
+              <const>'III'</const>
+            </call>
+            <call function="when">
+              <call function="=">
+                <column table="a" column="kvartal_pp" />
+                <const>4</const>
+              </call>
+              <const>'IV'</const>
+            </call>
+          </call>
+          <const>' '</const>
+          <column table="a" column="god_pp" />
+          <const>'/'</const>
+          <call function="+">
+            <column table="a" column="god_pp" />
+            <column table="a" column="years_op" />
+          </call>
+        </call>
+        <column table="a" column="plomba" title="Состояние опломбир." type="string" />
+        <column table="a" column="rkoeff" title="Коэфф." type="number" />
+        <column table="a" column="abbr" type="string" title="Вид энергии" exclude="1" />
+        <column table="a" title="Код направления" column="kod_directen" type="number" exclude="1" />
+        <column table="a" column="abbr2" type="string" title="+/-" exclude="1" />
+        <call title="Вид и направление энергии" as="napravl" type="string" function="||" exclude="1">
+          <column table="a" column="abbr" />
+          <const>' '</const>
+          <call function="case">
+            <call function="when">
+              <call function="=">
+                <column table="a" column="kod_directen" />
+                <const>1</const>
+              </call>
+              <const>'пр'</const>
+            </call>
+            <call function="when">
+              <call function="=">
+                <column table="a" column="kod_directen" />
+                <const>2</const>
+              </call>
+              <const>'обр'</const>
+            </call>
+          </call>
+          <const>' '</const>
+          <column table="a" column="abbr" />
+          <column table="a" column="abbr2" />
+        </call>
+        <column table="a" column="napravl" title="Вид и направление энергии" type="string" />
+        <column table="a" column="readlast1" type="number" title="Показания пр. мес" />
+        <column table="a" column="readlast2" type="number" title="Показания позапр. мес" />
+        <column table="a" column="readlast3" type="number" title="Показания мес-3" />
+        <column table="a" column="outcounter1" type="number" title="Расход пр. мес" />
+        <column table="a" column="outcounter2" type="number" title="Расход позапр. мес" />
+        <column table="a" column="outcounter3" type="number" title="Расход мес-3" />
+        <call type="string" function="||" as="ro1" title="Показания/расход пр. мес">
+          <const>'п.п.'</const>
+          <column table="a" column="readlast1" />
+          <const>'/'</const>
+          <column table="a" column="outcounter1" />
+        </call>
+        <call type="string" function="||" as="ro2" title="Показания/расход пр. мес">
+          <const>'п.п.'</const>
+          <column table="a" column="readlast2" />
+          <const>'/'</const>
+          <column table="a" column="outcounter2" />
+        </call>
+        <call type="string" function="||" as="ro3" title="Показания/расход пр. мес">
+          <const>'п.п.'</const>
+          <column table="a" column="readlast3" />
+          <const>'/'</const>
+          <column table="a" column="outcounter3" />
+        </call>
+      </select>
+      <from>
+        <table name="point_pribory" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-object_list" timestamp="23.11.2018 19:19:49" title="Объекты для параметра" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <column table="a" column="kod_numobj" type="number" />
+        <column table="a" column="num_obj" title="Номер объекта" type="string" />
+        <column table="a" column="ndog" title="Номер договора" type="string" />
+        <column table="a" title="Наименование объекта" type="string" column="objname" />
+      </select>
+      <from>
+        <table name="object_list" as="a" view="1" />
+      </from>
+    </query>
+    <query name="48202-credent_emp" timestamp="11.06.2019 11:02:54" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <select>
+        <column table="a" column="kodp" type="number" key="1" />
+        <column type="number" table="a" column="kod_namedolzh" title="Код должности" />
+        <column table="a" column="name" title="Должность" type="string" />
+        <column table="a" title="Фамилия" type="string" column="fios" />
+        <column table="a" type="string" column="tels" title="Телефон" />
+      </select>
+      <from>
+        <table name="credent_emp" as="a" view="1" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id">
+    <part id="48202-params" timestamp="23.11.2018 19:37:47" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <param type="number" name="kod_dog">
+        <const>414509</const>
+      </param>
+      <param type="array" name="kod_numobj">
+        <const>(364446)</const>
+      </param>
+      <param type="date" name="date">
+        <const>to_date('20180810', 'YYYY.MM.DD')</const>
+      </param>
+    </part>
+    <part id="48202-withparams" timestamp="23.11.2018 18:55:45" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <useparam name="kod_dog" />
+      <useparam name="kod_numobj" />
+      <useparam name="date" />
+    </part>
+  </parts>
+  <views child-name="view" key-name="id">
+    <view name="contracts" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select
+      d.kod_dog,
+      d.ndog,
+      kr_payer.nump,
+      kr_payer.name as abon_name,
+      sb.name as sbyt_comp
+      from kr_dogovor d
+      inner join kr_payer on kr_payer.kodp = d.kodp
+      left join kv_org_sbyt sb on sb.kodp = d.kodp_sbyt
+    </view>
+    <view name="object_list" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select
+      o.kod_numobj,
+      d.kod_dog,
+      o.num_obj,
+      d.ndog,
+      o.name as objname
+      from kr_dogovor d
+      inner join kr_numobj o on d.kod_dog = o.kod_dog
+      where d.kod_dog = :kod_dog 
+    </view>
+    <view name="object" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select
+      o.kod_numobj,
+      d.kod_dog,
+      o.num_obj,
+      d.ndog,
+      o.name as objname
+      from kr_dogovor d
+      inner join kr_numobj o on d.kod_dog = o.kod_dog
+      where d.kod_dog = :kod_dog 
+      and o.kod_numobj in :kod_numobj 
+    </view>
+    <view name="titles" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select
+      d.kod_dog,
+      o.kod_numobj,
+      d.ndog,
+      o.num_obj,
+      o.name as obj_name,
+      kr_payer.name as abon_name,
+      NK_ADRESS.kf_address( '0' , ko.kodd) as address,
+      a.name_s,
+      sb.name as sbyt_comp,
+      case when osub.kod_parent_sa is null then 0 else 1 end as sub_abons,
+      (
+      select listagg(n.tp, '; ') within group (order by n.tp)
+      from
+      (
+      select n.kod_obj,
+      src.kindname || ' ' || src.dnum as tp
+      from hr_nugruzpotreb N
+      inner join hr_trans_job t on n.kodnagruzpotreb = t.kodnagpotreb
+      inner join hr_eobject f on t.eobj_id = f.eobj_id
+      inner join hv_eosrc_x src on f.parent_id = src.eobj_id
+      where N.PR_RBT=0
+      AND N.d_finish IS NULL
+      and n.kod_vidnagr = 30
+      UNION
+      select n.kod_obj,
+      src.kindname || ' ' || src.dnum
+      from hr_nugruzpotreb N
+      inner join hr_eobject f on n.eobj_id = f.eobj_id
+      inner join hv_eosrc_x src on f.parent_id = src.eobj_id
+      where N.PR_RBT=0
+      AND N.d_finish IS NULL
+      and n.kod_vidnagr != 30
+      ) n
+      where n.kod_obj = o.kod_obj
+      ) as point_name
+      --hg_pmax_r.get_salePointName (o.kod_numobj) as point_name
+      from kr_dogovor d
+      inner join kr_numobj o on d.kod_dog = o.kod_dog
+      inner join kr_object ko on o.kod_obj = ko.kod_obj
+      inner join kr_payer on kr_payer.kodp = d.kodp
+      left join k_house h on d.kod_d_p_dog = h.kodd
+      left join k_strits s on h.kod_s = s.Kod
+      left join adr_m a on s.kod_m = a.kod_m
+      left join kv_org_sbyt sb on sb.kodp = d.kodp_sbyt
+      left join
+      (
+      select distinct kod_parent_sa
+      from kr_numobj
+      ) osub on o.kod_numobj = osub.kod_parent_sa
+      where d.kod_dog = :kod_dog  and o.kod_numobj in :kod_numobj 
+    </view>
+    <view name="obj_employees" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select distinct
+      d.kod_dog,                                  --код договора
+      o.kod_numobj,                               --код объекта
+      d.kodp
+      /*
+      dolz.kod_namedolzh,                         --код должности
+      dolz.name,                                  --должность
+      regexp_replace(
+      listagg(e.fio, ', ') within group (order by e.fio) over (partition by dolz.name)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as fios,                  --список сотрудников (фио)
+      regexp_replace(
+      listagg(e.tel, ', ') within group (order by e.tel) over (partition by dolz.name)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as tels                   --список телефонов
+      */
+      from kr_dogovor d
+      inner join kr_numobj o on d.kod_dog = o.kod_dog
+      inner join kr_employee e on d.kodp = e.kodp
+      left join ks_namedolzh dolz on e.kod_namedolzh = dolz.kod_namedolzh
+      where e.fio || e.tel || dolz.kod_namedolzh is not null
+      and d.kod_dog = :kod_dog  and o.kod_numobj in :kod_numobj 
+    </view>
+    <view name="credent_emp" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select distinct
+      e.kodp,
+      dolz.kod_namedolzh,                         --код должности
+      dolz.name,
+      regexp_replace(
+      listagg(e.fio, ', ') within group (order by e.fio) over (partition by dolz.name)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as fios, --список сотрудников (фио)
+      regexp_replace(
+      listagg(e.tel, ', ') within group (order by e.tel) over (partition by dolz.name)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as tels --список телефонов
+      from kr_employee e
+      left join ks_namedolzh dolz on e.kod_namedolzh = dolz.kod_namedolzh
+      where e.kodp in (select kodp from kr_dogovor where kod_dog = :kod_dog )
+    </view>
+    <view name="point_titles" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      select distinct
+      p.kod_point,
+      d.kod_dog,
+      o.kod_numobj,
+      p.dognum,
+      --sb.name as sbyt_comp,
+      --case when osub.kod_parent_sa is null then 0 else 1 end as sub_abons,
+      --hg_pmax_r.get_salePointName (o.kod_numobj) as point_name,
+      p.nomer,
+      p.numobjname,
+      p.name,
+      --n.srcname,
+      tb.polbalans,
+      p.tpoint,
+      tu.id_askue,
+      pm.pmax_kvt,
+      replace(
+      regexp_replace(
+      los.poteri1 || ', ' || los.poteri2 || ', ' || los.poteri3 || ', ' || los.poteri4 || ', ' ||
+      los.poteri5 || ', ' || los.poteri6 || ', ' || los.poteri7 || ', ' || los.poteri8 || ', ' ||
+      los.poteri9 || ', ' || los.poteri10 || ', ' || los.poteri11 || ', ' || los.poteri12
+      , '([^, ]+)(, \1)+'
+      , '\1'),
+      ', ', ''
+      )
+      as poteri
+      from hv_point p
+      inner join HR_POINT_HAR h on p.kod_point = h.kod_point
+      and h.pr_active in (0, 2)
+      inner join HK_TIPBAL tb on h.kod_polbalans = tb.kod_tipbal
+      left join hr_poteri los on h.kod_point_har = los.kod_point_har
+      left join hr_point tu on p.kod_point = tu.kod_point
+      inner join kr_dogovor d on d.kod_dog = p.kod_dog
+      --left join kv_org_sbyt sb on sb.kodp = d.kodp_sbyt
+      inner join kr_numobj o on d.kod_dog = o.kod_dog and p.kod_obj = o.kod_obj
+      /*left join
+      (
+      select distinct kod_parent_sa
+      from kr_numobj
+      ) osub on o.kod_numobj = osub.kod_parent_sa*/
+      left join hr_pmax_history pmh on o.kod_numobj = pmh.kod_numobj
+      and pmh.main_doc = 1
+      left join hv_pmax_itog pm on pmh.kod_pmax_history = pm.kod_pmax_history
+      and pm.name_obj_or_group = 'Группа точек'
+      where d.kod_dog = :kod_dog  and o.kod_numobj in :kod_numobj 
+    </view>
+    <view name="point_pribory" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      --прибор учета
+      select
+      dog.kod_dog,                                                                    --код договора
+      o.kod_numobj,                                                                   --код объекта
+      0                                   as block,
+      p.kod_point,                                                                    --код ту
+      pu.nom_pu,                                                                      --номер пу
+      tpu.name_pk,                                                                    --тип пу
+      bal.name                            as owner,                                   --балансовая принадлежность
+      pu.razr,                                                                        --разрядность
+      tpu.i, tpu.u,                                                                   --ток и напряжение
+      pu.dat_s,                                                                       --дата установки
+      u.kvartal_pp,                                                                   --квартал поверки
+      u.god_pp,                                                                       --год поверки
+      pu.years_op,                                                                    --год оп
+      pl.plomba,                                                                      --состояние опломбир.
+      ei.rkoeff,                                                                      --коэф.
+      ei.napravl,                                                                     --вид энергии, направление, +/-
+      pok.readlast1, pok.readlast2, pok.readlast3,                                    --показания по месяцам
+      pok.outcounter1, pok.outcounter2, pok.outcounter3                               --расход по месяцам
+      from hv_point p
+      inner join
+      (
+      select kod_point_pu, kod_tippu, kod_point, nom_pu, razr, kod_pu_u, dat_s, kod_bal,
+      nvl(dat_po, to_date('21000101', 'YYYY.MM.DD')) as dat_po,
+      hg_pasp_pu_r.mpi(kod_tippu,2) as years_op,
+      max(nvl(dat_po, to_date('21000101', 'YYYY.MM.DD'))) over (partition by nom_pu) as maxdat
+      from hr_point_pu
+      where pr_active in (0, 2)
+      ) pu on p.kod_point = pu.kod_point
+      and pu.dat_po = pu.maxdat
+      left join kk_bal bal on pu.kod_bal = bal.kod_bal
+      inner join
+      (
+      select distinct e.kod_point_pu,
+      regexp_replace(
+      listagg(
+      te.abbr || ' ' || case when e.kod_directen = 1 then 'пр' when e.kod_directen = 2 then 'обр' end || ' ' || te.abbr || d.abbr
+      , ', '
+      ) within group (order by te.abbr, e.kod_directen desc, d.abbr) over(partition by e.kod_point_pu)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as napravl,
+      regexp_replace(
+      listagg(
+      i.rkoeff
+      , ', '
+      ) within group (order by i.rkoeff) over (partition by e.kod_point_pu)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as rkoeff
+      from hr_point_en e
+      inner join hr_point_ini i on i.kod_point_en = e.kod_point_en
+      and i.pr_active in (0, 2)
+      inner join hk_energy te on e.energy = te.energy
+      inner join hk_directen d on e.kod_directen = d.kod_directen
+      ) ei on pu.kod_point_pu = ei.kod_point_pu
+      inner join hv_typepu tpu on pu.kod_tippu = tpu.kod_tippu
+      inner join hr_pu_u u on pu.kod_pu_u = u.kod_pu_u
+      left join
+      (
+      select distinct kod_pu_u, dat_plomba, max(dat_plomba) over(partition by kod_pu_u) as max_dat_plomba,
+      regexp_replace(
+      listagg(plomba, ', ') within group (order by plomba) over (partition by kod_pu_u, dat_plomba)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as plomba --состояние опломбирования
+      from hr_hisworks
+      where kod_pu_u is not null
+      ) pl on pu.kod_pu_u = pl.kod_pu_u
+      and pl.dat_plomba = pl.max_dat_plomba
+      left join
+      (
+      select
+      r.kod_point_pu,
+      sum(case when kg.ym_first_day(p.ym) = add_months(trunc(sysdate, 'mm'), -3)
+      then r.readlast
+      else 0
+      end)                                                                            as readlast3,
+      sum(case when kg.ym_first_day(p.ym) = add_months(trunc(sysdate, 'mm'), -2)
+      then r.readlast
+      else 0
+      end)                                                                            as readlast2,
+      sum(case when kg.ym_first_day(p.ym) = add_months(trunc(sysdate, 'mm'), -1)
+      then r.readlast
+      else 0
+      end)                                                                            as readlast1,
+      sum(case when kg.ym_first_day(p.ym) = add_months(trunc(sysdate, 'mm'), -3)
+      then r.outcounter
+      else 0
+      end)                                                                            as outcounter3,
+      sum(case when kg.ym_first_day(p.ym) = add_months(trunc(sysdate, 'mm'), -2)
+      then r.outcounter
+      else 0
+      end)                                                                            as outcounter2,
+      sum(case when kg.ym_first_day(p.ym) = add_months(trunc(sysdate, 'mm'), -1)
+      then r.outcounter
+      else 0
+      end)                                                                            as outcounter1
+      from nv_priem r
+      inner join nr_priem_obj p on r.kod_priem_obj = p.kod_priem_obj
+      where kg.ym_first_day(p.ym) between add_months(trunc(sysdate, 'mm'), -3) and add_months(trunc(sysdate, 'mm'), -1)
+      group by r.kod_point_pu
+      ) pok on pu.kod_point_pu = pok.kod_point_pu
+      inner join kr_dogovor dog on dog.kod_dog = p.kod_dog
+      inner join kr_numobj o on dog.kod_dog = o.kod_dog and p.kod_obj = o.kod_obj
+      where dog.kod_dog = :kod_dog  and o.kod_numobj in :kod_numobj 
+      union all
+      --трансф
+      select distinct
+      dog.kod_dog,                                                                    --код договора
+      o.kod_numobj,                                                                   --код объекта
+      1                                                   as block,
+      p.kod_point,                                                                    --код ту
+      tr.zav_nom,                                                                     --номер трансформатора
+      hvt.name,                                                                       --тип трансф
+      bal.name                                            as owner,                   --балансовая принадлежность
+      null,
+      to_char(hvt.u1), to_char(hvt.u2),                                               --напряжение первичной / вторичной обмотки
+      tr.dat_s,                                                                       --дата установки
+      ttn.kvartal_pp,                                                                 --квартал поверки
+      ttn.god_pp,                                                                     --год поверки
+      hg_pasp_pu_r.mpi( tr.kod_tiptn,1 ),                                             --год оп
+      pl.plomba,                                                                      --состояние опломбирования
+      null                                                as rkoeff,
+      tr.faza,                                                                        --фаза
+      null, null, null,
+      null, null, null
+      from hv_point p
+      inner join hr_point_tr tr on p.kod_point = tr.kod_point
+      and tr.pr_active in (0, 2)
+      left join kk_bal bal on tr.kod_bal = bal.kod_bal
+      inner join hv_tiutrans hvt on hvt.kod_tiptn = tr.kod_tiptn
+      left join hr_ttn_u ttn on tr.kodsp_ttn_u = ttn.kodsp_ttn_u
+      left join
+      (
+      select kodsp_ttn_u, dat_plomba, max(dat_plomba) over(partition by kodsp_ttn_u) as max_dat_plomba,
+      regexp_replace(
+      listagg(plomba, ', ') within group (order by plomba) over (partition by kodsp_ttn_u, dat_plomba)
+      , '([^,]+)(, \1)+'
+      , '\1'
+      ) as plomba --состояние опломбирования
+      from hr_hisworks
+      where kodsp_ttn_u is not null
+      ) pl on tr.kodsp_ttn_u = pl.kodsp_ttn_u
+      and pl.dat_plomba = pl.max_dat_plomba
+      inner join kr_dogovor dog on dog.kod_dog = p.kod_dog
+      inner join kr_numobj o on dog.kod_dog = o.kod_dog and p.kod_obj = o.kod_obj
+      where dog.kod_dog = :kod_dog  and o.kod_numobj in :kod_numobj 
+    </view>
+  </views>
+  <reports child-name="report" key-name="name">
+    <report name="48202" title="Заявки на осмотр потребителя" timestamp="23.11.2018 19:05:10" form="48202" mode="default" visible="0" nogrid="1" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <customers>
+        <customer id="22" />
+      </customers>
+      <print-templates>
+        <word>
+          <template name="48202.docx" title="Заявка на осмотр потребителя" />
+        </word>
+      </print-templates>
+      <params>
+        <usepart part="48202-params" />
+      </params>
+      <queries>
+        <query name="48202-object" as="obj">
+          <withparams>
+            <usepart part="48202-withparams" />
+          </withparams>
+          <query name="48202-title" as="tit">
+            <withparams>
+              <usepart part="48202-withparams" />
+            </withparams>
+            <call function="=">
+              <column table="obj" column="kod_numobj" />
+              <column table="tit" column="kod_numobj" />
+            </call>
+            <query name="48202-obj_employees" as="emp">
+              <withparams>
+                <usepart part="48202-withparams" />
+              </withparams>
+              <call function="=">
+                <column table="tit" column="kod_numobj" />
+                <column table="emp" column="kod_numobj" />
+              </call>
+            </query>
+            <query name="48202-point_titles" as="ptit">
+              <withparams>
+                <usepart part="48202-withparams" />
+              </withparams>
+              <call function="=">
+                <column table="tit" column="kod_numobj" />
+                <column table="ptit" column="kod_numobj" />
+              </call>
+              <query name="48202-point_pribory" as="prib">
+                <withparams>
+                  <usepart part="48202-withparams" />
+                </withparams>
+                <call function="=">
+                  <column table="ptit" column="id" />
+                  <column table="prib" column="parent_id" />
+                </call>
+              </query>
+            </query>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="48202" timestamp="26.11.2018 18:56:51" file="sql.builder.templates\sql.builder\projects\48202\reports\rep48202.xml">
+      <usefield name="kod_dog" title="Договор" field="cmn_combo_num" type="number" column-mandatory="1">
+        <listquery>
+          <query name="48202-contract_list" />
+        </listquery>
+      </usefield>
+      <usefield field="cmn_list" name="kod_numobj" type="number" column-mandatory="1" title="Объекты">
+        <listquery>
+          <query name="48202-object_list" />
+        </listquery>
+        <defaultquery>
+          <query name="48202-object_list" />
+        </defaultquery>
+      </usefield>
+      <usefield name="date" title="Текущая дата" type="date" field="cmn_date" column-mandatory="1" column-visible="0">
+        <defaultquery>
+          <query name="cur-date" />
+        </defaultquery>
+      </usefield>
+      <field name="kod_dog" title="Договор" field="cmn_combo_num" controlType="UICombo" type="number" mandatory="1" exclude="1">
+        <listquery>
+          <query name="48202-contract_list" />
+        </listquery>
+      </field>
+      <field name="kod_numobj" title="Объекты" field="cmn_combo_num" controlType="UIList" type="number" mandatory="1" exclude="1">
+        <listquery>
+          <query name="48202-object_list" />
+        </listquery>
+        <defaultquery>
+          <query name="48202-object_list" />
+        </defaultquery>
+      </field>
+      <field controlType="UIDate" name="date" title="Текущая дата" type="date" column-mandatory="1" column-visible="0" exclude="1">
+        <defaultquery>
+          <query name="cur-date" />
+        </defaultquery>
+      </field>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

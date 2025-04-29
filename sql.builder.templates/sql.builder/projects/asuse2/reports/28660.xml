@@ -1,0 +1,1182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="28660" with-behavior="0" timestamp="21.11.2016 14:26:54">
+      <content>
+        <field name="dep" controlType="UIList" title="Отделения" show-nulls="0">
+          <listquery>
+            <query name="kr_dep" />
+          </listquery>
+          <defaultquery>
+            <query name="kr_dep_current" />
+          </defaultquery>
+          <return>
+            <array>
+              <fieldvalue />
+            </array>
+          </return>
+        </field>
+        <field name="ym" controlType="UIComboRange" title="Отчётный период" mandatory="1">
+          <listquery>
+            <query name="kr_calc_list"></query>
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max"></query>
+          </defaultquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="28660" title="Формат ЦФР по оценке исковой работы" form="28660" folder="ur_reports">
+      <customers>
+        <customer id="3" />
+      </customers>
+      <params>
+        <param name="dep">
+          <!--<const>300000106</const>-->
+        </param>
+        <param name="ym1" />
+        <param name="ym2" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="28660.xml" title="Формат ЦФР по оценке исковой работы" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="28660-rep" as="m" title="Шапка">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+          </withparams>
+          <query name="28660-isp" as="a" grouplevel="0" title="Всего по юридическим лицам">
+            <withparams>
+              <useparam name="dep" />
+              <call function="ym begin time">
+                <useparam name="ym1" />
+              </call>
+              <call function="add_month">
+                <call function="ym begin time">
+                  <useparam name="ym2" />
+                </call>
+              </call>
+            </withparams>
+            <columns>
+              <band title="Количество исполнительных листов на начало периода">
+                <column table="a" name="count_ssp_begin" />
+                <column table="a" name="ost_ssp_begin" />
+                <column table="a" name="count_kazn_begin" />
+                <column table="a" name="ost_kazn_begin" />
+                <column table="a" name="count_ink_begin" />
+                <column table="a" name="ost_ink_begin" />
+              </band>
+              <band title="Исполнительные листы по взысканию долга за электроэнергию, предъявленные в ССП в отчетном периоде">
+                <column table="a" name="count_ssp_period" />
+                <column table="a" name="ost_ssp_period" />
+              </band>
+              <band title="Исполнительные листы по взысканию долга за электроэнергию, предъявленные в УФК в отчетном периоде">
+                <column table="a" name="count_kazn_period" />
+                <column table="a" name="ost_kazn_period" />
+              </band>
+              <band title="Исполнительные листы по взысканию долга за электроэнергию, выставленные на инкассо в отчетном периоде">
+                <column table="a" name="count_ink_period" />
+                <column table="a" name="ost_ink_period" />
+              </band>
+              <band title="Движение по исполнительным листам, находящимся в исполнительном производстве ССП,в отчетном периоде">
+                <band title="Исполнительные листы, по которым долг погашен в результате добровольного исполнения">
+                  <column table="a" name="count_post_di" />
+                  <column table="a" name="ost_post_di" />
+                </band>
+                <band title="Исполнительные листы, по которым долг погашен в результате принудительного исполнения">
+                  <column table="a" name="count_post_pi" />
+                  <column table="a" name="ost_post_pi" />
+                </band>
+                <band title="Исполнительные листы, по которым производство окончено в связи с невозможностью взыскания (пп.3, 4 ст. 46 ФЗ-229 от 02.10.2007 г.)">
+                  <column table="a" name="count_post_nv" />
+                  <column table="a" name="ost_post_nv" />
+                </band>
+                <band title="Исполнительные листы в рамках прекращенных исполнительных производств (ст. 43, 47 ФЗ-229 от 02.10.2007 г.)">
+                  <column table="a" name="count_post_pr" />
+                  <column table="a" name="ost_post_pr" />
+                </band>
+              </band>
+              <column table="a" name="opl_kazn_period" />
+              <column table="a" name="opl_ink_period" />
+              <column table="a" name="opl_spis_period" />
+            </columns>
+            <call function="=">
+              <column table="m" column="kod" />
+              <column table="a" column="kod" />
+            </call>
+          </query>
+          <query name="28660-isp2" as="b" title="По договорам" main="1">
+            <withparams>
+              <useparam name="dep" />
+              <call function="ym begin time">
+                <useparam name="ym1" />
+              </call>
+              <call function="add_month">
+                <call function="ym begin time">
+                  <useparam name="ym2" />
+                </call>
+              </call>
+            </withparams>
+            <columns>
+              <band title="Потребители">
+                <column table="b" name="dep_name" />
+                <column table="b" name="potr_cat" />
+                <column table="b" name="ndog_bar6" />
+                <column table="b" name="abon_name" />
+                <column table="b" name="p1" />
+                <column table="b" name="p2" />
+                <column table="b" name="p3" />
+                <column table="b" name="p4" />
+              </band>
+              <band title="Исполнительные листы">
+                <column table="b" name="num_delo" />
+                <column table="b" name="num_reg" />
+              </band>
+              <band title="Количество исполнительных листов на начало периода">
+                <column table="b" name="count_ssp_begin" />
+                <column table="b" name="ost_ssp_begin" />
+                <column table="b" name="count_kazn_begin" />
+                <column table="b" name="ost_kazn_begin" />
+                <column table="b" name="count_ink_begin" />
+                <column table="b" name="ost_ink_begin" />
+              </band>
+              <band title="Исполнительные листы по взысканию долга за электроэнергию, предъявленные в ССП в отчетном периоде">
+                <column table="b" name="count_ssp_period" />
+                <column table="b" name="ost_ssp_period" />
+              </band>
+              <band title="Исполнительные листы по взысканию долга за электроэнергию, предъявленные в УФК в отчетном периоде">
+                <column table="b" name="count_kazn_period" />
+                <column table="b" name="ost_kazn_period" />
+              </band>
+              <band title="Исполнительные листы по взысканию долга за электроэнергию, выставленные на инкассо в отчетном периоде">
+                <column table="b" name="count_ink_period" />
+                <column table="b" name="ost_ink_period" />
+              </band>
+              <band title="Движение по исполнительным листам, находящимся в исполнительном производстве ССП,в отчетном периоде">
+                <band title="Исполнительные листы, по которым долг погашен в результате добровольного исполнения">
+                  <column table="b" name="count_post_di" />
+                  <column table="b" name="ost_post_di" />
+                </band>
+                <band title="Исполнительные листы, по которым долг погашен в результате принудительного исполнения">
+                  <column table="b" name="count_post_pi" />
+                  <column table="b" name="ost_post_pi" />
+                </band>
+                <band title="Исполнительные листы, по которым производство окончено в связи с невозможностью взыскания (пп.3, 4 ст. 46 ФЗ-229 от 02.10.2007 г.)">
+                  <column table="b" name="count_post_nv" />
+                  <column table="b" name="ost_post_nv" />
+                </band>
+                <band title="Исполнительные листы в рамках прекращенных исполнительных производств (ст. 43, 47 ФЗ-229 от 02.10.2007 г.)">
+                  <column table="b" name="count_post_pr" />
+                  <column table="b" name="ost_post_pr" />
+                </band>
+              </band>
+              <column table="b" name="opl_kazn_period" />
+              <column table="b" name="opl_ink_period" />
+              <column table="b" name="opl_spis_period" />
+            </columns>
+            <call function="=">
+              <column table="m" column="kod" />
+              <column table="b" column="kod" />
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="28660">
+      <select>
+        <column table="kr_dogovor" column="potr_cat" />
+        <column table="kr_dogovor" column="ndog" />
+        <column table="kr_payer" column="name" />
+        <column table="okonh" column="p1" />
+        <column table="okonh" column="p2" />
+        <column table="kod_ist_ag" column="p3" />
+        <column table="kod_m_ag" column="p4" />
+      </select>
+      <from>
+        <query name="ur_folders" as="ur_folders_ip">
+          <link name="kod_isp" as="ur_isp">
+            <link name="kod_hist_mat" as="ur_hist_mat">
+              <link name="kod_mat" as="ur_mat">
+                <link name="kod_folders" as="ur_folders_pp" />
+                <link name="kod_dog" as="kr_dogovor">
+                  <link name="kod_ist">
+                    <link name="kod_ist_ag" />
+                  </link>
+                </link>
+              </link>
+            </link>
+          </link>
+          <link name="kodp" as="kr_payer">
+            <link name="kod_m">
+              <link name="kod_m_ag" />
+            </link>
+            <link name="kod_otrasl">
+              <link name="okonh" />
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="ur_folders_ip" column="kod_sdp" />
+            <const>2</const>
+          </call>
+          <call function="=">
+            <column table="ur_folders_ip" column="kod_vi" />
+            <const>1</const>
+          </call>
+          <call function="=">
+            <column table="ur_folders_ip" column="vvod" />
+            <const>0</const>
+          </call>
+          <call function="=">
+            <column table="kr_payer" column="kod_abon_type" />
+            <const>2</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--Отчёт-->
+    <query name="28660-rep">
+      <params>
+        <param name="dep" />
+        <param name="ym1" />
+        <param name="ym2" />
+      </params>
+      <select>
+        <const type="number" as="kod" key="1">1</const>
+        <call function="" as="ym1" title="Начальный период" type="string">
+          <call function="ym to char">
+            <useparam name="ym1" />
+          </call>
+        </call>
+        <call function="" as="ym2" title="Конечный период" type="string">
+          <call function="ym to char">
+            <useparam name="ym2" />
+          </call>
+        </call>
+        <call function="if" as="deps_name" type="string" title="Отделения">
+          <call function="is not null">
+            <column table="a" column="name" group="stragg_dist" />
+          </call>
+          <column table="a" column="sname" group="stragg_dist" />
+          <const>'Все отделения'</const>
+        </call>
+      </select>
+      <from>
+        <query name="kr_org" as="a" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <!--Исп. лист-->
+    <query name="28660-isp" grouplevel="no">
+      <params>
+        <param name="dep" />
+        <param name="dat_begin">
+          <const>to_date('01.02.2015','dd.mm.yyyy')</const>
+        </param>
+        <param name="dat_end">
+          <const>to_date('01.04.2015','dd.mm.yyyy')</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_isp" group="1" />
+        <const type="number" as="kod" group="max">1</const>
+        <column table="a" column="dep_name" title="Отделение" group="kod_isp" />
+        <column table="a" column="potr_cat" title="Категория потребителя" group="kod_isp" />
+        <column table="a" column="ndog_bar6" title="Номер договора (6-тизначный формат)" group="kod_isp" />
+        <column table="a" column="abon_name" title="Наименование контрагента" group="kod_isp" />
+        <column table="a" column="p1" title="Группа" group="kod_isp" />
+        <column table="a" column="p2" title="Подгруппа" group="kod_isp" />
+        <column table="a" column="p3" title="Бюджет" group="kod_isp" />
+        <column table="a" column="p4" title="Категория" group="kod_isp" />
+        <column table="a" column="num_delo" title="Номер дела" group="kod_isp" />
+        <column table="a" column="num_reg" title="Номер исп. листа" group="kod_isp" />
+        <call function="if" as="count_ssp_begin" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="ge">
+              <column table="a" column="isp_type" />
+              <const>3</const>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ssp" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_ssp_begin" type="number" format="{0:c}" title="Сумма долга по исполнительным листам, предъявленным в ССП на начало периода, руб." group="sum">
+          <call function="and">
+            <call function="ge">
+              <column table="a" column="isp_type" />
+              <const>3</const>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ssp" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_kazn_begin" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>1</const>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_kazn" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_kazn_begin" type="number" format="{0:c}" title="Сумма долга по исполнительным листам, предъявленным в УФК на начало периода, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>1</const>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_kazn" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_ink_begin" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>2</const>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ink" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_ink_begin" type="number" format="{0:c}" title="Сумма долга по исполнительным листам, выставленным на инкассо на начало периода, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>2</const>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ink" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_ssp_period" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="ge">
+              <column table="a" column="isp_type" />
+              <const>3</const>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_doc_ssp" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ssp" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_ssp_period" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="ge">
+              <column table="a" column="isp_type" />
+              <const>3</const>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_doc_ssp" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ssp" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_kazn_period" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>1</const>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_doc_kazn" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_kazn" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_kazn_period" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>1</const>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_doc_kazn" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_kazn" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_ink_period" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>2</const>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_doc_ink" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ink" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_ink_period" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>2</const>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_doc_ink" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_doc_ink" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_post_di" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>3</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_post_di" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>3</const>
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_post_pi" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>4</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_post_pi" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>4</const>
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_post_nv" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>5</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_post_nv" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>5</const>
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" as="count_post_pr" type="number" title="количество исполнительных листов, шт." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>6</const>
+            </call>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="if" as="ost_post_pr" type="number" format="{0:c}" title="сумма долга по исполнительным листам, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>6</const>
+            </call>
+          </call>
+          <!--<column table="this" column="ost_now"/>-->
+          <call function="-">
+            <column table="a" column="prizn" />
+            <column table="a" column="opl_no_entry" />
+            <column table="a" column="opl_before" />
+            <column table="a" column="opl_period" />
+            <column table="a" column="opl_spis_period" />
+            <column table="a" column="opl_after" />
+          </call>
+          <const>0</const>
+        </call>
+        <!--<column table="a" column="prizn"/>
+        <column table="a" column="opl_no_entry"/>
+        <column table="a" column="opl_before"/>
+        <column table="a" column="opl_period"/>
+        <column table="a" column="opl_after"/>-->
+        <call function="if" as="opl_kazn_period" type="number" format="{0:c}" title="Поступило денежных средств из УФК в счет оплаты долга по исполнительному листу, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>1</const>
+            </call>
+          </call>
+          <column table="a" column="opl_period" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_ink_period" type="number" format="{0:c}" title="Списано денежных средств с расчетного счета должника в счет оплаты долга по исполнительному листу, руб." group="sum">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="isp_type" />
+              <const>2</const>
+            </call>
+          </call>
+          <column table="a" column="opl_period" />
+          <const>0</const>
+        </call>
+        <column table="a" column="opl_spis_period" format="{0:c}" title="Списание задолженности на основании приказа Общества (?вид оплаты: 163 Списание ДЗ за счет резерва?), руб." group="sum" />
+        <!--<call function="-" as="ost_begin" group="sum">
+          <column table="a" column="prizn"/>
+          <column table="a" column="opl_no_entry"/>
+          <column table="a" column="opl_before"/>
+        </call>
+        <call function="-" as="ost_end" group="sum">
+          <column table="a" column="prizn"/>
+          <column table="a" column="opl_no_entry"/>
+          <column table="a" column="opl_before"/>
+          <column table="a" column="opl_period"/>
+          <column table="a" column="opl_spis_period"/>
+        </call>
+        <call function="-" as="ost_now" group="sum">
+          <column table="a" column="prizn"/>
+          <column table="a" column="opl_no_entry"/>
+          <column table="a" column="opl_before"/>
+          <column table="a" column="opl_period"/>
+          <column table="a" column="opl_spis_period"/>
+          <column table="a" column="opl_after"/>
+        </call>-->
+      </select>
+      <from>
+        <query name="28660-data" as="a">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat_begin" />
+            <useparam name="dat_end" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="ge">
+            <column table="a" column="isp_type"/>
+            <const>0</const>
+          </call>-->
+          <call function="gt">
+            <call function="-">
+              <column table="a" column="prizn" />
+              <column table="a" column="opl_no_entry" />
+              <column table="a" column="opl_before" />
+              <column table="a" column="opl_period" />
+              <column table="a" column="opl_spis_period" />
+              <column table="a" column="opl_after" />
+            </call>
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="28660-isp2-test" order="potr_cat, ndog_bar6">
+      <params>
+        <param name="dep" />
+        <param name="dat_begin">
+          <const>to_date('01.03.2015','dd.mm.yyyy')</const>
+        </param>
+        <param name="dat_end">
+          <const>to_date('01.04.2015','dd.mm.yyyy')</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_isp" />
+      </select>
+      <from>
+        <query name="28660-isp" as="a" grouplevel="1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat_begin" />
+            <useparam name="dat_end" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="28660-isp2" order="potr_cat, ndog_bar6">
+      <params>
+        <param name="dep" />
+        <param name="dat_begin">
+          <const>to_date('01.02.2015','dd.mm.yyyy')</const>
+        </param>
+        <param name="dat_end">
+          <const>to_date('01.04.2015','dd.mm.yyyy')</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="28660-isp" as="a" grouplevel="1">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="dat_begin" />
+            <useparam name="dat_end" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <!--Данные-->
+    <query name="28660-data">
+      <params>
+        <param name="dep" />
+        <param name="dat_begin">
+          <call function="nativity" />
+        </param>
+        <param name="dat_end">
+          <call function="doomsday" />
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_isp" group="1" />
+        <column table="a" column="kod_mat" group="kod_isp" />
+        <column table="a" column="dep_name" group="kod_isp" />
+        <column table="a" column="potr_cat" group="kod_isp" />
+        <column table="a" column="abon_name" group="kod_isp" />
+        <column table="a" column="ndog" group="kod_isp" />
+        <column table="a" column="nump" group="kod_isp" />
+        <column table="a" column="ndog_bar6" group="kod_isp" />
+        <column table="a" column="p1" group="kod_isp" />
+        <column table="a" column="p2" group="kod_isp" />
+        <column table="a" column="p3" group="kod_isp" />
+        <column table="a" column="p4" group="kod_isp" />
+        <column table="a" column="num_delo" group="kod_isp" />
+        <column table="a" column="num_reg" group="kod_isp" />
+        <column table="a" column="dat_doc_ssp" group="kod_isp" />
+        <column table="a" column="dat_doc_ink" group="kod_isp" />
+        <column table="a" column="dat_doc_kazn" group="kod_isp" />
+        <column table="a" column="prizn" group="sum" />
+        <column table="a" column="opl" group="sum" />
+        <!--Значения:
+        1 - казначейство
+        2 - инкассо
+        3 - ссп с постановлением о добровольном исполнении
+        4 - ссп с постановлением о принудительном исполнении
+        5 - ссп с постановлением о невозможности взыскания
+        6 - ссп с постановлением о прекращении исполнительного производства
+        7 - ссп (все остальные)
+        -1 - определить не удалось-->
+        <call function="case" as="isp_type" type="number" group="kod_isp">
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_kazn" />
+              <const>0</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_ink" />
+              <const>0</const>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_hm_di" />
+              <const>0</const>
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_hm_pi" />
+              <const>0</const>
+            </call>
+            <const>4</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_hm_nv" />
+              <const>0</const>
+            </call>
+            <const>5</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_hm_pr" />
+              <const>0</const>
+            </call>
+            <const>6</const>
+          </call>
+          <call function="when">
+            <call function="gt">
+              <column table="a" column="count_ssp" />
+              <const>0</const>
+            </call>
+            <const>7</const>
+          </call>
+          <call function="else">
+            <const>-1</const>
+          </call>
+        </call>
+        <call function="if" as="opl_no_entry" type="number" group="sum">
+          <call function="and">
+            <call function="is not null">
+              <column table="a" column="kod_opl" />
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <column table="a" column="dat_post" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_opl" />
+              <call function="nvl">
+                <column table="a" column="dat_doc" />
+                <column table="a" column="dat_entry" />
+              </call>
+            </call>
+          </call>
+          <column table="a" column="opl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_before" type="number" group="sum">
+          <call function="and">
+            <call function="is not null">
+              <column table="a" column="kod_opl" />
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <call function="nvl">
+                <column table="a" column="dat_doc" />
+                <column table="a" column="dat_entry" />
+              </call>
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_opl" />
+              <useparam name="dat_begin" />
+            </call>
+          </call>
+          <column table="a" column="opl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_period" type="number" group="sum">
+          <call function="and">
+            <call function="is not null">
+              <column table="a" column="kod_opl" />
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <call function="nvl">
+                <column table="a" column="dat_doc" />
+                <column table="a" column="dat_entry" />
+              </call>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_opl" />
+              <useparam name="dat_end" />
+            </call>
+            <call function="not in">
+              <column table="a" column="kod_vidopl" />
+              <array>
+                <const>393</const>
+                <const>394</const>
+              </array>
+            </call>
+          </call>
+          <column table="a" column="opl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_spis_period" type="number" group="sum">
+          <call function="and">
+            <call function="is not null">
+              <column table="a" column="kod_opl" />
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <call function="nvl">
+                <column table="a" column="dat_doc" />
+                <column table="a" column="dat_entry" />
+              </call>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <useparam name="dat_begin" />
+            </call>
+            <call function="lt">
+              <column table="a" column="dat_opl" />
+              <useparam name="dat_end" />
+            </call>
+            <call function="in">
+              <column table="a" column="kod_vidopl" />
+              <array>
+                <const>393</const>
+                <const>394</const>
+              </array>
+            </call>
+          </call>
+          <column table="a" column="opl" />
+          <const>0</const>
+        </call>
+        <call function="if" as="opl_after" type="number" group="sum">
+          <call function="and">
+            <call function="is not null">
+              <column table="a" column="kod_opl" />
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <call function="nvl">
+                <column table="a" column="dat_doc" />
+                <column table="a" column="dat_entry" />
+              </call>
+            </call>
+            <call function="ge">
+              <column table="a" column="dat_opl" />
+              <useparam name="dat_end" />
+            </call>
+          </call>
+          <column table="a" column="opl" />
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <query name="28660-un-all" as="a">
+          <withparams>
+            <useparam name="dep" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <!--Общий запрос-->
+    <query name="28660-un-all" cstyle="union">
+      <params>
+        <param name="dep" />
+      </params>
+      <select>
+        <column table="*" column="kod_mat_pp" as="kod_mat" group="1" />
+        <column table="*" column="kod_sf" group="1" />
+        <column table="*" column="kod_opl" group="1" />
+        <!--Исполнительный лист-->
+        <column table="ur_isp" column="kod_isp" group="1" />
+        <column table="ur_isp" column="num_reg" group="kod_isp" />
+        <column table="ur_isp" column="dat_doc" group="kod_isp" />
+        <column table="kr_dogovor" column="potr_cat" group="kod_isp" />
+        <column table="kr_dogovor" column="ndog" group="kod_isp" />
+        <column table="kr_dogovor" column="ndog_bar6" group="kod_isp" />
+        <column table="ag_okonh" column="p1" group="kod_isp" />
+        <column table="ag_okonh" column="p2" group="kod_isp" />
+        <column table="ag_istfin" column="p3" group="kod_isp" />
+        <column table="ag_ministry" column="p4" group="kod_isp" />
+        <column table="kr_payer" column="kodp" group="kod_isp" />
+        <column table="kr_payer" column="name" as="abon_name" group="kod_isp" />
+        <column table="kr_payer" column="nump" group="kod_isp" />
+        <column table="dep" column="sname" as="dep_name" group="kod_isp" />
+        <column table="ur_mat_ip" column="dat_doc" as="dat_doc_ssp" dgroup="min" group="kod_isp" />
+        <column table="ur_inkasso" column="dat_doc" as="dat_doc_ink" dgroup="min" group="kod_isp" />
+        <column table="ur_kazn" column="dat_doc" as="dat_doc_kazn" dgroup="min" group="kod_isp" />
+        <!--Решение-->
+        <column table="ur_hist_mat" column="dat_post" group="kod_isp" />
+        <column table="ur_hist_mat" column="dat_entry" group="kod_isp" />
+        <column table="ur_kazn" column="kod_kazn" as="count_kazn" dgroup="count" group="kod_isp" />
+        <column table="ur_inkasso" column="kod_inkasso" as="count_ink" dgroup="count" group="kod_isp" />
+        <column table="ur_mat_ip" column="kod_mat" as="count_ssp" dgroup="count" group="kod_isp" />
+        <column table="ur_hm_ip_di" column="kod_hist_mat" as="count_hm_di" dgroup="count" group="kod_isp" />
+        <column table="ur_hm_ip_pi" column="kod_hist_mat" as="count_hm_pi" dgroup="count" group="kod_isp" />
+        <column table="ur_hm_ip_nv" column="kod_hist_mat" as="count_hm_nv" dgroup="count" group="kod_isp" />
+        <column table="ur_hm_ip_pr" column="kod_hist_mat" as="count_hm_pr" dgroup="count" group="kod_isp" />
+        <!--Иск-->
+        <column table="ur_mat" column="num_delo" group="kod_isp" />
+        <!--Оплаты-->
+        <!--<column table="opl_sf" column="num_opl" as="num_opl1" group="kod_opl"/>
+        <column table="opl_deb" column="num_opl" as="num_opl2" group="kod_opl"/>
+        <call function="nvl" as="num_opl">
+          <column table="this" column="num_opl1"/>
+          <column table="this" column="num_opl2"/>
+        </call>-->
+        <column table="opl_sf" column="kod_vidopl" as="kod_vidopl1" group="kod_opl" />
+        <column table="opl_deb" column="kod_vidopl" as="kod_vidopl2" group="kod_opl" />
+        <call function="nvl" as="kod_vidopl">
+          <column table="this" column="kod_vidopl1" />
+          <column table="this" column="kod_vidopl2" />
+        </call>
+        <column table="opl_sf" column="dat_opl" as="dat_opl1" group="kod_opl" />
+        <column table="opl_deb" column="dat_opl" as="dat_opl2" group="kod_opl" />
+        <call function="nvl" as="dat_opl">
+          <column table="this" column="dat_opl1" />
+          <column table="this" column="dat_opl2" />
+        </call>
+        <column table="opl_sf" column="opl" as="opl1" group="sum" />
+        <column table="opl_deb" column="opl" as="opl2" group="sum" />
+        <call function="+nvl" as="opl">
+          <column table="this" column="opl1" />
+          <column table="this" column="opl2" />
+        </call>
+        <!--Признано-->
+        <column table="prizn_sf" column="prizn" as="prizn1" group="sum" />
+        <column table="prizn_deb" column="prizn" as="prizn2" group="sum" />
+        <call function="+nvl" as="prizn">
+          <column table="this" column="prizn1" />
+          <column table="this" column="prizn2" />
+        </call>
+      </select>
+      <from>
+        <query name="un-prizn-sf" as="prizn_sf" />
+        <query name="un-prizn-deb" as="prizn_deb" />
+        <query name="un-opl-sf" as="opl_sf" />
+        <query name="un-opl-deb" as="opl_deb" />
+      </from>
+      <push>
+        <from>
+          <query name="ur_mat" join="left outer">
+            <call function="=">
+              <column table="ur_mat" column="kod_mat" />
+              <column table="*" column="kod_mat_pp" />
+            </call>
+            <elink name="ur_hist_mat">
+              <elink name="ur_isp">
+                <elink name="ur_folders" as="ur_folders_ip">
+                  <link name="kodp" as="kr_payer">
+                    <link name="kod_m" as="ks_ministry">
+                      <link name="kod_m_ag" as="ag_ministry" />
+                    </link>
+                    <link name="kod_otrasl" as="ks_otrasl">
+                      <link name="okonh" as="ag_okonh" />
+                    </link>
+                  </link>
+                  <link name="kod_podr" as="dep" />
+                  <dlink name="ur_mat" as="ur_mat_ip">
+                    <dlink name="ur_hist_mat" as="ur_hm_ip_di">
+                      <where>
+                        <call function="=">
+                          <column table="ur_hm_ip_di" column="kod_result" />
+                          <const>658</const>
+                        </call>
+                      </where>
+                    </dlink>
+                    <dlink name="ur_hist_mat" as="ur_hm_ip_pi">
+                      <where>
+                        <call function="=">
+                          <column table="ur_hm_ip_pi" column="kod_result" />
+                          <const>659</const>
+                        </call>
+                      </where>
+                    </dlink>
+                    <dlink name="ur_hist_mat" as="ur_hm_ip_nv">
+                      <where>
+                        <call function="=">
+                          <column table="ur_hm_ip_nv" column="kod_result" />
+                          <const>657</const>
+                        </call>
+                      </where>
+                    </dlink>
+                    <dlink name="ur_hist_mat" as="ur_hm_ip_pr">
+                      <where>
+                        <call function="=">
+                          <column table="ur_hm_ip_pr" column="kod_result" />
+                          <const>656</const>
+                        </call>
+                      </where>
+                    </dlink>
+                  </dlink>
+                  <dlink name="ur_inkasso" />
+                  <dlink name="ur_kazn" />
+                </elink>
+              </elink>
+            </elink>
+            <link name="kod_folders" as="ur_folders_pp" />
+            <link name="kod_dog" as="kr_dogovor">
+              <link name="kod_ist" as="ks_istfin">
+                <link name="kod_ist_ag" as="ag_istfin" />
+              </link>
+            </link>
+          </query>
+        </from>
+      </push>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="ur_folders_ip" column="kod_sdp" />
+            <const>2</const>
+          </call>
+          <call function="=">
+            <column table="ur_folders_ip" column="kod_vi" />
+            <const>1</const>
+          </call>
+          <call function="=">
+            <column table="ur_folders_ip" column="vvod" />
+            <const>0</const>
+          </call>
+          <call function="=">
+            <column table="kr_payer" column="kod_abon_type" />
+            <const>2</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="ur_folders_ip" column="kod_podr" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

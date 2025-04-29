@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="64868" form="64868" nogrid="1" title="Отчёт для контроля разноса оплат" timestamp="03.03.2023 15:55:00">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" />
+        <param name="p_dat_opl_1" type="date" />
+        <param name="p_dat_opl_2" type="date" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="64868.xml" print-proc="2" title="Отчёт для контроля разноса оплат" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[DECLARE
+  p_dep          kr_dogovor.dep%type;
+  p_dat_opl_beg  DATE;
+  p_dat_opl_end  DATE;
+  s_data_id      rr_temp.skod%type;
+BEGIN
+  p_dep         := :p_dep;
+  p_dat_opl_beg := :p_dat_opl_1;
+  p_dat_opl_end := :p_dat_opl_2;
+  s_data_id     := '{552F8089-A068-43AB-B165-E4B73500BA7C}';
+  --
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  INSERT INTO rr_temp (skod, s1, s2, s3, s4, d1, n1 /* zadol */,
+                             n2, n3, d2, s5, d3 /* dat_opl */,
+                             n4, s6, s7, n5, s9, s10 /* raznos_type */,
+                             s11, s12)
+    SELECT s_data_id, sf.ndog, ob.ndog AS opl_ndog, p.name, sf.nom_sf, sf.dat_sf, sf.zadol,
+           sf.rym_max AS ym, d.num_pl, d.dat_deb, ob.num_opl, op.dat_opl,
+           op.opl, ob.pname, op.remark, op.kod_type_opl, v.name AS vr_name,
+           CASE WHEN op.kod_opl IS NULL     THEN ''
+                WHEN ob.raznos_type IS NULL THEN 'не разнесено'
+                WHEN ob.raznos_type = 0     THEN 'неизвестный'
+                WHEN ob.raznos_type = 1     THEN 'автоматический разнос'
+                WHEN ob.raznos_type = 2     THEN 'ручной разнос'
+                WHEN ob.raznos_type = 3     THEN 'автоматическая балансировка'
+                WHEN ob.raznos_type = 4     THEN 'ручная балансировка'
+                                            ELSE '' END AS raznos_type,
+           decode(nvl(length(trim(b.filial)),0),0,'',b.filial || ' - ' ) || b.name AS bank_name,
+           ob.u_c AS puser
+    FROM   sv_fac_sumo sf JOIN kr_payer p ON p.kodp = sf.kodp
+                          JOIN sk_vid_real v ON v.vid_real = sf.vid_real
+                          LEFT OUTER JOIN sr_debet d ON d.kod_deb = sf.kod_deb
+                          LEFT OUTER JOIN sr_opl op ON op.kod_sf = sf.kod_sf AND op.kod_type_opl IN (0, 1, 2) AND op.dat_opl BETWEEN p_dat_opl_beg AND p_dat_opl_end
+                          LEFT OUTER JOIN sr_opl_bank ob ON ob.kod_link = op.kod_link
+                          LEFT OUTER JOIN ks_bank b ON b.kodb = ob.kodb
+    WHERE  sf.dep = p_dep
+       AND (sf.zadol <> 0 OR (op.kod_sf IS NOT NULL))
+       AND sf.kod_dog IN (SELECT kod_dog FROM sr_opl WHERE kod_type_opl IN (0, 1, 2) AND dat_opl BETWEEN p_dat_opl_beg AND p_dat_opl_end)
+    UNION ALL
+    SELECT s_data_id, dd.ndog, ob.ndog AS opl_ndog, p.name, NULL AS nom_sf, NULL AS dat_sf, NULL AS zadol,
+           NULL AS ym, NULL AS num_pl, NULL AS dat_deb, ob.num_opl, op.dat_opl, 
+           op.opl, ob.pname, op.remark, op.kod_type_opl, v.name AS vr_name, 
+           CASE WHEN ob.raznos_type IS NULL THEN 'не разнесено'
+                WHEN ob.raznos_type = 0     THEN 'неизвестный'
+                WHEN ob.raznos_type = 1     THEN 'автоматический разнос'
+                WHEN ob.raznos_type = 2     THEN 'ручной разнос'
+                WHEN ob.raznos_type = 3     THEN 'автоматическая балансировка'
+                WHEN ob.raznos_type = 4     THEN 'ручная балансировка'
+                                            ELSE '' END AS raznos_type,
+           decode(nvl(length(trim(b.filial)),0),0,'',b.filial || ' - ' ) || b.name AS bank_name,
+           ob.u_c AS puser
+    FROM   kr_dogovor dd JOIN kr_payer p ON p.kodp = dd.kodp
+                         JOIN sr_opl op ON op.kod_dog = dd.kod_dog
+                         JOIN sr_opl_bank ob ON ob.kod_link = op.kod_link
+                         JOIN sk_vid_real v ON v.vid_real = op.vid_real
+                         LEFT OUTER JOIN ks_bank b ON b.kodb = ob.kodb
+    WHERE  dd.dep = p_dep
+       AND op.dat_opl BETWEEN p_dat_opl_beg AND p_dat_opl_end
+       AND op.kod_type_opl IN (0, 1, 2)
+       AND op.kod_sf IS NULL;
+END;]]></procedure>
+      <queries>
+        <query name="64868_data" as="data" />
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="64868" title="Отчёт для контроля разноса оплат" timestamp="02.03.2023 18:17:45">
+      <customers>
+        <customer id="101" />
+      </customers>
+      <content>
+        <usefield field="asuse_dep_single" name="p_dep" title="Отделение" mandatory="1" />
+        <field name="p_dat_opl_" type="date" controlType="UIDateRange" title="Дата документа оплаты" mandatory="1">
+          <defaultquery>
+            <query name="today" />
+          </defaultquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="64868_data" order="ndog, dat_sf, dat_deb" title="Основной запрос отчёта 64868" timestamp="03.03.2023 15:55:00">
+      <select>
+        <call function="rownum" type="number" as="rn" key="1" />
+        <column table="v" column="ndog" type="string" title="№ договора" intern="1" />
+        <column table="v" column="opl_ndog" type="string" title="№ договора из назн. пл." intern="1" />
+        <column table="v" column="name" type="string" title="Наименование абонента" intern="1" />
+        <column table="v" column="nom_sf" type="string" title="Номер СФ" intern="1" />
+        <column table="v" column="dat_sf" type="date" title="Дата СФ" />
+        <column table="v" column="zadol" type="number" title="Задолженность" />
+        <column table="v" column="ym" type="number" title="Период потр." />
+        <column table="v" column="num_pl" type="number" title="№ счёта на оплату" />
+        <column table="v" column="dat_deb" type="date" title="Дата документа" />
+        <column table="v" column="num_opl" type="string" title="№ документа оплаты" intern="1" />
+        <column table="v" column="dat_opl" type="date" title="Дата документа оплаты" />
+        <column table="v" column="opl" type="number" title="Сумма оплаты" />
+        <column table="v" column="pname" type="string" title="Наименование плательщика" intern="1" />
+        <column table="v" column="remark" type="string" title="Примечание" />
+        <call function="case" type="string" as="type_opl" title="Тип оплаты" intern="1">
+          <call function="when">
+            <call function="=">
+              <column table="v" column="kod_type_opl" type="number" />
+              <const>1</const>
+            </call>
+            <const>'Переплата'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="v" column="kod_type_opl" type="number" />
+              <const>2</const>
+            </call>
+            <const>'Оплата аванса'</const>
+          </call>
+          <call function="else">
+            <const>''</const>
+          </call>
+        </call>
+        <column table="v" column="vr_name" type="string" title="Вид реализации" intern="1" />
+        <column table="v" column="raznos_type" type="string" title="Тип разноса" intern="1" />
+        <column table="v" column="bank_name" type="string" title="Банк плательщика" intern="1" />
+        <column table="u" column="name" type="string" as="user_name" title="Кто завёл оплату" intern="1" />
+      </select>
+      <from>
+        <table name="64868" as="v" view="1" />
+        <query name="ks_user" as="u" join="left">
+          <call function="=">
+            <column table="u" column="puser" />
+            <column table="v" column="puser" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="64868" timestamp="03.03.2023 15:50:00"><![CDATA[
+SELECT s1 AS ndog, s2 AS opl_ndog, s3 AS name, s4 AS nom_sf, d1 AS dat_sf, n1 AS zadol,
+       n2 AS ym, n3 AS num_pl, d2 AS dat_deb, s5 AS num_opl, d3 AS dat_opl,
+       n4 AS opl, s6 AS pname, s7 AS remark, n5 AS kod_type_opl, s9 AS vr_name, s10 AS raznos_type,
+       s11 AS bank_name, s12 AS puser
+FROM   rr_temp
+WHERE  skod = '{552F8089-A068-43AB-B165-E4B73500BA7C}'
+]]></view>
+  </views>
+</root>

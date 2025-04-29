@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vr_sprav_data" timestamp="31.03.2017 23:22:53">
+      <select>
+        <call as="kod_sprav_data" function="||" key="1">
+          <column table="this" column="kod_sprav" />
+          <const>'-'</const>
+          <column table="this" column="kod_razdel" />
+          <column table="this" column="kod_klass" />
+          <column table="this" column="kod_krit_minenergo" />
+        </call>
+        <call function="case" as="kod_sprav" type="number" dimension="ipr_kod_sprav">
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="kod_razdel" />
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="kod_klass" />
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="is not null">
+              <column table="this" column="kod_krit_minenergo" />
+            </call>
+            <const>3</const>
+          </call>
+        </call>
+        <call function="if" as="kod_parent" type="string">
+          <call function="is not null">
+            <column table="ipr_kod_razdel" column="kod_parent" />
+            <column table="ipr_kod_klass_titul" column="kod_parent" />
+          </call>
+          <call function="||">
+            <column table="this" column="kod_sprav" />
+            <const>'-'</const>
+            <column table="ipr_kod_razdel" column="kod_parent" />
+            <column table="ipr_kod_klass_titul" column="kod_parent" />
+          </call>
+        </call>
+        <call as="name" function="||" title="Наименование">
+          <column table="ipr_kod_razdel" column="vid_full" />
+          <column table="ipr_kod_klass_titul" column="vid_full" />
+          <column table="ipr_kod_krit_minenergo" column="vid_full" />
+        </call>
+        <call as="abbr" function="||" title="Наименование">
+          <column table="ipr_kod_razdel" column="vid" />
+          <column table="ipr_kod_klass_titul" column="vid" />
+          <column table="ipr_kod_krit_minenergo" column="vid" />
+        </call>
+        <column table="ipr_kod_razdel" column="vid" as="vid_razdel" is-fact="1" agg="list" exclude="1" />
+        <column table="ipr_kod_klass_titul" column="vid" as="vid_kl_tit" is-fact="1" agg="list" exclude="1" />
+        <column table="ipr_kod_krit_minenergo" column="vid" as="vid_kr_me" is-fact="1" agg="list" exclude="1" />
+        <column table="ipr_kod_razdel" column="kod_razdel" />
+        <column table="ipr_kod_klass_titul" column="kod_klass" />
+        <column table="ipr_kod_krit_minenergo" column="kod_krit_minenergo" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="razdel">
+            <link name="ipr_kod_razdel" all-rows="1" />
+          </dimset>
+          <dimset as="klass">
+            <link name="ipr_kod_klass_titul" all-rows="1" />
+          </dimset>
+          <dimset as="krit_me">
+            <link name="ipr_kod_krit_minenergo" all-rows="1" />
+          </dimset>
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

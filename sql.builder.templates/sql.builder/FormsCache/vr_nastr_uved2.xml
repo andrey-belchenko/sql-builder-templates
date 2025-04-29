@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vr_nastr_uved2" timestamp="28.12.2023 14:57:16" title="Настройка расчета уведомлений" file="sql.builder.templates\sql.builder\projects\asuse2\projects\37989\vr_nastr_uved.xml" elid="288" ord="288" leaf="0" lvl="2" pelid="">
+    <grid table="a" id="49547804">
+      <toolbar id="49436624">
+        <uicommand button-type="grid-add" visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="28471375" />
+        <uicommand button-type="grid-delete" visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="367" ord="367" leaf="1" lvl="2" pelid="" title="" id="32587891" />
+      </toolbar>
+      <columns id="30057578">
+        <field table="a" name="dep" title="Отделение" width="324" controlType="UICombo" rows-limit="100" id="2895411" />
+        <field table="a" name="virt_avans" title="Использование в расчетах задолженности виртуальных авансов" controlType="UICheck" rows-limit="100" id="51409636" />
+        <field table="a" name="oplata_virt_avans" title="Вычислять оплату для вирт. авансов" controlType="UICheck" rows-limit="100" id="58502640" />
+        <field table="a" name="pereplata" title="Учитывать переплаты прошлых периодов" controlType="UICheck" rows-limit="100" id="33258221" />
+        <field table="a" name="pereplata_current" title="Учитывать переплаты текущего периода" controlType="UICheck" rows-limit="100" id="6804760" />
+        <field table="a" name="pereplata_future" title="Учитывать переплаты будущих периодов" controlType="UICheck" rows-limit="100" id="9937787" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="ks_tf_nastr_rep_uved" key="dep" is-ms-upd="0" is-top="1">
+      <select-text>
+--
+select a.dep as dep, /*Отделение*//*number*//*key*/
+a.virt_avans as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+a.oplata_virt_avans as oplata_virt_avans, /*Вычислять оплату для вирт. авансов*//*number*/
+a.pereplata as pereplata, /*Учитывать переплаты прошлых периодов*//*number*/
+a.pereplata_current as pereplata_current, /*Учитывать переплаты текущего периода*//*number*/
+a.pereplata_future as pereplata_future, /*Учитывать переплаты будущих периодов*//*number*/
+dep_x_n.name as dep_x_n/*Отделение*//*string*/
+
+from (
+--ks_tf_nastr_rep_uved
+select a.dep as dep, /**//*number*//*key*/
+max(a.virt_avans)  as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+max(a.pereplata)  as pereplata, /*Учитывать переплаты прошлых периодов*//*number*/
+max(a.pereplata_current)  as pereplata_current, /*Учитывать переплаты текущего периода*//*number*/
+max(a.pereplata_future)  as pereplata_future, /*Учитывать переплаты будущих периодов*//*number*/
+max(a.oplata_virt_avans)  as oplata_virt_avans/*Вычислять оплату для вирт. авансов*//*number*/
+
+from (
+--ks_tf_nastr_rep
+select a.kod_nastr_rep as kod_nastr_rep, /*number*//*key*/
+a.dep as dep, /**//*number*/
+a.pr_byt as pr_byt, /**//*number*/
+a.tep_el as tep_el, /**//*number*/
+a.virt_avans as virt_avans, /**//*number*/
+a.pereplata as pereplata, /**//*number*/
+a.pereplata_current as pereplata_current, /**//*number*/
+a.pereplata_future as pereplata_future, /**//*number*/
+a.oplata_virt_avans as oplata_virt_avans/**//*number*/
+
+from ks_tf_nastr_rep
+a
+--\ks_tf_nastr_rep
+)
+a
+--\ks_tf_nastr_rep
+where
+( nvl( a.pr_byt ,0)  != nvl( 1 ,0) )  and ( nvl( a.tep_el ,-1000)  = nvl( 1 ,-1000) )  group by
+a.dep/**//*number*//*key*/
+)
+a
+--\ks_tf_nastr_rep_uved
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Отделение*//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+dep_x_n on a.dep = dep_x_n.kodp--\kr_org
+--\
+</select-text>
+      <columns>
+        <column name="dep" table="a" type="number" title="Отделение" ColumnEditable="0" />
+        <column name="virt_avans" table="a" type="number" title="Использование в расчетах задолженности виртуальных авансов" is-user-editable="1" is-refreshed="1" />
+        <column name="oplata_virt_avans" table="a" type="number" title="Вычислять оплату для вирт. авансов" is-user-editable="1" is-refreshed="1" />
+        <column name="pereplata" table="a" type="number" title="Учитывать переплаты прошлых периодов" is-user-editable="1" is-refreshed="1" />
+        <column name="pereplata_current" table="a" type="number" title="Учитывать переплаты текущего периода" is-user-editable="1" is-refreshed="1" />
+        <column name="pereplata_future" table="a" type="number" title="Учитывать переплаты будущих периодов" is-user-editable="1" is-refreshed="1" />
+        <column name="dep_x_n" table="a.dep" type="string" title="Отделение" text-source-for="dep" is-refreshed="1" />
+      </columns>
+      <scheme>
+        <table name="ks_tf_nastr_rep_uved" as="a">
+          <columns>
+            <column name="dep" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="virt_avans" type="number" title="Использование в расчетах задолженности виртуальных авансов" />
+            <column name="oplata_virt_avans" type="number" title="Вычислять оплату для вирт. авансов" />
+            <column name="pereplata" type="number" title="Учитывать переплаты прошлых периодов" />
+            <column name="pereplata_current" type="number" title="Учитывать переплаты текущего периода" />
+            <column name="pereplata_future" type="number" title="Учитывать переплаты будущих периодов" />
+            <column name="dep_x_n" type="string" title="Отделение" />
+          </columns>
+          <viewcolumns>
+            <column name="dep_x_n" type="string" title="Отделение" />
+            <column name="dep" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="virt_avans" type="number" title="Использование в расчетах задолженности виртуальных авансов" />
+            <column name="oplata_virt_avans" type="number" title="Вычислять оплату для вирт. авансов" />
+            <column name="pereplata" type="number" title="Учитывать переплаты прошлых периодов" />
+            <column name="pereplata_current" type="number" title="Учитывать переплаты текущего периода" />
+            <column name="pereplata_future" type="number" title="Учитывать переплаты будущих периодов" />
+          </viewcolumns>
+        </table>
+      </scheme>
+    </table>
+  </dataset>
+</root>

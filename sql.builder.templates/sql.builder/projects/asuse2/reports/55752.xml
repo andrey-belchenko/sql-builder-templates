@@ -1,0 +1,1172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="55752" title="Оборотная ведомость за энергию" timestamp="08.08.2020 04:40:49" folder="oborot" form="55752">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="55752.xlsx" title="Оборотная ведомость за энергию" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="55752-main_okved" as="okved" title="ОКВЭД">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+        <query name="55752-main_dog" as="dog" title="Договоры">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+        <query name="55752-title" as="title" title="Параметры">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="55752" timestamp="06.08.2020 00:31:46" title="Оборотная ведомость за энергию">
+      <content>
+        <usefield field="asuse_prizn_activ_dog" name="p_prizn_activ_dog" />
+        <usefield field="asuse_vid_real" name="p_vid_real" />
+        <usefield field="asuse_vid_t" name="p_vid_t" />
+        <usefield field="asuse_kod_okved" name="p_kod_okved" />
+        <usefield field="asuse_kod_group_cust_parent" name="p_kod_group_cust_parent" />
+        <usefield field="asuse_dep" name="p_dep" />
+        <usefield field="asuse_ym" name="p_ym_s" title="Период c" />
+        <usefield field="asuse_ym" name="p_ym_po" title="Период по" />
+        <!--<field name="ym" controlType="UIComboRange" title="Период">
+          <listquery>
+            <query name="kr_calc_list">
+            </query>
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max">
+            </query>
+          </defaultquery>
+        </field>-->
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="55752-sf" timestamp="23.03.2021 19:33:38">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <select>
+        <column table="debt" column="kod_sf" />
+        <column table="debt" column="kod_dog" />
+        <column table="debt" column="kodp" />
+        <column table="ks_okved" column="kod_okved" />
+        <column table="debt" column="ndog" title="Номер договора" />
+        <column table="debt" column="dep" />
+        <call function="||" as="okved" title="ОКВЭД">
+          <column table="ks_okved" column="okved" />
+          <const>' '</const>
+          <column table="ks_okved" column="name" />
+        </call>
+        <column table="debt" column="dat_sf" />
+        <call function="if" title="Начислено, руб." as="nachisl">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <column table="debt" column="nachisl" />
+        </call>
+        <call function="if" title="Начислено налогов, руб." as="nachisl_nal">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <column table="debt" column="nachisl_nal" />
+        </call>
+        <call function="if" title="Начислено без налогов, руб." as="nachisl_no_nal">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <column table="debt" column="nachisl_no_nal" />
+        </call>
+        <call function="if" title="Начислено МСП, руб." as="nachisl_smsp">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="smsp_sf" column="kod" />
+            </call>
+            <column table="debt" column="nachisl" />
+          </call>
+        </call>
+        <call function="if" title="Начислено налогов МСП, руб." as="nachisl_nal_smsp">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="smsp_sf" column="kod" />
+            </call>
+            <column table="debt" column="nachisl_nal" />
+          </call>
+        </call>
+        <column table="debt" column="debt_begin" title="Задолженность на начало периода, руб." as="debt_beg" />
+        <column table="debt" column="debt_end" title="Задолженность на конец периода, руб." />
+        <call function="if" title="Начислено, кВт" as="kvt">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <column table="debt" column="kvt" />
+        </call>
+        <call function="if" title="Начислено, кВтч" as="kvth">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <column table="debt" column="kvth" />
+        </call>
+        <call function="if" title="Начислено МСП, кВтч" as="kvth_smsp">
+          <call function="and">
+            <call function="true" />
+            <call function="in" optional="1">
+              <column table="debt" column="vid_t" />
+              <useparam name="p_vid_t" />
+            </call>
+          </call>
+          <call function="if">
+            <call function="is not null">
+              <column table="smsp_sf" column="kod" />
+            </call>
+            <column table="debt" column="kvth" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="55752-pre" as="debt">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+        <query name="55752-smsp" join="left outer" as="smsp_sf">
+          <call function="and">
+            <call function="=">
+              <column table="debt" column="kodp" />
+              <column table="smsp_sf" column="kodp" />
+            </call>
+            <call function="=">
+              <column table="smsp_sf" column="is_member" />
+              <const>'Y'</const>
+            </call>
+            <call function="ge">
+              <column table="debt" column="dat_sf" />
+              <column table="smsp_sf" column="mod_date" />
+            </call>
+            <call function="lt">
+              <column table="debt" column="dat_sf" />
+              <call function="nvl">
+                <column table="smsp_sf" column="expire_date" />
+                <call function="doomsday" />
+              </call>
+            </call>
+          </call>
+        </query>
+        <query name="55752-okved" join="left outer" as="okved_sf">
+          <call function="and">
+            <call function="=">
+              <column table="debt" column="kodp" />
+              <column table="okved_sf" column="kodp" />
+            </call>
+            <call function="ge">
+              <column table="debt" column="dat_sf" />
+              <column table="okved_sf" column="begin_date" />
+            </call>
+            <call function="lt">
+              <column table="debt" column="dat_sf" />
+              <call function="nvl">
+                <column table="okved_sf" column="expire_date" />
+                <call function="doomsday" />
+              </call>
+            </call>
+          </call>
+        </query>
+        <query name="ks_okved" join="left outer">
+          <call function="=" exclude="1">
+            <call function="nvl">
+              <column table="okved_sf" column="kod_okved" />
+              <column table="debt" column="kod_okved" />
+            </call>
+            <column table="ks_okved" column="kod_okved" />
+          </call>
+          <call function="=">
+            <column table="debt" column="kod_okved" />
+            <column table="ks_okved" column="kod_okved" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="or">
+            <call function="!=nvl">
+              <column table="this" column="nachisl" />
+              <const>0</const>
+            </call>
+            <call function="!=nvl">
+              <column table="this" column="nachisl_nal" />
+              <const>0</const>
+            </call>
+            <call function="!=nvl">
+              <column table="this" column="nachisl_no_nal" />
+              <const>0</const>
+            </call>
+            <call function="!=nvl">
+              <column table="this" column="debt_beg" />
+              <const>0</const>
+            </call>
+            <call function="!=nvl">
+              <column table="this" column="debt_end" />
+              <const>0</const>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="ks_okved" column="kod_okved" />
+            <useparam name="p_kod_okved" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="55752-title" timestamp="07.08.2020 22:21:11">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <select>
+        <call function="ym to char" as="ym_begin_str">
+          <useparam name="p_ym_s" />
+        </call>
+        <call function="ym to char" as="ym_end_str">
+          <useparam name="p_ym_po" />
+        </call>
+        <call function="()" as="deps_list">
+          <query>
+            <select>
+              <call function="stragg_dist">
+                <column table="dep" column="sname" />
+              </call>
+            </select>
+            <from>
+              <query name="kr_dep" as="dep" />
+            </from>
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="in" optional="1">
+                  <column table="dep" column="kodp" />
+                  <useparam name="p_dep" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="dog_status_list">
+          <query>
+            <select>
+              <call function="stragg_dist">
+                <column table="status" column="name" />
+              </call>
+            </select>
+            <from>
+              <query name="kk_active_list" as="status" />
+            </from>
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="in" optional="1">
+                  <column table="status" column="pr_active" />
+                  <useparam name="p_prizn_activ_dog" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="()" as="vid_t_list" exclude="1">
+          <query>
+            <select>
+              <call function="stragg_dist">
+                <column table="vid_t" column="full_name" />
+              </call>
+            </select>
+            <from>
+              <query name="sk_nachisl(vidreal)" as="vid_t" />
+            </from>
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="in" optional="1">
+                  <column table="vid_t" column="vid_t" />
+                  <useparam name="p_vid_t" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="date to char" as="dat_begin_char">
+          <call function="ym begin time">
+            <useparam name="p_ym_s" />
+          </call>
+        </call>
+        <call function="date to char" as="dat_end_char">
+          <call function="ym begin time">
+            <call function="ym add month">
+              <useparam name="p_ym_po" />
+              <const>1</const>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="55752-pre" timestamp="25.03.2021 17:14:46">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s">
+          <const>2020.07</const>
+        </param>
+        <param name="p_ym_po">
+          <const>2020.07</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="if" group="sum" as="ob_on_date_beg">
+          <call function="lt">
+            <column table="dat" column="val" />
+            <call function="ym begin time">
+              <useparam name="p_ym_s" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob" exclude="1" />
+          <fact column="fin_ul_ob_osn" />
+        </call>
+        <call function="if" group="sum" as="ob_on_date_end">
+          <call function="le">
+            <column table="dat" column="val" />
+            <call function="ym end time">
+              <useparam name="p_ym_po" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob" exclude="1" />
+          <fact column="fin_ul_ob_osn" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_sf" column="kod_sf" />
+        <column table="kod_sf" column="vid_t" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="kod_gr_parent" />
+        <column table="kod_okved" column="kod_okved" />
+        <column table="kodp" column="kodp" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kod_dog" column="dep" />
+        <column table="kod_sf" column="dat_sf" />
+        <call as="debt_begin" function="if">
+          <call function="or">
+            <call function="!=">
+              <column column="vid_real" table="kod_sf" />
+              <const>0</const>
+            </call>
+            <call function="gt">
+              <call function="nvl">
+                <column column="dat_ezad" table="kod_sf" />
+                <call function="doomsday" />
+              </call>
+              <call function="ym begin time">
+                <useparam name="p_ym_s" />
+              </call>
+            </call>
+          </call>
+          <fact column="ob_on_date_beg" />
+        </call>
+        <call as="debt_end" function="if">
+          <call function="or">
+            <call function="!=">
+              <column column="vid_real" table="kod_sf" />
+              <const>0</const>
+            </call>
+            <call function="gt">
+              <call function="nvl">
+                <column column="dat_ezad" table="kod_sf" />
+                <call function="doomsday" />
+              </call>
+              <call function="ym end time">
+                <useparam name="p_ym_po" />
+              </call>
+            </call>
+          </call>
+          <fact column="ob_on_date_end" />
+        </call>
+        <call function="if" as="nachisl">
+          <call function="and">
+            <call function="or">
+              <call function="!=">
+                <column column="vid_real" table="kod_sf" />
+                <const>0</const>
+              </call>
+              <call function="gt">
+                <call function="nvl">
+                  <column column="dat_ezad" table="kod_sf" />
+                  <call function="doomsday" />
+                </call>
+                <call function="ym end time">
+                  <useparam name="p_ym_po" />
+                </call>
+              </call>
+            </call>
+            <call function="ge">
+              <column table="kod_sf" column="dat_sf" />
+              <call function="ym begin time">
+                <useparam name="p_ym_s" />
+              </call>
+            </call>
+          </call>
+          <column table="kod_sf" column="nachisl" />
+        </call>
+        <call function="if" as="nachisl_nal">
+          <call function="and">
+            <call function="or">
+              <call function="!=">
+                <column column="vid_real" table="kod_sf" />
+                <const>0</const>
+              </call>
+              <call function="gt">
+                <call function="nvl">
+                  <column column="dat_ezad" table="kod_sf" />
+                  <call function="doomsday" />
+                </call>
+                <call function="ym end time">
+                  <useparam name="p_ym_po" />
+                </call>
+              </call>
+            </call>
+            <call function="ge">
+              <column table="kod_sf" column="dat_sf" />
+              <call function="ym begin time">
+                <useparam name="p_ym_s" />
+              </call>
+            </call>
+          </call>
+          <fact column="sr_facras_nal_nal" />
+        </call>
+        <call function="if" as="nachisl_no_nal">
+          <call function="and">
+            <call function="or">
+              <call function="!=">
+                <column column="vid_real" table="kod_sf" />
+                <const>0</const>
+              </call>
+              <call function="gt">
+                <call function="nvl">
+                  <column column="dat_ezad" table="kod_sf" />
+                  <call function="doomsday" />
+                </call>
+                <call function="ym end time">
+                  <useparam name="p_ym_po" />
+                </call>
+              </call>
+            </call>
+            <call function="ge">
+              <column table="kod_sf" column="dat_sf" />
+              <call function="ym begin time">
+                <useparam name="p_ym_s" />
+              </call>
+            </call>
+          </call>
+          <call function="-nvl">
+            <column table="this" column="nachisl" />
+            <column table="this" column="nachisl_nal" />
+          </call>
+        </call>
+        <call function="if" as="kvt">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="vid_real" />
+              <const>2</const>
+            </call>
+            <call function="ge">
+              <column table="kod_sf" column="dat_sf" />
+              <call function="ym begin time">
+                <useparam name="p_ym_s" />
+              </call>
+            </call>
+          </call>
+          <fact column="sr_facras_cust_kvt" />
+        </call>
+        <call function="if" as="kvth">
+          <call function="and">
+            <call function="=">
+              <column table="kod_sf" column="vid_real" />
+              <const>2</const>
+            </call>
+            <call function="ge">
+              <column table="kod_sf" column="dat_sf" />
+              <call function="ym begin time">
+                <useparam name="p_ym_s" />
+              </call>
+            </call>
+          </call>
+          <fact column="sr_facras_cust_kvth" />
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf">
+            <link name="kod_dog">
+              <link name="kodp">
+                <link name="kod_okved" />
+              </link>
+            </link>
+          </link>
+          <link name="kod_dog" exclude="1" />
+          <link name="kodp" exclude="1" />
+          <link name="ks_okved" exclude="1" />
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="kod_sf" column="dat_sf" />
+                <call function="ym end time">
+                  <useparam name="p_ym_po" />
+                </call>
+              </call>
+              <call function="or" exclude="1">
+                <call function="!=">
+                  <column table="kod_sf" column="vid_real" />
+                  <const>0</const>
+                </call>
+                <call function="ge">
+                  <call function="nvl">
+                    <column table="kod_sf" column="dat_ezad" />
+                    <call function="doomsday" />
+                  </call>
+                  <call function="ym begin time">
+                    <useparam name="p_ym_s" />
+                  </call>
+                </call>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="pr_active" />
+                <useparam name="p_prizn_activ_dog" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_sf" column="vid_real" />
+                <useparam name="p_vid_real" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="kod_gr_parent" />
+                <useparam name="p_kod_group_cust_parent" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="p_dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="55752-smsp" timestamp="05.08.2020 23:42:25">
+      <select>
+        <column table="smsp_sf" column="kod" />
+        <column table="smsp_sf" column="kodp" />
+        <column table="smsp_sf" column="okved" />
+        <column table="smsp_sf" column="okved_version" />
+        <column table="smsp_sf" column="is_member" />
+        <column table="smsp_sf" column="mod_date" />
+        <call function="over" as="expire_date">
+          <call function="lag">
+            <column table="smsp_sf" column="mod_date" />
+          </call>
+          <call function="partition by">
+            <column table="smsp_sf" column="kodp" />
+          </call>
+          <call function="order by simple">
+            <call function="desc">
+              <column table="smsp_sf" column="mod_date" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="kr_egr_smsp_payers" as="smsp_sf" />
+      </from>
+    </query>
+    <query name="55752-okved" timestamp="06.02.2021 02:32:42">
+      <select>
+        <column table="eas_customer_ids_equ" column="cie_external_cust_id" as="kodp" />
+        <column table="eas_customer_ver" column="m_time" />
+        <column table="eas_customer_ver" column="acv_kod_okved" as="kod_okved" />
+        <call function="over" as="expire_date">
+          <call function="lag">
+            <call function="trunc">
+              <column table="eas_customer_ver" column="m_time" />
+              <const>'MM'</const>
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="eas_customer_ids_equ" column="cie_external_cust_id" />
+          </call>
+          <call function="order by simple">
+            <call function="desc">
+              <column table="eas_customer_ver" column="m_time" />
+            </call>
+          </call>
+        </call>
+        <call function="trunc" as="begin_date">
+          <call function="least">
+            <column table="eas_customer_ver" column="m_time" />
+            <call function="if">
+              <call function="is null">
+                <call function="over">
+                  <call function="lag">
+                    <column table="eas_customer_ver" column="m_time" />
+                  </call>
+                  <call function="partition by">
+                    <column table="eas_customer_ids_equ" column="cie_external_cust_id" />
+                  </call>
+                  <call function="order by simple">
+                    <column table="eas_customer_ver" column="m_time" />
+                  </call>
+                </call>
+              </call>
+              <call function="nativity" />
+              <call function="doomsday" />
+            </call>
+          </call>
+          <const>'MM'</const>
+        </call>
+      </select>
+      <from>
+        <query name="eas_customer_ver" />
+        <query name="eas_customer_ids_equ" join="inner">
+          <call function="and">
+            <call function="=">
+              <column table="eas_customer_ver" column="kn_customer" />
+              <column table="eas_customer_ids_equ" column="kn_customer" />
+            </call>
+            <call function="=">
+              <column table="eas_customer_ids_equ" column="id_infsys" />
+              <const>2</const>
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="55752-main_okved" timestamp="06.02.2021 03:18:19" order="okved">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <select>
+        <column table="main" column="kod_okved" group="1" />
+        <column table="main" column="okved" group="1" />
+        <column table="main" column="debt_beg" group="sum" title="Дебиторская задолженность на начало периода" />
+        <column table="main" column="kred_begin" group="sum" title="Кредиторская задолженность на начало периода" />
+        <call function="-nvl" group="sum" as="dolg_begin" title="Всего задолженность на начало периода">
+          <column table="main" column="debt_beg" />
+          <column table="main" column="kred_begin" />
+        </call>
+        <column table="main" column="kvt" group="sum" />
+        <column table="main" column="kvth" group="sum" />
+        <column table="main" column="nachisl" group="sum" />
+        <column table="main" column="nachisl_nal" group="sum" />
+        <column table="main" column="nachisl_no_nal" group="sum" />
+        <column table="main" column="debt_end" group="sum" title="Дебиторская задолженность на конец периода" />
+        <column table="main" column="kred_end" group="sum" title="Кредиторская задолженность на конец периода" />
+        <call function="-nvl" group="sum" as="dolg_end" title="Всего задолженность на конец периода">
+          <column table="main" column="debt_end" />
+          <column table="main" column="kred_end" />
+        </call>
+        <column table="main" column="kvth_smsp" group="sum" />
+        <column table="main" column="nachisl_smsp" group="sum" />
+        <column table="main" column="nachisl_nal_smsp" group="sum" />
+      </select>
+      <from>
+        <query name="55752-main" as="main">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="55752-main_dog" timestamp="23.03.2021 19:23:20" order="dep_name,ndog">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <select>
+        <column table="main" column="kod_dog" group="1" />
+        <column table="main" column="ndog" group="1" />
+        <column group="1" table="main" column="kodp_name" />
+        <column table="main" column="dep_name" group="1" title="Филиал" />
+        <column group="1" table="main" column="okved" />
+        <column table="main" column="user_group_parent" group="1" title="Группа потребителей" />
+        <column table="main" column="debt_beg" group="sum" title="Дебиторская задолженность на начало периода" />
+        <column table="main" column="kred_begin" group="sum" title="Кредиторская задолженность на начало периода" />
+        <call function="-nvl" group="sum" as="dolg_begin" title="Всего задолженность на начало периода">
+          <column table="main" column="debt_beg" />
+          <column table="main" column="kred_begin" />
+        </call>
+        <column table="main" column="kvt" group="sum" />
+        <column table="main" column="kvth" group="sum" />
+        <column table="main" column="nachisl" group="sum" />
+        <column table="main" column="nachisl_nal" group="sum" />
+        <column table="main" column="nachisl_no_nal" group="sum" />
+        <column table="main" column="debt_end" group="sum" title="Дебиторская задолженность на конец периода" />
+        <column table="main" column="kred_end" group="sum" title="Кредиторская задолженность на конец периода" />
+        <call function="-nvl" group="sum" as="dolg_end" title="Всего задолженность на конец периода">
+          <column table="main" column="debt_end" />
+          <column table="main" column="kred_end" />
+        </call>
+        <column table="main" column="kvth_smsp" group="sum" />
+        <column table="main" column="nachisl_smsp" group="sum" />
+        <column table="main" column="nachisl_nal_smsp" group="sum" />
+      </select>
+      <from>
+        <query name="55752-main" as="main">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="55752-pre_kred" timestamp="06.02.2021 02:47:41">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s">
+          <const>2020.07</const>
+        </param>
+        <param name="p_ym_po">
+          <const>2020.07</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="if" group="sum" as="dolg_kr_per_begin" title="Кредиторская задолженность на начало периода" type="number">
+          <call function="lt">
+            <column table="dat" column="val" />
+            <call function="ym begin time">
+              <useparam name="p_ym_s" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_kr" />
+        </call>
+        <call function="if" group="sum" as="dolg_kr_per_end" title="Кредиторская задолженность на конец периода" type="number">
+          <call function="lt">
+            <column table="dat" column="val" />
+            <call function="ym end time">
+              <useparam name="p_ym_po" />
+            </call>
+          </call>
+          <fact column="fin_ul_ob_kr" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_opl_kred" column="kod_opl" />
+        <column table="kod_opl_kred" column="vid_real" />
+        <column table="kod_dog" column="kod_dog" />
+        <column table="kod_dog" column="kod_gr_parent" />
+        <column table="kod_okved" column="kod_okved" />
+        <column table="kodp" column="kodp" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kod_dog" column="dep" />
+        <column table="kod_opl_kred" column="dat_oper" />
+        <fact as="dolg_kr_per_begin" column="dolg_kr_per_begin" />
+        <fact as="dolg_kr_per_end" column="dolg_kr_per_end" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_opl_kred">
+            <link name="kod_dog">
+              <link name="kodp">
+                <link name="kod_okved" />
+              </link>
+            </link>
+          </link>
+          <where>
+            <call function="and">
+              <call function="le">
+                <column table="kod_opl_kred" column="dat_oper" />
+                <call function="ym end time">
+                  <useparam name="p_ym_po" />
+                </call>
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="pr_active" />
+                <useparam name="p_prizn_activ_dog" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_opl_kred" column="vid_real" />
+                <useparam name="p_vid_real" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="kod_gr_parent" />
+                <useparam name="p_kod_group_cust_parent" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="dep" />
+                <useparam name="p_dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="55752-kred" timestamp="23.03.2021 19:34:27">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <select>
+        <column table="kred" column="kod_opl" />
+        <column table="kred" column="kod_dog" />
+        <column table="kred" column="kodp" />
+        <column table="ks_okved" column="kod_okved" />
+        <column table="kred" column="ndog" title="Номер договора" />
+        <column table="kred" column="dep" />
+        <call function="||" as="okved" title="ОКВЭД">
+          <column table="ks_okved" column="okved" />
+          <const>' '</const>
+          <column table="ks_okved" column="name" />
+        </call>
+        <column table="kred" column="dat_oper" />
+        <column table="kred" column="dolg_kr_per_begin" />
+        <column table="kred" column="dolg_kr_per_end" />
+      </select>
+      <from>
+        <query name="55752-pre_kred" as="kred">
+          <withparams>
+            <useparam name="p_prizn_activ_dog" />
+            <useparam name="p_vid_real" />
+            <useparam name="p_vid_t" />
+            <useparam name="p_kod_okved" />
+            <useparam name="p_kod_group_cust_parent" />
+            <useparam name="p_dep" />
+            <useparam name="p_ym_s" />
+            <useparam name="p_ym_po" />
+          </withparams>
+        </query>
+        <query name="55752-okved" join="left outer" as="okved_opl">
+          <call function="and">
+            <call function="=">
+              <column table="kred" column="kodp" />
+              <column table="okved_opl" column="kodp" />
+            </call>
+            <call function="ge">
+              <column table="kred" column="dat_oper" />
+              <column table="okved_opl" column="begin_date" />
+            </call>
+            <call function="lt">
+              <column table="kred" column="dat_oper" />
+              <call function="nvl">
+                <column table="okved_opl" column="expire_date" />
+                <call function="doomsday" />
+              </call>
+            </call>
+          </call>
+        </query>
+        <query name="ks_okved" join="left outer">
+          <call function="=" exclude="1">
+            <call function="nvl">
+              <column table="okved_opl" column="kod_okved" />
+              <column table="kred" column="kod_okved" />
+            </call>
+            <column table="ks_okved" column="kod_okved" />
+          </call>
+          <call function="=">
+            <column table="kred" column="kod_okved" />
+            <column table="ks_okved" column="kod_okved" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="or">
+            <call function="!=nvl">
+              <column table="this" column="dolg_kr_per_begin" />
+              <const>0</const>
+            </call>
+            <call function="!=nvl">
+              <column table="this" column="dolg_kr_per_end" />
+              <const>0</const>
+            </call>
+          </call>
+          <call function="in" optional="1">
+            <column table="ks_okved" column="kod_okved" />
+            <useparam name="p_kod_okved" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="55752-main" timestamp="23.03.2021 19:22:33" materialize="1">
+      <params>
+        <param name="p_prizn_activ_dog" />
+        <param name="p_vid_real" />
+        <param name="p_vid_t" />
+        <param name="p_kod_okved" />
+        <param name="p_kod_group_cust_parent" />
+        <param name="p_dep" />
+        <param name="p_ym_s" />
+        <param name="p_ym_po" />
+      </params>
+      <select>
+        <column table="a" column="kod_sf" />
+        <column table="a" column="kod_opl" type="number" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="kodp" />
+        <column table="kodp" column="name" as="kodp_name" />
+        <column table="a" column="kod_okved" />
+        <column table="a" column="ndog" />
+        <column table="a" column="dep" />
+        <column table="kr_dep" column="sname" as="dep_name" />
+        <column table="kod_group_cust_parent" column="name" as="user_group_parent" title="Группа потребителей" />
+        <column table="a" column="okved" />
+        <column table="a" column="dat" />
+        <column table="a" column="nachisl" />
+        <column table="a" column="nachisl_nal" />
+        <column table="a" column="nachisl_no_nal" />
+        <column table="a" column="nachisl_smsp" />
+        <column table="a" column="nachisl_nal_smsp" />
+        <column table="a" column="debt_beg" />
+        <column table="a" column="debt_end" />
+        <column table="a" column="kred_begin" type="number" />
+        <column table="a" column="kred_end" type="number" />
+        <column table="a" column="kvt" />
+        <column table="a" column="kvth" />
+        <column table="a" column="kvth_smsp" />
+      </select>
+      <from>
+        <query as="a">
+          <union all="1">
+            <query>
+              <select>
+                <column table="a" column="kod_sf" />
+                <call function="null" as="kod_opl" />
+                <column table="a" column="kod_dog" />
+                <column table="a" column="kodp" />
+                <column table="a" column="kod_okved" />
+                <column table="a" column="ndog" />
+                <column table="a" column="dep" />
+                <column table="a" column="okved" />
+                <column table="a" column="dat_sf" as="dat" />
+                <column table="a" column="nachisl" />
+                <column table="a" column="nachisl_nal" />
+                <column table="a" column="nachisl_no_nal" />
+                <column table="a" column="nachisl_smsp" />
+                <column table="a" column="nachisl_nal_smsp" />
+                <column table="a" column="debt_beg" />
+                <column table="a" column="debt_end" />
+                <call function="null" as="kred_begin" />
+                <call function="null" as="kred_end" />
+                <column table="a" column="kvt" />
+                <column table="a" column="kvth" />
+                <column table="a" column="kvth_smsp" />
+              </select>
+              <from>
+                <query name="55752-sf" as="a">
+                  <withparams>
+                    <useparam name="p_prizn_activ_dog" />
+                    <useparam name="p_vid_real" />
+                    <useparam name="p_vid_t" />
+                    <useparam name="p_kod_okved" />
+                    <useparam name="p_kod_group_cust_parent" />
+                    <useparam name="p_dep" />
+                    <useparam name="p_ym_s" />
+                    <useparam name="p_ym_po" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+            <query>
+              <select>
+                <call function="null" as="kod_sf" />
+                <column table="a" column="kod_opl" />
+                <column table="a" column="kod_dog" />
+                <column table="a" column="kodp" />
+                <column table="a" column="kod_okved" />
+                <column table="a" column="ndog" />
+                <column table="a" column="dep" />
+                <column table="a" column="okved" />
+                <column table="a" column="dat_oper" as="dat" />
+                <call function="null" as="nachisl" />
+                <call function="null" as="nachisl_nal" />
+                <call function="null" as="nachisl_no_nal" />
+                <call function="null" as="nachisl_smsp" />
+                <call function="null" as="nachisl_nal_smsp" />
+                <call function="null" as="debt_beg" />
+                <call function="null" as="debt_end" />
+                <column table="a" column="dolg_kr_per_begin" as="kred_begin" />
+                <column table="a" column="dolg_kr_per_end" as="kred_end" />
+                <call function="null" as="kvt" />
+                <call function="null" as="kvth" />
+                <call function="null" as="kvth_smsp" />
+              </select>
+              <from>
+                <query name="55752-kred" as="a">
+                  <withparams>
+                    <useparam name="p_prizn_activ_dog" />
+                    <useparam name="p_vid_real" />
+                    <useparam name="p_vid_t" />
+                    <useparam name="p_kod_okved" />
+                    <useparam name="p_kod_group_cust_parent" />
+                    <useparam name="p_dep" />
+                    <useparam name="p_ym_s" />
+                    <useparam name="p_ym_po" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </union>
+        </query>
+        <query join="left outer" name="kr_dep">
+          <call function="=">
+            <column table="kr_dep" column="kodp" />
+            <column table="a" column="dep" />
+          </call>
+        </query>
+        <query join="left outer" name="kr_dogovor">
+          <call function="=">
+            <column table="kr_dogovor" column="kod_dog" />
+            <column table="a" column="kod_dog" />
+          </call>
+          <link name="kod_dog_dop">
+            <link name="kod_group_cust">
+              <link name="kod_group_cust_parent" />
+            </link>
+          </link>
+          <link name="kodp" />
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

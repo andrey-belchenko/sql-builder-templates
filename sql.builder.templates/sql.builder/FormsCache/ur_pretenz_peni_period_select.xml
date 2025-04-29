@@ -1,0 +1,1240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="ur_pretenz_peni_period_select" title="Выбор периодов пени" show-toolbar="1" timestamp="28.12.2023 14:57:00" file="sql.builder.templates\sql.builder\projects\asuse2\reports\arbitrage\forms\ur_pretenz_peni_period_select.xml" elid="282" ord="282" leaf="0" lvl="2" pelid="">
+    <field table="m" name="kod_pretenz" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="56935940" />
+    <splitcontainer is-vertical="1" id="14157385">
+      <fieldgroup noborder="1" id="33661455">
+        <fieldgroup title="Доступные" id="48750911">
+          <grid table="a" id="47769412">
+            <columns id="38887459">
+              <field table="a" name="check1" title="Выбор" controlType="UICheck" rows-limit="100" id="12634523" />
+              <field table="a" name="name" title="Период" width="250" controlType="UIText" rows-limit="100" id="56897505" />
+            </columns>
+          </grid>
+        </fieldgroup>
+      </fieldgroup>
+      <fieldgroup title="Выбранные" id="54713934">
+        <grid table="b" id="25090233">
+          <columns id="11869245">
+            <field table="b" name="kod" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="39226659" />
+            <field table="b" name="name" title="Период" width="323" controlType="UIText" rows-limit="100" id="56147276" />
+          </columns>
+        </grid>
+      </fieldgroup>
+    </splitcontainer>
+    <toolbar id="21008089">
+      <uicommand action-type="add-selected" title="Добавить выделенные" id="12143934" />
+      <uicommand action-type="remove-selected" title="Убрать выделенные" id="39648733" />
+    </toolbar>
+  </form>
+  <params>
+    <param name="p_kod_pretenz" type="number">
+      <const type="number">1936907</const>
+    </param>
+  </params>
+  <dataset>
+    <params>
+      <param name="p_kod_pretenz" type="number">
+        <const type="number">1936907</const>
+      </param>
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="m_has_changes" parname="m_has_changes" />
+      <field type="string" name="b_has_changes" parname="b_has_changes" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="m" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="ur_pretenz" key="kod_pretenz" is-ms-upd="1" is-top="1" key-dimension="kod_pretenz">
+      <select-text>
+--
+select m.kod_pretenz as kod_pretenz, /*number*//*key*/
+m.is_new as is_new, /*number*/
+m.is_not_new as is_not_new/*number*/
+
+from (
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from ur_pretenz
+a
+--\ur_pretenz
+)
+m
+--\ur_pretenz
+where
+(m.kod_pretenz = :p_kod_pretenz ) --\
+</select-text>
+      <columns>
+        <column name="kod_pretenz" table="m" type="number" title="" ClientVisible="0" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_pretenz" temp-col-name="n1" />
+        <column name="is_new" table="m" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="m" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_pretenz as kod_pretenz 
+ 
+from dual ) 
+ 
+loop 
+insert into ur_pretenz 
+(kod_pretenz 
+) 
+ values  
+(r.kod_pretenz 
+) 
+ returning  
+kod_pretenz into :kod_pretenz; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from ur_pretenz where kod_pretenz=:kod_pretenz</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='m' 
+and 
+names=:form_id 
+and 
+f2=:kod_pretenz; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_pretenz as kod_pretenz 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+) 
+ values  
+('m' 
+,:form_id 
+,:kod_pretenz 
+,:row_state_id 
+,r.kod_pretenz 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_pretenz as kod_pretenz 
+,a.kod_folders 
+,a.kod_subject 
+,a.kod_state 
+,a.num_reg 
+,a.num_otv 
+,a.dat_do 
+,a.dat_otv 
+,a.reply 
+,a.prim 
+,a.u_m 
+,a.d_m 
+,a.dat_doc 
+,a.dat_srok 
+,a.kod_vid_pretenz 
+,a.proc 
+,a.kodp 
+,a.ogr 
+,a.tep_el 
+,a.type_potr 
+,a.vvod 
+,a.kod_vi 
+,a.dep 
+,a.dat_finish 
+,a.opl_proc 
+,a.opl_ogr 
+,a.dat_arh 
+,a.kod_pret 
+,a.num_sz 
+,a.vvod_sum_osn 
+,a.vvod_sum_peni 
+,a.vvod_per_s 
+,a.vvod_per_po 
+,a.vvod_opl_peni 
+,a.vvod_opl_osn 
+,a.kod_emp 
+,a.pio_date 
+,a.kod_mat 
+ 
+from ur_pretenz a  where kod_pretenz=:kod_pretenz) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n10 
+,n3 
+,n5 
+,s4 
+,s5 
+,d2 
+,d4 
+,s1 
+,s3 
+,s6 
+,d7 
+,d1 
+,d3 
+,n2 
+,n11 
+,n12 
+,n4 
+,n13 
+,n14 
+,n15 
+,n16 
+,n17 
+,d8 
+,n18 
+,n6 
+,d5 
+,n19 
+,s2 
+,n20 
+,n21 
+,n22 
+,n23 
+,n24 
+,n25 
+,n9 
+,d6 
+,n8 
+) 
+ values  
+('m' 
+,:form_id 
+,:kod_pretenz 
+,:row_state_id 
+,r.kod_pretenz 
+,r.kod_folders 
+,r.kod_subject 
+,r.kod_state 
+,r.num_reg 
+,r.num_otv 
+,r.dat_do 
+,r.dat_otv 
+,r.reply 
+,r.prim 
+,r.u_m 
+,r.d_m 
+,r.dat_doc 
+,r.dat_srok 
+,r.kod_vid_pretenz 
+,r.proc 
+,r.kodp 
+,r.ogr 
+,r.tep_el 
+,r.type_potr 
+,r.vvod 
+,r.kod_vi 
+,r.dep 
+,r.dat_finish 
+,r.opl_proc 
+,r.opl_ogr 
+,r.dat_arh 
+,r.kod_pret 
+,r.num_sz 
+,r.vvod_sum_osn 
+,r.vvod_sum_peni 
+,r.vvod_per_s 
+,r.vvod_per_po 
+,r.vvod_opl_peni 
+,r.vvod_opl_osn 
+,r.kod_emp 
+,r.pio_date 
+,r.kod_mat 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='m' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update ur_pretenz set  
+(kod_pretenz 
+) 
+= 
+ ( select  
+:kod_pretenz as kod_pretenz 
+ 
+from dual ) 
+ 
+where 
+kod_pretenz=:kod_pretenz 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="ur_pretenz" as="m">
+          <columns>
+            <column name="kod_pretenz" type="number" title="" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns />
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_pretenz_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_pretenz_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select m.kod_pretenz as kod_pretenz, /*number*//*key*/
+m.is_new as is_new, /*number*/
+m.is_not_new as is_not_new/*number*/
+
+from (
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_pretenz as kod_pretenz,0 as is_new,1 as is_not_new  from ur_pretenz a where not exists (select * from rr_temp t where t.skod ='m' and t.names=:form_id  and a.kod_pretenz=t.f2 ) and   a.kod_pretenz in :kod_pretenz_prm   union all  select t.n1 as kod_pretenz,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='m' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pretenz_prm )
+a
+--\(select a.kod_pretenz as kod_pretenz,0 as is_new,1 as is_not_new  from ur_pretenz a where not exists (select * from rr_temp t where t.skod ='m' and t.names=:form_id  and a.kod_pretenz=t.f2 ) and   a.kod_pretenz in :kod_pretenz_prm   union all  select t.n1 as kod_pretenz,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='m' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_pretenz_prm )
+)
+m
+--\ur_pretenz
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+    <table name="b" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="kod" multi-select-column="" multi-select-target="" update-target="ur_pretenz_peni_period" key="kod_peni_period" parent-table="m" parent-key="kod_pretenz" is-ms-upd="1" key-dimension="ur_pretenz_peni_period">
+      <select-text>
+--
+select b.ym as kod, /*number*/
+c.name as name, /*Период*//*string*/
+b.is_new as is_new, /*number*/
+b.is_not_new as is_not_new, /*number*/
+b.kod_peni_period as kod_peni_period, /*number*//*key*/
+b.kod_pretenz as kod_pretenz/*number*/
+
+from (
+--ur_pretenz_peni_period
+select a.kod_peni_period as kod_peni_period, /*number*//*key*/
+a.kod_pretenz as kod_pretenz, /*number*/
+a.ym as ym, /**//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from ur_pretenz_peni_period
+a
+--\ur_pretenz_peni_period
+)
+b
+--\ur_pretenz_peni_period
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+c on b.ym = c.ym--\spr_time_ym
+where
+b.kod_pretenz = :fk_kod_pretenz 
+order by name--\
+</select-text>
+      <columns>
+        <column name="kod" table="b" type="number" title="" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="ym" temp-col-name="n1">
+          <dep-refresh-cmd>
+            <root table="b">
+              <params>
+                <param name="kod_peni_period_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_peni_period_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select c.name as name, /*Период*//*string*/
+b.kod_peni_period as kod_peni_period/*number*//*key*/
+
+from (
+--ur_pretenz_peni_period
+select a.kod_peni_period as kod_peni_period, /*number*//*key*/
+a.ym as ym/**//*number*/
+
+from (select a.kod_peni_period as kod_peni_period,a.ym as ym  from ur_pretenz_peni_period a where not exists (select * from rr_temp t where t.skod ='b' and t.names=:form_id  and a.kod_peni_period=t.f2 ) and   a.kod_peni_period in :kod_peni_period_prm   union all  select t.n2 as kod_peni_period,t.n1 as ym  from rr_temp t where t.skod ='b' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_peni_period_prm )
+a
+--\(select a.kod_peni_period as kod_peni_period,a.ym as ym  from ur_pretenz_peni_period a where not exists (select * from rr_temp t where t.skod ='b' and t.names=:form_id  and a.kod_peni_period=t.f2 ) and   a.kod_peni_period in :kod_peni_period_prm   union all  select t.n2 as kod_peni_period,t.n1 as ym  from rr_temp t where t.skod ='b' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_peni_period_prm )
+)
+b
+--\ur_pretenz_peni_period
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+c on b.ym = c.ym--\spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="name" table="b" />
+          </dependants>
+        </column>
+        <column name="name" table="c" type="string" title="Период" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_peni_period_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_peni_period_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select c.name as name, /*Период*//*string*/
+b.kod_peni_period as kod_peni_period/*number*//*key*/
+
+from (
+--ur_pretenz_peni_period
+select a.kod_peni_period as kod_peni_period, /*number*//*key*/
+a.ym as ym/**//*number*/
+
+from (select a.kod_peni_period as kod_peni_period,a.ym as ym  from ur_pretenz_peni_period a where not exists (select * from rr_temp t where t.skod ='b' and t.names=:form_id  and a.kod_peni_period=t.f2 ) and   a.kod_peni_period in :kod_peni_period_prm   union all  select t.n2 as kod_peni_period,t.n1 as ym  from rr_temp t where t.skod ='b' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_peni_period_prm )
+a
+--\(select a.kod_peni_period as kod_peni_period,a.ym as ym  from ur_pretenz_peni_period a where not exists (select * from rr_temp t where t.skod ='b' and t.names=:form_id  and a.kod_peni_period=t.f2 ) and   a.kod_peni_period in :kod_peni_period_prm   union all  select t.n2 as kod_peni_period,t.n1 as ym  from rr_temp t where t.skod ='b' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_peni_period_prm )
+)
+b
+--\ur_pretenz_peni_period
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+c on b.ym = c.ym--\spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="b" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="b" type="number" title="" is-user-editable="1" />
+        <column name="kod_peni_period" table="b" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_peni_period" temp-col-name="n2" />
+        <column name="kod_pretenz" table="b" type="number" title="Претензия" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_pretenz" temp-col-name="n3">
+          <sel-list-compiled>
+            <root>
+              <query title="Претензия" class="1" timestamp="04.09.2023 15:44:29" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\ur_pretenz.xml" elid="3002" ord="3002" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_pretenz" as="kod_pretenz" title="" key="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod_pretenz" into="n1">a.kod_pretenz as kod_pretenz, /**//*number*//*key*/
+</column><column table="a" column="num_reg" as="num_reg" title="Номер претензии" key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="num_reg" into="s1">a.num_reg as num_reg, /*Номер претензии*//*string*/
+</column><column table="a" column="dat_do" as="dat_do" title="Оплатить до" key="0" used="1" type="date" sourcetable="./a/a" sourcecolumn="dat_do" into="d1">a.dat_do as dat_do, /*Оплатить до*//*date*/
+</column><column table="a" column="dat_otv" as="dat_otv" title="Дата получения ответа" key="0" used="1" type="date" sourcetable="./a/a" sourcecolumn="dat_otv" into="d2">a.dat_otv as dat_otv, /*Дата получения ответа*//*date*/
+</column><column table="a" column="reply" as="reply" title="Содержание ответа" key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="reply" into="s2">a.reply as reply, /*Содержание ответа*//*string*/
+</column><column table="a" column="prim" as="prim" title="Примечание" key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="prim" into="s3">a.prim as prim, /*Примечание*//*string*/
+</column><column table="a" column="dat_doc" as="dat_doc" title="Дата претензии" key="0" used="1" type="date" agg="min" sourcetable="./a/a" sourcecolumn="dat_doc" into="d3">a.dat_doc as dat_doc, /*Дата претензии*//*date*/
+</column><column table="a" column="dat_srok" as="dat_srok" title="Срок ответа" key="0" used="1" type="date" sourcetable="./a/a" sourcecolumn="dat_srok" into="d4">a.dat_srok as dat_srok, /*Срок ответа*//*date*/
+</column><column table="a" column="proc" as="proc" title="Проценты за пользование чужими денежными средствами" key="0" used="1" type="number" sourcetable="./a/a" sourcecolumn="proc" into="n2">a.proc as proc, /*Проценты за пользование чужими денежными средствами*//*number*/
+</column><column table="a" column="ogr" as="ogr" title="Расходы за введение ограничения режима энергопотребления" key="0" used="1" type="number" agg="sum" sourcetable="./a/a" sourcecolumn="ogr" into="n3">a.ogr as ogr, /*Расходы за введение ограничения режима энергопотребления*//*number*/
+</column><column table="a" column="opl_proc" as="opl_proc" title="Оплачено: проценты за пользование чужими денежными средствами" key="0" used="1" type="number" sourcetable="./a/a" sourcecolumn="opl_proc" into="n4">a.opl_proc as opl_proc, /*Оплачено: проценты за пользование чужими денежными средствами*//*number*/
+</column><column table="a" column="opl_ogr" as="opl_ogr" title="Оплачено: расходы за введение ограничения режима энергопотребления" key="0" used="1" type="number" agg="sum" sourcetable="./a/a" sourcecolumn="opl_ogr" into="n5">a.opl_ogr as opl_ogr, /*Оплачено: расходы за введение ограничения режима энергопотребления*//*number*/
+</column><column table="a" column="dat_arh" as="dat_arh" title="Дата архивации" key="0" used="1" type="date" sourcetable="./a/a" sourcecolumn="dat_arh" into="d5">a.dat_arh as dat_arh, /*Дата архивации*//*date*/
+</column><column table="a" column="num_sz" as="num_sz" title="№ с/з о пост. мат." key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="num_sz" into="s4">a.num_sz as num_sz, /*№ с/з о пост. мат.*//*string*/
+</column><column table="a" column="kod_emp" as="kod_emp" title="Исполнитель ПИО" key="0" used="1" type="number" agg="min" sourcetable="./a/a" sourcecolumn="kod_emp" reference="kr_employee" refcol="kod_emp" into="n6">a.kod_emp as kod_emp, /*Исполнитель ПИО*//*number*/
+</column><column table="kod_emp" column="fio" as="kod_emp_x_n" title="Исполнитель ПИО" key="0" used="1" type="string" sourcetable="./a/kod_emp" sourcecolumn="fio" into="s5">kod_emp.fio as kod_emp_x_n, /*Исполнитель ПИО*//*string*/
+</column><column table="a" column="last_pio_fio" as="last_pio_fio" title="ФИО" key="0" used="1" type="string" agg="max" sourcetable="./a/a/kod_emp" sourcecolumn="fio" into="s6">a.last_pio_fio as last_pio_fio, /*ФИО*//*string*/
+</column><column table="a" column="pr_priv" as="pr_priv" title="Скопирована из модуля &quot;Претензии&quot;" key="0" used="1" type="number" into="n7">a.pr_priv as pr_priv, /*Скопирована из модуля "Претензии"*//*number*/
+</column><column table="a" column="is_active" as="is_active" title="Статус претензии" key="0" used="1" type="number" into="n8">a.is_active as is_active, /*Статус претензии*//*number*/
+</column><column table="a" column="dat_do_new_val" as="dat_do_new_val" title="Дата претензии" key="0" used="1" type="date" editor="spin" agg="min" sourcetable="./a/a/srok_opl/uk_srok" sourcecolumn="kol_day" into="d6">a.dat_do_new_val as dat_do_new_val, /*Дата претензии*//*date*/
+</column><column table="a" column="dat_otv_new_val" as="dat_otv_new_val" title="Дата претензии" key="0" used="1" type="date" editor="spin" agg="min" sourcetable="./a/a/srok_otv/uk_srok" sourcecolumn="kol_day" into="d7">a.dat_otv_new_val as dat_otv_new_val/*Дата претензии*//*date*/
+</column></select>
+                <from>
+from <query name="ur_pretenz" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--ur_pretenz
+select <column table="a" column="kod_pretenz" type="number" key-dimension="kod_pretenz" as="kod_pretenz" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod_pretenz" used="1">a.kod_pretenz as kod_pretenz, /*number*//*key*/
+</column><column table="a" column="num_reg" type="string" title="Номер претензии" entity="pretenzion" as="num_reg" key="0" sourcetable="./a/a" sourcecolumn="num_reg" used="1">a.num_reg as num_reg, /*Номер претензии*//*string*/
+</column><column table="a" column="dat_do" type="date" title="Оплатить до" column-mandatory="1" new-val="dat_do_new_val" default="dat_do_new_val" as="dat_do" key="0" sourcetable="./a/a" sourcecolumn="dat_do" used="1">a.dat_do as dat_do, /*Оплатить до*//*date*/
+</column><column table="a" column="dat_otv" type="date" title="Дата получения ответа" as="dat_otv" key="0" sourcetable="./a/a" sourcecolumn="dat_otv" used="1">a.dat_otv as dat_otv, /*Дата получения ответа*//*date*/
+</column><column table="a" column="reply" type="string" title="Содержание ответа" as="reply" key="0" sourcetable="./a/a" sourcecolumn="reply" used="1">a.reply as reply, /*Содержание ответа*//*string*/
+</column><column table="a" column="prim" type="string" title="Примечание" controlType="UITextEx" as="prim" key="0" sourcetable="./a/a" sourcecolumn="prim" used="1">a.prim as prim, /*Примечание*//*string*/
+</column><column table="a" column="dat_doc" type="date" title="Дата претензии" column-mandatory="1" column-default="today" is-fact="1" agg="min" fact="ur_pretenz_dat_doc" as="dat_doc" key="0" sourcetable="./a/a" sourcecolumn="dat_doc" used="1">a.dat_doc as dat_doc, /*Дата претензии*//*date*/
+</column><column table="a" column="dat_srok" type="date" title="Срок ответа" new-val="dat_otv_new_val" default="dat_otv_new_val" as="dat_srok" key="0" sourcetable="./a/a" sourcecolumn="dat_srok" used="1">a.dat_srok as dat_srok, /*Срок ответа*//*date*/
+</column><column table="a" column="proc" type="number" title="Проценты за пользование чужими денежными средствами" comment="проценты за польз ден. средствами, вводимые юристами ( ст. 395 гк рф)" as="proc" key="0" sourcetable="./a/a" sourcecolumn="proc" used="1">a.proc as proc, /*Проценты за пользование чужими денежными средствами*//*number*/
+</column><column table="a" column="ogr" type="number" title="Расходы за введение ограничения режима энергопотребления" fact="ur_pretenz_ogr" comment="расходы за введение ограничения режима электропотребления" agg="sum" as="ogr" key="0" sourcetable="./a/a" sourcecolumn="ogr" used="1">a.ogr as ogr, /*Расходы за введение ограничения режима энергопотребления*//*number*/
+</column><column table="a" column="opl_proc" type="number" title="Оплачено: проценты за пользование чужими денежными средствами" as="opl_proc" key="0" sourcetable="./a/a" sourcecolumn="opl_proc" used="1">a.opl_proc as opl_proc, /*Оплачено: проценты за пользование чужими денежными средствами*//*number*/
+</column><column table="a" column="opl_ogr" type="number" fact="ur_pretenz_opl_ogr" title="Оплачено: расходы за введение ограничения режима энергопотребления" agg="sum" as="opl_ogr" key="0" sourcetable="./a/a" sourcecolumn="opl_ogr" used="1">a.opl_ogr as opl_ogr, /*Оплачено: расходы за введение ограничения режима энергопотребления*//*number*/
+</column><column table="a" column="dat_arh" type="date" title="Дата архивации" comment="Дата архивации" as="dat_arh" key="0" sourcetable="./a/a" sourcecolumn="dat_arh" used="1">a.dat_arh as dat_arh, /*Дата архивации*//*date*/
+</column><column table="a" column="num_sz" title="№ с/з о пост. мат." type="string" data-size="300" as="num_sz" key="0" sourcetable="./a/a" sourcecolumn="num_sz" used="1">a.num_sz as num_sz, /*№ с/з о пост. мат.*//*string*/
+</column><column column="kod_emp" comment="юрист" table="a" title="Исполнитель ПИО" type="number" agg="min" as="kod_emp" reference="kr_employee" refcol="kod_emp" key="0" sourcetable="./a/a" sourcecolumn="kod_emp" used="1">a.kod_emp as kod_emp, /*Исполнитель ПИО*//*number*/
+</column><call function="if" agg="max" as="last_pio_fio" type="string" key="0" pth="" used="1" title="ФИО" sourcetable="./a/a/kod_emp" sourcecolumn="fio"><text txtype="func"> case </text><text txtype="func"> when </text><call function="=" pth="" type="bool">(<column table="a" column="kod_pretenz" type="number" key-dimension="kod_pretenz" as="kod_pretenz" key="1" fixed="1" thissrc="kod_pretenz">a.kod_pretenz</column><text txtype="func"> = </text><call function="over" as="last_kod_pretenz" type="number" key="0" pth="0" thissrc="last_kod_pretenz"><call function="max" pth="0" type="aggregate"><text txtype="func"> max( </text><column table="a" column="kod_pretenz">a.kod_pretenz</column><text txtype="func"> ) </text></call><text txtype="func"> over( </text><call function="partition by" pth="0" type="partition"><text txtype="func"> partition by </text><column table="a" column="kod_mat">a.kod_mat</column></call><text txtype="func"> ) </text></call>) </call><text txtype="func"> then </text><column table="kod_emp" column="fio">kod_emp.fio</column><text txtype="func"> end </text> as last_pio_fio, /*ФИО*//*string*/
+</call><call function="if" as="pr_priv" title="Скопирована из модуля &quot;Претензии&quot;" type="number" key="0" pth="" used="1"><text txtype="func"> case </text><text txtype="func"> when </text><call function="is not null" pth="" type="bool">(<column table="a" column="kod_pret" type="number" as="kod_pret" reference="kr_pret" refcol="kod_pret" key="0" thissrc="kod_pret">a.kod_pret</column><text txtype="func"> is not null </text>) </call><text txtype="func"> then </text><const><text>1</text></const><text txtype="func"> else </text><const><text>0</text></const><text txtype="func"> end </text> as pr_priv, /*Скопирована из модуля "Претензии"*//*number*/
+</call><call function="true if null" as="is_active" title="Статус претензии" key="0" pth="" type="number" used="1"><text txtype="func"> decode ( </text><column table="a" column="dat_arh" type="date" title="Дата архивации" comment="Дата архивации" as="dat_arh" key="0" thissrc="dat_arh">a.dat_arh</column><text txtype="func"> ,null,1,0) </text> as is_active, /*Статус претензии*//*number*/
+</call><call function="date add days" as="dat_do_new_val" key="0" pth="" type="date" used="1" title="Дата претензии" editor="spin" agg="min" sourcetable="./a/a/srok_opl/uk_srok" sourcecolumn="kol_day"><column table="a" column="dat_doc" type="date" title="Дата претензии" column-mandatory="1" column-default="today" is-fact="1" agg="min" fact="ur_pretenz_dat_doc" as="dat_doc" key="0" thissrc="dat_doc">a.dat_doc</column><text txtype="func"> + ( </text><query as="srok_opl" thissrc="srok_opl" path="./a/a/srok_opl" used="1">(
+<select>--
+select <column table="uk_srok" column="kol_day" as="kol_day" fixed="1" key="0" used="1" type="number" title="Кол-во дней" editor="spin" sourcetable="./a/a/srok_opl/uk_srok" sourcecolumn="kol_day">uk_srok.kol_day as kol_day/*Кол-во дней*//*number*/
+</column></select><from>
+from <query name="uk_srok" as="uk_srok" path="./a/a/srok_opl/uk_srok" haskeys="1" used="1">(
+<select>--uk_srok
+select <column table="a" column="kod_srok" type="number" as="kod_srok" key="1" fixed="1" sourcetable="./a/a/srok_opl/uk_srok" sourcecolumn="kod_srok" used="1">a.kod_srok as kod_srok, /*number*//*key*/
+</column><column table="a" column="kol_day" type="number" title="Кол-во дней" editor="spin" as="kol_day" key="0" sourcetable="./a/a/srok_opl/uk_srok" sourcecolumn="kol_day" used="1">a.kol_day as kol_day/*Кол-во дней*//*number*/
+</column></select><from>
+from <table name="uk_srok" as="a" used="1">uk_srok
+a
+--\uk_srok
+</table></from>)
+uk_srok
+--\uk_srok
+</query></from><where>where
+<call function="=" pth="" type="bool"><column table="uk_srok" column="kod_srok">uk_srok.kod_srok</column><text txtype="func"> = </text><const><text>2</text></const></call></where>)
+--\
+</query><text txtype="func"> ) </text> as dat_do_new_val, /*Дата претензии*//*date*/
+</call><call function="date add days" as="dat_otv_new_val" key="0" pth="" type="date" used="1" title="Дата претензии" editor="spin" agg="min" sourcetable="./a/a/srok_otv/uk_srok" sourcecolumn="kol_day"><column table="a" column="dat_doc" type="date" title="Дата претензии" column-mandatory="1" column-default="today" is-fact="1" agg="min" fact="ur_pretenz_dat_doc" as="dat_doc" key="0" thissrc="dat_doc">a.dat_doc</column><text txtype="func"> + ( </text><query as="srok_otv" thissrc="srok_otv" path="./a/a/srok_otv" used="1">(
+<select>--
+select <column table="uk_srok" column="kol_day" as="kol_day" fixed="1" key="0" used="1" type="number" title="Кол-во дней" editor="spin" sourcetable="./a/a/srok_otv/uk_srok" sourcecolumn="kol_day">uk_srok.kol_day as kol_day/*Кол-во дней*//*number*/
+</column></select><from>
+from <query name="uk_srok" as="uk_srok" path="./a/a/srok_otv/uk_srok" haskeys="1" used="1">(
+<select>--uk_srok
+select <column table="a" column="kod_srok" type="number" as="kod_srok" key="1" fixed="1" sourcetable="./a/a/srok_otv/uk_srok" sourcecolumn="kod_srok" used="1">a.kod_srok as kod_srok, /*number*//*key*/
+</column><column table="a" column="kol_day" type="number" title="Кол-во дней" editor="spin" as="kol_day" key="0" sourcetable="./a/a/srok_otv/uk_srok" sourcecolumn="kol_day" used="1">a.kol_day as kol_day/*Кол-во дней*//*number*/
+</column></select><from>
+from <table name="uk_srok" as="a" used="1">uk_srok
+a
+--\uk_srok
+</table></from>)
+uk_srok
+--\uk_srok
+</query></from><where>where
+<call function="=" pth="" type="bool"><column table="uk_srok" column="kod_srok">uk_srok.kod_srok</column><text txtype="func"> = </text><const><text>3</text></const></call></where>)
+--\
+</query><text txtype="func"> ) </text> as dat_otv_new_val/*Дата претензии*//*date*/
+</call></select><from>
+from <table name="ur_pretenz" as="a" title="Претензия" used="1">ur_pretenz
+a
+--\ur_pretenz
+</table><query name="kr_employee" as="kod_emp" join="left outer" path="./a/a/kod_emp" haskeys="1" used="1">left outer join
+(
+<select>--kr_employee
+select <column table="a" column="kod_emp" type="number" comment="код сотрудника" as="kod_emp" key="1" fixed="1" sourcetable="./a/a/kod_emp" sourcecolumn="kod_emp" used="1">a.kod_emp as kod_emp, /*number*//*key*/
+</column><column table="a" column="fio" type="string" title="ФИО" comment="фио" vid="1" as="fio" key="0" sourcetable="./a/a/kod_emp" sourcecolumn="fio" used="1">a.fio as fio/*ФИО*//*string*/
+</column></select><from>
+from <table name="kr_employee" as="a" used="1">kr_employee
+a
+--\kr_employee
+</table></from><call function="=" type="bool">)
+kod_emp on <column table="a" column="kod_emp">a.kod_emp</column><text txtype="func"> = </text><column table="kod_emp" column="kod_emp">kod_emp.kod_emp</column></call>--\kr_employee
+</query></from>)
+a
+--\ur_pretenz
+</query><query name="kr_employee" as="kod_emp" join="left outer" path="./a/kod_emp" haskeys="1" used="1">left outer join
+(
+<select>--kr_employee
+select <column table="a" column="kod_emp" type="number" comment="код сотрудника" as="kod_emp" key="1" fixed="1" sourcetable="./a/kod_emp" sourcecolumn="kod_emp" used="1">a.kod_emp as kod_emp, /*number*//*key*/
+</column><column table="a" column="fio" type="string" title="ФИО" comment="фио" vid="1" as="fio" key="0" sourcetable="./a/kod_emp" sourcecolumn="fio" used="1">a.fio as fio/*ФИО*//*string*/
+</column></select><from>
+from <table name="kr_employee" as="a" used="1">kr_employee
+a
+--\kr_employee
+</table></from><call function="=" type="bool">)
+kod_emp on <column table="a" column="kod_emp">a.kod_emp</column><text txtype="func"> = </text><column table="kod_emp" column="kod_emp">kod_emp.kod_emp</column></call>--\kr_employee
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_pretenz" as="kod_pretenz" title="" key="1" thissrc="kod_pretenz">a.kod_pretenz</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_pretenz" as="kod_pretenz" title="" key="1" thissrc="kod_pretenz">a.kod_pretenz</column><text txtype="func"> ) like lower( </text><const><text>:kod_pretenz_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="num_reg" as="num_reg" title="Номер претензии" thissrc="num_reg">a.num_reg</column><text txtype="func"> ) like lower( </text><const><text>:num_reg_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_do" as="dat_do" title="Оплатить до" thissrc="dat_do">a.dat_do</column><text txtype="func"> ) like lower( </text><const><text>:dat_do_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_otv" as="dat_otv" title="Дата получения ответа" thissrc="dat_otv">a.dat_otv</column><text txtype="func"> ) like lower( </text><const><text>:dat_otv_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="reply" as="reply" title="Содержание ответа" thissrc="reply">a.reply</column><text txtype="func"> ) like lower( </text><const><text>:reply_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="prim" as="prim" title="Примечание" thissrc="prim">a.prim</column><text txtype="func"> ) like lower( </text><const><text>:prim_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_doc" as="dat_doc" title="Дата претензии" thissrc="dat_doc">a.dat_doc</column><text txtype="func"> ) like lower( </text><const><text>:dat_doc_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_srok" as="dat_srok" title="Срок ответа" thissrc="dat_srok">a.dat_srok</column><text txtype="func"> ) like lower( </text><const><text>:dat_srok_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="proc" as="proc" title="Проценты за пользование чужими денежными средствами" thissrc="proc">a.proc</column><text txtype="func"> ) like lower( </text><const><text>:proc_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ogr" as="ogr" title="Расходы за введение ограничения режима энергопотребления" thissrc="ogr">a.ogr</column><text txtype="func"> ) like lower( </text><const><text>:ogr_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="opl_proc" as="opl_proc" title="Оплачено: проценты за пользование чужими денежными средствами" thissrc="opl_proc">a.opl_proc</column><text txtype="func"> ) like lower( </text><const><text>:opl_proc_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="opl_ogr" as="opl_ogr" title="Оплачено: расходы за введение ограничения режима энергопотребления" thissrc="opl_ogr">a.opl_ogr</column><text txtype="func"> ) like lower( </text><const><text>:opl_ogr_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_arh" as="dat_arh" title="Дата архивации" thissrc="dat_arh">a.dat_arh</column><text txtype="func"> ) like lower( </text><const><text>:dat_arh_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="num_sz" as="num_sz" title="№ с/з о пост. мат." thissrc="num_sz">a.num_sz</column><text txtype="func"> ) like lower( </text><const><text>:num_sz_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_emp" as="kod_emp" title="Исполнитель ПИО" thissrc="kod_emp">a.kod_emp</column><text txtype="func"> ) like lower( </text><const><text>:kod_emp_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="kod_emp" column="fio" as="kod_emp_x_n" title="Исполнитель ПИО" thissrc="kod_emp_x_n">kod_emp.fio</column><text txtype="func"> ) like lower( </text><const><text>:kod_emp_x_n_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="last_pio_fio" as="last_pio_fio" title="ФИО" thissrc="last_pio_fio">a.last_pio_fio</column><text txtype="func"> ) like lower( </text><const><text>:last_pio_fio_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="pr_priv" as="pr_priv" title="Скопирована из модуля &quot;Претензии&quot;" thissrc="pr_priv">a.pr_priv</column><text txtype="func"> ) like lower( </text><const><text>:pr_priv_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_active" as="is_active" title="Статус претензии" thissrc="is_active">a.is_active</column><text txtype="func"> ) like lower( </text><const><text>:is_active_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_do_new_val" as="dat_do_new_val" title="Дата претензии" thissrc="dat_do_new_val">a.dat_do_new_val</column><text txtype="func"> ) like lower( </text><const><text>:dat_do_new_val_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_otv_new_val" as="dat_otv_new_val" title="Дата претензии" thissrc="dat_otv_new_val">a.dat_otv_new_val</column><text txtype="func"> ) like lower( </text><const><text>:dat_otv_new_val_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" title="Претензия" class="1" timestamp="04.09.2023 15:44:29" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\ur_pretenz.xml" elid="3002" ord="3002" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query title="Претензия" class="1" timestamp="04.09.2023 15:44:29" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\ur_pretenz.xml" elid="3002" ord="3002" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_pretenz_filter" type="string" />
+                    <param name="num_reg_filter" type="string" />
+                    <param name="dat_do_filter" type="string" />
+                    <param name="dat_otv_filter" type="string" />
+                    <param name="reply_filter" type="string" />
+                    <param name="prim_filter" type="string" />
+                    <param name="dat_doc_filter" type="string" />
+                    <param name="dat_srok_filter" type="string" />
+                    <param name="proc_filter" type="string" />
+                    <param name="ogr_filter" type="string" />
+                    <param name="opl_proc_filter" type="string" />
+                    <param name="opl_ogr_filter" type="string" />
+                    <param name="dat_arh_filter" type="string" />
+                    <param name="num_sz_filter" type="string" />
+                    <param name="kod_emp_filter" type="string" />
+                    <param name="kod_emp_x_n_filter" type="string" />
+                    <param name="last_pio_fio_filter" type="string" />
+                    <param name="pr_priv_filter" type="string" />
+                    <param name="is_active_filter" type="string" />
+                    <param name="dat_do_new_val_filter" type="string" />
+                    <param name="dat_otv_new_val_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_pretenz" as="kod_pretenz" title="" key="1" />
+                    <column table="a" column="num_reg" as="num_reg" title="Номер претензии" />
+                    <column table="a" column="dat_do" as="dat_do" title="Оплатить до" />
+                    <column table="a" column="dat_otv" as="dat_otv" title="Дата получения ответа" />
+                    <column table="a" column="reply" as="reply" title="Содержание ответа" />
+                    <column table="a" column="prim" as="prim" title="Примечание" />
+                    <column table="a" column="dat_doc" as="dat_doc" title="Дата претензии" />
+                    <column table="a" column="dat_srok" as="dat_srok" title="Срок ответа" />
+                    <column table="a" column="proc" as="proc" title="Проценты за пользование чужими денежными средствами" />
+                    <column table="a" column="ogr" as="ogr" title="Расходы за введение ограничения режима энергопотребления" />
+                    <column table="a" column="opl_proc" as="opl_proc" title="Оплачено: проценты за пользование чужими денежными средствами" />
+                    <column table="a" column="opl_ogr" as="opl_ogr" title="Оплачено: расходы за введение ограничения режима энергопотребления" />
+                    <column table="a" column="dat_arh" as="dat_arh" title="Дата архивации" />
+                    <column table="a" column="num_sz" as="num_sz" title="№ с/з о пост. мат." />
+                    <column table="a" column="kod_emp" as="kod_emp" title="Исполнитель ПИО" />
+                    <column table="kod_emp" column="fio" as="kod_emp_x_n" title="Исполнитель ПИО" />
+                    <column table="a" column="last_pio_fio" as="last_pio_fio" title="ФИО" />
+                    <column table="a" column="pr_priv" as="pr_priv" title="Скопирована из модуля &quot;Претензии&quot;" />
+                    <column table="a" column="is_active" as="is_active" title="Статус претензии" />
+                    <column table="a" column="dat_do_new_val" as="dat_do_new_val" title="Дата претензии" />
+                    <column table="a" column="dat_otv_new_val" as="dat_otv_new_val" title="Дата претензии" />
+                  </select>
+                  <from>
+                    <query name="ur_pretenz" as="a" title="Претензия">
+                      <link name="kod_emp" as="kod_emp" table="kr_employee" child="ur_pretenz" field="kod_emp" parent="kr_employee" back="ur_pretenz" />
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_pretenz" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_pretenz" />
+                        <useparam name="kod_pretenz_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="num_reg" />
+                        <useparam name="num_reg_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_do" />
+                        <useparam name="dat_do_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_otv" />
+                        <useparam name="dat_otv_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="reply" />
+                        <useparam name="reply_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="prim" />
+                        <useparam name="prim_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_doc" />
+                        <useparam name="dat_doc_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_srok" />
+                        <useparam name="dat_srok_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="proc" />
+                        <useparam name="proc_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ogr" />
+                        <useparam name="ogr_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="opl_proc" />
+                        <useparam name="opl_proc_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="opl_ogr" />
+                        <useparam name="opl_ogr_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_arh" />
+                        <useparam name="dat_arh_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="num_sz" />
+                        <useparam name="num_sz_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_emp" />
+                        <useparam name="kod_emp_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_emp_x_n" />
+                        <useparam name="kod_emp_x_n_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="last_pio_fio" />
+                        <useparam name="last_pio_fio_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="pr_priv" />
+                        <useparam name="pr_priv_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_active" />
+                        <useparam name="is_active_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_do_new_val" />
+                        <useparam name="dat_do_new_val_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_otv_new_val" />
+                        <useparam name="dat_otv_new_val_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_pretenz_filter" />
+                    <useparam name="num_reg_filter" />
+                    <useparam name="dat_do_filter" />
+                    <useparam name="dat_otv_filter" />
+                    <useparam name="reply_filter" />
+                    <useparam name="prim_filter" />
+                    <useparam name="dat_doc_filter" />
+                    <useparam name="dat_srok_filter" />
+                    <useparam name="proc_filter" />
+                    <useparam name="ogr_filter" />
+                    <useparam name="opl_proc_filter" />
+                    <useparam name="opl_ogr_filter" />
+                    <useparam name="dat_arh_filter" />
+                    <useparam name="num_sz_filter" />
+                    <useparam name="kod_emp_filter" />
+                    <useparam name="kod_emp_x_n_filter" />
+                    <useparam name="last_pio_fio_filter" />
+                    <useparam name="pr_priv_filter" />
+                    <useparam name="is_active_filter" />
+                    <useparam name="dat_do_new_val_filter" />
+                    <useparam name="dat_otv_new_val_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_pretenz_filter" type="string">
+                  <const>:kod_pretenz_filter </const>
+                </param>
+                <param name="num_reg_filter" type="string">
+                  <const>:num_reg_filter </const>
+                </param>
+                <param name="dat_do_filter" type="string">
+                  <const>:dat_do_filter </const>
+                </param>
+                <param name="dat_otv_filter" type="string">
+                  <const>:dat_otv_filter </const>
+                </param>
+                <param name="reply_filter" type="string">
+                  <const>:reply_filter </const>
+                </param>
+                <param name="prim_filter" type="string">
+                  <const>:prim_filter </const>
+                </param>
+                <param name="dat_doc_filter" type="string">
+                  <const>:dat_doc_filter </const>
+                </param>
+                <param name="dat_srok_filter" type="string">
+                  <const>:dat_srok_filter </const>
+                </param>
+                <param name="proc_filter" type="string">
+                  <const>:proc_filter </const>
+                </param>
+                <param name="ogr_filter" type="string">
+                  <const>:ogr_filter </const>
+                </param>
+                <param name="opl_proc_filter" type="string">
+                  <const>:opl_proc_filter </const>
+                </param>
+                <param name="opl_ogr_filter" type="string">
+                  <const>:opl_ogr_filter </const>
+                </param>
+                <param name="dat_arh_filter" type="string">
+                  <const>:dat_arh_filter </const>
+                </param>
+                <param name="num_sz_filter" type="string">
+                  <const>:num_sz_filter </const>
+                </param>
+                <param name="kod_emp_filter" type="string">
+                  <const>:kod_emp_filter </const>
+                </param>
+                <param name="kod_emp_x_n_filter" type="string">
+                  <const>:kod_emp_x_n_filter </const>
+                </param>
+                <param name="last_pio_fio_filter" type="string">
+                  <const>:last_pio_fio_filter </const>
+                </param>
+                <param name="pr_priv_filter" type="string">
+                  <const>:pr_priv_filter </const>
+                </param>
+                <param name="is_active_filter" type="string">
+                  <const>:is_active_filter </const>
+                </param>
+                <param name="dat_do_new_val_filter" type="string">
+                  <const>:dat_do_new_val_filter </const>
+                </param>
+                <param name="dat_otv_new_val_filter" type="string">
+                  <const>:dat_otv_new_val_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+        </column>
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod as kod 
+,:kod_peni_period as kod_peni_period 
+,:kod_pretenz as kod_pretenz 
+ 
+from dual ) 
+ 
+loop 
+insert into ur_pretenz_peni_period 
+(ym 
+,kod_peni_period 
+,kod_pretenz 
+) 
+ values  
+(r.kod 
+,r.kod_peni_period 
+,r.kod_pretenz 
+) 
+ returning  
+kod_peni_period into :kod_peni_period; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from ur_pretenz_peni_period where kod_peni_period=:kod_peni_period</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='b' 
+and 
+names=:form_id 
+and 
+f2=:kod_peni_period; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod as kod 
+,:kod_peni_period as kod_peni_period 
+,:kod_pretenz as kod_pretenz 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+) 
+ values  
+('b' 
+,:form_id 
+,:kod_peni_period 
+,:row_state_id 
+,r.kod 
+,r.kod_peni_period 
+,r.kod_pretenz 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod as kod 
+,:kod_peni_period as kod_peni_period 
+,:kod_pretenz as kod_pretenz 
+,a.u_m 
+,a.d_m 
+ 
+from ur_pretenz_peni_period a  where kod_peni_period=:kod_peni_period) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+,s1 
+,d1 
+) 
+ values  
+('b' 
+,:form_id 
+,:kod_peni_period 
+,:row_state_id 
+,r.kod 
+,r.kod_peni_period 
+,r.kod_pretenz 
+,r.u_m 
+,r.d_m 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='b' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update ur_pretenz_peni_period set  
+(ym 
+,kod_peni_period 
+,kod_pretenz 
+) 
+= 
+ ( select  
+:kod as kod 
+,:kod_peni_period as kod_peni_period 
+,:kod_pretenz as kod_pretenz 
+ 
+from dual ) 
+ 
+where 
+kod_peni_period=:kod_peni_period 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="ur_pretenz_peni_period" as="b">
+          <columns>
+            <column name="kod" type="number" title="" visible="0" />
+            <column name="name" type="string" title="Период" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_peni_period" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_pretenz" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="kod" type="number" title="" visible="0" />
+            <column name="name" type="string" title="Период" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_peni_period" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_pretenz" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_peni_period_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_peni_period_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select b.ym as kod, /*number*/
+c.name as name, /*Период*//*string*/
+b.is_new as is_new, /*number*/
+b.is_not_new as is_not_new, /*number*/
+b.kod_peni_period as kod_peni_period, /*number*//*key*/
+b.kod_pretenz as kod_pretenz/*number*/
+
+from (
+--ur_pretenz_peni_period
+select a.kod_peni_period as kod_peni_period, /*number*//*key*/
+a.kod_pretenz as kod_pretenz, /*number*/
+a.ym as ym, /**//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_peni_period as kod_peni_period,a.kod_pretenz as kod_pretenz,a.ym as ym,0 as is_new,1 as is_not_new  from ur_pretenz_peni_period a where not exists (select * from rr_temp t where t.skod ='b' and t.names=:form_id  and a.kod_peni_period=t.f2 ) and   a.kod_peni_period in :kod_peni_period_prm   union all  select t.n2 as kod_peni_period,t.n3 as kod_pretenz,t.n1 as ym,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='b' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_peni_period_prm )
+a
+--\(select a.kod_peni_period as kod_peni_period,a.kod_pretenz as kod_pretenz,a.ym as ym,0 as is_new,1 as is_not_new  from ur_pretenz_peni_period a where not exists (select * from rr_temp t where t.skod ='b' and t.names=:form_id  and a.kod_peni_period=t.f2 ) and   a.kod_peni_period in :kod_peni_period_prm   union all  select t.n2 as kod_peni_period,t.n3 as kod_pretenz,t.n1 as ym,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='b' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_peni_period_prm )
+)
+b
+--\ur_pretenz_peni_period
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+c on b.ym = c.ym--\spr_time_ym
+
+order by name--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+    <table name="a" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="check1" multi-select-target="b" update-target="ym_list_vvod" key="ym" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select null as check1, /*number*/
+a.name as name, /*Период*//*string*/
+a.ym as ym/*number*//*key*/
+
+from (
+--ym_list_vvod
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+
+order by ym desc)
+a
+--\spr_time_ym
+where
+a.ym &lt;= ( to_number(to_char( ( sysdate )  ,'YYYYMM'))/100 ) 
+order by ym desc)
+a
+--\ym_list_vvod
+
+order by name desc--\
+</select-text>
+      <columns>
+        <column name="check1" table="a" type="number" title="Выбор" ColumnEditable="1" is-user-editable="1" is-updateable-ext="1" is-refreshed="1" update-target="check1" temp-col-name="n1" />
+        <column name="name" table="a" type="string" title="Период" ColumnEditable="0" is-refreshed="1" />
+        <column name="ym" table="a" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+ 
+from dual ) 
+ 
+loop 
+insert into ym_list_vvod 
+() 
+ values  
+() 
+ returning  
+ym into :ym; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from ym_list_vvod where ym=:ym</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:ym; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:check1 as check1 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+) 
+ values  
+('a' 
+,:form_id 
+,:ym 
+,:row_state_id 
+,r.check1 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:check1 as check1 
+ 
+from ym_list_vvod a  where ym=:ym) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+) 
+ values  
+('a' 
+,:form_id 
+,:ym 
+,:row_state_id 
+,r.check1 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update ym_list_vvod set  
+() 
+= 
+ ( select  
+ 
+from dual ) 
+ 
+where 
+ym=:ym 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="ym_list_vvod" as="a">
+          <columns>
+            <column name="check1" type="number" title="Выбор" />
+            <column name="name" type="string" title="Период" />
+            <column name="ym" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="check1" type="number" title="Выбор" />
+            <column name="name" type="string" title="Период" />
+            <column name="ym" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+    </table>
+  </dataset>
+</root>

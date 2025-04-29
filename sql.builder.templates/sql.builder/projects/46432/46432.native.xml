@@ -1,0 +1,907 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T03:13:43.3851686+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="mv_buh_sch_sub_sch_list" timestamp="03.09.2018 13:35:40" title="Список счетов и субсчетов" class="1" file="sql.builder.templates\sql.builder\projects\46432\report\buh_akts.xml">
+      <select>
+        <column table="a" column="id" type="number" key="1" />
+        <column table="a" column="sch_sub_sch" type="string" />
+      </select>
+      <from>
+        <table name="mv_buh_sch_sub_sch_list" as="a" />
+      </from>
+      <links>
+        <dlink name="mv_buh_sch_tot" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="46432-test1" timestamp="03.04.2018 17:30:14" is-report="1" visible="0" title="Обороты 08 интеграционная таблица" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <select>
+        <column table="a" column="num_ip" title="Титул" />
+        <column table="a" column="deb_sch" title="Деб сч." />
+        <column table="a" column="deb_sub_sch" title="Деб суб. сч." />
+        <column table="a" column="kr_sch" title="Кред сч." />
+        <column table="a" column="kr_sub_sch" title="Кред суб. сч." />
+        <column table="a" column="dat_doc" title="Дата" />
+        <column table="a" column="num_doc" title="№ документа" />
+        <column table="a" column="sum_akt" title="Сумма" />
+      </select>
+      <from>
+        <query name="buh_akts" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="gt">
+            <call function="year">
+              <column table="a" column="dat_doc" />
+            </call>
+            <const>2016</const>
+          </call>
+          <call function="or">
+            <call function="=">
+              <column table="this" column="deb_sch" />
+              <const>'08'</const>
+            </call>
+            <call function="=">
+              <column table="this" column="kr_sch" />
+              <const>'08'</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46432" timestamp="04.09.2018 18:48:33" is-report="1" title="Обороты счета 08 для ИПР" mode="tree" nogrid="1" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <params exclude="1">
+        <param name="dat_s" type="date">
+          <const>sysdate-300</const>
+        </param>
+        <param name="dat_po" type="date">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <content>
+        <fieldgroup title="Даты">
+          <usefield field="cmn_date" title="С даты" name="dat_s">
+            <defaultquery>
+              <query name="start_of_year" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_date" title="По дату" name="dat_po">
+            <defaultquery>
+              <query name="cur-date" />
+            </defaultquery>
+          </usefield>
+        </fieldgroup>
+        <field name="p_year" controlType="UICombo" title="Год" mandatory="1" type="number" exclude="1">
+          <listquery>
+            <query name="25499-year_list" />
+          </listquery>
+          <defaultquery>
+            <query name="25499-year_def" />
+          </defaultquery>
+        </field>
+        <field name="p_mon1" controlType="UICombo" title="С месяца" mandatory="1" type="number" exclude="1">
+          <listquery>
+            <query name="spr_time_mes" />
+          </listquery>
+        </field>
+        <field name="p_mon2" controlType="UICombo" title="По месяц" mandatory="1" type="number" exclude="1">
+          <listquery>
+            <query name="spr_time_mes" />
+          </listquery>
+          <defaultquery>
+            <query name="spr_time_mon_cur" />
+          </defaultquery>
+        </field>
+        <usefield field="cmn_string" name="p_per_info" column-visible="0">
+          <defaultquery>
+            <query name="46432-per-info" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <print-templates>
+        <excel>
+          <template name="46432.xlsx" title="Обороты счета 08 для ИПР" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <expressions>
+        <call function="+nvl" as="kap_sum" group="sum" exclude="1">
+          <fact column="ipr_kap_fact_sum_n" />
+          <fact column="ipr_kap_fact_sum_m83" />
+        </call>
+        <call function="()" as="kap_sum" group="sum">
+          <fact column="ipr_kap_fact_sum_n" />
+        </call>
+        <call as="smet_1s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>1</const>
+        </call>
+        <call function="()" as="kap_sum_1s" group="sum">
+          <fact column="kap_sum" condition="smet_1s" />
+        </call>
+        <call as="smet_2s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>2</const>
+        </call>
+        <call function="()" as="kap_sum_2s" group="sum">
+          <fact column="kap_sum" condition="smet_2s" />
+        </call>
+        <call as="smet_3s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>3</const>
+        </call>
+        <call function="()" as="kap_sum_3s" group="sum">
+          <fact column="kap_sum" condition="smet_3s" />
+        </call>
+        <call as="smet_4s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>4</const>
+        </call>
+        <call function="()" as="kap_sum_4s" group="sum">
+          <fact column="kap_sum" condition="smet_4s" />
+        </call>
+      </expressions>
+      <expressions>
+        <call as="zatr_1z" function="=" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="kodzatrat" />
+          <const>53</const>
+        </call>
+        <call function="()" as="kap_sum_1z" group="sum">
+          <fact column="kap_sum" condition="zatr_1z" />
+        </call>
+        <call as="zatr_2z" function="=" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="kodzatrat" />
+          <const>54</const>
+        </call>
+        <call function="()" as="kap_sum_2z" group="sum">
+          <fact column="kap_sum" condition="zatr_2z" />
+        </call>
+        <call as="zatr_3z" function="=" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="kodzatrat" />
+          <const>78</const>
+        </call>
+        <call function="()" as="kap_sum_3z" group="sum">
+          <fact column="kap_sum" condition="zatr_3z" />
+        </call>
+        <call as="zatr_4z" function="=" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="kodzatrat" />
+          <const>99</const>
+        </call>
+        <call function="()" as="kap_sum_4z" group="sum">
+          <fact column="kap_sum" condition="zatr_4z" />
+        </call>
+      </expressions>
+      <expressions>
+        <call function="()" group="sum" as="ob_deb">
+          <fact column="t46432_buh_akts_deb_sum_akt" />
+        </call>
+        <call function="()" group="sum" as="ob_kr">
+          <fact column="t46432_buh_akts_kred_sum_akt" />
+        </call>
+        <call function="-nvl" group="sum" as="sld_pre">
+          <fact column="ob_deb" />
+          <fact column="ob_kr" />
+        </call>
+        <call group="sum" as="sld" title="Оборот + Сальдо" function="+nvl">
+          <fact column="sld_pre" />
+          <fact column="buh_saldo_saldo" />
+        </call>
+      </expressions>
+      <select>
+        <column table="ipr_kod_titul_ip" column="kod_titul_ip" as="kod_titul_ip" />
+        <column table="ipr_kod_titul_ip" column="tit_num_new" />
+        <column table="ipr_kod_titul_ip" column="name" as="tit_name" />
+        <column table="kod_subject" column="abbr" as="subj" />
+        <column table="kod_ispolnit" column="name_kr" as="podr" />
+        <column table="ipr_sub_sch" column="val" as="sub_sch" />
+        <column table="d_46432_num_ip" column="val" as="num_ip" group="max" />
+        <column table="d_46432_vid_rab" column="val" as="vid_rab" group="max" />
+        <column table="d_46432_direct_org" column="val" as="direct_org" group="max" />
+        <column table="d_46432_subject" column="val" as="subject" group="max" />
+        <fact column="kap_sum_1s" table="os" group="sum" />
+        <fact column="kap_sum_2s" table="os" group="sum" />
+        <fact column="kap_sum_3s" table="os" group="sum" />
+        <fact column="kap_sum_4s" table="os" group="sum" />
+        <fact column="kap_sum_1z" table="os" group="sum" />
+        <fact column="kap_sum_2z" table="os" group="sum" />
+        <fact column="kap_sum_3z" table="os" group="sum" />
+        <fact column="kap_sum_4z" table="os" group="sum" />
+        <column table="d_46432_ref_sch_deb" column="id" as="ref_sch_deb_id" />
+        <column table="d_46432_ref_sch_deb" column="sch_sub_sch" as="ref_sch_deb" />
+        <fact column="t46432_buh_akts_deb_sum_akt" table="deb" group="sum" as="deb_sum" title="Деб" />
+        <fact column="t46432_buh_akts_kred_sum_akt" table="deb" group="sum" as="kred_sum" title="Кред" />
+        <fact group="sum" table="sld_beg" column="sld" as="sld_beg" />
+        <fact group="sum" table="sld_end" column="sld" as="sld_end" />
+      </select>
+      <from>
+        <qube>
+          <link name="ipr_sub_sch" />
+          <link name="ipr_kod_titul_ip">
+            <link name="kod_subject" />
+            <link name="kod_ispolnit" />
+          </link>
+          <link name="d_46432_num_ip" />
+          <dimset as="main">
+            <link name="ipr_dat" only-for-cond="1" />
+            <where>
+              <call function="between">
+                <column table="ipr_dat" column="val" />
+                <useparam name="dat_s" />
+                <useparam name="dat_po" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="deb">
+            <link name="ipr_dat" only-for-cond="1" />
+            <link name="d_46432_ref_sch_deb" />
+            <link name="d_46432_vid_rab" />
+            <link name="d_46432_direct_org" />
+            <link name="d_46432_subject" />
+            <where>
+              <call function="between">
+                <column table="ipr_dat" column="val" />
+                <useparam name="dat_s" />
+                <useparam name="dat_po" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="os">
+            <link name="ipr_dat" only-for-cond="1" />
+            <where>
+              <call function="and">
+                <call function="like">
+                  <column table="ipr_sub_sch" column="val" />
+                  <const>'08.%'</const>
+                </call>
+                <call function="between">
+                  <column table="ipr_dat" column="val" />
+                  <useparam name="dat_s" />
+                  <useparam name="dat_po" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="sld_beg">
+            <link name="ipr_dat" only-for-cond="1" />
+            <where>
+              <call function="lt">
+                <column table="ipr_dat" column="val" />
+                <useparam name="dat_s" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="sld_end">
+            <link name="ipr_dat" only-for-cond="1" />
+            <where>
+              <call function="lt">
+                <column table="ipr_dat" column="val" />
+                <useparam name="dat_po" />
+              </call>
+            </where>
+          </dimset>
+        </qube>
+      </from>
+      <grouping materialize-type="temp-table">
+        <on-rows>
+          <grset as="itog" order="sub_sch">
+            <grset as="sch" order="subj, podr, tit_num_new, sub_sch">
+              <group>
+                <column table="this" column="sub_sch" />
+                <sourcelink table="ipr_kod_titul_ip" />
+              </group>
+            </grset>
+          </grset>
+        </on-rows>
+        <on-columns>
+          <grset as="ref_deb" order="ref_sch_deb">
+            <facts>
+              <column column="deb_sum" table="this" />
+            </facts>
+            <group>
+              <sourcelink table="d_46432_ref_sch_deb" />
+            </group>
+            <where>
+              <call function="!=0">
+                <column table="this" column="deb_sum" />
+              </call>
+            </where>
+          </grset>
+          <grset as="ref_kred" order="ref_sch_deb">
+            <facts>
+              <column column="kred_sum" table="this" />
+            </facts>
+            <group>
+              <sourcelink table="d_46432_ref_sch_deb" />
+            </group>
+            <where>
+              <call function="!=0">
+                <column table="this" column="kred_sum" />
+              </call>
+            </where>
+          </grset>
+        </on-columns>
+      </grouping>
+    </query>
+    <query name="46432-test2" timestamp="04.04.2018 23:46:21" is-report="1" visible="0" title="Обороты 08 интеграционная таблица (test2)" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <params>
+        <param name="p_year" type="number">
+          <const>2018</const>
+        </param>
+        <param name="p_mon1" type="number">
+          <const>1</const>
+        </param>
+        <param name="p_mon2" type="number">
+          <const>1</const>
+        </param>
+        <param name="p_kod_doc_osn" type="number">
+          <const>143403</const>
+        </param>
+      </params>
+      <expressions>
+        <call function="+nvl" as="kap_sum" group="sum" exclude="1">
+          <fact column="ipr_kap_fact_sum_n" />
+          <fact column="ipr_kap_fact_sum_m83" />
+        </call>
+        <call function="()" as="kap_sum" group="sum">
+          <fact column="ipr_kap_fact_sum_n" />
+        </call>
+        <call as="smet_1s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>1</const>
+        </call>
+        <call function="()" as="kap_sum_1s" group="sum">
+          <fact column="kap_sum" condition="smet_1s" />
+        </call>
+        <call as="smet_2s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>2</const>
+        </call>
+        <call function="()" as="kap_sum_2s" group="sum">
+          <fact column="kap_sum" condition="smet_2s" />
+        </call>
+        <call as="smet_3s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>3</const>
+        </call>
+        <call function="()" as="kap_sum_3s" group="sum">
+          <fact column="kap_sum" condition="smet_3s" />
+        </call>
+        <call as="smet_4s" function="=" dontpushpred="1">
+          <column table="ipr_kod_smet" column="kod_smet" />
+          <const>4</const>
+        </call>
+        <call function="()" as="kap_sum_4s" group="sum">
+          <fact column="kap_sum" condition="smet_4s" />
+        </call>
+      </expressions>
+      <select>
+        <column table="ipr_kod_titul_ip" column="kod_titul_ip" as="kod_titul_ip" />
+        <column table="ipr_kod_titul_ip" column="tit_num_new" />
+        <column table="ipr_kod_titul_ip" column="name" as="tit_name" />
+        <column table="kod_subject" column="abbr" as="subj" />
+        <column table="kod_ispolnit" column="name_kr" as="podr" />
+        <column table="ipr_sub_sch" column="val" as="sub_sch" />
+        <fact column="kap_sum" />
+        <fact column="kap_sum_4s" />
+      </select>
+      <from>
+        <qube>
+          <link name="ipr_ym" only-for-cond="1" />
+          <link name="ipr_sub_sch" />
+          <link name="ipr_kod_titul_ip">
+            <link name="kod_subject" />
+            <link name="kod_ispolnit" />
+          </link>
+          <where>
+            <call function="ge">
+              <column table="ipr_ym" column="val" />
+              <call function="num to ym2">
+                <useparam name="p_year" />
+                <useparam name="p_mon1" />
+              </call>
+            </call>
+            <call function="le">
+              <column table="ipr_ym" column="val" />
+              <call function="num to ym2">
+                <useparam name="p_year" />
+                <useparam name="p_mon2" />
+              </call>
+            </call>
+            <call function="like">
+              <column table="ipr_sub_sch" column="val" />
+              <const>'08.%'</const>
+            </call>
+            <call function="=">
+              <column table="ipr_kod_titul_ip" column="tit_num_new" />
+              <const>'10110268000'</const>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="46432-per-info" timestamp="04.04.2018 23:21:41" title="Обороты 08 интеграционная таблица" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <params>
+        <param name="p_year" type="number">
+          <const>2018</const>
+        </param>
+        <param name="p_mon1" type="number">
+          <const>1</const>
+        </param>
+        <param name="p_mon2" type="number">
+          <const>1</const>
+        </param>
+      </params>
+      <select>
+        <call as="val" function="||">
+          <useparam name="p_year" />
+          <const>' '</const>
+          <call function="lower">
+            <call function="mes-name">
+              <useparam name="p_mon1" />
+            </call>
+          </call>
+          <call function="if">
+            <call function="!=">
+              <useparam name="p_mon1" />
+              <useparam name="p_mon2" />
+            </call>
+            <call function="||">
+              <const>'-'</const>
+              <call function="lower">
+                <call function="mes-name">
+                  <useparam name="p_mon2" />
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="46432-data-test" timestamp="28.08.2018 11:17:49" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <select>
+        <column table="d_46432_ref_sch_deb" column="id" />
+        <column table="d_46432_ref_sch_deb" column="sub_sch" />
+        <fact column="t46432_buh_akts_deb_sum_akt" />
+      </select>
+      <from>
+        <qube>
+          <link name="d_46432_ref_sch_deb" />
+        </qube>
+      </from>
+    </query>
+    <query name="mv_buh_sub_sch" timestamp="03.09.2018 13:35:40" class="1" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <select>
+        <column table="a" type="number" column="id" exclude="1" />
+        <column table="a" column="sub_sch" title="Субсчет" type="string" key="1" />
+        <column table="a" column="sch" type="string" title="Счет" />
+      </select>
+      <from>
+        <table name="mv_buh_sub_sch" as="a" />
+      </from>
+      <links>
+        <dlink name="mv_buh_sch_tot" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="mv_buh_sch_tot" timestamp="03.09.2018 13:35:40" class="1" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <select>
+        <column column="id" key="1" table="a" type="string" />
+        <column table="a" column="sch" type="string" title="Счет и субсчет" />
+        <column table="a" column="sub_sch" title="Субсчет" type="string" />
+        <column table="sch_pre" column="id" as="sch_id" />
+      </select>
+      <from>
+        <table name="mv_buh_sch_tot" as="a" />
+        <query name="mv_buh_sch_sub_sch_list" join="left outer" as="sch_pre">
+          <call function="=">
+            <column table="a" column="sch" />
+            <column table="sch_pre" column="sch_sub_sch" />
+          </call>
+        </query>
+        <query name="mv_buh_sch_sub_sch_list" join="left outer" as="sch_id" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="this" column="sch_id" />
+            <column table="sch_id" column="id" />
+          </call>
+        </query>
+        <query name="mv_buh_sub_sch" join="left outer" as="sub_sch_pre" exclude="1">
+          <call function="=">
+            <column table="a" column="sub_sch" />
+            <column table="sub_sch_pre" column="sub_sch" />
+          </call>
+        </query>
+        <query name="mv_buh_sub_sch" join="left outer" as="sub_sch">
+          <call function="=">
+            <column table="this" column="sub_sch" />
+            <column table="sub_sch" column="sub_sch" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="buh_saldo" timestamp="04.09.2018 18:04:39" is-report="1" title="Начальное сальдо" mode="default" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <select>
+        <call as="id" function="||-" type="string">
+          <column table="a" column="dat" />
+          <column table="a" column="num_tit" />
+          <column table="a" column="sub_sch_08" />
+        </call>
+        <column table="a" column="dat" type="date" title="Дата" is-private-dimension="ipr_dat" is-final-dimension="ipr_dat" dimension="ipr_dat" />
+        <column table="a" column="num_tit" type="string" title="№ Титула" is-private-dimension="d_46432_num_ip" is-final-dimension="d_46432_num_ip" dimension="d_46432_num_ip" />
+        <column table="a" column="sub_sch_08" type="string" title="Номер субсчета 08 счета" is-private-dimension="ipr_sub_sch" is-final-dimension="ipr_sub_sch" dimension="ipr_sub_sch" />
+        <column table="a" column="saldo" type="number" title="Сальдо" is-fact="1" agg="sum" />
+        <column table="kod_titul_ip" column="kod_titul_ip" is-private-dimension="ipr_kod_titul_ip" is-final-dimension="ipr_kod_titul_ip" dimension="ipr_kod_titul_ip" />
+      </select>
+      <from>
+        <table name="buh_saldo" as="a" />
+        <query name="ipr_titul_ip" as="kod_titul_ip" join="left outer">
+          <call function="=">
+            <column table="a" column="num_tit" />
+            <column table="kod_titul_ip" column="tit_num_new" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="mv_buh_sch_sub_sch_list" timestamp="04.09.2018 12:31:06" title="Список счетов и субсчетов" class="1" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <select>
+        <column table="a" column="id" type="number" key="1" />
+        <column table="a" column="sch_sub_sch" type="string" />
+      </select>
+      <from>
+        <table name="mv_buh_sch_sub_sch_list" as="a" />
+      </from>
+      <links exclude="1">
+        <dlink name="mv_buh_sch_tot" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="t46432_buh_akts" timestamp="03.09.2018 15:46:27" class="1" file="sql.builder.templates\sql.builder\projects\46432\scheme\extension\buh_akts.xml">
+      <select>
+        <column table="a" column="kod" />
+        <column table="a" column="kod_titul_ip" />
+        <column table="a" column="num_ip" title="Титул" />
+        <column table="a" column="num_ip_out" title="Титул, с которого перенесли в другой титул" />
+        <column table="a" column="deb_sch" title="Деб сч." />
+        <column table="a" column="deb_sub_sch" title="Деб суб. сч." />
+        <column table="a" column="kr_sch" title="Кред сч." />
+        <column table="a" column="kr_sub_sch" title="Кред суб. сч." />
+        <column table="a" column="dat_doc" title="Дата" />
+        <column table="a" column="num_doc" title="№ документа" exclude="1" />
+        <column table="a" column="sum_akt" title="Сумма" />
+        <column table="a" column="ym" title="Сумма" />
+        <column table="a" column="num_ip_nvl" title="Титул" />
+        <column table="a" column="vid_rab" />
+        <call function="over" type="date" title=" " as="max_dat_vid_rab" exclude="1">
+          <call function="max">
+            <call function="if">
+              <call function="is not null">
+                <column table="a" column="vid_rab" />
+              </call>
+              <column table="a" column="dat_doc" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+        </call>
+        <call function="over" type="string" title=" Наименование из 1С" as="last_vid_rab" exclude="1">
+          <call function="max">
+            <call function="if">
+              <call function="=">
+                <column table="a" column="dat_doc" />
+                <column table="this" column="max_dat_vid_rab" />
+              </call>
+              <column table="a" column="vid_rab" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+        </call>
+        <call function="over" type="string" title=" Наименование из 1С" as="last_vid_rab">
+          <call function="first_value">
+            <column table="a" column="vid_rab" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+          <call function="order by rows * *">
+            <call function="desc">
+              <call function="if">
+                <call function="is null">
+                  <column table="a" column="vid_rab" />
+                </call>
+                <const>0</const>
+                <const>1</const>
+              </call>
+            </call>
+            <call function="desc">
+              <column table="a" column="dat_doc" />
+            </call>
+          </call>
+        </call>
+        <column table="a" column="name_direct_org" />
+        <call function="over" type="date" title=" " as="max_dat_direct_org" exclude="1">
+          <call function="max">
+            <call function="if">
+              <call function="is not null">
+                <column table="a" column="name_direct_org" />
+              </call>
+              <column table="a" column="dat_doc" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+        </call>
+        <call function="over" type="string" title=" Организация (балансодержатель)" as="last_direct_org" exclude="1">
+          <call function="max">
+            <call function="if">
+              <call function="=">
+                <column table="a" column="dat_doc" />
+                <column table="this" column="max_dat_direct_org" />
+              </call>
+              <column table="a" column="name_direct_org" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+        </call>
+        <call function="over" type="string" title=" Наименование из 1С" as="last_direct_org">
+          <call function="first_value">
+            <column table="a" column="name_direct_org" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+          <call function="order by rows * *">
+            <call function="desc">
+              <call function="if">
+                <call function="is null">
+                  <column table="a" column="name_direct_org" />
+                </call>
+                <const>0</const>
+                <const>1</const>
+              </call>
+            </call>
+            <call function="desc">
+              <column table="a" column="dat_doc" />
+            </call>
+          </call>
+        </call>
+        <column table="a" column="name_subject_federation" />
+        <call function="over" type="date" title=" " as="max_dat_subject" exclude="1">
+          <call function="max">
+            <call function="if">
+              <call function="is not null">
+                <column table="a" column="name_subject_federation" />
+              </call>
+              <column table="a" column="dat_doc" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+        </call>
+        <call function="over" type="string" title=" Субъект РФ" as="last_subject" exclude="1">
+          <call function="max">
+            <call function="if">
+              <call function="=">
+                <column table="a" column="dat_doc" />
+                <column table="this" column="max_dat_subject" />
+              </call>
+              <column table="a" column="name_subject_federation" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+        </call>
+        <call function="over" type="string" title=" Наименование из 1С" as="last_subject">
+          <call function="first_value">
+            <column table="a" column="name_subject_federation" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="num_ip_nvl" />
+          </call>
+          <call function="order by rows * *">
+            <call function="desc">
+              <call function="if">
+                <call function="is null">
+                  <column table="a" column="name_subject_federation" />
+                </call>
+                <const>0</const>
+                <const>1</const>
+              </call>
+            </call>
+            <call function="desc">
+              <column table="a" column="dat_doc" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="buh_akts" as="a" />
+        <query name="ipr_titul_ip" as="kod_titul_ip" join="left outer" exclude="1">
+          <call function="=">
+            <column table="a" column="kod_titul_ip" />
+            <column table="kod_titul_ip" column="kod_titul_ip" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="gt">
+            <call function="year">
+              <column table="a" column="dat_doc" />
+            </call>
+            <const>2017</const>
+          </call>
+          <call function="or">
+            <call function="=">
+              <column table="this" column="deb_sch" />
+              <const>'08'</const>
+            </call>
+            <call function="=">
+              <column table="this" column="kr_sch" />
+              <const>'08'</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="t46432_buh_akts_deb" timestamp="03.09.2018 12:40:47" class="1" file="sql.builder.templates\sql.builder\projects\46432\scheme\extension\buh_akts.xml">
+      <select>
+        <column table="a" column="kod" />
+        <column table="a" column="kod_titul_ip" is-private-dimension="ipr_kod_titul_ip" dimension="ipr_kod_titul_ip" />
+        <column table="a" column="deb_sub_sch" title="Деб суб. сч." is-private-dimension="ipr_sub_sch" is-final-dimension="ipr_sub_sch" dimension="ipr_sub_sch" />
+        <column table="a" column="kr_sub_sch" title="Кред суб. сч." />
+        <column table="a" column="ym" title="Дата" is-private-dimension="ipr_ym" is-final-dimension="ipr_ym" dimension="ipr_ym" exclude="1" />
+        <column table="a" column="dat_doc" is-final-dimension="ipr_dat" is-private-dimension="ipr_dat" dimension="ipr_dat" />
+        <column table="a" column="sum_akt" title="Сумма" is-fact="1" agg="sum" />
+        <column table="a" column="num_ip_nvl" is-private-dimension="d_46432_num_ip" is-final-dimension="d_46432_num_ip" dimension="d_46432_num_ip" />
+        <column table="a" column="last_vid_rab" is-private-dimension="d_46432_vid_rab" is-final-dimension="d_46432_vid_rab" dimension="d_46432_vid_rab" />
+        <column table="a" column="last_direct_org" is-private-dimension="d_46432_direct_org" is-final-dimension="d_46432_direct_org" dimension="d_46432_direct_org" />
+        <column table="a" column="last_subject" is-private-dimension="d_46432_subject" is-final-dimension="d_46432_subject" dimension="d_46432_subject" />
+      </select>
+      <from>
+        <query name="t46432_buh_akts" as="a" />
+        <query name="mv_buh_sch_sub_sch_list" join="left outer" as="sub_sch" exclude="1">
+          <call function="=">
+            <column table="a" column="kr_sub_sch" />
+            <column table="sub_sch" column="sch_sub_sch" />
+          </call>
+        </query>
+        <query name="mv_buh_sub_sch" join="left outer" as="sub_sch">
+          <call function="=">
+            <column table="a" column="kr_sub_sch" />
+            <column table="sub_sch" column="sub_sch" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="deb_sch" />
+            <const>'08'</const>
+          </call>
+        </call>
+      </where>
+      <links>
+        <link name="sub_sch" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+      </links>
+      <links exclude="1">
+        <link name="sub_sch" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" exclude="1" />
+          <dlink name="mv_buh_sch_tot" is-private-dimension="1" is-final-dimension="1" dimension="1">
+            <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          </dlink>
+        </link>
+      </links>
+    </query>
+    <query name="t46432_buh_akts_kred" timestamp="03.09.2018 12:40:56" class="1" file="sql.builder.templates\sql.builder\projects\46432\scheme\extension\buh_akts.xml">
+      <select>
+        <column table="a" column="kod" />
+        <column table="a" column="kod_titul_ip" is-private-dimension="ipr_kod_titul_ip" dimension="ipr_kod_titul_ip" />
+        <column table="a" column="kr_sub_sch" is-private-dimension="ipr_sub_sch" is-final-dimension="ipr_sub_sch" dimension="ipr_sub_sch" />
+        <column table="a" column="deb_sub_sch" title="Кред суб. сч." is-private-dimension="d_46432_ref_sch_kred" is-final-dimension="d_46432_ref_sch_kred" dimension="d_46432_ref_sch_kred" exclude="1" />
+        <column table="a" column="deb_sub_sch" />
+        <column table="a" column="ym" title="Дата" is-private-dimension="ipr_ym" is-final-dimension="ipr_ym" dimension="ipr_ym" exclude="1" />
+        <column table="a" column="dat_doc" is-final-dimension="ipr_dat" is-private-dimension="ipr_dat" dimension="ipr_dat" />
+        <column table="a" column="sum_akt" title="Сумма" is-fact="1" agg="sum" />
+        <column table="a" column="num_ip_nvl" is-private-dimension="d_46432_num_ip" is-final-dimension="d_46432_num_ip" dimension="d_46432_num_ip" />
+        <column table="a" column="last_vid_rab" is-private-dimension="d_46432_vid_rab" is-final-dimension="d_46432_vid_rab" dimension="d_46432_vid_rab" />
+        <column table="a" column="last_direct_org" is-private-dimension="d_46432_direct_org" is-final-dimension="d_46432_direct_org" dimension="d_46432_direct_org" />
+        <column table="a" column="last_subject" is-private-dimension="d_46432_subject" is-final-dimension="d_46432_subject" dimension="d_46432_subject" />
+      </select>
+      <from>
+        <query name="t46432_buh_akts" as="a" />
+        <query name="mv_buh_sch_sub_sch_list" join="left outer" as="sub_sch" exclude="1">
+          <call function="=">
+            <column table="a" column="kr_sub_sch" />
+            <column table="sub_sch" column="sch_sub_sch" />
+          </call>
+        </query>
+        <query name="mv_buh_sub_sch" join="left outer" as="sub_sch">
+          <call function="=">
+            <column table="a" column="deb_sub_sch" />
+            <column table="sub_sch" column="sub_sch" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kr_sch" />
+            <const>'08'</const>
+          </call>
+        </call>
+      </where>
+      <links>
+        <link name="sub_sch" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dlink name="mv_buh_sch_tot" is-private-dimension="1" is-final-dimension="1" dimension="1" exclude="1">
+            <dimlink name="d_46432_ref_sch_deb" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          </dlink>
+        </link>
+      </links>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name" />
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name">
+    <dimension-package name="46432" timestamp="04.09.2018 18:04:39" file="sql.builder.templates\sql.builder\projects\46432\report\report.xml">
+      <dimension name="d_46432_ref_sch_deb" class-type="mv_buh_sub_sch" exclude="1" />
+      <dimension name="d_46432_ref_sch_deb" class-type="mv_buh_sch_sub_sch_list" />
+      <dimension name="d_46432_ref_sch_kred" time-type="string" exclude="1" />
+      <dimension name="d_46432_sub_sch" class-type="mv_buh_sub_sch" />
+      <dimension name="d_46432_sch_tot" class-type="mv_buh_sch_tot" />
+      <dimension name="t46432_buh_akts_deb" class-type="t46432_buh_akts_deb" />
+      <dimension name="t46432_buh_akts_kred" class-type="t46432_buh_akts_kred" />
+      <dimension name="d_46432_vid_rab" time-type="string" />
+      <dimension name="d_46432_direct_org" time-type="string" />
+      <dimension name="d_46432_subject" time-type="string" />
+      <dimension name="buh_saldo" class-type="buh_saldo" />
+    </dimension-package>
+  </dimension-packages>
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

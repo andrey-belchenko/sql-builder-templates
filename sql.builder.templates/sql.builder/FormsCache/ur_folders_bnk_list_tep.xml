@@ -1,0 +1,3129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="ur_folders_bnk_list_tep" title="Банкротство" security-id="asuse_ur_pir" with-behavior="0" timestamp="28.12.2023 14:47:37" file="sql.builder.templates\sql.builder\projects\asuse2\reports\arbitrage\bnk.xml" elid="222" ord="222" leaf="0" lvl="2" pelid="">
+    <fieldgroup title="Условия поиска" id="59440712">
+      <field id="26472347" name="kod_abon_type" controlType="UIList" title="Тип абонента" type="number" elid="559" ord="559" leaf="0" lvl="2" pelid="" column-editable="0">
+        <listquery>
+          <query name="kr_payer_abon_type" />
+        </listquery>
+        <defaultquery>
+          <query name="abon_type_current" />
+        </defaultquery>
+      </field>
+      <field id="60857122" name="dep" controlType="UIList" title="Отделение" type="number" elid="542" ord="542" leaf="0" lvl="2" pelid="" column-editable="kr_dep_is_multi">
+        <listquery>
+          <query name="kr_dep" />
+        </listquery>
+        <defaultquery>
+          <query name="kr_dep_current" />
+        </defaultquery>
+      </field>
+      <field id="4202026" name="prizn_arch_folder" controlType="UIList" title="Статус папки" type="number" elid="520" ord="520" leaf="0" lvl="2" pelid="">
+        <listquery>
+          <query name="prizn_arch_folder" />
+        </listquery>
+        <defaultquery>
+          <query name="prizn_arch_folder_act" />
+        </defaultquery>
+      </field>
+      <field id="21380802" controlType="UIText" type="string" elid="389" ord="389" leaf="1" lvl="2" pelid="" name="kodp" title="Код абонента" hint="LIKE" />
+    </fieldgroup>
+    <grid table="a" show-toolbar="1" fill-height="1" id="63045522">
+      <toolbar id="16410651">
+        <uicommand object="a" name="create_form_bnk_main" button-type="custom-add-form" title="Создать карточку" icon="AddForm_24" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="376" ord="376" leaf="1" lvl="2" pelid="" id="63350026" />
+        <uicommand button-type="grid-copy" column-visible="0" name="grid-copy" control-name="ButtonCoppyRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="364" ord="364" leaf="1" lvl="2" pelid="" title="" id="2108220" />
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="44626809" />
+      </toolbar>
+      <columns id="19627897">
+        <field table="a" name="sname" title="Отделение" controlType="UIText" rows-limit="100" id="64458139" />
+        <field table="a" name="kod_emp" title="Юрист" controlType="UICombo" rows-limit="100" id="3200144" />
+        <field table="a" name="nump" title="Код абонента" controlType="UIText" rows-limit="100" id="63728262" />
+        <field table="a" name="name" title="Наименование абонента" width="227" controlType="UIText" rows-limit="100" id="33348153" />
+        <field table="a" name="dolg" title="Текущая задолженность" width="99" controlType="UIText" edit-mask="N2" rows-limit="100" id="58098297" />
+        <field table="a" name="dat_create" title="Дата создания папки" controlType="UIDate" rows-limit="100" id="42892581" />
+        <field table="a" name="dat_finish" title="Дата сброса папки в архив" width="92" controlType="UIDate" rows-limit="100" id="24850686" />
+        <field table="a" name="is_active" title="Статус папки" controlType="UICombo" rows-limit="100" id="12358458" />
+      </columns>
+      <menu id="38387304">
+        <uicommand object="a" name="form_ur_folders_bnk_main" title="Открыть карточку" id="33645618" />
+      </menu>
+      <events id="53103942">
+        <useaction object="a" name="form_ur_folders_bnk_main" event-name="double-click" id="21261240" />
+      </events>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="number" name="kod_abon_type" parname="kod_abon_type" title="Тип абонента" ColumnEditable="0" />
+      <field type="number" name="dep" parname="dep" title="Отделение" ColumnEditable="kr_dep_is_multi" />
+      <field type="number" name="prizn_arch_folder" parname="prizn_arch_folder" title="Статус папки" />
+      <field type="string" name="kodp" parname="kodp" title="Код абонента" />
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="ur_folders" column-editable="0" delete-validation="ur_folders_del_vld" key="kod_folders" is-ms-upd="1" is-top="1" key-dimension="kod_folders">
+      <select-text>
+--
+select kod_podr.sname as sname, /*Отделение*//*string*/
+a.kod_emp as kod_emp, /*number*/
+kodp.nump as nump, /*Код абонента*//*string*/
+kodp.name as name, /*Наименование абонента*//*string*/
+qube.cube_ur_folders_payer_ob1 as dolg, /*Текущая задолженность*//*number*/
+a.dat_create as dat_create, /*Дата создания папки*//*date*/
+a.dat_finish as dat_finish, /*Дата сброса папки в архив*//*date*/
+a.is_active as is_active, /*Статус папки*//*number*/
+kod_emp_x_n.fio as kod_emp_x_n, /*Юрист*//*string*/
+is_active_x_n.name_prizn_arch_folder as is_active_x_n, /*Статус папки*//*string*/
+a.kod_podr as kod_podr, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.is_new as is_new, /*number*/
+qube.ur_folders_del_vld1 as ur_folders_del_vld, /*Валидация удаления папки*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+sum(qube.cube_ur_folders_payer_ob1)  as cube_ur_folders_payer_ob1, /*Текущая задолженность*//*number*/
+max( case  when ( nvl( (nullif( nvl( qube.ur_pretenz_count_old1 ,0)  +nvl( qube.ur_pret_count1 ,0) ,0) )  ,0)!=0 )  then 'Есть претензии' when ( nvl( qube.ur_mat_count1 ,0)!=0 )  then 'Есть материалы переданные в суд' end )  as ur_folders_del_vld1/*Валидация удаления папки*//*string*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.cube_ur_folders_payer_ob1 as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+qube.ur_mat_count1 as ur_mat_count1, /*number*/
+qube.ur_pret_count1 as ur_pret_count1, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.cube_ur_folders_payer_ob1 as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+qube.ur_mat_count1 as ur_mat_count1, /*number*/
+qube.ur_pret_count1 as ur_pret_count1, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+--
+select un.kod_folders as kod_folders, /*number*//*key*/
+sum(un.cube_ur_folders_payer_ob1)  as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+sum(un.ur_mat_count1)  as ur_mat_count1, /*number*/
+sum(un.ur_pret_count1)  as ur_pret_count1, /*number*/
+sum(un.ur_pretenz_count_old1)  as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select cube_ur_folders_a_d.kod_folders as kod_folders, /*number*//*key*/
+cube_ur_folders_a_d.fin_ul_ob_not_av as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--cube_ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+qube.fin_ul_ob_not_av1 as fin_ul_ob_not_av/*Оборот*//*number*/
+
+from (
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+sum( case  when (vid_real.vid_real not in (0) )  then ( nvl( qube.sr_facras_nachisl1 ,0)  -nvl( qube.sr_opl_opl_sf1 ,0) )  end )  as fin_ul_ob_not_av1/*Оборот*//*number*/
+
+from (
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+qube.vid_real as vid_real, /*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_opl_opl_sf1 as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+qube.vid_real as vid_real, /*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_opl_opl_sf1 as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+--
+select un.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+un.vid_real as vid_real, /*number*//*key*/
+sum(un.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Начислено*//*number*/
+sum(un.sr_opl_opl_sf1)  as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+(
+(
+--
+select dims.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+dims.vid_real as vid_real, /*number*/
+sr_facras.nachisl as sr_facras_nachisl1, /*Начислено*//*number*/
+null as sr_opl_opl_sf1/*number*/
+
+from (
+--
+select sr_facras_a_d.kod_ras as kod_ras_prm, /*number*//*key*/
+a.kod_folders as kod_folders_kodp, /*number*//*key*/
+kod_sf_a_d.vid_real as vid_real/*number*//*key*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf/*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf_a_d on sr_facras_a_d.kod_sf = kod_sf_a_d.kod_sf--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_a_d on kod_sf_a_d.kod_dog = kod_dog_a_d.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp/**//*number*//*key*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_a_d on kod_dog_a_d.kodp = kodp_a_d.kodp--\kr_payer
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kodp = kodp_a_d.kodp--\ur_folders_kodp
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  group by
+sr_facras_a_d.kod_ras, /*number*//*key*/
+a.kod_folders, /*number*//*key*/
+kod_sf_a_d.vid_real/*number*//*key*/
+)
+dims
+--\
+left outer join
+(
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.nachisl as nachisl/*Начислено*//*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras on sr_facras.kod_ras = dims.kod_ras_prm--\sr_facras
+)
+--\
+union all
+(
+--
+select dims.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+dims.vid_real as vid_real, /*number*/
+null as sr_facras_nachisl1, /*number*/
+sr_opl_sf.opl_sf as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+--
+select sr_opl_sf_a_d.kod_opl as kod_opl_prm, /*number*//*key*/
+a.kod_folders as kod_folders_kodp, /*number*//*key*/
+kod_sf_a_d.vid_real as vid_real/*number*//*key*/
+
+from (
+--sr_opl_sf
+select a.kod_opl as kod_opl, /*number*//*key*/
+a.kod_sf as kod_sf/*number*/
+
+from sr_opl
+a
+--\sr_opl
+where
+a.kod_type_opl in (0 , 2 , 3 , 4) )
+sr_opl_sf_a_d
+--\sr_opl_sf
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf_a_d on sr_opl_sf_a_d.kod_sf = kod_sf_a_d.kod_sf--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_a_d on kod_sf_a_d.kod_dog = kod_dog_a_d.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp/**//*number*//*key*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_a_d on kod_dog_a_d.kodp = kodp_a_d.kodp--\kr_payer
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kodp = kodp_a_d.kodp--\ur_folders_kodp
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  group by
+sr_opl_sf_a_d.kod_opl, /*number*//*key*/
+a.kod_folders, /*number*//*key*/
+kod_sf_a_d.vid_real/*number*//*key*/
+)
+dims
+--\
+left outer join
+(
+--sr_opl_sf
+select a.kod_opl as kod_opl, /*number*//*key*/
+ nvl( a.opl ,0)  +nvl( a.opls ,0)  as opl_sf/*Оплата начислений*//*number*/
+
+from sr_opl
+a
+--\sr_opl
+where
+a.kod_type_opl in (0 , 2 , 3 , 4) )
+sr_opl_sf on sr_opl_sf.kod_opl = dims.kod_opl_prm--\sr_opl_sf
+)
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders_kodp, /*number*//*key*/
+un.vid_real/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real/**//*number*//*key*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real on vid_real.vid_real = qube.vid_real--\sk_vid_real
+ group by
+qube.kod_folders_kodp/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kod_folders = qube.kod_folders_kodp--\ur_folders_kodp
+)
+cube_ur_folders_a_d
+--\cube_ur_folders
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on cube_ur_folders_a_d.kod_folders = a.kod_folders--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  and (a.kod_folders is not null ) )
+--\
+union all
+(
+--
+select a.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  and (a.kod_folders is not null ) )
+--\
+union all
+(
+--
+select ur_mat_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+ur_mat_a_d.cnt as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat_a_d
+--\ur_mat
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on ur_mat_a_d.kod_folders = a.kod_folders--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  and (a.kod_folders is not null ) )
+--\
+union all
+(
+--
+select ur_pret_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+null as ur_mat_count1, /*number*/
+ur_pret_a_d.cnt as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pret
+select a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_pret
+a
+--\ur_pret
+)
+ur_pret_a_d
+--\ur_pret
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on ur_pret_a_d.kod_folders = a.kod_folders--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  and (a.kod_folders is not null ) )
+--\
+union all
+(
+--
+select ur_pretenz_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+ur_pretenz_a_d.cnt as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_pretenz
+a
+--\ur_pretenz
+)
+ur_pretenz_a_d
+--\ur_pretenz
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_vi as kod_vi, /*number*/
+a.kod_sdp as kod_sdp, /*number*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on ur_pretenz_a_d.kod_folders = a.kod_folders--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+kod_dog.kod_abon_type as kod_abon_type
+
+from kr_payer
+a
+--\kr_payer
+left outer join
+(
+--
+select kod_dog.kodp as kodp, /*number*//*key*/
+max(kod_dog.kod_abon_type)  as kod_abon_type
+
+from (
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+ case  when (a.tep_el = 4)  then 1 else 2 end  as kod_abon_type
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog
+--\kr_dogovor
+ group by
+kod_dog.kodp/*number*//*key*/
+)
+kod_dog on kod_dog.kodp = a.kodp--\
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+where
+( 1=1 )  and (a.kod_sdp = 9)  and (a.kod_vi = 1)  {  and (a.is_active in :prizn_arch_folder )  }  {  and ( lower( kodp.nump ) like lower( :kodp  ) )  }  {  and (a.kod_podr in :dep )  }  {  and (kodp.kod_abon_type in :kod_abon_type )  }  and (a.kod_folders is not null ) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_folders/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_emp as kod_emp, /*number*/
+a.dat_create as dat_create, /*Дата создания папки*//*date*/
+a.dat_finish as dat_finish, /*Дата сброса папки в архив*//*date*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active, /*Статус папки*//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kod_folders = qube.kod_folders--\ur_folders
+left outer join
+(
+--prizn_arch_folder
+select a.kod as kod_prizn_arch_folder, /*number*//*key*/
+a.name as name_prizn_arch_folder/*Статус*//*string*/
+
+from (
+      select 1 as kod, 'Активный' as name from dual union all
+      select 0, 'Архив' from dual
+    )a
+--\prizn_arch_folder_view
+)
+is_active_x_n on a.is_active = is_active_x_n.kod_prizn_arch_folder--\prizn_arch_folder
+left outer join
+(
+--kr_employee
+select a.kod_emp as kod_emp, /*number*//*key*/
+a.fio as fio/*ФИО*//*string*/
+
+from kr_employee
+a
+--\kr_employee
+)
+kod_emp_x_n on a.kod_emp = kod_emp_x_n.kod_emp--\kr_employee
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.sname as sname/**//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+kod_podr on a.kod_podr = kod_podr.kodp--\kr_org
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+a.name as name/*Наименование абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+--\
+</select-text>
+      <columns>
+        <column name="sname" table="kod_podr" type="string" title="Отделение" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_podr.sname as sname, /*Отделение*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kod_podr as kod_podr/*number*/
+
+from (select a.kod_folders as kod_folders,a.kod_podr as kod_podr  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n11 as kod_podr  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kod_podr as kod_podr  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n11 as kod_podr  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.sname as sname/**//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+kod_podr on a.kod_podr = kod_podr.kodp--\kr_org
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_emp" table="a" type="number" title="Юрист" is-user-editable="1" ColumnMandatory="0" is-updateable="1" is-updateable-ext="1" update-target="kod_emp" temp-col-name="n3">
+          <sel-list-compiled>
+            <root>
+              <query order="fio" class="1" timestamp="13.02.2017 19:36:42" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_employee.xml" elid="2309" ord="2309" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="fio">fio</column>
+                </order>
+                <select>--a
+select <column table="a" column="kod_emp" key="1" as="kod_emp" used="1" type="number" sourcetable="./a/a/a" sourcecolumn="kod_emp" into="n1">a.kod_emp as kod_emp, /*number*//*key*/
+</column><column table="a" column="fio" as="fio" key="0" used="1" type="string" title="Юрист" sourcetable="./a/a/a" sourcecolumn="fio" into="s1">a.fio as fio/*Юрист*//*string*/
+</column></select>
+                <from>
+from <query name="kr_employee_urists" as="a" path="./a/a" order="fio" haskeys="1" used="1">(
+<order notext="1"><column column="fio">fio</column></order><select>--kr_employee_urists
+select <column table="a" column="kod_emp" key="1" as="kod_emp" used="1" type="number" sourcetable="./a/a/a" sourcecolumn="kod_emp">a.kod_emp as kod_emp, /*number*//*key*/
+</column><column table="a" column="fio" title="Юрист" vid="1" as="fio" key="0" used="1" type="string" sourcetable="./a/a/a" sourcecolumn="fio">a.fio as fio/*Юрист*//*string*/
+</column></select><from>
+from <query name="kr_employee" as="a" path="./a/a/a" haskeys="1" used="1">(
+<select>--kr_employee
+select <column table="a" column="kod_emp" type="number" comment="код сотрудника" as="kod_emp" key="1" fixed="1" sourcetable="./a/a/a" sourcecolumn="kod_emp" used="1">a.kod_emp as kod_emp, /*number*//*key*/
+</column><column table="a" column="kodp" type="number" title="" comment="код абонента (организации)" as="kodp" key="0" sourcetable="./a/a/a" sourcecolumn="kodp" used="1">a.kodp as kodp, /**//*number*/
+</column><column table="a" column="kod_dolzhfun" type="number" comment="код должностной функции" as="kod_dolzhfun" reference="kk_dolzhfun" refcol="kod_dolzhfun" key="0" sourcetable="./a/a/a" sourcecolumn="kod_dolzhfun" used="1">a.kod_dolzhfun as kod_dolzhfun, /*number*/
+</column><column table="a" column="fio" type="string" title="ФИО" comment="фио" vid="1" as="fio" key="0" sourcetable="./a/a/a" sourcecolumn="fio" used="1">a.fio as fio/*ФИО*//*string*/
+</column></select><from>
+from <table name="kr_employee" as="a" used="1">kr_employee
+a
+--\kr_employee
+</table></from>)
+a
+--\kr_employee
+</query></from><where>where
+<call function="and" pth="" type="bool"><call function="in" pth="" type="bool">(<column table="a" column="kodp">a.kodp</column><text txtype="func"> in </text><query path="./a/a" used="1">(
+<select>--
+select <column table="b" column="kodp" as="kodp" fixed="1" key="1" keypath=".kodp" used="1" type="number" sourcetable="./a/a/b/a" sourcecolumn="kodp">b.kodp as kodp/*number*//*key*/
+</column></select><from>
+from <query name="kr_org_branch3" as="b" path="./a/a/b" used="1">(
+<select>--kr_org_branch3
+select <column table="a" column="kodp" as="kodp" type="number" title="" key="1" fixed="1" used="1" sourcetable="./a/a/b/a" sourcecolumn="kodp">a.kodp as kodp/**//*number*//*key*/
+</column></select><from>
+from <query name="kr_org" as="a" path="./a/a/b/a" haskeys="1" used="1">(
+<select>--kr_org
+select <column table="a" column="kodp" type="number" title="" as="kodp" key="1" fixed="1" sourcetable="./a/a/b/a" sourcecolumn="kodp" used="1">a.kodp as kodp, /**//*number*//*key*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="kr_org" refcol="kodp" key="0" sourcetable="./a/a/b/a" sourcecolumn="kod_parent" used="1">a.kod_parent as kod_parent, /*number*/
+</column><column table="a" column="kod_separator" type="number" as="kod_separator" reference="kk_orgseparator" refcol="kod_separator" key="0" sourcetable="./a/a/b/a" sourcecolumn="kod_separator" used="1">a.kod_separator as kod_separator, /*number*/
+</column><column table="a" column="kod_ecls" type="number" as="kod_ecls" reference="kk_cls" refcol="kod_ecls" key="0" sourcetable="./a/a/b/a" sourcecolumn="kod_ecls" used="1">a.kod_ecls as kod_ecls/*number*/
+</column></select><from>
+from <table name="kr_org" as="a" used="1">kr_org
+a
+--\kr_org
+</table></from>)
+a
+--\kr_org
+</query></from><connect>connect by nocycle
+<call function="and" pth="" type="bool"><call function="=" pth="" type="bool">(<column table="a" column="kodp" prior="1">prior a.kodp</column><text txtype="func"> = </text><column table="a" column="kod_parent">a.kod_parent</column>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="not" pth="" optional="1" type="bool">(<text txtype="func"> not </text><call function="and" pth="" type="bool">(<call function="=" pth="" type="bool">(<column column="kod_separator" table="a">a.kod_separator</column><text txtype="func"> = </text><const><text>2</text></const>) </call><text txtype="func"> and </text><call function="=" pth="" type="bool">(<call function="case" pth="">(<text txtype="func"> case </text><call function="when" pth="0" type="when"><text txtype="func"> when </text><call function="not in" pth="" type="bool">(<column column="kodp" table="a">a.kodp</column><text txtype="func"> not in </text><call function="array" pth="">(<const><text txtype="const"> :dep </text></const>) </call>) </call><text txtype="func"> then </text><const><text>1</text></const></call><call function="else" pth="0" type="else"><text txtype="func"> else </text><const><text>0</text></const></call><text txtype="func"> end </text>) </call><text txtype="func"> = </text><const><text>1</text></const>) </call>) </call>) </call><text txtype="func"> } </text></call></connect><start>
+start with <call function="and" pth="" type="bool"><call function="=" pth="" type="bool">(<column table="a" column="kod_separator">a.kod_separator</column><text txtype="func"> = </text><const><text>1</text></const>) </call><text txtype="func"> and </text><call function="=" pth="" type="bool">(<column table="a" column="kod_ecls">a.kod_ecls</column><text txtype="func"> = </text><const><text>4</text></const>) </call></call></start>)
+b
+--\kr_org_branch3
+</query></from>)
+--\
+</query>) </call><text txtype="func"> and </text><call function="=" pth="" type="bool">(<column table="a" column="kod_dolzhfun">a.kod_dolzhfun</column><text txtype="func"> = </text><const><text>-1</text></const>) </call></call></where><order>
+order by fio</order>)
+a
+--\kr_employee_urists
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_emp" key="1" as="kod_emp" thissrc="kod_emp">a.kod_emp</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_emp" key="1" as="kod_emp" thissrc="kod_emp">a.kod_emp</column><text txtype="func"> ) like lower( </text><const><text>:kod_emp_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="fio" as="fio" thissrc="fio">a.fio</column><text txtype="func"> ) like lower( </text><const><text>:fio_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by fio</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" order="fio" class="1" timestamp="13.02.2017 19:36:42" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_employee.xml" elid="2309" ord="2309" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query order="fio" class="1" timestamp="13.02.2017 19:36:42" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_employee.xml" elid="2309" ord="2309" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="dep" type="number" column="kod_podr">
+                      <!--<const>(102276621)</const>-->
+                    </param>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_emp_filter" type="string" />
+                    <param name="fio_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_emp" key="1" as="kod_emp" />
+                    <column table="a" column="fio" as="fio" />
+                  </select>
+                  <from>
+                    <query name="kr_employee_urists" as="a">
+                      <withparams>
+                        <call function="array">
+                          <useparam name="dep" />
+                        </call>
+                      </withparams>
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_emp" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_emp" />
+                        <useparam name="kod_emp_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="fio" />
+                        <useparam name="fio_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="fio" />
+                  </order>
+                  <withparams>
+                    <useparam name="dep" />
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_emp_filter" />
+                    <useparam name="fio_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="dep" type="number" column="kod_podr">
+                  <!--<const>(102276621)</const>-->
+                  <const>:dep </const>
+                </param>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_emp_filter" type="string">
+                  <const>:kod_emp_filter </const>
+                </param>
+                <param name="fio_filter" type="string">
+                  <const>:fio_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params>
+              <param name="dep" type="number" column="kod_podr">
+                <!--<const>(102276621)</const>-->
+              </param>
+            </params>
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_emp_x_n.fio as kod_emp_x_n, /*Юрист*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kod_emp as kod_emp/*number*/
+
+from (select a.kod_folders as kod_folders,a.kod_emp as kod_emp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n3 as kod_emp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kod_emp as kod_emp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n3 as kod_emp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_employee
+select a.kod_emp as kod_emp, /*number*//*key*/
+a.fio as fio/*ФИО*//*string*/
+
+from kr_employee
+a
+--\kr_employee
+)
+kod_emp_x_n on a.kod_emp = kod_emp_x_n.kod_emp--\kr_employee
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_emp_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="nump" table="kodp" type="string" title="Код абонента" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kodp.nump as nump, /*Код абонента*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from (select a.kod_folders as kod_folders,a.kodp as kodp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n2 as kodp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kodp as kodp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n2 as kodp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump/*Код абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="name" table="kodp" type="string" title="Наименование абонента" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kodp.name as name, /*Наименование абонента*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from (select a.kod_folders as kod_folders,a.kodp as kodp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n2 as kodp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kodp as kodp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n2 as kodp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Наименование абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="dolg" table="a" type="number" title="Текущая задолженность" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select qube.cube_ur_folders_payer_ob1 as dolg, /*Текущая задолженность*//*number*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+sum(qube.cube_ur_folders_payer_ob1)  as cube_ur_folders_payer_ob1/*Текущая задолженность*//*number*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.cube_ur_folders_payer_ob1 as cube_ur_folders_payer_ob1/*Оборот*//*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.cube_ur_folders_payer_ob1 as cube_ur_folders_payer_ob1/*Оборот*//*number*/
+
+from (
+--
+select un.kod_folders as kod_folders, /*number*//*key*/
+sum(un.cube_ur_folders_payer_ob1)  as cube_ur_folders_payer_ob1/*Оборот*//*number*/
+
+from (
+(
+(
+--
+select cube_ur_folders_a_d.kod_folders as kod_folders, /*number*//*key*/
+cube_ur_folders_a_d.fin_ul_ob_not_av as cube_ur_folders_payer_ob1/*Оборот*//*number*/
+
+from (
+--cube_ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+qube.fin_ul_ob_not_av1 as fin_ul_ob_not_av/*Оборот*//*number*/
+
+from (
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+sum( case  when (vid_real.vid_real not in (0) )  then ( nvl( qube.sr_facras_nachisl1 ,0)  -nvl( qube.sr_opl_opl_sf1 ,0) )  end )  as fin_ul_ob_not_av1/*Оборот*//*number*/
+
+from (
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+qube.vid_real as vid_real, /*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_opl_opl_sf1 as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+qube.vid_real as vid_real, /*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_opl_opl_sf1 as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+--
+select un.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+un.vid_real as vid_real, /*number*//*key*/
+sum(un.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Начислено*//*number*/
+sum(un.sr_opl_opl_sf1)  as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+(
+(
+--
+select dims.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+dims.vid_real as vid_real, /*number*/
+sr_facras.nachisl as sr_facras_nachisl1, /*Начислено*//*number*/
+null as sr_opl_opl_sf1/*number*/
+
+from (
+--
+select sr_facras_a_d.kod_ras as kod_ras_prm, /*number*//*key*/
+a.kod_folders as kod_folders_kodp, /*number*//*key*/
+kod_sf_a_d.vid_real as vid_real/*number*//*key*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf/*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf_a_d on sr_facras_a_d.kod_sf = kod_sf_a_d.kod_sf--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_a_d on kod_sf_a_d.kod_dog = kod_dog_a_d.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp/**//*number*//*key*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_a_d on kod_dog_a_d.kodp = kodp_a_d.kodp--\kr_payer
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kodp = kodp_a_d.kodp--\ur_folders_kodp
+ group by
+sr_facras_a_d.kod_ras, /*number*//*key*/
+a.kod_folders, /*number*//*key*/
+kod_sf_a_d.vid_real/*number*//*key*/
+)
+dims
+--\
+left outer join
+(
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.nachisl as nachisl/*Начислено*//*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras on sr_facras.kod_ras = dims.kod_ras_prm--\sr_facras
+)
+--\
+union all
+(
+--
+select dims.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+dims.vid_real as vid_real, /*number*/
+null as sr_facras_nachisl1, /*number*/
+sr_opl_sf.opl_sf as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+--
+select sr_opl_sf_a_d.kod_opl as kod_opl_prm, /*number*//*key*/
+a.kod_folders as kod_folders_kodp, /*number*//*key*/
+kod_sf_a_d.vid_real as vid_real/*number*//*key*/
+
+from (
+--sr_opl_sf
+select a.kod_opl as kod_opl, /*number*//*key*/
+a.kod_sf as kod_sf/*number*/
+
+from sr_opl
+a
+--\sr_opl
+where
+a.kod_type_opl in (0 , 2 , 3 , 4) )
+sr_opl_sf_a_d
+--\sr_opl_sf
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf_a_d on sr_opl_sf_a_d.kod_sf = kod_sf_a_d.kod_sf--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_a_d on kod_sf_a_d.kod_dog = kod_dog_a_d.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp/**//*number*//*key*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_a_d on kod_dog_a_d.kodp = kodp_a_d.kodp--\kr_payer
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kodp = kodp_a_d.kodp--\ur_folders_kodp
+ group by
+sr_opl_sf_a_d.kod_opl, /*number*//*key*/
+a.kod_folders, /*number*//*key*/
+kod_sf_a_d.vid_real/*number*//*key*/
+)
+dims
+--\
+left outer join
+(
+--sr_opl_sf
+select a.kod_opl as kod_opl, /*number*//*key*/
+ nvl( a.opl ,0)  +nvl( a.opls ,0)  as opl_sf/*Оплата начислений*//*number*/
+
+from sr_opl
+a
+--\sr_opl
+where
+a.kod_type_opl in (0 , 2 , 3 , 4) )
+sr_opl_sf on sr_opl_sf.kod_opl = dims.kod_opl_prm--\sr_opl_sf
+)
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders_kodp, /*number*//*key*/
+un.vid_real/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real/**//*number*//*key*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real on vid_real.vid_real = qube.vid_real--\sk_vid_real
+ group by
+qube.kod_folders_kodp/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kod_folders = qube.kod_folders_kodp--\ur_folders_kodp
+)
+cube_ur_folders_a_d
+--\cube_ur_folders
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on cube_ur_folders_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select a.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1/*number*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+where
+a.kod_folders is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_folders/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on a.kod_folders = qube.kod_folders--\ur_folders
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="dat_create" table="a" type="date" title="Дата создания папки" is-user-editable="1" ColumnDefault="today" ColumnMandatory="1" is-updateable="1" is-updateable-ext="1" update-target="dat_create" temp-col-name="d1" />
+        <column name="dat_finish" table="a" type="date" title="Дата сброса папки в архив" Visible="is_not_new" ColumnEditable="1" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="dat_finish" temp-col-name="d3">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.is_active as is_active, /*Статус папки*//*number*/
+is_active_x_n.name_prizn_arch_folder as is_active_x_n, /*Статус папки*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from (select a.kod_folders as kod_folders,a.dat_finish as dat_finish  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.d3 as dat_finish  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.dat_finish as dat_finish  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.d3 as dat_finish  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--prizn_arch_folder
+select a.kod as kod_prizn_arch_folder, /*number*//*key*/
+a.name as name_prizn_arch_folder/*Статус*//*string*/
+
+from (
+      select 1 as kod, 'Активный' as name from dual union all
+      select 0, 'Архив' from dual
+    )a
+--\prizn_arch_folder_view
+)
+is_active_x_n on a.is_active = is_active_x_n.kod_prizn_arch_folder--\prizn_arch_folder
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="is_active" table="a" />
+            <dependant name="is_active_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="is_active" table="a" type="number" title="Статус папки" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.is_active as is_active, /*Статус папки*//*number*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from (select a.kod_folders as kod_folders,a.dat_finish as dat_finish  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.d3 as dat_finish  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.dat_finish as dat_finish  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.d3 as dat_finish  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_emp_x_n" table="a.kod_emp" type="string" title="Юрист" text-source-for="kod_emp" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_emp_x_n.fio as kod_emp_x_n, /*Юрист*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kod_emp as kod_emp/*number*/
+
+from (select a.kod_folders as kod_folders,a.kod_emp as kod_emp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n3 as kod_emp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kod_emp as kod_emp  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n3 as kod_emp  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_employee
+select a.kod_emp as kod_emp, /*number*//*key*/
+a.fio as fio/*ФИО*//*string*/
+
+from kr_employee
+a
+--\kr_employee
+)
+kod_emp_x_n on a.kod_emp = kod_emp_x_n.kod_emp--\kr_employee
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_active_x_n" table="a.is_active" type="string" title="Статус папки" text-source-for="is_active" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select is_active_x_n.name_prizn_arch_folder as is_active_x_n, /*Статус папки*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+ decode ( a.dat_finish ,null,1,0)  as is_active/*Статус папки*//*number*/
+
+from (select a.kod_folders as kod_folders,a.dat_finish as dat_finish  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.d3 as dat_finish  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.dat_finish as dat_finish  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.d3 as dat_finish  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--prizn_arch_folder
+select a.kod as kod_prizn_arch_folder, /*number*//*key*/
+a.name as name_prizn_arch_folder/*Статус*//*string*/
+
+from (
+      select 1 as kod, 'Активный' as name from dual union all
+      select 0, 'Архив' from dual
+    )a
+--\prizn_arch_folder_view
+)
+is_active_x_n on a.is_active = is_active_x_n.kod_prizn_arch_folder--\prizn_arch_folder
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_podr" table="a" type="number" title="Отделение" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_podr" temp-col-name="n11">
+          <sel-list-compiled>
+            <root>
+              <query order="name" class="1" timestamp="04.02.2019 16:26:26" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_org.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="name">name</column>
+                </order>
+                <select>--a
+select <column table="a" column="kodp" type="number" as="kodp" key="1" fixed="1" sourcetable="./a" sourcecolumn="kodp" used="1" into="n1">a.kodp as kodp, /*number*//*key*/
+</column><column table="kodp" column="name" title="Отделение" as="name" key="0" used="1" type="string" sourcetable="./a/kodp" sourcecolumn="name" into="s1">kodp.name as name, /*Отделение*//*string*/
+</column><column table="kodp" column="sname" title="Аббревиатура" fact="kr_dep_sname" agg="stragg" as="sname" key="0" used="1" type="string" sourcetable="./a/kodp" sourcecolumn="sname" into="s2">kodp.sname as sname, /*Аббревиатура*//*string*/
+</column><const type="number" as="cnt" fact="kr_dep_count" agg="sum" key="0" used="1" into="n2"><text>1</text> as cnt/*number*/
+</const></select>
+                <from>
+from <table name="kr_dep" as="a" view="1" used="1"><text>(
+      SELECT LEVEL lvl, kodp
+      FROM kr_org a
+      WHERE kod_ecls = 4
+      AND kod_separator = 2
+      AND kodp IN
+      (SELECT a.kodp
+      FROM kr_org a, kr_org b
+      WHERE     a.kod_ecls = 4
+      AND kg_common.org_area (a.kodp, b.kodp) = 1
+      AND b.kod_ecls = 4
+      AND kg_common.user_podr_rights (1, b.kodp)  &gt; 0)
+      CONNECT BY PRIOR kodp = kod_parent
+      START WITH kod_parent IS NULL AND kod_ecls = 4 AND kod_separator &lt;= 2
+      ORDER SIBLINGS BY kg.cut_num (name), name
+    )</text>a
+--\kr_dep
+</table><query name="kr_org" as="kodp" join="left outer" path="./a/kodp" haskeys="1" used="1">left outer join
+(
+<select>--kr_org
+select <column table="a" column="kodp" type="number" title="" as="kodp" key="1" fixed="1" sourcetable="./a/kodp" sourcecolumn="kodp" used="1">a.kodp as kodp, /**//*number*//*key*/
+</column><column table="a" column="name" type="string" title="Отделение" as="name" key="0" sourcetable="./a/kodp" sourcecolumn="name" used="1">a.name as name, /*Отделение*//*string*/
+</column><column table="a" column="sname" type="string" title="" as="sname" key="0" sourcetable="./a/kodp" sourcecolumn="sname" used="1">a.sname as sname/**//*string*/
+</column></select><from>
+from <table name="kr_org" as="a" used="1">kr_org
+a
+--\kr_org
+</table></from><call function="=" type="bool">)
+kodp on <column table="a" column="kodp">a.kodp</column><text txtype="func"> = </text><column table="kodp" column="kodp">kodp.kodp</column></call>--\kr_org
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kodp" type="number" as="kodp" key="1" fixed="1" sourcetable="./a" sourcecolumn="kodp" thissrc="kodp">a.kodp</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kodp" type="number" as="kodp" key="1" fixed="1" sourcetable="./a" sourcecolumn="kodp" thissrc="kodp">a.kodp</column><text txtype="func"> ) like lower( </text><const><text>:kodp_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="kodp" column="name" title="Отделение" as="name" key="0" thissrc="name">kodp.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="kodp" column="sname" title="Аббревиатура" fact="kr_dep_sname" agg="stragg" as="sname" key="0" thissrc="sname">kodp.sname</column><text txtype="func"> ) like lower( </text><const><text>:sname_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by name</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" order="name" class="1" timestamp="04.02.2019 16:26:26" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_org.xml" haskeys="1" as="a">
+              <queries>
+                <query order="name" class="1" timestamp="04.02.2019 16:26:26" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kr_org.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kodp_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="sname_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kodp" type="number" as="kodp" key="1" fixed="1" />
+                    <column table="kodp" column="name" title="Отделение" as="name" key="0" />
+                    <column table="kodp" column="sname" title="Аббревиатура" fact="kr_dep_sname" agg="stragg" as="sname" key="0" />
+                    <const type="number" as="cnt" fact="kr_dep_count" agg="sum" key="0">1</const>
+                  </select>
+                  <from>
+                    <table name="kr_dep" as="a" view="1">
+                      <dlink name="kr_dogovor" dimension="1" as="kr_dogovor" table="kr_dogovor" child="kr_dogovor" field="kod_dep" parent="kr_dep" back="kr_dogovor" title="Договор" />
+                      <dlink name="sv_opl_bank_dep" as="sv_opl_bank_dep" table="sv_opl_bank_dep" child="sv_opl_bank_dep" field="dep" parent="kr_dep" back="sv_opl_bank_dep">
+                        <link name="kod_link" dimension="1" as="kod_link" table="sr_opl_bank" child="sv_opl_bank_dep" field="kod_link" parent="sr_opl_bank" back="sv_opl_bank_dep" />
+                      </dlink>
+                      <dlink name="kr_dogovor" dimension="1" is-final-dimension="1" is-private-dimension="1" as="kr_dogovor" table="kr_dogovor" child="kr_dogovor" field="kod_dep" parent="kr_dep" back="kr_dogovor" title="Договор">
+                        <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                      </dlink>
+                      <dlink name="ur_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" as="ur_folders" table="ur_folders" child="ur_folders" field="kod_dep" parent="kr_dep" back="ur_folders" title="Папка">
+                        <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                        <dimlink name="kod_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+                      </dlink>
+                    </table>
+                    <query name="kr_org" as="kodp" join="left outer" dname="kr_dep">
+                      <call function="=">
+                        <column table="a" column="kodp" />
+                        <column table="kodp" column="kodp" />
+                      </call>
+                    </query>
+                    <query name="kr_calc_dep_max" join="left outer" as="kr_calc_dep_max" dname="kr_dep">
+                      <call function="=">
+                        <column table="this" column="kodp" />
+                        <column table="kr_calc_dep_max" column="dep" />
+                      </call>
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kodp" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kodp" />
+                        <useparam name="kodp_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="sname" />
+                        <useparam name="sname_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="name" />
+                  </order>
+                  <order>
+                    <column column="name" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kodp_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="sname_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kodp_filter" type="string">
+                  <const>:kodp_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="sname_filter" type="string">
+                  <const>:sname_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_podr.sname as sname, /*Отделение*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kod_podr as kod_podr/*number*/
+
+from (select a.kod_folders as kod_folders,a.kod_podr as kod_podr  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n11 as kod_podr  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kod_podr as kod_podr  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n11 as kod_podr  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.sname as sname/**//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+kod_podr on a.kod_podr = kod_podr.kodp--\kr_org
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="sname" table="a" />
+          </dependants>
+        </column>
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="ur_folders_del_vld" table="a" type="string" title="Валидация удаления папки" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_folders_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_folders_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select qube.ur_folders_del_vld1 as ur_folders_del_vld, /*Валидация удаления папки*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+max( case  when ( nvl( (nullif( nvl( qube.ur_pretenz_count_old1 ,0)  +nvl( qube.ur_pret_count1 ,0) ,0) )  ,0)!=0 )  then 'Есть претензии' when ( nvl( qube.ur_mat_count1 ,0)!=0 )  then 'Есть материалы переданные в суд' end )  as ur_folders_del_vld1/*Валидация удаления папки*//*string*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.ur_mat_count1 as ur_mat_count1, /*number*/
+qube.ur_pret_count1 as ur_pret_count1, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.ur_mat_count1 as ur_mat_count1, /*number*/
+qube.ur_pret_count1 as ur_pret_count1, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+--
+select un.kod_folders as kod_folders, /*number*//*key*/
+sum(un.ur_mat_count1)  as ur_mat_count1, /*number*/
+sum(un.ur_pret_count1)  as ur_pret_count1, /*number*/
+sum(un.ur_pretenz_count_old1)  as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select a.kod_folders as kod_folders, /*number*//*key*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select ur_mat_a_d.kod_folders as kod_folders, /*number*//*key*/
+ur_mat_a_d.cnt as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat_a_d
+--\ur_mat
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on ur_mat_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select ur_pret_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as ur_mat_count1, /*number*/
+ur_pret_a_d.cnt as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pret
+select a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_pret
+a
+--\ur_pret
+)
+ur_pret_a_d
+--\ur_pret
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on ur_pret_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select ur_pretenz_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+ur_pretenz_a_d.cnt as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_pretenz
+a
+--\ur_pretenz
+)
+ur_pretenz_a_d
+--\ur_pretenz
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on ur_pretenz_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_folders/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on a.kod_folders = qube.kod_folders--\ur_folders
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_folders" table="a" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_folders" temp-col-name="n1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_emp as kod_emp 
+,:dat_create as dat_create 
+,:dat_finish as dat_finish 
+,:kod_podr as kod_podr 
+,:kod_folders as kod_folders 
+ 
+from dual ) 
+ 
+loop 
+insert into ur_folders 
+(kod_emp 
+,dat_create 
+,dat_finish 
+,kod_podr 
+,kod_folders 
+) 
+ values  
+(r.kod_emp 
+,r.dat_create 
+,r.dat_finish 
+,r.kod_podr 
+,r.kod_folders 
+) 
+ returning  
+kod_folders into :kod_folders; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from ur_folders where kod_folders=:kod_folders</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_folders; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_emp as kod_emp 
+,:dat_create as dat_create 
+,:dat_finish as dat_finish 
+,:kod_podr as kod_podr 
+,:kod_folders as kod_folders 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n3 
+,d1 
+,d3 
+,n11 
+,n1 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_folders 
+,:row_state_id 
+,r.kod_emp 
+,r.dat_create 
+,r.dat_finish 
+,r.kod_podr 
+,r.kod_folders 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_emp as kod_emp 
+,:dat_create as dat_create 
+,:dat_finish as dat_finish 
+,:kod_podr as kod_podr 
+,:kod_folders as kod_folders 
+,a.kodp 
+,a.kod_vi 
+,a.kod_sdp 
+,a.zadol 
+,a.u_m 
+,a.d_m 
+,a.kod_parent 
+,a.kod_isp 
+,a.tep_el 
+,a.vvod 
+,a.num_doc 
+,a.tep_el_byt 
+,a.kodp_new 
+,a.kodps 
+,a.namep 
+,a.kod_category 
+,a.kod_dog 
+ 
+from ur_folders a  where kod_folders=:kod_folders) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n3 
+,d1 
+,d3 
+,n11 
+,n1 
+,n2 
+,n4 
+,n5 
+,n6 
+,s1 
+,d2 
+,n7 
+,n8 
+,n9 
+,n10 
+,s2 
+,n12 
+,n13 
+,s3 
+,s4 
+,n14 
+,n15 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_folders 
+,:row_state_id 
+,r.kod_emp 
+,r.dat_create 
+,r.dat_finish 
+,r.kod_podr 
+,r.kod_folders 
+,r.kodp 
+,r.kod_vi 
+,r.kod_sdp 
+,r.zadol 
+,r.u_m 
+,r.d_m 
+,r.kod_parent 
+,r.kod_isp 
+,r.tep_el 
+,r.vvod 
+,r.num_doc 
+,r.tep_el_byt 
+,r.kodp_new 
+,r.kodps 
+,r.namep 
+,r.kod_category 
+,r.kod_dog 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update ur_folders set  
+(kod_emp 
+,dat_create 
+,dat_finish 
+,kod_podr 
+,kod_folders 
+) 
+= 
+ ( select  
+:kod_emp as kod_emp 
+,:dat_create as dat_create 
+,:dat_finish as dat_finish 
+,:kod_podr as kod_podr 
+,:kod_folders as kod_folders 
+ 
+from dual ) 
+ 
+where 
+kod_folders=:kod_folders 
+;
+end;
+</update-text>
+      <events>
+        <useaction event-name="object-save" action-type="execute-update" call="ur_folders_sync_dat_arh">
+          <column table="this" column="kod_folders" />
+        </useaction>
+      </events>
+      <scheme>
+        <table name="ur_folders" as="a">
+          <columns>
+            <column name="sname" type="string" title="Отделение" />
+            <column name="kod_emp" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="nump" type="string" title="Код абонента" />
+            <column name="name" type="string" title="Наименование абонента" />
+            <column name="dolg" type="number" title="Текущая задолженность" />
+            <column name="dat_create" type="date" title="Дата создания папки" />
+            <column name="dat_finish" type="date" title="Дата сброса папки в архив" />
+            <column name="is_active" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_emp_x_n" type="string" title="Юрист" />
+            <column name="is_active_x_n" type="string" title="Статус папки" />
+            <column name="kod_podr" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="ur_folders_del_vld" type="string" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_folders" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="sname" type="string" title="Отделение" />
+            <column name="kod_emp_x_n" type="string" title="Юрист" />
+            <column name="kod_emp" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="nump" type="string" title="Код абонента" />
+            <column name="name" type="string" title="Наименование абонента" />
+            <column name="dolg" type="number" title="Текущая задолженность" />
+            <column name="dat_create" type="date" title="Дата создания папки" />
+            <column name="dat_finish" type="date" title="Дата сброса папки в архив" />
+            <column name="is_active_x_n" type="string" title="Статус папки" />
+            <column name="is_active" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_podr" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="ur_folders_del_vld" type="string" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_folders" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_folders_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_folders_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select kod_podr.sname as sname, /*Отделение*//*string*/
+a.kod_emp as kod_emp, /*number*/
+kodp.nump as nump, /*Код абонента*//*string*/
+kodp.name as name, /*Наименование абонента*//*string*/
+qube.cube_ur_folders_payer_ob1 as dolg, /*Текущая задолженность*//*number*/
+a.dat_create as dat_create, /*Дата создания папки*//*date*/
+a.dat_finish as dat_finish, /*Дата сброса папки в архив*//*date*/
+a.is_active as is_active, /*Статус папки*//*number*/
+kod_emp_x_n.fio as kod_emp_x_n, /*Юрист*//*string*/
+is_active_x_n.name_prizn_arch_folder as is_active_x_n, /*Статус папки*//*string*/
+a.kod_podr as kod_podr, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.is_new as is_new, /*number*/
+qube.ur_folders_del_vld1 as ur_folders_del_vld, /*Валидация удаления папки*//*string*/
+a.kod_folders as kod_folders/*number*//*key*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+sum(qube.cube_ur_folders_payer_ob1)  as cube_ur_folders_payer_ob1, /*Текущая задолженность*//*number*/
+max( case  when ( nvl( (nullif( nvl( qube.ur_pretenz_count_old1 ,0)  +nvl( qube.ur_pret_count1 ,0) ,0) )  ,0)!=0 )  then 'Есть претензии' when ( nvl( qube.ur_mat_count1 ,0)!=0 )  then 'Есть материалы переданные в суд' end )  as ur_folders_del_vld1/*Валидация удаления папки*//*string*/
+
+from (
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.cube_ur_folders_payer_ob1 as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+qube.ur_mat_count1 as ur_mat_count1, /*number*/
+qube.ur_pret_count1 as ur_pret_count1, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders as kod_folders, /*number*//*key*/
+qube.cube_ur_folders_payer_ob1 as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+qube.ur_mat_count1 as ur_mat_count1, /*number*/
+qube.ur_pret_count1 as ur_pret_count1, /*number*/
+qube.ur_pretenz_count_old1 as ur_pretenz_count_old1/*number*/
+
+from (
+--
+select un.kod_folders as kod_folders, /*number*//*key*/
+sum(un.cube_ur_folders_payer_ob1)  as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+sum(un.ur_mat_count1)  as ur_mat_count1, /*number*/
+sum(un.ur_pret_count1)  as ur_pret_count1, /*number*/
+sum(un.ur_pretenz_count_old1)  as ur_pretenz_count_old1/*number*/
+
+from (
+(
+(
+--
+select cube_ur_folders_a_d.kod_folders as kod_folders, /*number*//*key*/
+cube_ur_folders_a_d.fin_ul_ob_not_av as cube_ur_folders_payer_ob1, /*Оборот*//*number*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--cube_ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+qube.fin_ul_ob_not_av1 as fin_ul_ob_not_av/*Оборот*//*number*/
+
+from (
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+sum( case  when (vid_real.vid_real not in (0) )  then ( nvl( qube.sr_facras_nachisl1 ,0)  -nvl( qube.sr_opl_opl_sf1 ,0) )  end )  as fin_ul_ob_not_av1/*Оборот*//*number*/
+
+from (
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+qube.vid_real as vid_real, /*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_opl_opl_sf1 as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+(
+(
+--
+select qube.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+qube.vid_real as vid_real, /*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_opl_opl_sf1 as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+--
+select un.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+un.vid_real as vid_real, /*number*//*key*/
+sum(un.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Начислено*//*number*/
+sum(un.sr_opl_opl_sf1)  as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+(
+(
+--
+select dims.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+dims.vid_real as vid_real, /*number*/
+sr_facras.nachisl as sr_facras_nachisl1, /*Начислено*//*number*/
+null as sr_opl_opl_sf1/*number*/
+
+from (
+--
+select sr_facras_a_d.kod_ras as kod_ras_prm, /*number*//*key*/
+a.kod_folders as kod_folders_kodp, /*number*//*key*/
+kod_sf_a_d.vid_real as vid_real/*number*//*key*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf/*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf_a_d on sr_facras_a_d.kod_sf = kod_sf_a_d.kod_sf--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_a_d on kod_sf_a_d.kod_dog = kod_dog_a_d.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp/**//*number*//*key*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_a_d on kod_dog_a_d.kodp = kodp_a_d.kodp--\kr_payer
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kodp = kodp_a_d.kodp--\ur_folders_kodp
+ group by
+sr_facras_a_d.kod_ras, /*number*//*key*/
+a.kod_folders, /*number*//*key*/
+kod_sf_a_d.vid_real/*number*//*key*/
+)
+dims
+--\
+left outer join
+(
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.nachisl as nachisl/*Начислено*//*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras on sr_facras.kod_ras = dims.kod_ras_prm--\sr_facras
+)
+--\
+union all
+(
+--
+select dims.kod_folders_kodp as kod_folders_kodp, /*number*//*key*/
+dims.vid_real as vid_real, /*number*/
+null as sr_facras_nachisl1, /*number*/
+sr_opl_sf.opl_sf as sr_opl_opl_sf1/*Оплата начислений*//*number*/
+
+from (
+--
+select sr_opl_sf_a_d.kod_opl as kod_opl_prm, /*number*//*key*/
+a.kod_folders as kod_folders_kodp, /*number*//*key*/
+kod_sf_a_d.vid_real as vid_real/*number*//*key*/
+
+from (
+--sr_opl_sf
+select a.kod_opl as kod_opl, /*number*//*key*/
+a.kod_sf as kod_sf/*number*/
+
+from sr_opl
+a
+--\sr_opl
+where
+a.kod_type_opl in (0 , 2 , 3 , 4) )
+sr_opl_sf_a_d
+--\sr_opl_sf
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf_a_d on sr_opl_sf_a_d.kod_sf = kod_sf_a_d.kod_sf--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_a_d on kod_sf_a_d.kod_dog = kod_dog_a_d.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp/**//*number*//*key*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_a_d on kod_dog_a_d.kodp = kodp_a_d.kodp--\kr_payer
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp/**//*number*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kodp = kodp_a_d.kodp--\ur_folders_kodp
+ group by
+sr_opl_sf_a_d.kod_opl, /*number*//*key*/
+a.kod_folders, /*number*//*key*/
+kod_sf_a_d.vid_real/*number*//*key*/
+)
+dims
+--\
+left outer join
+(
+--sr_opl_sf
+select a.kod_opl as kod_opl, /*number*//*key*/
+ nvl( a.opl ,0)  +nvl( a.opls ,0)  as opl_sf/*Оплата начислений*//*number*/
+
+from sr_opl
+a
+--\sr_opl
+where
+a.kod_type_opl in (0 , 2 , 3 , 4) )
+sr_opl_sf on sr_opl_sf.kod_opl = dims.kod_opl_prm--\sr_opl_sf
+)
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders_kodp, /*number*//*key*/
+un.vid_real/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real/**//*number*//*key*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real on vid_real.vid_real = qube.vid_real--\sk_vid_real
+ group by
+qube.kod_folders_kodp/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders_kodp
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from ur_folders
+a
+--\ur_folders
+)
+a on a.kod_folders = qube.kod_folders_kodp--\ur_folders_kodp
+)
+cube_ur_folders_a_d
+--\cube_ur_folders
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on cube_ur_folders_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select a.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a
+--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select ur_mat_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+ur_mat_a_d.cnt as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat_a_d
+--\ur_mat
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on ur_mat_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select ur_pret_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+null as ur_mat_count1, /*number*/
+ur_pret_a_d.cnt as ur_pret_count1, /*number*/
+null as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pret
+select a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_pret
+a
+--\ur_pret
+)
+ur_pret_a_d
+--\ur_pret
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on ur_pret_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+union all
+(
+--
+select ur_pretenz_a_d.kod_folders as kod_folders, /*number*//*key*/
+null as cube_ur_folders_payer_ob1, /*number*/
+null as ur_mat_count1, /*number*/
+null as ur_pret_count1, /*number*/
+ur_pretenz_a_d.cnt as ur_pretenz_count_old1/*number*/
+
+from (
+--ur_pretenz
+select a.kod_pretenz as kod_pretenz, /*number*//*key*/
+a.kod_folders as kod_folders, /*number*/
+1 as cnt/*number*/
+
+from ur_pretenz
+a
+--\ur_pretenz
+)
+ur_pretenz_a_d
+--\ur_pretenz
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders/*number*//*key*/
+
+from (select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on ur_pretenz_a_d.kod_folders = a.kod_folders--\ur_folders
+where
+a.kod_folders is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_folders/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_folders/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.kodp as kodp, /**//*number*/
+a.kod_emp as kod_emp, /*number*/
+a.dat_create as dat_create, /*Дата создания папки*//*date*/
+a.dat_finish as dat_finish, /*Дата сброса папки в архив*//*date*/
+a.kod_podr as kod_podr, /*number*/
+ decode ( a.dat_finish ,null,1,0)  as is_active, /*Статус папки*//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_folders as kod_folders,a.kodp as kodp,a.kod_emp as kod_emp,a.dat_create as dat_create,a.dat_finish as dat_finish,a.kod_podr as kod_podr,0 as is_new,1 as is_not_new  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n2 as kodp,t.n3 as kod_emp,t.d1 as dat_create,t.d3 as dat_finish,t.n11 as kod_podr,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+a
+--\(select a.kod_folders as kod_folders,a.kodp as kodp,a.kod_emp as kod_emp,a.dat_create as dat_create,a.dat_finish as dat_finish,a.kod_podr as kod_podr,0 as is_new,1 as is_not_new  from ur_folders a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_folders=t.f2 ) and   a.kod_folders in :kod_folders_prm   union all  select t.n1 as kod_folders,t.n2 as kodp,t.n3 as kod_emp,t.d1 as dat_create,t.d3 as dat_finish,t.n11 as kod_podr,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_folders_prm )
+)
+a on a.kod_folders = qube.kod_folders--\ur_folders
+left outer join
+(
+--prizn_arch_folder
+select a.kod as kod_prizn_arch_folder, /*number*//*key*/
+a.name as name_prizn_arch_folder/*Статус*//*string*/
+
+from (
+      select 1 as kod, 'Активный' as name from dual union all
+      select 0, 'Архив' from dual
+    )a
+--\prizn_arch_folder_view
+)
+is_active_x_n on a.is_active = is_active_x_n.kod_prizn_arch_folder--\prizn_arch_folder
+left outer join
+(
+--kr_employee
+select a.kod_emp as kod_emp, /*number*//*key*/
+a.fio as fio/*ФИО*//*string*/
+
+from kr_employee
+a
+--\kr_employee
+)
+kod_emp_x_n on a.kod_emp = kod_emp_x_n.kod_emp--\kr_employee
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.sname as sname/**//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+kod_podr on a.kod_podr = kod_podr.kodp--\kr_org
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump as nump, /*Код абонента*//*string*/
+a.name as name/*Наименование абонента*//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp on a.kodp = kodp.kodp--\kr_payer
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

@@ -1,0 +1,4061 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="52733" form="52733" title="5. Накопительный итог" mode="excel" nogrid="1" timestamp="03.10.2022 14:30:00">
+      <params>
+        <param type="number" name="year" />
+        <param name="kod_fl" type="array" />
+        <param name="hv_eopwrc_id" type="array" />
+        <param name="pwrc_id" type="array" />
+        <param name="pwrc_fdrid" type="array" />
+      </params>
+      <procedure>
+        DECLARE
+            p_year    NUMBER(4, 0);
+            n_beg_ym  NUMBER(6, 2);
+            n_end_ym  NUMBER(6, 2);
+        BEGIN
+            p_year   := :year;
+            n_beg_ym := p_year + 0.01;
+            n_end_ym := p_year + 0.12;
+            delete from rr_temp where skod in ('52733_fl_lst', '45862_fdr_lst');
+            
+            insert into rr_temp (skod, n1)
+            select distinct '52733_fl_lst' as skod, a.kod_fl
+            from jv_rep_cons_d_fl a
+            where a.kod_fl in :kod_fl;
+                
+            insert into rr_temp (skod, n1)
+            select '45862_fdr_lst' as skod, a.pwrc_fdrid
+            from vr_rb_fider a
+            where a.pwrc_fdrid in :pwrc_fdrid
+            union
+            select '45862_fdr_lst' as skod, a.pwrc_fdrid
+            from hv_eopwrc_fdrs a
+            where a.pwrc_fdrid in :pwrc_fdrid;
+                    
+            asuse.jg_reports_ise.jr_rep_blns_pwrc_sx_init(0, 1);                
+            sqlb_d45862_fdr_kg.vr_rb_fact_presum_proc(n_beg_ym, n_end_ym);
+            sqlb_d45862_fdr_kg.FILL_TEMP(n_beg_ym, n_end_ym);
+            sqlb_d45862_fdr_kg.fill_table_by_dat(0);
+        END;
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="52733.xlsx" title="Накопительный итог" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="main_52733_2" as="a">
+          <withparams>
+            <useparam name="year" />
+            <useparam name="kod_fl" />
+            <useparam name="hv_eopwrc_id" />
+            <useparam name="pwrc_id" />
+            <useparam name="pwrc_fdrid" />
+          </withparams>
+        </query>
+        <query name="main_52733" as="a" exclude="1">
+          <withparams>
+            <useparam name="year" />
+            <useparam name="kod_fl" />
+            <useparam name="hv_eopwrc_id" />
+            <useparam name="pwrc_id" />
+            <useparam name="pwrc_fdrid" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="52733" timestamp="04.10.2022 15:00:00">
+      <content>
+        <usefield field="cmn_combo_num" name="year" title="Год" column-mandatory="1">
+          <listquery>
+            <query name="52733_year" />
+          </listquery>
+          <defaultquery>
+            <query name="52733_year_def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" title="Филиал" name="kod_fl" type="number" column-mandatory="1">
+          <listquery>
+            <query name="jv_rep_cons_d_fl" />
+          </listquery>
+          <defaultquery>
+            <query name="45862-kod_fl-def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" title="Подстанции" name="hv_eopwrc_id" type="string" column-mandatory="1">
+          <listquery>
+            <query name="52733_pwrc_list" />
+          </listquery>
+          <defaultquery>
+            <query name="52733_pwrc_def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" title="Подстанции" name="pwrc_id" type="number" column-mandatory="1" visible="0">
+          <defaultquery>
+            <query name="vr_rb_pwrc_list_by_hv_eopwrc_id" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" title="Фидеры" name="k_kg_name" type="string" column-mandatory="1" column-visible="0">
+          <defaultquery>
+            <query name="52733_k_kg_name" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" title="Фидеры" name="pwrc_fdrid" type="number" column-mandatory="1">
+          <listquery>
+            <query name="45862_fdr_by_kn_name_list_test2" />
+          </listquery>
+          <defaultquery>
+            <query name="45862_fdr_by_kn_name_list_test2" />
+          </defaultquery>
+        </usefield>
+        <!-- usefield field="cmn_check" name="kg_missing_tp_flag" title="Есть новые тп не включены в кг" visible="0" exclude="1">
+          <defaultquery>
+            <query name="52733_fdr_kg_missing_tp_single_year_flag" />
+          </defaultquery>
+        </usefield -->
+        <usefield field="cmn_text" name="kg_missing_tp_text" type="string" column-editable="0" title="ТП, которые необходимо включить в КГ">
+          <defaultquery>
+            <query name="52733_fdr_kg_missing_tp_single_year_text" />
+          </defaultquery>
+        </usefield>
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="52733_year" order="year desc" timestamp="03.10.2022 14:40:00">
+      <select>
+        <call function="year" as="year" key="1" group="1">
+          <column table="a" column="dat" />
+        </call>
+        <call function="to_char" as="name" title="Год" group="1">
+          <call function="year">
+            <column table="a" column="dat" />
+          </call>
+          <const>'FM9999'</const>
+        </call>
+      </select>
+      <from>
+        <query name="vr_rb_dat" as="a" />
+      </from>
+      <where exclude="1">
+        <call function="!=">
+          <column table="a" column="ym" />
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+    <query name="52733_year_def" timestamp="03.10.2022 14:20:00">
+      <select>
+        <call function="year" as="year" key="1">
+          <call function="sysdate" />
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <!-- query name="main_52733" timestamp="03.10.2022 14:30:00">
+      <params>
+        <param type="number" name="year" />
+        <param name="kod_fl" type="array" />
+        <param name="hv_eopwrc_id" type="array" />
+        <param name="pwrc_id" type="array" />
+        <param name="pwrc_fdrid" type="array" />
+      </params>
+      <select>
+        <call as="count_fdr" group="count_dist" function="()" type="number">
+          <column table="kg_name" column="k_kg_name" />1</call>
+        <column table="d49277_kod_fl_real" column="kod_fl" exclude="1" />
+        <column table="d49277_kod_fl" column="kod_fl" />
+        <column table="d49277_pwrc" column="pwrc_id" />
+        <column table="kg_name" column="kg_name" title="ДИСП №ФИД" as="pwrc_fdrname" />
+        <column table="def_pwrc" column="kod_id" group="max" />
+        <column table="d49277_fdrid" column="pwrc_fdr_explname" group="stragg_dist" />
+        <column table="d49277_kod_fl_real" column="name" as="fskname" group="max" exclude="1" />
+        <column table="d49277_kod_fl" column="name" as="fskname" group="max" />
+        <column table="d49277_pwrc" column="pwrcn" group="max" title="ДИСП №ПС" as="pwrcname" />
+        <fact table="main" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_01" group="sum" />
+        <fact table="main2" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_02" group="sum" />
+        <fact table="main3" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_03" group="sum" />
+        <fact table="main4" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_04" group="sum" />
+        <fact table="main5" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_05" group="sum" />
+        <fact table="main6" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_06" group="sum" />
+        <fact table="main7" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_07" group="sum" />
+        <fact table="main8" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_08" group="sum" />
+        <fact table="main9" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_09" group="sum" />
+        <fact table="main10" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_10" group="sum" />
+        <fact table="main11" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_11" group="sum" />
+        <fact table="main12" column="vr_rb_fact_52733_wp_in_fdr" as="wp_in_12" group="sum" />
+        <fact table="main" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_01" group="sum" />
+        <fact table="main2" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_02" group="sum" />
+        <fact table="main3" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_03" group="sum" />
+        <fact table="main4" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_04" group="sum" />
+        <fact table="main5" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_05" group="sum" />
+        <fact table="main6" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_06" group="sum" />
+        <fact table="main7" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_07" group="sum" />
+        <fact table="main8" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_08" group="sum" />
+        <fact table="main9" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_09" group="sum" />
+        <fact table="main10" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_10" group="sum" />
+        <fact table="main11" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_11" group="sum" />
+        <fact table="main12" column="vr_rb_fact_52733_wp_out_fdr" as="wp_out_12" group="sum" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="d49277_kod_fl_real" exclude="1" />
+          <link name="d49277_kod_fl" />
+          <link name="d49277_pwrc" />
+          <link name="d49277_bal_id" only-for-cond="1" />
+          <link name="d49277_fdrid" />
+          <link name="kg_name" />
+          <link name="def_pwrc" />
+          <link name="ym" />
+          <link name="k_gr_f_tp" only-for-cond="1" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="d49277_kod_fl_real" column="kod_fl" exclude="1" />
+                <column table="d49277_kod_fl" column="kod_fl" />
+                <useparam name="kod_fl" />
+              </call>
+              <call function="in">
+                <column table="d49277_bal_id" column="hv_eopwrc_id" />
+                <useparam name="hv_eopwrc_id" />
+              </call>
+              <call function="in">
+                <column table="d49277_fdrid" column="pwrc_fdrid" />
+                <useparam name="pwrc_fdrid" />
+              </call>
+              <call function="le">
+                <column table="ym" column="val" />
+                <call function="+">
+                  <useparam name="year" />
+                  <const>0.12</const>
+                </call>
+              </call>
+              <call function="le">
+                <column table="ym" column="val" />
+                <call function="ym add month">
+                  <column table="d49277_kod_fl" column="ym" />
+                  <const>-1</const>
+                </call>
+              </call>
+            </call>
+          </where>
+          <dimset as="main">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>1</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.01</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.01</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main2">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>2</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.02</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.02</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main3">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>3</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.03</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.03</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main4">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>4</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.04</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.04</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main5">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>5</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.05</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.05</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main6">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>6</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.06</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.06</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main7">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>7</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.07</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.07</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main8">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>8</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.08</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.08</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main9">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>9</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.09</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.09</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main10">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>10</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.10</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.10</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main11">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>11</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.11</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.11</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="main12">
+            <where>
+              <call function="and">
+                <call function="=">
+                  <call function="mes">
+                    <column table="k_gr_f_tp" column="ym" />
+                  </call>
+                  <const>12</const>
+                </call>
+                <call function="le">
+                  <column table="ym" column="val" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.12</const>
+                  </call>
+                </call>
+                <call function="le">
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>0.12</const>
+                  </call>
+                  <call function="ym add month">
+                    <column table="d49277_kod_fl" column="ym" />
+                    <const>-1</const>
+                  </call>
+                </call>
+              </call>
+            </where>
+          </dimset>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="all" title="Всего" />
+        <grset as="fl" title="По филиалам" order="upper(fskname)">
+          <group>
+            <sourcelink table="d49277_kod_fl_real" exclude="1" />
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <grset as="ps" title="По сетям" order="kod_id">
+            <group>
+              <sourcelink table="d49277_pwrc" />
+            </group>
+            <grset as="fdr" title="По фидерам" order="pwrc_fdrname nulls first">
+              <group>
+                <sourcelink table="kg_name" />
+              </group>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query -->
+    <query name="52733_pwrc_list" class="1" order="kod_fl.name, a.pwrcname" timestamp="03.10.2022 14:30:00">
+      <params>
+        <param name="kod_fl" type="array">
+          <array>12968</array>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="hv_eopwrc_id" key="1" />
+        <column table="a" column="pwrcname" title="Подстанция" />
+        <column table="kod_fl" column="name" title="Филиал" />
+      </select>
+      <from>
+        <query name="hv_eopwrc" as="a" />
+        <query name="jv_rep_cons_d_fl" as="kod_fl" join="inner">
+          <call function="=">
+            <column table="a" column="bal_id" />
+            <column table="kod_fl" column="kod_fl" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="bal_id" />
+          <useparam name="kod_fl" />
+        </call>
+      </where>
+      <order>
+        <column table="kod_fl" column="name" title="Филиал" />
+        <column table="a" column="pwrcname" title="Подстанция" />
+      </order>
+    </query>
+    <query name="52733_pwrc_def" class="1" timestamp="03.10.2022 14:30:00">
+      <params>
+        <param name="kod_fl" type="array" />
+        <param name="year" type="number" />
+      </params>
+      <procedure>
+        DECLARE
+        n_year    NUMBER(4, 0);
+        n_ym_end  NUMBER(6, 2);
+        n_ym_beg  NUMBER(6, 2);
+        BEGIN
+        delete sqlb_d45862_fl_ym_tbl;
+        n_year := :year;
+        IF n_year IS NOT NULL THEN
+        n_ym_end := n_year + 0.12;
+        n_ym_beg := n_year + 0.01;
+        insert into sqlb_d45862_fl_ym_tbl (kod_fl, name, ym)
+        select a.kod_fl, fl.name, a.ym
+        from   vr_rb_fact_mv a left outer join jv_rep_cons_d_fl fl on a.kod_fl = fl.kod_fl
+        where a.ym &lt;= n_ym_end and a.ym &gt;= n_ym_beg;
+        END IF;
+        END;
+      </procedure>
+      <select>
+        <column table="pwrc_id" column="hv_eopwrc_id" key="1" />
+      </select>
+      <from>
+        <query name="vb_rb_default_pwrc" as="a" />
+        <query name="vr_rb_pwrc" as="pwrc_id" join="inner">
+          <call function="and">
+            <call function="=">
+              <column table="pwrc_id" column="bal_id" />
+              <column table="a" column="kod_fl" />
+            </call>
+            <call function="=">
+              <column table="pwrc_id" column="pwrc_id" />
+              <column table="a" column="pwrc_id" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_fl" />
+          <useparam name="kod_fl" />
+        </call>
+      </where>
+    </query>
+    <query name="52733_k_kg_name" comment="вместо 45862_kg_name_default_test2" class="1" timestamp="04.10.2022 15:10:00">
+      <params>
+        <param name="kod_fl" type="array" />
+        <param name="pwrc_id" type="array" />
+      </params>
+      <select>
+        <call function="||" as="k_kg_name" group="1">
+          <call function="nvl">
+            <column column="kod_kol_gr" table="kod_kol_gr" />
+            <call function="||">
+              <const>'-'</const>
+              <column table="a" column="pwrc_fdrid" />
+            </call>
+          </call>
+          <const>'-'</const>
+        </call>
+      </select>
+      <from>
+        <query as="a" name="hv_eopwrc_fdrs" />
+        <query name="45862_nastr_by_ym_test2" join="left outer" as="kod_kol_gr">
+          <call function="=">
+            <column table="a" column="pwrc_fdrid" />
+            <column table="kod_kol_gr" column="pwrc_fdrid" />
+          </call>
+        </query>
+        <query name="vb_rb_default_fdr" as="def_fdr" join="left outer">
+          <call function="=">
+            <column table="a" column="pwrc_fdrid" />
+            <column table="def_fdr" column="pwrc_fdrid" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="def_fdr" column="kod_fl" />
+            <useparam name="kod_fl" />
+          </call>
+          <call function="in">
+            <column table="a" column="pwrc_id" />
+            <useparam name="pwrc_id" />
+          </call>
+          <call function="is not null">
+            <column table="def_fdr" column="kod_id" />
+          </call>
+          <call function="not">
+            <call function="and">
+              <call function="=">
+                <call function="nvl">
+                  <column table="kod_kol_gr" column="fdr_in_auto_kg" />
+                  <const>-1</const>
+                </call>
+                <const>1</const>
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="kod_kol_gr" column="is_auto_kg_real" />
+                  <const>-1</const>
+                </call>
+                <const>0</const>
+              </call>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="main_52733_2" order="YM_START_ANALYZ, PWRCNAME, per_kg_s desc, REAL_FDR, srcname, src_fdrord" timestamp="03.10.2022 14:30:00">
+      <params>
+        <param type="number" name="year" />
+        <param name="kod_fl" type="array" />
+        <param name="hv_eopwrc_id" type="array" />
+        <param name="pwrc_id" type="array" />
+        <param name="pwrc_fdrid" type="array" />
+      </params>
+      <select>
+        <column table="d49277_kod_fl_real" column="kod_fl" exclude="1" />
+        <column table="d49277_kod_fl" column="kod_fl" />
+        <column table="d49277_pwrc" column="pwrc_id" />
+        <column table="k_gr_f_tp" column="src_id" />
+        <column table="grid_dtl_kg" column="src_fdrid" />
+        <call as="mnth" function="mes" type="number" group="max">
+          <call function="least">
+            <call function="ym add month">
+              <column table="d49277_kod_fl" column="ym" />
+              <const type="number">-1</const>
+            </call>
+            <call function="+">
+              <useparam name="year" />
+              <const type="number">0.12</const>
+            </call>
+          </call>
+        </call>
+        <call as="mnth" function="mes" group="max" exclude="1">
+          <call function="if">
+            <call function="gt">
+              <call function="ym add month" comment="Последний закрытый отчетный период">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="+">
+              <useparam name="year" />
+              <const>0.12</const>
+            </call>
+            <call function="ym add month" comment="Последний закрытый отчетный период">
+              <column table="d49277_kod_fl" column="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <column table="kg_name" column="kg_name_w_real_fdr" title="ДИСП №ФИД" as="pwrc_fdrname" intern="1" />
+        <column table="kg_name" column="k_kg_name" intern="1" />
+        <column table="kg_name" column="per_kg_s" as="per_kg_s" title="Период с для КГ" />
+        <column table="def_pwrc" column="kod_id" group="max" />
+        <column table="d49277_fdrid" column="pwrc_fdr_explname" group="stragg_dist" intern="1" />
+        <column table="d49277_fdrid" column="pwrc_fdr_balsnamex" group="stragg_dist" intern="1" />
+        <column table="d49277_kod_fl" column="name" as="fskname" group="max" intern="1" />
+        <column table="d49277_pwrc" column="pwrcn" group="max" title="ДИСП №ПС" as="pwrcname" intern="1" />
+        <column table="d49277_pwrc" column="ym_start_analyz" group="max" as="ym_start_analyz" title="Дата начала анализа" />
+        <column table="d49277_pwrc" column="pwrc_balsnamex" group="max" intern="1" />
+        <column table="k_gr_f_tp" group="max" column="real_fdr" as="real_fdr" intern="1" />
+        <column table="k_gr_f_tp" column="srcname" group="max" title="ТП, РП, КК" />
+        <column table="k_gr_f_tp" column="srcbalname" title="Балансовая принадоежность" group="max" intern="1" />
+        <column table="grid_dtl_kg" column="src_fdrname" group="max" title="ТП, РП, КК (для линий)" as="place_namefider" />
+        <call as="wp_in_01" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_02" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_03" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_04" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_05" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_06" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_07" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_08" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_09" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_10" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_11" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_in_12" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_in_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_01_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_01_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_01_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_01" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_02_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_02_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_02_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_02" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_03_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_03_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_03_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_03" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_04_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_04_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_04_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_04" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_05_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_05_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_05_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_05" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_06_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_06_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_06_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_06" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_07_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_07_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_07_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_07" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_08_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_08_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_08_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_08" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_09_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_09_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_09_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_09" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_10_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_10_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_10_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_10" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_11_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_11_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_11_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_11" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_12_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_1" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_12_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_2" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_12_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr_3" />
+          <const>0</const>
+        </call>
+        <call as="wp_out_12" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_wp_out_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_01" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_02" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_03" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_04" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_05" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_06" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_07" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_08" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_09" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_10" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_11" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_12" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_fdr" />
+          <const>0</const>
+        </call>
+        <call as="pnt_fdr_year" function="case">
+          <column table="this" column="mnth" />
+          <call function="when">
+            <const>1</const>
+            <column table="this" column="pnt_fdr_01" />
+          </call>
+          <call function="when">
+            <const>2</const>
+            <column table="this" column="pnt_fdr_02" />
+          </call>
+          <call function="when">
+            <const>3</const>
+            <column table="this" column="pnt_fdr_03" />
+          </call>
+          <call function="when">
+            <const>4</const>
+            <column table="this" column="pnt_fdr_04" />
+          </call>
+          <call function="when">
+            <const>5</const>
+            <column table="this" column="pnt_fdr_05" />
+          </call>
+          <call function="when">
+            <const>6</const>
+            <column table="this" column="pnt_fdr_06" />
+          </call>
+          <call function="when">
+            <const>7</const>
+            <column table="this" column="pnt_fdr_07" />
+          </call>
+          <call function="when">
+            <const>8</const>
+            <column table="this" column="pnt_fdr_08" />
+          </call>
+          <call function="when">
+            <const>9</const>
+            <column table="this" column="pnt_fdr_09" />
+          </call>
+          <call function="when">
+            <const>10</const>
+            <column table="this" column="pnt_fdr_10" />
+          </call>
+          <call function="when">
+            <const>11</const>
+            <column table="this" column="pnt_fdr_11" />
+          </call>
+          <call function="when">
+            <const>12</const>
+            <column table="this" column="pnt_fdr_12" />
+          </call>
+        </call>
+        <call as="pnt_grid_01_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_01_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_01_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_01" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.01</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_02_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_02_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_02_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_02" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.02</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_03_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_03_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_03_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_03" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.03</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_04_1" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_04_2" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_04_3" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_04" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.04</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_05_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_05_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_05_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_05" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.05</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_06_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_06_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_06_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_06" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.06</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_07_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_07_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_07_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_07" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.07</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_08_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_08_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_08_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_08" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.08</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_09_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_09_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_09_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_09" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.09</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_10_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_10_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_10_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_10" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.10</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_11_1" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_11_2" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_11_3" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_11" function="if" group="sum" nullif="0" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.11</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_12_1" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_1" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_12_2" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_2" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_12_3" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid_3" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_12" function="if" nullif="0" group="sum" type="number">
+          <call function="and">
+            <call function="=">
+              <column table="ym" column="val" />
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+            </call>
+            <call function="le">
+              <call function="+">
+                <useparam name="year" />
+                <const>0.12</const>
+              </call>
+              <call function="ym add month">
+                <column table="d49277_kod_fl" column="ym" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="vr_rb_fact_52733_2_pnt_grid" />
+          <const>0</const>
+        </call>
+        <call as="pnt_grid_year_1" function="case">
+          <column table="this" column="mnth" />
+          <call function="when">
+            <const>1</const>
+            <column table="this" column="pnt_grid_01_1" />
+          </call>
+          <call function="when">
+            <const>2</const>
+            <column table="this" column="pnt_grid_02_1" />
+          </call>
+          <call function="when">
+            <const>3</const>
+            <column table="this" column="pnt_grid_03_1" />
+          </call>
+          <call function="when">
+            <const>4</const>
+            <column table="this" column="pnt_grid_04_1" />
+          </call>
+          <call function="when">
+            <const>5</const>
+            <column table="this" column="pnt_grid_05_1" />
+          </call>
+          <call function="when">
+            <const>6</const>
+            <column table="this" column="pnt_grid_06_1" />
+          </call>
+          <call function="when">
+            <const>7</const>
+            <column table="this" column="pnt_grid_07_1" />
+          </call>
+          <call function="when">
+            <const>8</const>
+            <column table="this" column="pnt_grid_08_1" />
+          </call>
+          <call function="when">
+            <const>9</const>
+            <column table="this" column="pnt_grid_09_1" />
+          </call>
+          <call function="when">
+            <const>10</const>
+            <column table="this" column="pnt_grid_10_1" />
+          </call>
+          <call function="when">
+            <const>11</const>
+            <column table="this" column="pnt_grid_11_1" />
+          </call>
+          <call function="when">
+            <const>12</const>
+            <column table="this" column="pnt_grid_12_1" />
+          </call>
+        </call>
+        <call as="pnt_grid_year_2" function="case">
+          <column table="this" column="mnth" />
+          <call function="when">
+            <const>1</const>
+            <column table="this" column="pnt_grid_01_2" />
+          </call>
+          <call function="when">
+            <const>2</const>
+            <column table="this" column="pnt_grid_02_2" />
+          </call>
+          <call function="when">
+            <const>3</const>
+            <column table="this" column="pnt_grid_03_2" />
+          </call>
+          <call function="when">
+            <const>4</const>
+            <column table="this" column="pnt_grid_04_2" />
+          </call>
+          <call function="when">
+            <const>5</const>
+            <column table="this" column="pnt_grid_05_2" />
+          </call>
+          <call function="when">
+            <const>6</const>
+            <column table="this" column="pnt_grid_06_2" />
+          </call>
+          <call function="when">
+            <const>7</const>
+            <column table="this" column="pnt_grid_07_2" />
+          </call>
+          <call function="when">
+            <const>8</const>
+            <column table="this" column="pnt_grid_08_2" />
+          </call>
+          <call function="when">
+            <const>9</const>
+            <column table="this" column="pnt_grid_09_2" />
+          </call>
+          <call function="when">
+            <const>10</const>
+            <column table="this" column="pnt_grid_10_2" />
+          </call>
+          <call function="when">
+            <const>11</const>
+            <column table="this" column="pnt_grid_11_2" />
+          </call>
+          <call function="when">
+            <const>12</const>
+            <column table="this" column="pnt_grid_12_2" />
+          </call>
+        </call>
+        <call as="pnt_grid_year_3" function="case">
+          <column table="this" column="mnth" />
+          <call function="when">
+            <const>1</const>
+            <column table="this" column="pnt_grid_01_3" />
+          </call>
+          <call function="when">
+            <const>2</const>
+            <column table="this" column="pnt_grid_02_3" />
+          </call>
+          <call function="when">
+            <const>3</const>
+            <column table="this" column="pnt_grid_03_3" />
+          </call>
+          <call function="when">
+            <const>4</const>
+            <column table="this" column="pnt_grid_04_3" />
+          </call>
+          <call function="when">
+            <const>5</const>
+            <column table="this" column="pnt_grid_05_3" />
+          </call>
+          <call function="when">
+            <const>6</const>
+            <column table="this" column="pnt_grid_06_3" />
+          </call>
+          <call function="when">
+            <const>7</const>
+            <column table="this" column="pnt_grid_07_3" />
+          </call>
+          <call function="when">
+            <const>8</const>
+            <column table="this" column="pnt_grid_08_3" />
+          </call>
+          <call function="when">
+            <const>9</const>
+            <column table="this" column="pnt_grid_09_3" />
+          </call>
+          <call function="when">
+            <const>10</const>
+            <column table="this" column="pnt_grid_10_3" />
+          </call>
+          <call function="when">
+            <const>11</const>
+            <column table="this" column="pnt_grid_11_3" />
+          </call>
+          <call function="when">
+            <const>12</const>
+            <column table="this" column="pnt_grid_12_3" />
+          </call>
+        </call>
+        <call as="pnt_grid_year" function="case">
+          <column table="this" column="mnth" />
+          <call function="when">
+            <const>1</const>
+            <column table="this" column="pnt_grid_01" />
+          </call>
+          <call function="when">
+            <const>2</const>
+            <column table="this" column="pnt_grid_02" />
+          </call>
+          <call function="when">
+            <const>3</const>
+            <column table="this" column="pnt_grid_03" />
+          </call>
+          <call function="when">
+            <const>4</const>
+            <column table="this" column="pnt_grid_04" />
+          </call>
+          <call function="when">
+            <const>5</const>
+            <column table="this" column="pnt_grid_05" />
+          </call>
+          <call function="when">
+            <const>6</const>
+            <column table="this" column="pnt_grid_06" />
+          </call>
+          <call function="when">
+            <const>7</const>
+            <column table="this" column="pnt_grid_07" />
+          </call>
+          <call function="when">
+            <const>8</const>
+            <column table="this" column="pnt_grid_08" />
+          </call>
+          <call function="when">
+            <const>9</const>
+            <column table="this" column="pnt_grid_09" />
+          </call>
+          <call function="when">
+            <const>10</const>
+            <column table="this" column="pnt_grid_10" />
+          </call>
+          <call function="when">
+            <const>11</const>
+            <column table="this" column="pnt_grid_11" />
+          </call>
+          <call function="when">
+            <const>12</const>
+            <column table="this" column="pnt_grid_12" />
+          </call>
+        </call>
+        <fact column="vr_rb_eq_kg_pwrc_id" />
+        <column table="grid_dtl_kg" column="src_fdrord" as="src_fdrord" group="max" />
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="d49277_kod_fl_real" exclude="1" />
+          <link name="d49277_kod_fl" />
+          <link name="d49277_pwrc" />
+          <link name="d49277_bal_id" only-for-cond="1" />
+          <link name="d49277_fdrid" />
+          <link name="kg_name" />
+          <link name="def_pwrc" />
+          <link name="ym" />
+          <link name="k_gr_f_tp" />
+          <link name="grid_dtl_hist_kg" as="grid_dtl_kg" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="d49277_kod_fl_real" column="kod_fl" exclude="1" />
+                <column table="d49277_kod_fl" column="kod_fl" />
+                <useparam name="kod_fl" />
+              </call>
+              <call function="in">
+                <column table="d49277_bal_id" column="hv_eopwrc_id" />
+                <useparam name="hv_eopwrc_id" />
+              </call>
+              <call function="in">
+                <column table="d49277_fdrid" column="pwrc_fdrid" />
+                <useparam name="pwrc_fdrid" />
+              </call>
+              <call function="le">
+                <column table="ym" column="val" />
+                <call function="+">
+                  <useparam name="year" />
+                  <const>0.12</const>
+                </call>
+              </call>
+              <call function="le">
+                <column table="ym" column="val" />
+                <call function="ym add month">
+                  <column table="d49277_kod_fl" column="ym" />
+                  <const>-1</const>
+                </call>
+              </call>
+              <call function="ge">
+                <column table="ym" column="val" />
+                <column table="def_pwrc" column="ym_start_analyz" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="all" title="Всего" />
+        <grset as="fl" title="По филиалам" order="nullif(upper(fskname), 'КС') nulls last">
+          <group>
+            <sourcelink table="d49277_kod_fl_real" exclude="1" />
+            <sourcelink table="d49277_kod_fl" />
+          </group>
+          <grset as="ps" title="По сетям" order="kod_id">
+            <group>
+              <sourcelink table="d49277_pwrc" />
+            </group>
+            <grset as="fdr" title="По фидерам" order="(case when (SUBSTR( k_kg_name, 1 , 1) != '-') then 1 end) nulls last, pwrc_fdrname nulls first">
+              <group>
+                <sourcelink table="kg_name" />
+              </group>
+              <grset as="tp" title="По ТП" order="real_fdr, srcname">
+                <group>
+                  <sourcelink table="k_gr_f_tp" />
+                </group>
+                <where>
+                  <call function="is not null">
+                    <column table="this" column="src_id" />
+                  </call>
+                </where>
+                <grset as="line" title="По линиям" order="src_fdrord">
+                  <group>
+                    <column table="this" column="src_fdrid" />
+                  </group>
+                  <where>
+                    <call function="is not null">
+                      <column table="this" column="src_fdrid" />
+                    </call>
+                  </where>
+                </grset>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <!-- query name="52733_fdr_kg_missing_tp_single_year_flag" class="1" timestamp="22.11.2019 22:20:39">
+      <params>
+        <param name="pwrc_id" type="array" />
+        <param name="k_kg_name" type="array" />
+        <param name="year" type="number" />
+      </params>
+      <select>
+        <column table="a" column="src_id" group="count" />
+      </select>
+      <from>
+        <query name="kg_fdr_missing_tp" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <call function="trunc">
+              <column table="a" column="ym" />
+            </call>
+            <useparam name="year" />
+          </call>
+          <call function="or">
+            <call function="in">
+              <call function="||">
+                <column table="a" column="kod_kol_gr" />
+                <const>'-'</const>
+              </call>
+              <useparam name="k_kg_name" />
+            </call>
+            <call function="in">
+              <call function="||">
+                <const>'-'</const>
+                <column table="a" column="pwrc_fdrid" />
+                <const>'-'</const>
+              </call>
+              <useparam name="k_kg_name" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query -->
+    <query name="52733_fdr_kg_missing_tp_single_year_text" class="1" order="name, pwrcname, pwrc_fdrname, srcname" timestamp="04.10.2022 12:10:10">
+      <params>
+        <param name="k_kg_name" type="array" />
+        <param name="year" type="number" />
+      </params>
+      <select>
+        <call function="||" group="stragg" as="desc_text">
+          <column table="a" column="name" />
+          <const>' / '</const>
+          <column table="a" column="pwrcname" />
+          <const>' / '</const>
+          <column table="a" column="pwrc_fdrname" />
+          <const>' / '</const>
+          <column table="a" column="srcname" />
+          <call function="chr">
+            <const>13</const>
+          </call>
+          <call function="chr">
+            <const>10</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="52733_fdr_kg_missing_tp_single_year_text_pre" as="a">
+          <withparams>
+            <useparam name="k_kg_name" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="52733_fdr_kg_missing_tp_single_year_text_pre" class="1" order="name, pwrcname, pwrc_fdrname, srcname" timestamp="04.10.2022 12:08:10">
+      <params>
+        <param name="k_kg_name" type="array" />
+        <param name="year" type="number" />
+      </params>
+      <select>
+        <column table="kod_fl" column="name" group="1" />
+        <column table="tp" column="pwrcname" group="1" />
+        <column table="tp" column="pwrc_fdrname" group="1" />
+        <column table="tp" column="srcname" group="1" />
+      </select>
+      <from>
+        <query name="kg_fdr_missing_tp" as="a" />
+        <query name="vb_kol_gr_nastr" as="nastr" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_kol_gr" />
+              <column table="nastr" column="kod_kol_gr" />
+            </call>
+          </call>
+          <link name="kod_fl" />
+        </query>
+        <query name="hv_eopwrc_grid_dtl" as="tp" join="left outer">
+          <call function="=">
+            <column table="a" column="src_id" />
+            <column table="tp" column="src_id" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <call function="trunc">
+              <column table="a" column="ym" />
+            </call>
+            <useparam name="year" />
+          </call>
+          <call function="or">
+            <call function="in">
+              <call function="||">
+                <column table="a" column="kod_kol_gr" />
+                <const>'-'</const>
+              </call>
+              <useparam name="k_kg_name" />
+            </call>
+            <call function="in">
+              <call function="||">
+                <const>'-'</const>
+                <column table="a" column="pwrc_fdrid" />
+                <const>'-'</const>
+              </call>
+              <useparam name="k_kg_name" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

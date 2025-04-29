@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="title_ym_dep_addr_info" title="Инф-ция для титульного листа отчёта." class="1" timestamp="25.12.2023 16:30:10">
+      <params>
+        <param name="p_dep" type="array" />
+        <param name="p_ym_beg" type="number" />
+        <param name="p_ym_end" type="number" />
+        <param name="p_kod_adr_m" type="array" />
+      </params>
+      <select>
+        <call function="mes-name" as="mes">
+          <call function="mes">
+            <useparam name="p_ym_beg" />
+          </call>
+        </call>
+        <call function="trunc" as="year">
+          <useparam name="p_ym_beg" />
+        </call>
+        <call function="()" as="ym_beg" type="string">
+          <useparam name="p_ym_beg" />
+        </call>
+        <call function="()" as="ym_end" type="string" title=" " optional="1">
+          <call function="ym to char">
+            <useparam name="p_ym_end" />
+          </call>
+        </call>
+        <call function="if" as="p_dep_text" type="string" title="Отделение">
+          <call function="is not null">
+            <column table="a" column="name" />
+          </call>
+          <column table="a" column="name" />
+          <column table="a" column="sname" />
+        </call>
+        <call function="if" as="address_p" type="string">
+          <call function="is not null">
+            <column table="adr" column="kf_adress_o" />
+          </call>
+          <column table="adr" column="kf_adress_o" />
+          <const type="string">'  '</const>
+        </call>
+        <call function="nvl" type="string" as="adr_name">
+          <query>
+            <select>
+              <column table="bb" column="name_p" group="stragg_dist" />
+            </select>
+            <from>
+              <table name="adr_m" as="bb" />
+            </from>
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="in" optional="1">
+                  <column table="bb" column="kod_m" />
+                  <useparam name="p_kod_adr_m" />
+                </call>
+              </call>
+            </where>
+          </query>
+          <const>' '</const>
+        </call>
+        <call function="if" as="p_okpo" type="string">
+          <call function="is not null">
+            <column table="p" column="okpo" />
+          </call>
+          <column table="p" column="okpo" />
+        </call>
+        <call function="if" as="p_ogrn" type="string">
+          <call function="is not null">
+            <column table="p" column="ogrn" />
+          </call>
+          <column table="p" column="ogrn" />
+        </call>
+        <call function="if" as="p_inn" type="string" title="ИНН">
+          <call function="is not null">
+            <column table="p" column="inn" />
+          </call>
+          <column table="p" column="inn" function="stragg_dist" />
+        </call>
+        <call function="sysdate" as="dat" />
+        <column table="rs" column="name" type="string" title="Название энергосистемы" as="rs_name" />
+      </select>
+      <from>
+        <query name="kr_org" as="a" />
+        <query name="kr_payer" as="p" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="p" column="kodp" />
+          </call>
+        </query>
+        <query name="k_house" as="adr" join="left outer">
+          <call function="=">
+            <column table="p" column="kod_d_p" />
+            <column table="adr" column="kodd" />
+          </call>
+        </query>
+        <query name="rs_esys" join="cross" as="rs" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="p_dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

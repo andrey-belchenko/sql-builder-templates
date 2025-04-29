@@ -1,0 +1,1362 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T01:40:56.0304097+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="load_type" class="1" timestamp="06.05.2018 18:16:15" order="name" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\cspr_query.xml" haskeys="1">
+      <select>
+        <column table="a" column="kod_spr_query" type="number" column-mandatory="1" comment="ID" as="load_type_id" key="1" fixed="1" />
+        <column table="a" column="name" type="string" title="Наименование" comment="наименование" as="name" key="0" />
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" />
+      </select>
+      <from>
+        <table name="cspr_query" as="a" />
+      </from>
+      <order>
+        <column column="name" />
+      </order>
+    </query>
+    <query name="ks_bank" order="name" class="1" timestamp="24.05.2018 19:16:43" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\ks_bank.xml" haskeys="1">
+      <select>
+        <column table="a" column="kodb" type="number" title="" as="kodb" key="1" fixed="1" />
+        <column table="a" column="name" type="string" title="Банк" vid="1" is-name="1" as="name" key="0" />
+        <column table="a" column="filial" type="string" title="Филиал" is-name="1" vid="1" as="filial" key="0" />
+        <column table="a" column="bic" type="string" title="БИК" vid="1" as="bic" key="0" />
+        <column table="a" column="adr" type="string" title="" as="adr" key="0" />
+        <column table="a" column="ks" type="string" title="" as="ks" key="0" />
+        <column table="a" column="p_ind" type="string" title="" as="p_ind" key="0" />
+        <column table="a" column="u_m" type="string" title="" as="u_m" key="0" />
+        <column table="a" column="d_m" type="date" title="" as="d_m" key="0" />
+        <column table="a" column="kod_parent" type="number" as="kod_parent" reference="ks_bank" refcol="kodb" key="0" />
+        <column table="a" column="town" type="string" title="" comment="город банка. для печати в платежное требование" as="town" key="0" />
+        <column table="a" column="pr_active" type="number" title="" comment="0-активный,1-удаленный" as="pr_active" key="0" />
+        <column table="a" column="npp" type="number" title="" as="npp" key="0" />
+        <column table="a" column="prim" type="string" title="" comment="примечание" as="prim" key="0" />
+        <column table="a" column="telefon" type="string" title="" comment="телефон" as="telefon" key="0" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" as="abbr" key="0" />
+        <column table="a" column="d_c" type="date" title="" as="d_c" key="0" />
+        <column table="a" column="is_deleted" type="number" title="" as="is_deleted" key="0" />
+        <column table="a" column="kod_pay" type="number" comment="из справочника ks_pay_type" as="kod_pay" reference="ks_pay_type" refcol="kod_pay" key="0" />
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" />
+        <call function="||" as="sp_col_name" title="" key="0">
+          <column table="a" column="name" type="string" title="Банк" vid="1" is-name="1" />
+          <const>' '</const>
+          <column table="a" column="filial" type="string" title="Филиал" is-name="1" vid="1" />
+        </call>
+      </select>
+      <from>
+        <table name="ks_bank" as="a" />
+        <query name="ks_bank" as="kod_parent" join="left outer" dname="ks_bank">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kodb" />
+          </call>
+        </query>
+        <query name="ks_pay_type" as="kod_pay" join="left outer" dname="ks_bank">
+          <call function="=">
+            <column table="a" column="kod_pay" />
+            <column table="kod_pay" column="kod_pay" />
+          </call>
+        </query>
+      </from>
+      <order>
+        <column column="name" />
+      </order>
+    </query>
+    <query name="vr_packages" timestamp="09.01.2018 11:39:12" class="1" title="Настройки пакетов отчётов в sql.builder" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_packages.xml" haskeys="1">
+      <select>
+        <column column="kod_package" table="a" type="number" key="1" as="kod_package" />
+        <column table="a" column="title" type="string" data-size="100" column-mandatory="1" as="title" />
+        <column table="a" column="puser" type="string" data-size="30" title="Если заполнено - настройка видна только этому пользователю" as="puser" />
+        <column column="kod_menu" table="a" type="number" as="kod_menu" reference="rk_menu" refcol="kod_menu" />
+        <column table="a" column="u_m" type="string" data-size="30" as="u_m" />
+        <column table="a" column="d_m" type="date" as="d_m" />
+        <column table="a" column="t_m" type="string" data-size="100" as="t_m" />
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" />
+      </select>
+      <from>
+        <table name="vr_packages" as="a" title="Настройки пакетов отчётов в sql.builder" />
+        <query join="left outer" name="rk_menu" as="kod_menu" ConstrDelOption="set null" dname="vr_packages">
+          <call function="=">
+            <column table="a" column="kod_menu" />
+            <column table="kod_menu" column="kod_menu" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vr_package_reports" timestamp="09.01.2018 11:23:15" class="1" title="Натройки отчетов в пакете" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_package_reports.xml" haskeys="1">
+      <select>
+        <column column="kod_package_report" table="a" type="number" key="1" as="kod_package_report" />
+        <column column="kod_package" table="a" type="number" column-mandatory="1" as="kod_package" reference="vr_packages" refcol="kod_package" />
+        <column table="a" column="repname" type="string" data-size="30" title="Идентификатор отчёта" column-mandatory="1" as="repname" />
+        <column table="a" column="template" type="string" data-size="30" title="Идентификатор шаблона excel. Если не заполнен используется стандартный экспорт в excel" as="template" />
+        <column table="a" column="u_m" type="string" data-size="30" as="u_m" />
+        <column table="a" column="d_m" type="date" as="d_m" />
+        <column table="a" column="t_m" type="string" data-size="100" as="t_m" />
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" />
+      </select>
+      <from>
+        <table name="vr_package_reports" as="a" title="Натройки отчетов в пакете" />
+        <query join="left outer" name="vr_packages" as="kod_package" ConstrDelOption="cascade" dname="vr_package_reports" title="Настройки пакетов отчётов в sql.builder">
+          <call function="=">
+            <column table="a" column="kod_package" />
+            <column table="kod_package" column="kod_package" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vr_reports_consts" timestamp="19.10.2016 14:24:31" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_reports_consts.xml" haskeys="1">
+      <select>
+        <column table="a" column="kod_const" type="number" key="1" as="kod_const" />
+        <column table="a" column="kod_type" type="number" column-mandatory="1" as="kod_type" reference="vr_reports_consts_types" refcol="kod_type" />
+        <column table="a" column="repname" type="string" data-size="30" as="repname" />
+        <column table="a" column="value" type="string" data-size="4000" as="value" />
+        <column table="a" column="u_m" type="string" data-size="30" as="u_m" />
+        <column table="a" column="d_m" type="date" as="d_m" />
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" />
+      </select>
+      <from>
+        <table name="vr_reports_consts" as="a" />
+        <query join="left outer" name="vr_reports_consts_types" as="kod_type" dname="vr_reports_consts">
+          <call function="=">
+            <column table="a" column="kod_type" />
+            <column table="kod_type" column="kod_type" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vr_reports_consts_types" class="1" timestamp="19.10.2016 14:30:43" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_reports_consts.xml" haskeys="1">
+      <select>
+        <column table="a" column="kod_type" type="number" key="1" as="kod_type" />
+        <column table="a" column="name" type="string" is-name="1" vid="1" as="name" />
+      </select>
+      <from>
+        <table name="vr_reports_consts_types" as="a" view="1" />
+      </from>
+    </query>
+    <query name="vr_reports_consts_test" timestamp="18.10.2016 17:34:37" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_reports_consts.xml">
+      <select>
+        <call function="get_reports_const" as="const_" key="0">
+          <const>null</const>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="a" />
+      </from>
+    </query>
+    <query name="vr_repository_info" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_repository_info.xml" haskeys="1">
+      <select>
+        <column table="a" column="rep_table" type="string" title="" comment="таблица хранилища" as="rep_table" key="1" fixed="1" />
+        <column table="a" column="date_start" type="date" title="" comment="время начала последнего успешного формирования" as="date_start" key="0" />
+        <column table="a" column="date_end" type="date" title="" comment="время окончания последнего успешного формирования" as="date_end" key="0" />
+        <column table="a" column="date_start_upd" type="date" title="" comment="время начала последнего успешного обновления" as="date_start_upd" key="0"></column>
+        <column table="a" column="date_end_upd" type="date" title="" comment="время окончания последнего успешного обновления" as="date_end_upd" key="0"></column>
+        <column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" />
+        <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" />
+      </select>
+      <from>
+        <table name="vr_repository_info" as="a" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name">
+    <function name="is_job.set_id_slice_current" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      is_job.set_id_slice_current
+    </function>
+    <function name="vg_period.ym_enum_str_order " type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      vg_period.ym_enum_str_order (
+      <par><val /></par>
+      )
+    </function>
+    <function name="vg_period.ym_enum_str_to_ym_rng_str_uv " type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      vg_period.ym_enum_str_to_ym_rng_str_uv (
+      <par><val /></par>
+      )
+    </function>
+    <function name="vg_period.ym_enum_str_to_ym_ranges_str" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      vg_period.ym_enum_str_to_ym_ranges_str(
+      <par><val /></par>
+      )
+    </function>
+    <function name="vg_period.ym_enum_str_to_date_ranges_str" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      vg_period.ym_enum_str_to_date_ranges_str(
+      <par><val /></par>
+      )
+    </function>
+    <function name="sg_peny_helper.get_refin_perc" type="number" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      sg_peny_helper.get_refin_perc(
+      <par><val /></par>, 
+      <par><val /></par>
+      )
+    </function>
+    <function name="ur_save.f_num_reg_s" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ur_save.f_num_reg_s(
+      <par1><val /></par1>, null
+      )
+    </function>
+    <function name="ng_account.f_category_account" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ng_account.f_category_account(
+      <par1><val /></par1>
+      )
+    </function>
+    <function name="ng_account.f_category_account_fik" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ng_account.f_category_account(
+      <par1><val />,1
+      </par1>
+      )
+    </function>
+    <function name="is_du.f_koef_load_units" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      is_du.f_koef_load_units(
+      <par1><val /></par1>
+      )
+    </function>
+    <function name="nk_adress.kf_address" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      nk_adress.kf_address(
+      <par1><val />,
+      </par1><par2><val /></par2>
+      )
+    </function>
+    <function name="qg_settings_read.f_is_contains_value_nb" type="number" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      qg_settings_read.f_is_contains_value_nb('AGREE',
+      <par1><val /></par1>)
+    </function>
+    <function name="is_period_.get_srok_doc" type="number" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      IS_PERIOD_.get_srok_doc(
+      <par1><val />,
+      </par1><par2><val /></par2>)
+    </function>
+    <function name="is child npp" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      <par1>
+        <val />
+      </par1>
+      in (select npp from ks_tarif connect by tarif_parent=  prior  tarif start with npp in 
+      <par1><val /></par1>
+      )
+    </function>
+    <function name="is child between npp" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      <par1>
+        <val />
+      </par1>
+      in (select npp from ks_tarif connect by tarif_parent=  prior  tarif start with npp between 
+      <par1><val /></par1>
+       and <par1><val /></par1>
+      )
+    </function>
+    <function name="is not child npp" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      <par1>
+        <val />
+      </par1>
+      not in (select npp from ks_tarif connect by tarif_parent=  prior  tarif start with npp in
+      <par1><val /></par1>
+      )
+    </function>
+    <function name="AS_ADDR_LP_PRINT" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      AS_ADDR_LP_PRINT(
+      <par1><val />,
+      </par1><par2><val />,
+      </par2><par3><val />,
+      </par3><par4><val />,
+      </par4><par5><val /></par5>
+      )
+    </function>
+    <function name="asuse.get_srcdnum" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      asuse.get_srcdnum(
+      <par1><val /></par1>
+    
+    )
+  </function>
+    <function name="ipr_tituls_characters.getSummCharValuesByKS14" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ipr_tituls_characters.getSummCharValuesByKS14(
+      <par1><val />,
+      </par1>
+      null,
+      <par2><val />,
+      </par2>
+      1,
+      3,
+      <par3><val /></par3>
+      )
+    </function>
+    <function name="ipr_ipr_data.val" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ipr_tituls_display.getsummarycharactervalues_doc(
+      <par><val /></par>,
+      <par><val /></par>,
+      <par><val /></par>,
+      <par><val /></par>, 0, null, null, null, null)
+    </function>
+    <function name="ipr_tituls_display.getdatecontrsteps" type="date" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ipr_tituls_display.GetDateContrSteps(<par1><val />,
+    </par1><par2><val />,
+    </par2><par3><val />,
+    </par3><par4><val /></par4>)
+    </function>
+    <function name="ipr_tituls_display.getprevcontrstepsdoc" type="number" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ipr_tituls_display.GetPrevContrStepsDoc(<par1><val />,
+      </par1><par2><val />,
+      </par2><par3><val /></par3>)
+    </function>
+    <function name="ur_read_bd.f_gp_doc" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ur_read_bd.f_gp_doc (<par><val /></par>,<par><val /></par>)
+    </function>
+    <function name="get_reports_const" type="string" comment="par1 - repname, par2 - kod_type" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      ( 
+        select max(value) from vr_reports_consts where (
+        <par1><val />
+        is null or 
+          <val /></par1>
+        = repname)
+        and kod_type =
+        <par2><val /></par2>
+      )
+    </function>
+    <function name="HG_PASP_PU_R.I_NOM_SK" type="string" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      HG_PASP_PU_R.I_NOM_SK
+      (
+        <par><val /></par>
+      )
+    </function>
+    <function name="podr_dep" type="number" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+		nvl((select distinct first_value(kodp) over (order by kod_separator desc nulls last)
+		from kr_org
+		where kod_separator &lt;= 2
+      start with kr_org.kodp = <par1><val /></par1>
+      connect by prior kod_parent = kodp),null)
+    </function>
+    <function name="t_vl_vdr.get_vdr_calc_by_kod_obj" type="number" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+    t_vl_vdr.get_vdr_calc_by_kod_obj(<par1><val /></par1>,<par2><val /></par2>)
+    </function>
+    <function name="user_rights_kod_menu" type="number" comment="par1 - kod_menu" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+		(select nvl(max(kod_rights),0)
+		from rr_usermenu
+		where PUSER = USER and kod_menu = <par1><val /></par1>
+		)
+	</function>
+    <function name="IsPointFromPr15" timestamp="15.06.2019 20:02:29" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+      asuse.IsPointFromPr15
+      (
+      <par><val /></par>
+      )
+    </function>
+    <function name="kg_soh_payer.get_fias" type="string" comment="par1 - kodd" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\functions.ext.xml">
+		kg_soh_payer.get_fias (
+		<par><val /></par>
+		)
+	</function>
+  </functions>
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id">
+    <view name="vr_reports_consts_types" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_reports_consts.xml">
+      select 1 as kod_type, 'Виза 1: ФИО' as name from dual
+      union all
+      select 2 , 'Виза 1: Должность' from dual
+    </view>
+  </views>
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name">
+    <form name="vr_packages" timestamp="09.01.2018 13:35:54" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\extension\vr_packages.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title="Пакеты">
+            <grid table="vr_packages">
+              <columns>
+                <column table="vr_packages" column="kod_package" />
+                <column table="vr_packages" column="title" />
+                <column table="vr_packages" column="puser" />
+                <column table="vr_packages" column="kod_menu" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title="Отчёты">
+            <grid table="vr_package_reports">
+              <columns>
+                <column table="vr_package_reports" column="kod_package_report" />
+                <column table="vr_package_reports" column="kod_package" />
+                <column table="vr_package_reports" column="repname" />
+                <column table="vr_package_reports" column="template" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="vr_packages">
+          <elink name="vr_package_reports" />
+        </query>
+      </from>
+    </form>
+    <form name="vr_reports_consts" title="Настраиваемые поля в отчетах" timestamp="21.11.2016 14:28:03" is-report="1" folder="invpro" class="1" with-behavior="0" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\scheme\original\vr_reports_consts.xml">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand button-type="grid-add" column-visible="0" />
+            <uicommand button-type="grid-delete" column-visible="0" />
+          </toolbar>
+          <columns>
+            <column table="a" column="kod_type" title="Название константы" column-editable="0" />
+            <column table="a" column="value" title="Значение" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="vr_reports_consts" as="a" />
+      </from>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id">
+    <field id="asuse_kod_lim_doc" name="kod_lim_doc" controlType="UICombo" title="Гос. контракт" type="number" timestamp="06.02.2022 15:10:46" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_limit_doc" />
+      </listquery>
+    </field>
+    <field id="asuse_prizn_arch_folder" name="prizn_arch_folder" controlType="UIList" title="Статус папки" type="number" timestamp="13.04.2017 13:26:17" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="prizn_arch_folder" />
+      </listquery>
+    </field>
+    <field id="asuse_vvod_folder" name="vvod_folder" controlType="UIList" title="Режим ввода сумм" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ur_folders_vvod" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_emp_urist" name="kod_emp_urist" controlType="UIList" title="Юрист" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_employee_urists"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_doc_sdp1" name="kod_doc_sdp1" controlType="UIList" title="Вид документа" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_doc_sdp1"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_subject" name="kod_subject" controlType="UIList" title="Предмет иска" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_subject"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_sud" name="kod_sud" controlType="UIList" title="Суд" parent-field-name="kod_parent" expand-all="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_sud_list" />
+      </listquery>
+    </field>
+    <field id="asuse_prizn_activ_mat" name="prizn_activ_mat" controlType="UIList" title="Состояние документов" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="prizn_activ_mat" />
+      </listquery>
+    </field>
+    <field id="asuse_prizn_arch_pretenz" name="prizn_arch_pretenz" controlType="UIList" title="Статус претензии" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="prizn_arch_pretenz" />
+      </listquery>
+      <defaultquery>
+        <query name="prizn_arch_pretenz_act" />
+      </defaultquery>
+    </field>
+    <field id="asuse_prizn_arch_mat" name="prizn_arch_mat" controlType="UIList" title="Статус иска" type="number" timestamp="13.04.2017 13:28:07" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="prizn_arch_mat" />
+      </listquery>
+    </field>
+    <field id="asuse_prizn_arch_isp" name="prizn_arch_isp" controlType="UIList" title="Статус исп. листа" type="number" timestamp="13.04.2017 13:28:46" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="prizn_arch_isp" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_zased" name="kod_zased" controlType="UIList" title="Судья" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_zased_sud" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_post" name="kod_post" controlType="UIList" title="Судебный акт" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_post_sdp1" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_result" name="kod_result" controlType="UIList" title="Результат рассмотрения" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_result_sdp1" />
+      </listquery>
+    </field>
+    <field id="asuse_ym" name="ym" controlType="UICombo" type="number" title="Период" mandatory="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_list"></query>
+      </listquery>
+      <defaultquery>
+        <query name="kr_calc_max"></query>
+      </defaultquery>
+    </field>
+    <field id="asuse_ym_noma" name="ym" controlType="UICombo" type="number" title="Период" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_list"></query>
+      </listquery>
+    </field>
+    <field id="asuse_ym_othr" name="ym" controlType="UICombo" type="number" title="Период" timestamp="11.09.2017 00:29:33" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="spr_time_ym" />
+      </listquery>
+      <defaultquery>
+        <query name="spr_time_ym_cur" />
+      </defaultquery>
+    </field>
+    <field id="asuse_ym12" name="ym" controlType="UIComboRange" title="Отчётный период" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_list"></query>
+      </listquery>
+      <defaultquery>
+        <query name="kr_calc_max"></query>
+      </defaultquery>
+    </field>
+    <field id="asuse_year" name="year" controlType="UICombo" title="Год" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_year_list" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_calc_year_max" />
+      </defaultquery>
+    </field>
+    <field id="asuse_year1" name="year" controlType="UICombo" title="Год" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="spr_time_year" />
+      </listquery>
+      <defaultquery>
+        <query name="spr_time_year_cur" />
+      </defaultquery>
+    </field>
+    <field id="asuse_year_list" name="year" controlType="UIList" title="Год" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="spr_time_year" />
+      </listquery>
+    </field>
+    <field id="asuse_year2" name="year" controlType="UICombo" title="Год" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="spr_time_year" />
+      </listquery>
+      <defaultquery>
+        <query name="spr_time_year_cur" />
+      </defaultquery>
+    </field>
+    <field id="asuse_kv2" name="kv" controlType="UICombo" title="Квартал" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="spr_time_kv" />
+      </listquery>
+      <defaultquery>
+        <query name="spr_time_kv_cur" />
+      </defaultquery>
+    </field>
+    <field id="asuse_dep" name="dep" controlType="UIList" title="Отделение" type="number" timestamp="13.05.2019 13:13:44" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dep" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_dep_current" />
+      </defaultquery>
+    </field>
+    <field id="asuse_dep_byt" name="dep" controlType="UIList" title="Отделение" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dep_byt" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_dep_current" />
+      </defaultquery>
+    </field>
+    <field id="asuse_dep_single" name="dep" controlType="UICombo" title="Отделение" type="number" mandatory="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dep" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_dep_current" />
+      </defaultquery>
+    </field>
+    <field id="asuse_kod_podr" name="kod_podr" controlType="UIList" title="Участок" timestamp="17.11.2016 16:08:31" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_org_podr" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_podr_byt" name="kod_podr" controlType="UIList" title="Участок" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_org_podr_byt"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_emp_contr" name="kod_emp_contr" controlType="UIList" title="Контроллёр" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_employee_contr"></query>
+      </listquery>
+    </field>
+    <field id="asuse_dog_resp" type="number" controlType="UIList" name="kodp_resp" title="Ответственное подразделение" parent-field-name="kod_parent" auto-check="1" timestamp="17.11.2016 16:10:35" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_org_resp" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_okved" type="number" controlType="UIList" name="kod_okved" title="ОКВЭД" auto-check="1" name-field-name="name" parent-field-name="parent_kod_okved" timestamp="08.08.2020 04:55:24" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_okved_tree" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_group_cust_parent" type="number" name="kod_group_cust_parent" controlType="UIList" name-field-name="name" title="Группа потребителей" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_group_cust_parent_list" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_group_cust" type="number" name="kod_group_cust" controlType="UIList" name-field-name="name" title="Подгруппа потребления" timestamp="18.11.2016 16:28:06" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_group_cust_list" />
+      </listquery>
+    </field>
+    <field id="asuse_tep_el" name="tep_el" type="number" controlType="UIList" title="Вид услуг" timestamp="17.11.2016 15:59:52" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_tep_el_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_vdog" name="kod_vdog" type="number" controlType="UIList" title="Вид документа" timestamp="17.11.2016 15:59:52" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_vdog_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_vid_tehn" type="number" name="vid_tehn" controlType="UIList" title="Технология обработки" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_spras_vid_tehn" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_ndog" type="string" name="ndog" controlType="UIText" title="Номер договора" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml" />
+    <field id="asuse_kod_bzad" type="number" name="kod_bzad" controlType="UIList" title="Срок наступления задолженности" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ss_zadol_day_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_prizn_activ_dog" type="number" name="prizn_activ_dog" controlType="UIList" title="Статус" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_active_list" />
+      </listquery>
+      <defaultquery>
+        <query name="kk_active_list_default" />
+      </defaultquery>
+    </field>
+    <field id="asuse_kod_tipdoc_dog" type="number" name="kod_tipdoc_dog" controlType="UIList" title="Тип документа" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_tipdoc_dog_list" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_abon_type" name="kod_abon_type" controlType="UIList" title="Тип абонента" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_payer_abon_type" />
+      </listquery>
+      <defaultquery>
+        <query name="abon_type_current" />
+      </defaultquery>
+    </field>
+    <field id="asuse_name_abon" name="name_abon" controlType="UIText" title="ФИО ответственного абонента" type="string" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml" />
+    <field id="asuse_nump_abon" name="nump_abon" controlType="UIText" title="Код абонента (Лицевой счёт)" type="string" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml" />
+    <field id="asuse_kod_adress_type_fiz" name="kod_adress_type" controlType="UICombo" title="Тип адреса" type="number" mandatory="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adress_type_fiz" />
+      </listquery>
+    </field>
+    <field id="asuse_prizn_activ_abon" type="number" name="prizn_activ_abon" controlType="UIList" title="Статус" timestamp="08.05.2020 18:44:50" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_active_list" />
+      </listquery>
+      <defaultquery>
+        <query name="kk_active_list_default" />
+      </defaultquery>
+    </field>
+    <field id="asuse_kod_ecls" type="number" name="kod_ecls" controlType="UIList" title="Энергосистема" oldnames="kod_ecls_abon" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_cls" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_m" type="number" name="kod_m" controlType="UIList" title="Министерство" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_ministry"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_otrasl" type="number" name="kod_otrasl" controlType="UIList" title="Отрасль" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_otrasl" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_fs" type="number" name="kod_fs" controlType="UIList" title="Форма собственности" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_fs" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_busin" type="number" name="kod_busin" controlType="UIList" title="Основание для прекращения деятельности" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="us_busin" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_emp_dolzh" type="number" name="kod_emp_dolzh" name-field-name="fio" controlType="UIList" title="Должностное лицо" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_employee_dolzh"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_emp_otv" type="number" name="kod_emp_otv" name-field-name="fio" controlType="UIList" title="Ответственный сотрудник" timestamp="18.11.2016 15:27:38" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_employee_otv" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_namedolzh" name="kod_namedolzh" type="number" controlType="UIList" title="Должность" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_namedolzh_list"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_dolzhfun" name="kod_dolzhfun" type="number" controlType="UIList" title="Должностная функция" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_dolzhfun_list"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kod_bu_org" name="kod_bu_org" type="number" controlType="UICombo" title="Организация, составившая акт" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="hr_bu_org"></query>
+      </listquery>
+    </field>
+    <field id="asuse_kodp" name="kodp" controlType="UIList" title="Абонент" type="number" rows-limit="100" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_payer_list" />
+      </listquery>
+    </field>
+    <field id="asuse_tarif" controlType="UIList" type="number" name="tarif" title="Тариф" parent-field-name="tarif_parent" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_tarif_list" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_point_dost" type="number" controlType="UIList" name="kod_point_dost" title="Доступ к ТУ" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ts_point_dost_list" />
+      </listquery>
+    </field>
+    <field id="asuse_typepu" type="number" controlType="UIList" name="kod_tippu" title="Тип ПУ" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="hv_typepu_list" />
+      </listquery>
+    </field>
+    <field id="asuse_adr_m" name="kod_adr_m" type="number" controlType="UIList" title="Населенный пункт" parent-field-name="k_npw" auto-check="1" timestamp="26.08.2016 13:28:24" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_list" />
+      </listquery>
+    </field>
+    <field id="asuse_adr_m2" name="kod_adr_m" type="number" controlType="UIList" title="Населенный пункт" parent-field-name="k_npw" auto-check="1" timestamp="25.07.2024 13:28:24" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_list2" />
+      </listquery>
+    </field>
+    <field id="asuse_k_strits" type="number" name="kod_street" controlType="UIList" rows-limit="100" title="Улица" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="k_strits-list" />
+      </listquery>
+    </field>
+    <field id="asuse_k_house_chet" type="number" name="kod_chet" controlType="UIList" title="Сторона улицы" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="k_house_chet" />
+      </listquery>
+    </field>
+    <field id="asuse_k_house" type="number" name="kodd" controlType="UIList" rows-limit="1000" title="Дом" search-field-name="nd" timestamp="02.08.2017 13:03:15" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="k_house-list2" />
+      </listquery>
+    </field>
+    <field id="asuse_k_house-flats" type="number" name="kodd_flat" controlType="UIList" rows-limit="100" title="Квартира" search-field-name="flat" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="k_house-flats-list" />
+      </listquery>
+    </field>
+    <field id="asuse_hs_terr" type="number" name="kod_terr" controlType="UIList" title="Зона обхода" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="hs_terr" />
+      </listquery>
+    </field>
+    <field id="asuse_calctype_byt" type="number" name="calctype" controlType="UIList" title="Тип расчёта" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="nk_tcalc_byt-list" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_dog_org" type="number" name="kod_dog_org" name-field-name="name" controlType="UIList" title="Управляющая компания" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dogovor_org-list" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_vid_upr" type="number" name="kod_vid_upr" controlType="UIList" title="Вид управления" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ts_vid_upr" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_upr_house" type="number" name="kod_upr_house" controlType="UIList" title="Тип управления" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="tk_upr_house" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_dog" controlType="UIList" title="Договор" name="kod_dog" type="number" rows-limit="100" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dogovor_list(dep)" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_dog_cmb" controlType="UICombo" title="Договор" name="kod_dog" type="number" rows-limit="100" timestamp="14.06.2023 14:57:15" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dogovor_list(dep)_A" />
+      </listquery>
+    </field>
+    <field id="asuse_kodp_cmb" name="kodp" controlType="UICombo" title="Абонент" type="number" rows-limit="100" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_payer_list" />
+      </listquery>
+    </field>
+    <field id="asuse_vid_real" name="vid_real" controlType="UIList" title="Вид реализации" type="number" timestamp="03.10.2016 23:50:41" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_vid_real" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_vid_real_cmb" name="vid_real" controlType="UICombo" title="Вид реализации" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_vid_real" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_vid_t_cmb" name="vid_t" controlType="UICombo" title="Вид начисления" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_nachisl(vidreal)" />
+      </listquery>
+    </field>
+    <field id="asuse_bankpol" type="number" name="kodbpol" controlType="UIList" title="Банк получателя" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_bankpol_list"></query>
+      </listquery>
+    </field>
+    <field id="asuse_vid_real_no_av" name="vid_real" controlType="UIList" title="Вид реализации" type="number" timestamp="03.10.2016 23:59:12" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_vid_real_list_no_avans" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_vid_real_main" name="vid_real" controlType="UIList" title="Вид реализации" type="number" timestamp="03.10.2016 23:59:38" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_vid_real_list_main" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_edo" type="number" name="kod_edo" controlType="UIList" title="Оператор ЭДО" name-field-name="name_edo" timestamp="18.11.2016 17:46:28" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_edo_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_istfin" type="number" name="kod_istfin" controlType="UIList" title="Источник финансирования" show-nulls="1" timestamp="18.11.2016 17:46:28" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_istfin_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kodp_plat" type="number" name="kodp_plat" controlType="UIList" title="Плательщик" rows-limit="100" show-nulls="1" timestamp="18.11.2016 17:46:28" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_payer_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kodp_gruz" type="number" name="kodp_gruz" controlType="UIList" title="Грузополучатель" rows-limit="100" show-nulls="1" timestamp="18.11.2016 17:46:28" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_payer_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_dog_rassh" type="number" name="rassh" controlType="UIList" title="Расчётный счет" rows-limit="100" show-nulls="1" timestamp="18.11.2016 17:46:28" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dogovor_rassh_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_kazn" name="kod_kazn" type="number" controlType="UIList" title="Казначейство" rows-limit="100" show-nulls="1" timestamp="21.11.2016 12:52:53" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_kazn_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kodb" name="kodb" type="number" controlType="UIList" title="Банк" show-nulls="1" parent-field-name="kod_parent" timestamp="21.11.2016 17:40:20" expand-all="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_bank_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_dog_lic_kazn" type="number" name="lic_kazn" controlType="UIList" title="Счёт в казначействе" rows-limit="100" show-nulls="1" timestamp="21.11.2016 17:52:12" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dogovor_lic_kazn_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_obj_fs" type="number" name="kod_obj_fs" controlType="UIList" title="Принадлежность оборудования" timestamp="22.11.2016 14:47:17" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_obj_fs_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_vid_avans" type="number" name="vid_avans" controlType="UIList" title="Вид аванса" timestamp="22.11.2016 11:24:56" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_vid_avans_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_pr_vist_av" type="number" name="pr_vist_av" controlType="UIList" title="Признак выставления аванса" timestamp="22.11.2016 11:24:56" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_vist_day_pr_vist_av" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_numobj" type="number" name="kod_numobj" controlType="UIList" title="Объекты договора" rows-limit="100" timestamp="22.11.2016 15:50:22" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_numobj_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kodnaznteplo" type="number" name="kodnaznteplo" controlType="UIList" title="Назначение здания" show-nulls="1" timestamp="22.11.2016 17:02:28" parent-field-name="kod_parent" expand-all="1" auto-check="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ds_naznhouse_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_tarif_ul" type="number" controlType="UIList" name="tarif" title="Тариф" parent-field-name="tarif_parent" expand-all="1" timestamp="22.11.2016 17:21:31" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_tarif_list_ul" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_separator" type="number" name="kod_separator" controlType="UIList" title="Уровень иерархии в ЭС" timestamp="23.11.2016 11:20:06" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_orgseparator_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_tiptn_tep" type="number" name="kod_tiptn" controlType="UIList" title="Тип нагрузки" timestamp="23.11.2016 17:22:06" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ds_tnagr_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_vidtn" type="number" name="kod_vidtn" controlType="UIList" title="Теплоноситель" timestamp="23.11.2016 17:57:26" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="qk_vidtn_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_zak_avans" type="number" name="kod_zak_avans" controlType="UIList" title="Постановление по авансам" timestamp="23.11.2016 20:12:28" show-nulls="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kk_zak_avans_list" as="a" />
+      </listquery>
+    </field>
+    <field id="asuse_kv" name="kv" controlType="UICombo" title="Квартал" type="number" timestamp="24.03.2017 13:54:32" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="spr_time_kv" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_f23" name="kod_f23" type="number" controlType="UIList" title="Принадлежность объектов" parent-field-name="kod_r" name-field-name="name" auto-check="1" timestamp="26.08.2016 13:28:24" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="hs_23_list" />
+      </listquery>
+    </field>
+    <field id="asuse_abon_nump" type="string" name="abon_nump" controlType="UIList" title="Лицевые счета" timestamp="27.09.2017 15:48:06" rows-limit="100" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_payer_nump_list" />
+      </listquery>
+    </field>
+    <field id="asuse_obj_id_adres" type="string" name="obj_id_adres" controlType="UIList" title="Лицевые счета" timestamp="02.10.2017 22:02:24" rows-limit="100" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_object_id_adres_list" />
+      </listquery>
+    </field>
+    <field id="load_type" controlType="UIList" title="Тип заявки" type="number" name="load_type_id" timestamp="06.05.2018 18:09:49" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="load_type" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_dog_fin_cmb" controlType="UICombo" title="Договор" name="kod_dog" type="number" rows-limit="100" timestamp="30.10.2018 18:09:12" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_dogovor_list_fin(dep)" />
+      </listquery>
+    </field>
+    <field id="asuse_kod_group_cust_recursive" type="number" name="kod_group_cust_recursive" controlType="UIList" name-field-name="name" title="Подгруппа потребления" timestamp="11.03.2019 21:55:11" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="ks_group_cust_list_recursive" />
+      </listquery>
+    </field>
+    <field id="asuse_year_since_2010" name="year" controlType="UICombo" title="Год" mandatory="1" type="number" timestamp="20.11.2019 14:42:38" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_year_list_since_2010" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_calc_year_max" />
+      </defaultquery>
+    </field>
+    <field id="asuse_prizn_arch_folder_all" name="prizn_arch_folder" controlType="UIList" title="Статус папки" type="number" timestamp="25.04.2020 16:51:06" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="prizn_arch_folder" />
+      </listquery>
+      <defaultquery>
+        <query name="prizn_arch_folder_all" inherit="prizn_arch_folder" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_folders.xml" />
+      </defaultquery>
+    </field>
+    <field id="asuse_vid_t" name="vid_t" controlType="UIList" title="Вид начисления" type="number" timestamp="27.03.2021 03:34:58" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="sk_nachisl(vidreal)" />
+      </listquery>
+    </field>
+    <field id="asuse_ym_tek" name="ym" controlType="UICombo" type="number" title="Период" mandatory="1" timestamp="05.06.2023 16:19:40" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_list_tek_1" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_calc_max_tek" />
+      </defaultquery>
+    </field>
+    <field id="asuse_adr_m_subject" name="kod_adr_m" type="number" controlType="UIList" val-field-name="kod_m" name-field-name="name_p" auto-check="1" title="Субъект федерации" timestamp="04.02.2022 23:33:28" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_subject_list" />
+      </listquery>
+    </field>
+    <field id="asuse_adr_m_subject_dep" name="kod_adr_m" type="number" controlType="UIList" auto-check="1" title="Субъект Федерации" comment="субьект Федерации в зависимости от договоров в отделении" timestamp="31.07.2023 13:35:52" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_subject_list_dep" />
+      </listquery>
+    </field>
+    <field id="asuse_ym_tek_dep" name="ym" controlType="UICombo" type="number" title="Период" mandatory="1" timestamp="06.06.2023 15:00:45" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kr_calc_list_tek_dep_1" />
+      </listquery>
+      <defaultquery>
+        <query name="kr_calc_max_tek_dep" />
+      </defaultquery>
+    </field>
+    <field id="asuse_adr_m_obj_dep" name="kod_adr_m" type="number" controlType="UIList" auto-check="1" title="Субъект РФ" comment="Субьект РФ по объектам в зависимости от договоров в отделении" timestamp="04.03.2025 16:01:39" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_obj_list_dep" />
+      </listquery>
+    </field>
+    <field id="asuse_adr_m_obj_dep_sng" name="kod_adr_m" type="number" controlType="UICombo" auto-check="1" title="Субъект Федерации" comment="Субьект Федерации по объектам в зависимости от договоров в отделении" timestamp="31.07.2023 11:18:03" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_obj_list_dep" />
+      </listquery>
+      <defaultquery>
+        <query name="adr_m_obj_list_dep" />
+      </defaultquery>
+    </field>
+    <field id="asuse_adr_m_obj_dep_reset" name="kod_adr_m" type="number" controlType="UIList" auto-check="1" title="Субъект Федерации" comment="Сделано для примера, если не используется можно удалить (Бельченко)" timestamp="13.09.2023 17:24:06" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_obj_list_dep" />
+      </listquery>
+      <defaultquery>
+        <query name="adr_m_obj_list_dep_empty" />
+      </defaultquery>
+    </field>
+    <field id="asuse_kv_str_list" name="kvartal" controlType="UICombo" mandatory="1" type="number" title="Квартал" timestamp="07.08.2024 14:00:14" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="kvartal" />
+      </listquery>
+    </field>
+    <field id="asuse_adr_m_subject_sng" name="kod_adr_m" type="number" controlType="UICombo" val-field-name="kod_m" name-field-name="name_p" auto-check="1" title="Субъект федерации" timestamp="22.12.2024 22:21:30" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+      <listquery>
+        <query name="adr_m_subject_list" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_tree_struct" controlType="UICombo" name="kod_tree_struct" title="Структура" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="vr_tree_struct" />
+      </listquery>
+    </field>
+    <field id="ipr_doc_osn" name="doc_osn" controlType="UICombo" title="Год ИПР/Документ" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_doc_main_list"></query>
+      </listquery>
+    </field>
+    <field id="ipr_kod_direct" name="kod_direct" controlType="UIList" title="Подразделение" type="number" timestamp="15.03.2017 11:37:29" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_direct_list" />
+      </listquery>
+    </field>
+    <field id="kido_kod_direct" name="kod_direct" controlType="UIList" title="Филиалы" type="number" timestamp="15.03.2017 11:37:29" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_direct_kido_deps" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_dirisp" name="kod_dirisp" controlType="UICombo" title="Заказчик/Исполнитель" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_dirisp2"></query>
+      </listquery>
+      <defaultquery>
+        <query name="is_spr_dirisp_isp"></query>
+      </defaultquery>
+    </field>
+    <field id="ipr_kod_dirisp_all" name="kod_dirisp_all" controlType="UICombo" title="Заказчик/Исполнитель" type="number" column-mandatory="1" timestamp="15.03.2017 11:37:27" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_dirisp" />
+      </listquery>
+      <defaultquery>
+        <query name="is_spr_dirisp_isp" />
+      </defaultquery>
+    </field>
+    <field id="ipr_pr_notaip" name="pr_notaip" controlType="UICheck" title="Исключить титулы АИП" checked="1" type="number" timestamp="15.03.2017 11:37:21" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml" />
+    <field id="ipr_mp" name="mp" controlType="UICombo" title="Денежная единица" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="26630-mp"></query>
+      </listquery>
+      <defaultquery>
+        <query name="26630-mp-default"></query>
+      </defaultquery>
+    </field>
+    <field id="ipr_doc_osn_list" name="doc_osn" controlType="UIList" title="Год ИПР/Документ" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_doc_main_list" />
+      </listquery>
+    </field>
+    <field id="ipr_ym" name="ym" controlType="UICombo" title="Период" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="spr_time_ym2_list" />
+      </listquery>
+    </field>
+    <field id="ipr_subject" name="kod_subject" controlType="UIList" title="Субъект Федерации" type="number" timestamp="15.03.2017 11:37:26" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ips_subjects" />
+      </listquery>
+    </field>
+    <field id="ipr_doc_pz" name="kod_doc_pz" controlType="UIList" title="Документы-основания планов закупки" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_doc_pz_list"></query>
+      </listquery>
+    </field>
+    <field id="ipr_time_interval" name="time_interval" controlType="UIList" title="Выделять периоды" parent-field-name="kod_parent" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_time_intervals" />
+      </listquery>
+    </field>
+    <field id="ipr_ipr_data_simple" name="kod_ipr_simple" controlType="UIList" title="Одиночный/Дочерний титул" rows-limit="100" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_ipr_data_simple_list" />
+      </listquery>
+    </field>
+    <field id="ipr_titul_ip_sbor" name="kod_titul_ip_sbor" controlType="UIList" title="Сборный титул" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_titul_ip_sbor_list" />
+      </listquery>
+    </field>
+    <field id="ipr_titul_ip_head" name="kod_titul_ip_head" controlType="UIList" title="Головной титул" type="number" timestamp="14.06.2018 17:47:12" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <buttons>
+        <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+        <menu title="save/load" side="Right">
+          <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+          <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+        </menu>
+      </buttons>
+      <listquery>
+        <query name="ipr_titul_ip_head_list" />
+      </listquery>
+    </field>
+    <field id="ipr_priority" name="kod_priority" controlType="UIList" title="Степень важности" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ips_priority" />
+      </listquery>
+    </field>
+    <field id="ipr_pr_gorobl" name="pr_gorobl" controlType="UICheck" title="Город/область" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml" />
+    <field id="ipr_kod_doc" name="kod_doc" controlType="UICombo" title="Документ" type="number" timestamp="15.03.2017 17:48:32" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="25499-ipr_doc_main_list" />
+      </listquery>
+      <defaultquery>
+        <query name="ipr_doc_main_last" />
+      </defaultquery>
+    </field>
+    <field id="ipr_mon1" name="mon1" controlType="UICombo" title="С месяца" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="spr_time_mes"></query>
+      </listquery>
+    </field>
+    <field id="ipr_mon2" name="mon2" controlType="UICombo" title="По месяц" mandatory="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="spr_time_mes"></query>
+      </listquery>
+      <defaultquery>
+        <query name="26630_mon_def"></query>
+      </defaultquery>
+    </field>
+    <field id="ipr_kod_titul_ip_full" name="kod_titul_ip_full" controlType="UIList" type="number" title="Титул" parent-field-name="kod_parent_node" val-field-name="kod_titul_ip" expand-all="1" timestamp="14.06.2018 17:44:47" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <buttons>
+        <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+        <menu title="save/load" side="Right">
+          <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+          <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+        </menu>
+      </buttons>
+      <listquery>
+        <query name="26630_tituls" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_titul_ip" name="kod_titul_ip" controlType="UIList" title="Титул" type="number" parent-field-name="kod_parent_node" val-field-name="kod_titul_ip" expand-all="1" timestamp="14.06.2018 17:42:36" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <buttons>
+        <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+        <menu title="save/load" side="Right">
+          <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+          <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+        </menu>
+      </buttons>
+      <listquery>
+        <query name="30576_tituls" />
+      </listquery>
+    </field>
+    <field id="ipr_status" name="status" controlType="UIList" title="Статус договора" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_status_list" />
+      </listquery>
+    </field>
+    <field id="ipr_status_tit" name="kod_status_tit" controlType="UIList" title="Статус титула" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipv_status_tit" />
+      </listquery>
+    </field>
+    <field id="ipr_dog_type_prizn" name="dog_type_prizn" controlType="UICombo" title="Тип договоров" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_dog_type_prizn" />
+      </listquery>
+    </field>
+    <field id="ipr_dog_type_prizn_ls" name="dog_type_prizn" controlType="UICombo" title="Тип договоров" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_dog_type_prizn_ls" />
+      </listquery>
+    </field>
+    <field id="ipr_pr_sbor" name="pr_sbor" controlType="UICheck" title="Отображать сборные" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml"></field>
+    <field id="ipr_pr_child" name="pr_child" controlType="UICheck" title="Отображать дочерние" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml"></field>
+    <field id="ipr_pr_cognos" name="pr_cognos" controlType="UICheck" title="Отображать в структуре Cognos (ПАО «Россети»)" checked="1" type="number" timestamp="18.09.2017 15:58:35" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml" />
+    <field id="ipr_pr_razdel7" name="pr_razdel7" controlType="UICheck" title="Выводить свернуто 7-й раздел ИПР" checked="1" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml"></field>
+    <field id="ipr_doc_type" name="doc_type" controlType="UIList" title="Тип документа" type="number" timestamp="15.03.2017 14:19:22" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ips_doc_type_list" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_ofz" name="kod_ofz" controlType="UIList" timestamp="15.03.2017 11:37:22" title="Состояние ОФЗ" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_ofz_list" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_doc_e_ef" name="kod_doc_e_ef" controlType="UICombo" title="Документ" type="number" timestamp="15.03.2017 18:56:50" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ipr_doc_e_ef_list" />
+      </listquery>
+      <defaultquery>
+        <query name="ipr_doc_e_ef_last" />
+      </defaultquery>
+    </field>
+    <field id="ipr_doc_type_single" name="doc_type" controlType="UICombo" title="Тип документа" type="number" timestamp="15.03.2017 14:20:12" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ips_doc_type_list" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_direct_no_rights" name="kod_direct" controlType="UIList" title="Подразделение" type="number" timestamp="12.04.2017 13:27:26" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_direct_list_no_rights" />
+      </listquery>
+    </field>
+    <field id="ipr_passport_doc_control" name="kod_passport_doc_control" controlType="UIList" title="Заполнить поля" type="number" timestamp="12.04.2017 13:27:26" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="ips_passport_doc_control" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_person" name="kod_person" controlType="UIList" type="number" timestamp="19.10.2017 12:06:44" title="Сотрудники" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_person_list" />
+      </listquery>
+    </field>
+    <field id="year" name="year" controlType="UICombo" title="Год" mandatory="1" type="number" timestamp="18.11.2017 00:46:08" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="25499-year_list" />
+      </listquery>
+      <defaultquery>
+        <query name="25499-year_def" />
+      </defaultquery>
+    </field>
+    <field id="ipr_kod_dirisp_all2" name="kod_dirisp_all" controlType="UICombo" title="Заказчик/Исполнитель" type="number" timestamp="11.04.2018 16:14:40" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_spr_dirisp" />
+      </listquery>
+    </field>
+    <field id="ipr_kod_doc_new" name="kod_doc" controlType="UICombo" title="Документ" type="number" timestamp="17.09.2018 17:53:04" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="39463-ipr_version" />
+      </listquery>
+      <defaultquery>
+        <query name="39463-ipr_version_active" />
+      </defaultquery>
+    </field>
+    <field id="ipr_kod_titul_ip_plain" name="kod_titul_ip" controlType="UIList" title="Титул" type="number" timestamp="17.09.2018 19:52:07" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <buttons>
+        <uicommand action-type="show-popup" side="Left" type="Combo" title="Показать" />
+        <menu title="save/load" side="Right">
+          <uicommand action-type="save-field-to-clipboard" title="Копировать" notification="Параметры скопированы." />
+          <uicommand action-type="fill-field-from-clipboard" title="Вставить" />
+        </menu>
+      </buttons>
+      <listquery>
+        <query name="39463-tituls_plain" />
+      </listquery>
+    </field>
+    <field id="ipr_dog_kind_prizn" name="dog_kind_prizn" controlType="UICombo" title="Вид док-та" type="number" timestamp="16.07.2021 09:30:29" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_dog_kind_prizn" />
+      </listquery>
+      <defaultquery>
+        <query name="is_dog_kind_prizn_default" />
+      </defaultquery>
+    </field>
+    <field id="ipr_dog_kind_prizn_insurance" name="dog_kind_prizn" controlType="UICombo" title="Вид док-та" type="number" timestamp="19.07.2021 18:31:31" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_ipr.xml">
+      <listquery>
+        <query name="is_dog_kind_prizn_insurance" />
+      </listquery>
+      <defaultquery>
+        <query name="is_dog_kind_prizn_default" />
+      </defaultquery>
+    </field>
+    <field id="kido_kod_dog" name="kod_dog" controlType="UIList" title="Договор" rows-limit="100" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_dogovor_list" />
+      </listquery>
+    </field>
+    <field id="date" name="date" type="date" controlType="UIDate" title="Дата" mandatory="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml" />
+    <field id="kido_id_slice" name="id_slice" controlType="UICombo" title="На дату" mandatory="1" type="number" timestamp="21.10.2017 16:12:15" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_ad_all_slice_list" />
+      </listquery>
+    </field>
+    <field id="kido_id_slice_2" name="id_slice" controlType="UICombo" title="На дату" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_ad_all_slice_list" />
+      </listquery>
+    </field>
+    <field id="kido_id_slice_m" name="id_slice" controlType="UIList" title="На дату" type="number" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_ad_all_slice_list" />
+      </listquery>
+    </field>
+    <field id="kido_id_slice_q" name="id_slice" controlType="UICombo" title="На конец квартала/на дату" mandatory="1" type="number" name-field-name="name" timestamp="20.04.2017 12:49:04" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_ad_all_slice_q_dates" />
+      </listquery>
+    </field>
+    <field id="kido_id_slice_d" name="id_slice" controlType="UICombo" title="На дату" mandatory="1" type="number" timestamp="21.10.2017 16:13:41" comment="список без времени" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_ad_all_slice_list_d" />
+      </listquery>
+    </field>
+    <field id="kido_id_slice_akt" name="id_slice_akt" controlType="UICombo" title="На дату" mandatory="1" type="number" timestamp="10.01.2019 20:13:06" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_kido.xml">
+      <listquery>
+        <query name="is_akt_all_slice_list" />
+      </listquery>
+    </field>
+  </fields>
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

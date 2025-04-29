@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="fl_dz" timestamp="19.07.2016 09:29:31">
+      <params>
+        <param name="p_dat" type="date" />
+        <param name="p_dep" type="number" />
+      </params>
+      <select>
+        <column table="kod_rr_gen" column="kodp" />
+        <column table="kod_izv" column="kod_dog" />
+        <fact column="fin_fl_ob" as="dz" />
+        <column table="kod_izv" column="ym" />
+        <column table="vid_real" column="vid_real" />
+        <call function="if" exclude="1">
+          <call function="gt">
+            <fact column="fin_fl_acc_ob" />
+            <const>0</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <column table="kod_acc_byt" column="vid_real" exclude="1" />
+        <column table="kod_izv" column="date_izv" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_izv">
+            <link name="kod_dog">
+              <link name="kod_rr_gen" />
+            </link>
+          </link>
+          <link name="dat_dolg" only-for-cond="1" />
+          <link name="vid_real" />
+          <where>
+            <call function="le">
+              <column table="dat_dolg" column="val" as="ddd" />
+              <useparam name="p_dat" />
+            </call>
+            <call function="=" exclude="1">
+              <column table="kod_izv" column="kod_dog" />
+              <const>2315186</const>
+            </call>
+            <call function="is not null">
+              <column table="kod_rr_gen" column="kod_dog" />
+            </call>
+            <call function="=">
+              <column table="kod_izv" column="dep" />
+              <useparam name="p_dep" />
+            </call>
+          </where>
+          <link name="kod_acc_byt" exclude="1" />
+          <link name="kod_opl_byt" exclude="1" />
+        </qube>
+      </from>
+      <where>
+        <call function="not 0">
+          <fact column="fin_fl_ob" as="dz" thissrc="dz" />
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

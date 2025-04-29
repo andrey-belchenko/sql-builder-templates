@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="72482" title="Тест выставленных счетов-фактур" timestamp="14.08.2024 16:19:47">
+      <usefield field="asuse_dep_single" mandatory="1" show-checkbox="0" name="p_dep" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym" mandatory="1" title="Период" show-checkbox="0" />
+      <usefield field="cmn_list" name="p_kod_dog" type="number" title="Договоры" name-field-name="ndog">
+        <listquery>
+          <query name="ndog_fin_list_dep" />
+        </listquery>
+      </usefield>
+    </form>
+  </forms>
+  <reports>
+    <report name="72482" form="72482" title="37. Тест выставленных счетов-фактур" nogrid="1" timestamp="14.08.2024 23:44:25">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" title="Подразделение" />
+        <param name="p_ym" type="number" title="Период" />
+        <param name="p_kod_dog" title="Договоры" type="array" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="72482.xlsx" print-proc="2" print-xlsx="1" title="Тест выставленных счетов-фактур" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[
+BEGIN
+  
+   delete vr_number_array;
+   insert into vr_number_array (array_id,val) values ('p_dep',:p_dep);
+   -- Получаем краткую информацию по договорам отделения
+   kg_rep_dog.dog_short; 
+   
+  DELETE FROM rr_rep_dz_kz;
+  
+  INSERT INTO rr_rep_dz_kz (  kod_dog
+						--	, ym
+						    , kod_Sf
+							, nom_sf       -- полный номер сф (номер и дата)                           		
+							, nachisl   -- начислено с ндс 
+							, nal       -- начислено налога  
+							, nachisl_re -- выставлен сф с ндс
+							, nal_re     -- выставлен налог по сф
+						  )  
+  WITH
+	 sf as ( -- выставленные СФ и налог по ним
+			 SELECT dp.kod_dog
+                 , fv.ym
+                 , fr.rym as rym_max
+				 , max(fv.kod_sf) as kod_sf
+                 , max(fv.nom_sf || ' от ' || to_char(fv.dat_sf,'dd.mm.yyyy')) as nom_sf
+                 , SUM(nvl(fr.nachisl,0)) as nachisl_re
+                 , SUM(nvl(fr.nal,0)) as nal_re
+             FROM sr_facvip fv
+                INNER JOIN (select kod_sf
+                                   , max(rym) rym 
+                                   , SUM(nvl(f.nachisl,0)) as nachisl
+                                   , SUM(nvl(nal,0)) as nal
+                              FROM  sr_facras f
+                                LEFT JOIN (SELECT SUM(nvl(nal,0)) as nal, kod_ras FROM sr_facras_nal GROUP BY kod_ras) n ON f.kod_ras = n.kod_ras
+                                LEFT JOIN sk_nachisl n ON f.vid_t = n.vid_t
+                                LEFT JOIN sk_vid_real vr ON n.vid_real = vr.vid_real
+                              WHERE  f.price is not null 
+  							      AND NOT (nvl(f.price,0) = 0 and f.vid_t in (22,42,62,72))
+                                  AND vr.pr_osn = 1   -- основная реализация
+                              GROUP BY f.kod_sf  
+                           ) fr ON fv.kod_sf = fr.kod_sf
+                INNER JOIN kr_dogovor d ON fv.kod_dog=d.kod_dog             
+                INNER JOIN kr_dogovor dp On dp.kod_dog = d.kod_dog_fin                
+			WHERE  fv.ym = :p_ym 
+			   AND fv.pr_osn=1
+			   AND dp.dep = :p_dep 
+			  -- AND ((cnt_dog = 0) Or (cnt_dog > 0 And dp.kod_dog IN (SELECT val FROM vr_number_array WHERE array_id = 'p_kod_dog')))
+			  { AND dp.kod_dog IN :p_kod_dog }
+		   GROUP BY dp.kod_dog, ym, rym
+		)
+    , nach AS ( -- начисления
+			 SELECT kod_dog as kod_dog_acc
+				  , nvl(rym, ym) as rym_acc
+				  , ym as ym_acc
+				  , sum(nachisl) as nachisl_acc
+				  , sum(nal) as nal_acc
+			   FROM nv_account 
+			  WHERE ym = :p_ym
+				AND vid_real=2 
+			    AND dep = :p_dep 
+			   -- AND ((cnt_dog = 0) Or (cnt_dog > 0 And kod_dog IN (SELECT val FROM vr_number_array WHERE array_id = 'p_kod_dog')))
+			   { AND kod_dog IN :p_kod_dog }
+			 GROUP BY kod_dog, ym, nvl(rym, ym)
+				)
+   SELECT  sf.kod_dog
+         , sf.kod_Sf
+         , sf.nom_sf
+         , nach.nachisl_acc as nachisl
+         , nach.nal_acc as nal
+         , sf.nachisl_re as nachisl_re
+         , sf.nal_re as nal_re
+      FROM sf
+         LEFT JOIN nach ON nach.kod_dog_acc = sf.kod_dog and nach.rym_acc = sf.rym_max
+	;
+	
+ END;
+ 
+ ]]></procedure>
+      <queries>
+        <query name="72482_data" as="d" />
+        <query name="title_info" as="title">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_ym" />
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="72482_data" timestamp="15.08.2024 00:00:29">
+      <select>
+        <column table="c" column="kod_dog" type="number" as="kod_dog" />
+        <column table="d" column="ndog" type="string" group="max" />
+        <column table="d" column="payer_name" type="string" group="max" />
+        <column table="c" column="kod_sf" as="kod_sf" type="number" />
+        <column table="c" column="nom_sf" type="string" group="max" />
+        <call table="c" column="nachisl" group="sum" type="number" nvl="0" as="nach" function="-">
+          <column table="c" column="nachisl" nvl="0" />
+          <column table="c" column="nal" nvl="0" />
+        </call>
+        <column table="c" column="nachisl" group="sum" type="number" nvl="0" />
+        <column table="c" column="nal" group="sum" type="number" nvl="0" />
+        <call table="c" column="nachisl" group="sum" type="number" nvl="0" as="nach_re" function="-">
+          <column table="c" column="nachisl_re" nvl="0" />
+          <column table="c" column="nal_re" nvl="0" />
+        </call>
+        <column table="c" column="nachisl_re" group="sum" type="number" nvl="0" />
+        <column table="c" column="nal_re" group="sum" type="number" nvl="0" />
+      </select>
+      <from>
+        <query name="rr_rep_dz_kz" as="c" />
+        <query name="rr_rep_dog" as="d" join="inner">
+          <call function="=">
+            <column table="c" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog" />
+        <grset order="ndog" as="dog">
+          <group>
+            <column table="this" column="kod_dog" type="number" />
+          </group>
+          <grset order="nom_sf" as="sf">
+            <group>
+              <column table="this" column="kod_sf" type="string" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

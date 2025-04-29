@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_isp_ext" class="1" extend="ur_isp" timestamp="17.09.2023 21:44:32">
+      <select>
+        <call function="||" as="full_name" title="Исполнительный лист" is-name="1">
+          <column table="this" column="num_reg" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="this" column="dat_doc" />
+          </call>
+        </call>
+        <call function="||" as="info" title="Исполнительный лист" fact="ur_isp_info" agg="max">
+          <const>'ИЛ № '</const>
+          <column table="this" column="num_reg" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="this" column="dat_doc" />
+          </call>
+        </call>
+        <const type="number" as="cnt" fact="ur_isp_count" agg="sum">1</const>
+        <call function="true if null" as="is_active" title="Статус исп. листа">
+          <column table="this" column="dat_arh" dgroup="max" />
+        </call>
+        <column table="kod_folders" column="kod_podr" />
+        <column table="this" column="dat_doc" type="date" title="Дата выдачи исп. листа" dimension="dat" as="dat_doc1" />
+        <call function="if" type="string" as="dat_doc_vld" is-fact="1" agg="max" fact="ur_isp_dat_doc_vld" title=" ">
+          <call function="and">
+            <call function="is not null">
+              <column table="kod_hist_mat_dec" column="dat_entry" />
+            </call>
+            <call function="is null">
+              <column table="a" column="dat_doc" />
+            </call>
+            <call function="gt">
+              <call function="sysdate" />
+              <call function="date add days">
+                <column table="kod_hist_mat_dec" column="dat_entry" />
+                <const>14</const>
+              </call>
+            </call>
+          </call>
+          <const>'[inf]Не заполнена дата выдачи исп. листа. Прошло более 14-ти дней с момента вступления решения в законную силу'</const>
+        </call>
+        <column table="kod_isp_q" column="kod_status_opl" />
+        <column table="kod_isp_q" column="dolg_on_il_hnd" />
+        <column table="kod_isp_q" column="ur_opl_posl_il_hnd" />
+      </select>
+      <links>
+        <link name="kod_hist_mat" as="kod_hist_mat1">
+          <link name="kod_mat">
+            <link name="kod_folders" />
+          </link>
+        </link>
+        <dlink name="ur_folders_isp" dimension="1">
+          <dimlink name="kod_mat_isp" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_hist_mat_isp" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_inkasso" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_kazn" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+          <dimlink name="kod_isp_other" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+        </dlink>
+        <link name="kod_hist_mat_dec" as="kod_hist_mat_dec1">
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dog" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dogplat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_sf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_other" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+        <link name="kod_folders" as="kod_folders1">
+          <dimlink name="kod_dep" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+        </link>
+      </links>
+      <from>
+        <query name="ur_hist_mat_dec" as="kod_hist_mat_dec" join="left outer" dimension="kod_hist_mat">
+          <call function="=">
+            <column table="a" column="kod_hist_mat" />
+            <column table="kod_hist_mat_dec" column="kod_hist_mat" />
+          </call>
+        </query>
+        <query name="prizn_arch_folder" as="is_active" join="left outer">
+          <call function="=">
+            <column table="this" column="is_active" />
+            <column table="is_active" column="kod_prizn_arch_folder" />
+          </call>
+        </query>
+        <query name="ur_isp_qube" as="kod_isp_q" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_isp" />
+            <column table="kod_isp_q" column="kod_isp" />
+          </call>
+        </query>
+      </from>
+      <events>
+        <useaction event-name="object-save" action-type="execute-update" call="ur_folders_pir_sync_dat_arh">
+          <column table="this" column="kod_isp" />
+        </useaction>
+        <useaction event-name="object-save" action-type="execute-update" call="ur_folders_isp_sync_dat_arh" exclude="1">
+          <column table="this" column="kod_isp" />
+        </useaction>
+      </events>
+    </query>
+    <!--Список исп листов. Алтай 28662-->
+    <query name="ur_isp_lists_ul">
+      <params>
+        <param name="dep" type="array" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ur_isp_lists" as="a">
+          <withparams>
+            <const>2</const>
+            <useparam name="dep" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="ur_isp_lists" order="num_isp">
+      <params>
+        <param name="kod_abon_type" type="array" />
+        <param name="dep" type="array" />
+      </params>
+      <select>
+        <column table="a" column="kod_isp" />
+        <call function="||" as="num_isp" title="Исполнительный лист">
+          <column table="a" column="num_reg" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="kod_hist_mat" column="dat_entry" />
+          </call>
+        </call>
+        <column table="kodp" column="name" as="abon_name" title="Абонент" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kod_mat" column="num_delo" title="Номер дела" />
+      </select>
+      <from>
+        <query name="ur_isp" as="a">
+          <link name="kod_hist_mat">
+            <link name="kod_mat">
+              <link name="kod_folders">
+                <link name="kodp" />
+                <link name="kod_podr" as="dep" />
+              </link>
+            </link>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="dep" column="kodp" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="kodp" column="kod_abon_type" />
+            <useparam name="kod_abon_type" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ur_isp_current">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="ur_isp_lists_ul" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_isp" />
+          <useglobparam name="kod_isp" />
+        </call>
+      </where>
+    </query>
+    <query name="ur_isp_in_folder">
+      <params>
+        <param name="kod_folders" type="number" class-type="ur_folders" />
+      </params>
+      <select>
+        <column table="ur_isp" column="*" />
+      </select>
+      <from>
+        <query name="ur_isp" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="ur_isp" column="kod_folders" />
+          <useparam name="kod_folders" />
+        </call>
+      </where>
+    </query>
+    <!--для подсчета к-ва  исполнительных листов по делу через куб-->
+    <query name="ur_isp_for_mat" inherit="ur_isp" class="1" timestamp="20.06.2016 20:19:51">
+      <select>
+        <const type="number" as="cnt" fact="ur_isp_for_mat_count" agg="sum">1</const>
+      </select>
+      <links>
+        <link name="kod_hist_mat" as="kod_hist_mat1">
+          <dlink name="ur_isp" dimension="1" />
+        </link>
+      </links>
+    </query>
+    <query name="ur_isp_in_folder_list" class="1">
+      <params>
+        <param type="number" name="kod_folders" />
+      </params>
+      <select>
+        <column table="a" column="kod_isp" />
+        <column table="a" column="full_name" />
+      </select>
+      <from>
+        <query name="ur_isp" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <useparam name="kod_folders" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="ur_isp_last" class="1">
+      <select>
+        <column table="a" column="kod_hist_mat" type="number" />
+        <column table="a" column="kod_isp" type="number" />
+        <call function="over" as="kod_isp_last">
+          <call function="first_value">
+            <column table="a" column="kod_isp" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="kod_hist_mat" />
+          </call>
+          <call function="order by rows * *">
+            <call function="desc nulls last">
+              <column table="a" column="dat_doc" />
+            </call>
+            <call function="desc nulls last">
+              <column table="a" column="dat_function" />
+            </call>
+            <call function="desc">
+              <column table="a" column="kod_isp" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ur_isp" as="a" />
+        <query name="ur_hist_mat" as="kod_hist_mat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_hist_mat" />
+            <column table="kod_hist_mat" column="kod_hist_mat" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="kod_isp_type" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="prizn_arch_isp">
+      <select>
+        <column table="a" column="kod" as="kod_prizn_arch_isp" type="number" />
+        <column table="a" column="name" as="name_prizn_arch_isp" type="string" title="Статус исп. листа" vid="1" />
+      </select>
+      <from>
+        <table name="prizn_arch_isp_view" view="1" as="a" />
+      </from>
+    </query>
+    <query name="prizn_arch_isp_act" inherit="prizn_arch_isp">
+      <where>
+        <call function="=">
+          <column table="a" column="kod" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="ur_isp_qube" timestamp="11.01.2018 18:54:30" class="1">
+      <select>
+        <column table="kod_isp" column="kod_isp" />
+        <call function="case" as="kod_status_opl" title="Статус оплаты ИЛ" comment="0 - Неоплаченный, 1 - Частично оплаченный, 2 - Полностью оплаченный" type="number">
+          <call function="when">
+            <call function="and">
+              <call function="gt">
+                <column column="dolg_on_il_hnd" table="this" />
+                <const>0</const>
+              </call>
+              <call function="=">
+                <column column="ur_opl_posl_il_hnd" table="this" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>0</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="gt">
+                <column column="ur_opl_posl_il_hnd" table="this" />
+                <const>0</const>
+              </call>
+              <call function="lt">
+                <column column="ur_opl_posl_il_hnd" table="this" />
+                <column column="dolg_on_il_hnd" table="this" />
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="else">
+            <const>2</const>
+          </call>
+        </call>
+        <fact column="dolg_on_il_hnd" nvl="0" as="dolg_on_il_hnd" />
+        <fact column="ur_opl_posl_il_hnd" nvl="0" as="ur_opl_posl_il_hnd" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_isp" />
+          <where>
+            <call function="is not null">
+              <column table="kod_isp" column="kod_isp" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="prizn_arch_isp_view">
+      select 1 as kod, 'Активный' as name from dual union all
+      select 0, 'Архивный' from dual
+    </view>
+  </views>
+</root>

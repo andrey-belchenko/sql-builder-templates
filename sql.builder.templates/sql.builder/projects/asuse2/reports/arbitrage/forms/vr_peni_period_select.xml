@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="vr_peni_period_select" title="Выбор периодов пени [:m.name]" show-toolbar="1" timestamp="04.09.2023 03:59:27">
+      <params>
+        <param name="p_kod_sf" type="number">
+          <const type="number">1936907</const>
+        </param>
+      </params>
+      <toolbar>
+        <uicommand action-type="add-selected" title="Добавить выделенные" />
+        <uicommand action-type="remove-selected" title="Убрать выделенные" />
+      </toolbar>
+      <content>
+        <column table="m" column="name" column-width="323" column-visible="0" />
+        <column table="m" column="ym" parname="sf_ym" visible="0" />
+        <splitcontainer is-vertical="1">
+          <fieldgroup noborder="1">
+            <fieldgroup title="Доступные">
+              <grid table="a">
+                <columns>
+                  <column table="a" column="dummy" type="number" controlType="UICheck" title="Выбор" column-editable="1" as="check1" />
+                  <column table="a" column="name" column-editable="0" column-width="250" />
+                </columns>
+              </grid>
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="Выбранные">
+            <grid table="b">
+              <columns>
+                <column table="b" column="ym" as="kod" column-visible="0" />
+                <column table="c" column="name" column-width="323" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="sr_facvip" as="m">
+          <elink name="vr_peni_period" column="kod" as="b" order="name">
+            <link name="spr_time_ym" as="c" />
+          </elink>
+          <where>
+            <call function="and">
+              <call function="=">
+                <column table="m" column="kod_sf" />
+                <useparam name="p_kod_sf" />
+              </call>
+            </call>
+          </where>
+        </query>
+        <query name="spr_time_ym" multi-select-column="check1" multi-select-target="b" as="a" auto-refresh="1" order="name desc">
+          <where>
+            <call function="and">
+              <call function="le">
+                <column function="greatest_num" table="a" column="ym" />
+                <useparam function="smallest" name="sf_ym" />
+              </call>
+              <call function="ge">
+                <column function="greatest_num" table="a" column="ym" />
+                <call function="-">
+                  <useparam function="smallest" name="sf_ym" />
+                  <const name="p_ym2">3</const>
+                </call>
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+  </forms>
+</root>

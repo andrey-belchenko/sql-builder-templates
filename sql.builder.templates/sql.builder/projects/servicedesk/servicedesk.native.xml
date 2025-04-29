@@ -1,0 +1,2033 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T01:40:56.3494356+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="blank" is-report="1" title="Тест" timestamp="10.03.2016 18:42:35" file="sql.builder.templates\sql.builder\projects\servicedesk\report\test.xml">
+      <customers>
+        <customer id="99" />
+      </customers>
+      <select>
+        <column table="zayavka" column="nomer" />
+        <column table="zayavka" column="zagol" />
+        <column table="zayavka" column="name" />
+        <column table="zayavka" column="zakazchik" title="sdfsdf" />
+        <column table="zakazchik" column="name" title="sdfsdf" as="zakazchik_name" />
+        <column table="proekt" column="name" as="proekt_name" dgroup="stragg" />
+      </select>
+      <from>
+        <query name="zayavka">
+          <link name="zakazchik" />
+          <dlink name="zayavka_proekt">
+            <link name="proekt" />
+          </dlink>
+        </query>
+      </from>
+    </query>
+    <query name="test_a1" timestamp="17.09.2018 14:32:48" file="sql.builder.templates\sql.builder\projects\servicedesk\report\test.xml">
+      <select>
+        <column table="zayavka" column="name" />
+        <column table="export_v_tc" column="name" as="s" />
+      </select>
+      <from>
+        <query name="zayavka">
+          <link name="export_v_tc" />
+        </query>
+      </from>
+    </query>
+    <query name="test1" timestamp="10.03.2016 15:02:41" is-report="1" title="Заявки" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test.xml">
+      <customers>
+        <customer id="99" />
+      </customers>
+      <select>
+        <column table="zayavka" column="nomer" />
+        <column table="zayavka" column="name" />
+        <column table="zayavka" column="zagol" />
+        <column table="zakazchik" column="name" as="zakazchik_name" />
+        <column table="proekt" column="name" dgroup="stragg" as="proekt_name" />
+        <column table="ispolnit" column="name" as="isp_name" title="Исполнитель" />
+      </select>
+      <from>
+        <query name="zayavka">
+          <link name="zakazchik" />
+          <link name="ispolnit" />
+          <dlink name="zayavka_proekt">
+            <link name="proekt" />
+          </dlink>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="zayavka" column="sostoyanie" />
+          <array>3</array>
+        </call>
+      </where>
+      <events>
+        <useaction event-name="double-click" action-type="dynamic-form" call="zayavka">
+          <column table="this" column="nomer" />
+        </useaction>
+      </events>
+    </query>
+    <query name="zayavka_list" timestamp="20.06.2018 20:58:33" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test.xml">
+      <params>
+        <param name="p_zak" type="array" />
+      </params>
+      <select>
+        <column table="a" column="nomer" key="1" />
+        <column table="a" column="name" />
+        <column table="zakazchik" column="name" as="zakazchik" title="Заказчик" />
+        <column table="a" column="zagol" />
+      </select>
+      <from>
+        <query name="zayavka" as="a">
+          <link name="zakazchik" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="zakazchik" />
+            <useparam name="p_zak" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="test_colgroup_saldo_gr_simple" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <select>
+        <column table="a" column="tit" />
+        <call function="+nvl" as="ttt" title="Тест" client-calc="1">
+          <!--<call function="coalesce">
+            <column table="this" column="ttt" row-selector="prev-row"/>
+            <column table="this" column="ttt" row-selector="parent"/>
+          </call>-->
+          <column table="this" column="ttt" row-selector="prev-row" />
+          <const>1</const>
+        </call>
+        <column table="a" column="dog" />
+        <!--<column table="a" column="ym" />-->
+        <column table="a" column="ob" type="number" />
+      </select>
+      <from>
+        <query name="test_colgroup_saldo_2" as="a">
+          <grsets>
+            <on-rows>
+              <!--<grset level="6" as="itog" title="Итог">
+                <grset level="2" as="tit" title="Титул">
+                  <grset level="3" as="dog" title="Договор" />
+                </grset>
+              </grset>-->
+              <grset level="2" as="tit" title="Титул">
+                <grset level="3" as="dog" title="Договор" />
+              </grset>
+            </on-rows>
+            <!--<on-columns>
+              <grset level="1" as="ym1" title="Период" order="ym">
+                
+              </grset>
+
+            </on-columns>-->
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="test_colgroup_saldo_gr" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <select>
+        <!--<call function="()" as="sld_tit_fc" type="number" title="Сальдо по титулу для расчета" client-calc="1" row-selector="isgrset(dog)">
+          <column table="this" column="sld_tit" row-selector="parent" />
+        </call>-->
+        <call as="deb_dog" function="if" title="Дебет (договор)" client-calc="1" row-selector="isgrset(dog)">
+          <call function="lt">
+            <column table="this" column="sld_tit" row-selector="parent" />
+            <const>0</const>
+          </call>
+          <call function="0-">
+            <column table="this" column="sld" />
+          </call>
+        </call>
+        <call as="kred_dog" function="if" title="Кредит (договор)" client-calc="1" row-selector="isgrset(dog)">
+          <call function="gt">
+            <column table="this" column="sld_tit" row-selector="parent" />
+            <const>0</const>
+          </call>
+          <column table="this" column="sld" />
+        </call>
+        <!--<column table="a" column="sld_tit_fc" title="Сальдо для расчета" />-->
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="test_colgroup_saldo_2" as="a">
+          <grsets>
+            <on-rows>
+              <grset level="6" as="itog" title="Итог">
+                <grset level="2" as="tit" title="Титул">
+                  <grset level="3" as="dog" title="Договор" />
+                </grset>
+              </grset>
+            </on-rows>
+            <on-columns>
+              <grset level="1" as="ym1" title="Период" order="ym">
+                <facts>
+                  <column column="ob" />
+                  <column column="sld_keep" />
+                </facts>
+              </grset>
+              <grset level="1,4" as="ym" title="Период" order="ym" intervals="1" for-rows="dog">
+                <facts>
+                  <column column="sld" />
+                  <!--<column column="sld_tit_fc" />-->
+                  <column column="kred_dog" />
+                  <column column="deb_dog" />
+                </facts>
+              </grset>
+              <grset level="1,5" as="ymtit" title="Период Тит" order="ym" intervals="1" for-rows="itog,tit">
+                <facts>
+                  <column column="sld_tit" />
+                  <column column="kred_tit" />
+                  <column column="deb_tit" />
+                </facts>
+                <where>
+                  <call function="=1">
+                    <column table="a" column="rn_tit" />
+                  </call>
+                </where>
+              </grset>
+            </on-columns>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="test_colgroup_saldo" timestamp="27.01.2017 03:38:07" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <select>
+        <column table="a" column="ym" title="Период" />
+        <column table="a" column="tit" title="Титул" />
+        <column table="a" column="dog" title="Договор" />
+        <column table="a" column="ob" />
+        <column table="a" column="gor_obl" />
+        <call function="over" as="sld" type="number" title="Сальдо">
+          <call function="sum">
+            <column table="a" column="ob" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="dog" />
+            <column table="a" column="gor_obl" />
+            <column table="a" column="tit" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="ym_nxt1" type="number">
+          <call function="lead">
+            <column table="a" column="ym" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="dog" />
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="sld_tit" type="number" title="Сальдо(титул)">
+          <call function="sum">
+            <column table="a" column="ob" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="row_number" as="rn_tit" type="number">
+          <call function="partition by">
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+            <column table="this" column="ym" />
+          </call>
+          <call function="order by 2">
+            <const>null</const>
+          </call>
+        </call>
+        <call function="over" as="ym_nxt1_tit" type="number">
+          <call function="first_value">
+            <column table="a" column="ym" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+          </call>
+          <call function="order by range 1 *">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call as="kred_tit" function="if" title="Кредит (титул)">
+          <call function="gt">
+            <column table="this" column="sld_tit" />
+            <const>0</const>
+          </call>
+          <column table="this" column="sld_tit" />
+        </call>
+        <call as="deb_tit" function="if" title="Дебет (титул)">
+          <call function="lt">
+            <column table="this" column="sld_tit" />
+            <const>0</const>
+          </call>
+          <call function="0-">
+            <column table="this" column="sld_tit" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="bav_test3" as="a" />
+      </from>
+    </query>
+    <query name="test_colgroup_saldo_ym" timestamp="11.01.2017 17:04:24" grouplevel="no" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <select>
+        <column table="a" column="ym" title="Период" />
+      </select>
+      <from>
+        <query name="bav_test4" as="a" />
+      </from>
+    </query>
+    <query name="test_colgroup_saldo_2" timestamp="27.01.2017 02:33:18" grouplevel="no" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <select>
+        <column table="a" column="ym" group="1" />
+        <column table="a" column="tit" group="2" />
+        <column table="a" column="dog" group="3" />
+        <column table="a" column="gor_obl" group="6" title="Город/Область" />
+        <column table="a" column="ob" group="sum" title="Оборот" />
+        <column table="a" column="sld" group="sum" />
+        <column table="a" column="sld_tit" group="sum" />
+        <!--<column table="a" column="sld_tit_fc" group="sum" />-->
+        <column table="a" column="ym_nxt1" group="4" title="След период" />
+        <column table="a" column="ym_nxt1_tit" group="5" title="След период (титул)" />
+        <column table="a" column="kred_tit" group="sum" />
+        <column table="a" column="deb_tit" group="sum" />
+        <column table="a" column="rn_tit" />
+        <call as="sld_keep" function="keep last" group="outer" title="Сальдо keep">
+          <column table="this" column="sld" group="sum" />
+          <column table="this" column="ym" />
+        </call>
+      </select>
+      <from>
+        <query name="test_colgroup_saldo" as="a" />
+      </from>
+    </query>
+    <query name="akt" class="1" timestamp="25.04.2016 16:08:20" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\akt.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="data_nach" type="date" title="" />
+        <column table="a" column="data_okonch" type="date" title="" />
+        <column table="a" column="zakazchik" type="number" title="" />
+        <column table="a" column="is_podpis" type="number" title="" />
+        <column table="a" column="dogovor" type="number" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="akt" as="a" />
+        <query name="yn" as="is_podpis" join="left outer">
+          <call function="=">
+            <column table="a" column="is_podpis" />
+            <column table="is_podpis" column="id" />
+          </call>
+        </query>
+        <query name="zakazchik" as="zakazchik" join="left outer">
+          <call function="=">
+            <column table="a" column="zakazchik" />
+            <column table="zakazchik" column="id" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="assoc_type" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\assoc_type.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="image" type="string" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="assoc_type" as="a" />
+      </from>
+    </query>
+    <query name="bav_test3" class="1" timestamp="13.01.2017 23:38:20" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\bav_test1.xml">
+      <select>
+        <column table="a" column="ym" type="number" title="" />
+        <column table="a" column="tit" type="number" title="" />
+        <column table="a" column="dog" type="number" title="" />
+        <column table="a" column="ob" type="number" title="" />
+        <column table="a" column="gor_obl" type="number" title="" />
+      </select>
+      <from>
+        <table name="bav_test3" as="a" />
+      </from>
+    </query>
+    <query name="bav_test4" class="1" timestamp="13.01.2017 23:45:07" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\bav_test2.xml">
+      <select>
+        <column table="a" column="ym" type="number" title="" />
+      </select>
+      <from>
+        <table name="bav_test4" as="a" />
+      </from>
+    </query>
+    <query name="bav_test6" class="1" timestamp="17.09.2018 15:33:09" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\bav_test6.xml">
+      <select>
+        <column table="a" column="s1" type="string" title="" />
+        <column table="a" column="s2" type="string" title="" />
+        <column table="a" column="s3" type="string" title="" />
+        <column table="a" column="s4" type="string" title="" />
+        <column table="a" column="s5" type="string" title="" />
+        <column table="a" column="s6" type="string" title="" />
+        <column table="a" column="s7" type="string" title="" />
+        <column table="a" column="s8" type="string" title="" />
+        <column table="a" column="s9" type="string" title="" />
+        <column table="a" column="s10" type="string" title="" />
+        <column table="a" column="s11" type="string" title="" />
+        <column table="a" column="s12" type="string" title="" />
+        <column table="a" column="s13" type="string" title="" />
+        <column table="a" column="s14" type="string" title="" />
+        <column table="a" column="s15" type="string" title="" />
+        <column table="a" column="s16" type="string" title="" />
+        <column table="a" column="s17" type="string" title="" />
+        <column table="a" column="s18" type="string" title="" />
+        <column table="a" column="s19" type="string" title="" />
+        <column table="a" column="s20" type="string" title="" />
+        <column table="a" column="s21" type="string" title="" />
+        <column table="a" column="s22" type="string" title="" />
+        <column table="a" column="s23" type="string" title="" />
+        <column table="a" column="s24" type="string" title="" />
+        <column table="a" column="s25" type="string" title="" />
+        <column table="a" column="s26" type="string" title="" />
+        <column table="a" column="s27" type="string" title="" />
+        <column table="a" column="s28" type="string" title="" />
+        <column table="a" column="s29" type="string" title="" />
+        <column table="a" column="s30" type="string" title="" />
+        <column table="a" column="s31" type="string" title="" />
+        <column table="a" column="s32" type="string" title="" />
+        <column table="a" column="s33" type="string" title="" />
+        <column table="a" column="s34" type="string" title="" />
+        <column table="a" column="s35" type="string" title="" />
+        <column table="a" column="s36" type="string" title="" />
+        <column table="a" column="s37" type="string" title="" />
+        <column table="a" column="s38" type="string" title="" />
+        <column table="a" column="s39" type="string" title="" />
+        <column table="a" column="s40" type="string" title="" />
+        <column table="a" column="s41" type="string" title="" />
+        <column table="a" column="s42" type="string" title="" />
+        <column table="a" column="s43" type="string" title="" />
+        <column table="a" column="s44" type="string" title="" />
+        <column table="a" column="s45" type="string" title="" />
+        <column table="a" column="s46" type="string" title="" />
+        <column table="a" column="s47" type="string" title="" />
+        <column table="a" column="s48" type="string" title="" />
+        <column table="a" column="s49" type="string" title="" />
+        <column table="a" column="s50" type="string" title="" />
+        <column table="a" column="s51" type="string" title="" />
+        <column table="a" column="s52" type="string" title="" />
+        <column table="a" column="s53" type="string" title="" />
+        <column table="a" column="s54" type="string" title="" />
+        <column table="a" column="s55" type="string" title="" />
+        <column table="a" column="s56" type="string" title="" />
+        <column table="a" column="s57" type="string" title="" />
+        <column table="a" column="s58" type="string" title="" />
+        <column table="a" column="s59" type="string" title="" />
+        <column table="a" column="s60" type="string" title="" />
+        <column table="a" column="s61" type="string" title="" />
+        <column table="a" column="s62" type="string" title="" />
+        <column table="a" column="s63" type="string" title="" />
+        <column table="a" column="s64" type="string" title="" />
+        <column table="a" column="s65" type="string" title="" />
+        <column table="a" column="s66" type="string" title="" />
+        <column table="a" column="s67" type="string" title="" />
+        <column table="a" column="s68" type="string" title="" />
+        <column table="a" column="s69" type="string" title="" />
+        <column table="a" column="s70" type="string" title="" />
+        <column table="a" column="s71" type="string" title="" />
+        <column table="a" column="s72" type="string" title="" />
+        <column table="a" column="s73" type="string" title="" />
+        <column table="a" column="s74" type="string" title="" />
+        <column table="a" column="s75" type="string" title="" />
+        <column table="a" column="s76" type="string" title="" />
+        <column table="a" column="s77" type="string" title="" />
+        <column table="a" column="s78" type="string" title="" />
+        <column table="a" column="s79" type="string" title="" />
+        <column table="a" column="s80" type="string" title="" />
+        <column table="a" column="s81" type="string" title="" />
+        <column table="a" column="s82" type="string" title="" />
+        <column table="a" column="s83" type="string" title="" />
+        <column table="a" column="s84" type="string" title="" />
+        <column table="a" column="s85" type="string" title="" />
+        <column table="a" column="s86" type="string" title="" />
+        <column table="a" column="s87" type="string" title="" />
+        <column table="a" column="s88" type="string" title="" />
+        <column table="a" column="s89" type="string" title="" />
+        <column table="a" column="s90" type="string" title="" />
+        <column table="a" column="s91" type="string" title="" />
+        <column table="a" column="s92" type="string" title="" />
+        <column table="a" column="s93" type="string" title="" />
+        <column table="a" column="s94" type="string" title="" />
+        <column table="a" column="s95" type="string" title="" />
+        <column table="a" column="s96" type="string" title="" />
+        <column table="a" column="s97" type="string" title="" />
+        <column table="a" column="s98" type="string" title="" />
+        <column table="a" column="s99" type="string" title="" />
+        <column table="a" column="s100" type="string" title="" />
+        <column table="a" column="s101" type="string" title="" />
+        <column table="a" column="s102" type="string" title="" />
+        <column table="a" column="s103" type="string" title="" />
+        <column table="a" column="s104" type="string" title="" />
+        <column table="a" column="s105" type="string" title="" />
+        <column table="a" column="s106" type="string" title="" />
+        <column table="a" column="s107" type="string" title="" />
+        <column table="a" column="s108" type="string" title="" />
+        <column table="a" column="s109" type="string" title="" />
+        <column table="a" column="s110" type="string" title="" />
+        <column table="a" column="s111" type="string" title="" />
+        <column table="a" column="s112" type="string" title="" />
+        <column table="a" column="s113" type="string" title="" />
+        <column table="a" column="s114" type="string" title="" />
+        <column table="a" column="s115" type="string" title="" />
+        <column table="a" column="s116" type="string" title="" />
+        <column table="a" column="s117" type="string" title="" />
+        <column table="a" column="s118" type="string" title="" />
+        <column table="a" column="s119" type="string" title="" />
+        <column table="a" column="s120" type="string" title="" />
+        <column table="a" column="s121" type="string" title="" />
+        <column table="a" column="s122" type="string" title="" />
+        <column table="a" column="s123" type="string" title="" />
+        <column table="a" column="s124" type="string" title="" />
+        <column table="a" column="s125" type="string" title="" />
+        <column table="a" column="s126" type="string" title="" />
+        <column table="a" column="s127" type="string" title="" />
+        <column table="a" column="s128" type="string" title="" />
+        <column table="a" column="s129" type="string" title="" />
+        <column table="a" column="s130" type="string" title="" />
+        <column table="a" column="s131" type="string" title="" />
+        <column table="a" column="s132" type="string" title="" />
+        <column table="a" column="s133" type="string" title="" />
+        <column table="a" column="s134" type="string" title="" />
+        <column table="a" column="s135" type="string" title="" />
+        <column table="a" column="s136" type="string" title="" />
+        <column table="a" column="s137" type="string" title="" />
+        <column table="a" column="s138" type="string" title="" />
+        <column table="a" column="s139" type="string" title="" />
+        <column table="a" column="s140" type="string" title="" />
+        <column table="a" column="s141" type="string" title="" />
+        <column table="a" column="s142" type="string" title="" />
+        <column table="a" column="s143" type="string" title="" />
+        <column table="a" column="s144" type="string" title="" />
+        <column table="a" column="s145" type="string" title="" />
+        <column table="a" column="s146" type="string" title="" />
+        <column table="a" column="s147" type="string" title="" />
+        <column table="a" column="s148" type="string" title="" />
+        <column table="a" column="s149" type="string" title="" />
+        <column table="a" column="s150" type="string" title="" />
+        <column table="a" column="s151" type="string" title="" />
+        <column table="a" column="s152" type="string" title="" />
+        <column table="a" column="s153" type="string" title="" />
+        <column table="a" column="s154" type="string" title="" />
+        <column table="a" column="s155" type="string" title="" />
+        <column table="a" column="s156" type="string" title="" />
+        <column table="a" column="s157" type="string" title="" />
+        <column table="a" column="s158" type="string" title="" />
+        <column table="a" column="s159" type="string" title="" />
+        <column table="a" column="s160" type="string" title="" />
+        <column table="a" column="s161" type="string" title="" />
+        <column table="a" column="s162" type="string" title="" />
+        <column table="a" column="s163" type="string" title="" />
+        <column table="a" column="s164" type="string" title="" />
+        <column table="a" column="s165" type="string" title="" />
+        <column table="a" column="s166" type="string" title="" />
+        <column table="a" column="s167" type="string" title="" />
+        <column table="a" column="s168" type="string" title="" />
+        <column table="a" column="s169" type="string" title="" />
+        <column table="a" column="s170" type="string" title="" />
+        <column table="a" column="s171" type="string" title="" />
+        <column table="a" column="s172" type="string" title="" />
+        <column table="a" column="s173" type="string" title="" />
+        <column table="a" column="s174" type="string" title="" />
+        <column table="a" column="s175" type="string" title="" />
+        <column table="a" column="s176" type="string" title="" />
+        <column table="a" column="s177" type="string" title="" />
+        <column table="a" column="s178" type="string" title="" />
+        <column table="a" column="s179" type="string" title="" />
+        <column table="a" column="s180" type="string" title="" />
+        <column table="a" column="s181" type="string" title="" />
+        <column table="a" column="s182" type="string" title="" />
+        <column table="a" column="s183" type="string" title="" />
+        <column table="a" column="s184" type="string" title="" />
+        <column table="a" column="s185" type="string" title="" />
+        <column table="a" column="s186" type="string" title="" />
+        <column table="a" column="s187" type="string" title="" />
+        <column table="a" column="s188" type="string" title="" />
+        <column table="a" column="s189" type="string" title="" />
+        <column table="a" column="s190" type="string" title="" />
+        <column table="a" column="s191" type="string" title="" />
+        <column table="a" column="s192" type="string" title="" />
+        <column table="a" column="s193" type="string" title="" />
+        <column table="a" column="s194" type="string" title="" />
+        <column table="a" column="s195" type="string" title="" />
+        <column table="a" column="s196" type="string" title="" />
+        <column table="a" column="s197" type="string" title="" />
+        <column table="a" column="s198" type="string" title="" />
+        <column table="a" column="s199" type="string" title="" />
+      </select>
+      <from>
+        <table name="bav_test6" as="a" />
+      </from>
+    </query>
+    <query name="bav_test_spr" class="1" timestamp="07.08.2018 13:48:12" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\bav_test_spr.xml">
+      <select>
+        <column table="a" column="kod_bav_test_spr" type="number" key="1" />
+        <column table="a" column="name" type="string" title="Наименование" />
+      </select>
+      <from>
+        <table name="bav_test_spr" as="a" />
+      </from>
+    </query>
+    <query name="polzovatel" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\polzovatel.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="login" type="string" title="" />
+        <column table="a" column="password" type="string" title="" />
+        <column table="a" column="vse_zakazch" type="number" title="" />
+        <column table="a" column="zakazchik" type="number" title="" />
+        <column table="a" column="email" type="string" title="" />
+        <column table="a" column="phone" type="string" title="" />
+        <column table="a" column="is_active" type="number" title="" />
+        <column table="a" column="is_online" type="number" title="" />
+        <column table="a" column="last_activity" type="date" title="" />
+        <column table="a" column="row_limit" type="number" title="" />
+        <column table="a" column="password1" type="string" title="" />
+        <column table="a" column="skype" type="string" title="" />
+        <column table="a" column="color_today" type="string" title="" comment="rgb(220,0,0)" />
+        <column table="a" column="vozm_otkat" type="number" title="" />
+        <column table="a" column="readonly" type="number" title="" />
+        <column table="a" column="dbl_wnd" type="number" title="" />
+        <column table="a" column="tw_id" type="string" title="" />
+        <column table="a" column="nach_uch_tr" type="date" title="" />
+        <column table="a" column="uch_tr_uved_d" type="date" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="polzovatel" as="a" />
+        <query name="online_status" as="is_online" join="left outer">
+          <call function="=">
+            <column table="a" column="is_online"></column>
+            <column table="is_online" column="id"></column>
+          </call>
+        </query>
+        <query name="sql_zapros" as="readonly" join="left outer">
+          <call function="=">
+            <column table="a" column="readonly"></column>
+            <column table="readonly" column="id"></column>
+          </call>
+        </query>
+        <query name="yn" as="vozm_otkat" join="left outer">
+          <call function="=">
+            <column table="a" column="vozm_otkat"></column>
+            <column table="vozm_otkat" column="id"></column>
+          </call>
+        </query>
+        <query name="yn" as="is_active" join="left outer">
+          <call function="=">
+            <column table="a" column="is_active"></column>
+            <column table="is_active" column="id"></column>
+          </call>
+        </query>
+        <query name="zakazchik" as="zakazchik" join="left outer">
+          <call function="=">
+            <column table="a" column="zakazchik"></column>
+            <column table="zakazchik" column="id"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="proekt" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\proekt.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="proekt" as="a" />
+      </from>
+    </query>
+    <query name="rol" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\rol.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="adresat_tip" type="number" title="" />
+        <column table="a" column="polz_field" type="number" title="" />
+        <column table="a" column="adresat_prior" type="number" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="rol" as="a" />
+        <query name="field" as="polz_field" join="left outer">
+          <call function="=">
+            <column table="a" column="polz_field"></column>
+            <column table="polz_field" column="id"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="slozhnost" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\slozhnost.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="slozhnost" as="a" />
+      </from>
+    </query>
+    <query name="sostoyanie" class="1" timestamp="10.03.2016 19:26:37" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\sostoyanie.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="opisanie" type="string" title="" />
+        <column table="a" column="tip" type="number" title="" />
+        <column table="a" column="ordr" type="number" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="sostoyanie" as="a" />
+      </from>
+    </query>
+    <query name="spos_vip" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\spos_vip.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="spos_vip" as="a" />
+      </from>
+    </query>
+    <query name="status_tz" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\status_tz.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="status_tz" as="a" />
+      </from>
+    </query>
+    <query name="tc_proekt" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\tc_proekt.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="tc_proekt" as="a" />
+      </from>
+    </query>
+    <query name="tip_zayavki" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\tip_zayavki.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="srok_rassm" type="number" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="tip_zayavki" as="a" />
+      </from>
+    </query>
+    <query name="treb_opis" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\treb_opis.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="treb_opis" as="a" />
+      </from>
+    </query>
+    <query name="treb_test" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\treb_test.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="treb_test" as="a" />
+      </from>
+    </query>
+    <query name="val_kachestvo" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\val_kachestvo.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="val_kachestvo" as="a" />
+      </from>
+    </query>
+    <query name="val_skorost" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\val_skorost.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="val_skorost" as="a" />
+      </from>
+    </query>
+    <query name="versiya" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\versiya.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="is_plan" type="number" title="" />
+        <column table="a" column="data_sbor" type="date" title="" />
+        <column table="a" column="data_vip" type="date" title="" />
+        <column table="a" column="data_zak" type="date" title="" />
+        <column table="a" column="vers_line" type="number" title="" />
+        <column table="a" column="is_ready" type="number" title="" />
+        <column table="a" column="is_otpravl" type="number" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+        <column table="a" column="name_main" type="string" title="" />
+      </select>
+      <from>
+        <table name="versiya" as="a" />
+        <query name="vers_line" as="vers_line" join="left outer">
+          <call function="=">
+            <column table="a" column="vers_line"></column>
+            <column table="vers_line" column="id"></column>
+          </call>
+        </query>
+        <query name="yn" as="is_ready" join="left outer">
+          <call function="=">
+            <column table="a" column="is_ready"></column>
+            <column table="is_ready" column="id"></column>
+          </call>
+        </query>
+        <query name="yn" as="is_plan" join="left outer">
+          <call function="=">
+            <column table="a" column="is_plan"></column>
+            <column table="is_plan" column="id"></column>
+          </call>
+        </query>
+        <query name="yn" as="is_otpravl" join="left outer">
+          <call function="=">
+            <column table="a" column="is_otpravl"></column>
+            <column table="is_otpravl" column="id"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vid_soprovozhdeniya" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\vid_soprovozhdeniya.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="vid_soprovozhdeniya" as="a" />
+      </from>
+    </query>
+    <query name="yn1" class="1" timestamp="06.06.2017 17:45:49" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\yn.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="deyst_history" type="number" title="" />
+      </select>
+      <from>
+        <table name="yn" as="a" />
+      </from>
+    </query>
+    <query name="zakazchik" class="1" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\zakazchik.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="podtv" type="number" title="" />
+        <column table="a" column="klient" type="number" title="" />
+        <column table="a" column="isp_otdel" type="number" title="" />
+        <column table="a" column="akt" type="number" title="" />
+        <column table="a" column="rab_s" type="number" title="" />
+        <column table="a" column="rab_po" type="number" title="" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" />
+        <column table="a" column="deyst_history" type="number" title="" />
+        <column table="a" column="papka" type="string" title="" />
+      </select>
+      <from>
+        <table name="zakazchik" as="a" />
+        <query name="field_state" as="isp_otdel" join="left outer">
+          <call function="=">
+            <column table="a" column="isp_otdel"></column>
+            <column table="isp_otdel" column="id"></column>
+          </call>
+        </query>
+        <query name="yn" as="podtv" join="left outer">
+          <call function="=">
+            <column table="a" column="podtv"></column>
+            <column table="podtv" column="id"></column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="zayavka" class="1" timestamp="17.09.2018 14:37:24" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\zayavka.xml">
+      <select>
+        <column table="a" column="nomer" type="number" title="" />
+        <column table="a" column="sostoyanie" type="number" title="" />
+        <column table="a" column="name" type="string" title="№" vid="1" />
+        <column table="a" column="zagol" type="string" title="Заголовок" vid="1" />
+        <column table="a" column="opisan" type="string" title="Описание" />
+        <column table="a" column="vazhn" type="number" title="" />
+        <column table="a" column="data_vnes" type="date" title="" />
+        <column table="a" column="konsult" type="number" title="" />
+        <column table="a" column="zakazchik" type="number" title="" mandatory="is_ready" />
+        <column table="a" column="kontakt" type="string" title="" />
+        <column table="a" column="trud_fact" type="number" title="" />
+        <column table="a" column="data_vipoln" type="date" title="" />
+        <column table="a" column="otch_ispoln" type="string" title="" />
+        <column table="a" column="otch_testir" type="string" title="" />
+        <column table="a" column="prich_zakr" type="string" title="" />
+        <column table="a" column="vers" type="number" title="" />
+        <column table="a" column="testir" type="number" title="" />
+        <column table="a" column="tc_nomer" type="string" title="" />
+        <column table="a" column="ispolnit" type="number" title="" />
+        <column table="a" column="export_v_tc" type="number" title="" />
+        <column table="a" column="data_plan" type="date" title="" />
+        <column table="a" column="postanovshik" type="number" title="" />
+        <column table="a" column="tc_sostoyanie" type="string" title="" />
+        <column table="a" column="trud_plan" type="number" title="" />
+        <column table="a" column="srok_plan" type="number" title="" />
+        <column table="a" column="data_izmen" type="date" title="" />
+        <column table="a" column="user_izmen" type="number" title="" />
+        <column table="a" column="tc_data_fact" type="date" title="" />
+        <column table="a" column="sluzh_zapiska" type="string" title="" />
+        <column table="a" column="sluzh_perep" type="string" title="" />
+        <column table="a" column="vid_sopr" type="number" title="" />
+        <column table="a" column="curator" type="number" title="" />
+        <column table="a" column="vnositel" type="number" title="" />
+        <column table="a" column="otch_analiz" type="string" title="" />
+        <column table="a" column="data_treb" type="date" title="" />
+        <column table="a" column="parent" type="number" title="" />
+        <column table="a" column="assoc_type" type="number" title="" />
+        <column table="a" column="tip_zayavki" type="number" title="" />
+        <column table="a" column="tip_vnositel" type="number" title="" />
+        <column table="a" column="deyst_history" type="number" title="" />
+        <column table="a" column="rassm_otv" type="number" title="" />
+        <column table="a" column="otch_konsult" type="string" title="" />
+        <column table="a" column="kurator" type="number" title="" />
+        <column table="a" column="status_podtv" type="number" title="" />
+        <column table="a" column="status_vipoln" type="number" title="" />
+        <column table="a" column="spos_vip" type="number" title="" />
+        <column table="a" column="treb_test" type="number" title="" />
+        <column table="a" column="vers_plan" type="number" title="" />
+        <column table="a" column="data_vipusk_plan" type="date" title="" />
+        <column table="a" column="otch_ispoln_publ" type="string" title="" />
+        <column table="a" column="zadan_testir" type="string" title="" />
+        <column table="a" column="treb_opis" type="number" title="" />
+        <column table="a" column="slozhnost" type="number" title="" />
+        <column table="a" column="tc_proekt" type="number" title="" />
+        <column table="a" column="proveren_isp" type="number" title="" />
+        <column table="a" column="proveren_test" type="number" title="" />
+        <column table="a" column="zakr_aktom" type="number" title="" />
+        <column table="a" column="data_sozd" type="date" title="" />
+        <column table="a" column="proveren_zak" type="number" title="" />
+        <column table="a" column="vers_rep" type="number" title="" />
+        <column table="a" column="wrong_tc_num" type="number" title="" />
+        <column table="a" column="has_assoc" type="number" title="" />
+        <column table="a" column="val_kachestvo" type="number" title="" />
+        <column table="a" column="val_skorost" type="number" title="" />
+        <column table="a" column="data_rassm" type="date" title="" />
+        <column table="a" column="data_tc_sync" type="date" title="" />
+        <column table="a" column="data_vipusk" type="date" title="" />
+        <column table="a" column="versiya1" type="number" title="" />
+        <column table="a" column="data_utochn" type="date" title="" />
+        <column table="a" column="data_vrab" type="date" title="" />
+        <column table="a" column="data_otv" type="date" title="" />
+        <column table="a" column="sost_v_sist_zak" type="number" title="" />
+        <column table="a" column="vip" type="number" title="" />
+        <column table="a" column="col_problem" type="number" title="" />
+        <column table="a" column="sverhsrochn" type="number" title="" />
+        <column table="a" column="child_index" type="number" title="" />
+        <column table="a" column="nomer_parent" type="number" title="" />
+        <column table="a" column="trud_neopl" type="number" title="" />
+        <column table="a" column="auto_trud" type="number" title="" />
+        <column table="a" column="status_tz" type="number" title="" />
+        <column table="a" column="tc_nomer1" type="string" title="" />
+        <column table="a" column="tfs_nomer" type="string" title="" />
+        <call function="if" as="is_ready" type="number">
+          <call function="=">
+            <column table="this" column="sostoyanie" />
+            <const>7</const>
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <table name="zayavka" as="a" />
+        <query name="assoc_type" as="assoc_type" join="left outer">
+          <call function="=">
+            <column table="a" column="assoc_type" />
+            <column table="assoc_type" column="id" />
+          </call>
+        </query>
+        <query name="polzovatel" as="kurator" join="left outer">
+          <call function="=">
+            <column table="a" column="kurator" />
+            <column table="kurator" column="id" />
+          </call>
+        </query>
+        <query name="polzovatel" as="postanovshik" join="left outer">
+          <call function="=">
+            <column table="a" column="postanovshik" />
+            <column table="postanovshik" column="id" />
+          </call>
+        </query>
+        <query name="polzovatel" as="ispolnit" join="left outer">
+          <call function="=">
+            <column table="a" column="ispolnit" />
+            <column table="ispolnit" column="id" />
+          </call>
+        </query>
+        <query name="polzovatel" as="testir" join="left outer">
+          <call function="=">
+            <column table="a" column="testir" />
+            <column table="testir" column="id" />
+          </call>
+        </query>
+        <query name="polzovatel" as="konsult" join="left outer">
+          <call function="=">
+            <column table="a" column="konsult" />
+            <column table="konsult" column="id" />
+          </call>
+        </query>
+        <query name="polzovatel" as="vnositel" join="left outer">
+          <call function="=">
+            <column table="a" column="vnositel" />
+            <column table="vnositel" column="id" />
+          </call>
+        </query>
+        <query name="rol" as="tip_vnositel" join="left outer">
+          <call function="=">
+            <column table="a" column="tip_vnositel" />
+            <column table="tip_vnositel" column="id" />
+          </call>
+        </query>
+        <query name="rol" as="rassm_otv" join="left outer">
+          <call function="=">
+            <column table="a" column="rassm_otv" />
+            <column table="rassm_otv" column="id" />
+          </call>
+        </query>
+        <query name="slozhnost" as="slozhnost" join="left outer">
+          <call function="=">
+            <column table="a" column="slozhnost" />
+            <column table="slozhnost" column="id" />
+          </call>
+        </query>
+        <query name="sostoyanie" as="sostoyanie" join="left outer">
+          <call function="=">
+            <column table="a" column="sostoyanie" />
+            <column table="sostoyanie" column="id" />
+          </call>
+        </query>
+        <query name="spos_vip" as="spos_vip" join="left outer">
+          <call function="=">
+            <column table="a" column="spos_vip" />
+            <column table="spos_vip" column="id" />
+          </call>
+        </query>
+        <query name="tc_proekt" as="tc_proekt" join="left outer">
+          <call function="=">
+            <column table="a" column="tc_proekt" />
+            <column table="tc_proekt" column="id" />
+          </call>
+        </query>
+        <query name="tip_zayavki" as="tip_zayavki" join="left outer">
+          <call function="=">
+            <column table="a" column="tip_zayavki" />
+            <column table="tip_zayavki" column="id" />
+          </call>
+        </query>
+        <query name="treb_opis" as="treb_opis" join="left outer">
+          <call function="=">
+            <column table="a" column="treb_opis" />
+            <column table="treb_opis" column="id" />
+          </call>
+        </query>
+        <query name="treb_test" as="treb_test" join="left outer">
+          <call function="=">
+            <column table="a" column="treb_test" />
+            <column table="treb_test" column="id" />
+          </call>
+        </query>
+        <query name="val_kachestvo" as="val_kachestvo" join="left outer">
+          <call function="=">
+            <column table="a" column="val_kachestvo" />
+            <column table="val_kachestvo" column="id" />
+          </call>
+        </query>
+        <query name="val_skorost" as="val_skorost" join="left outer">
+          <call function="=">
+            <column table="a" column="val_skorost" />
+            <column table="val_skorost" column="id" />
+          </call>
+        </query>
+        <query name="versiya" as="versiya1" join="left outer">
+          <call function="=">
+            <column table="a" column="versiya1" />
+            <column table="versiya1" column="id" />
+          </call>
+        </query>
+        <query name="versiya" as="vers_rep" join="left outer">
+          <call function="=">
+            <column table="a" column="vers_rep" />
+            <column table="vers_rep" column="id" />
+          </call>
+        </query>
+        <query name="vid_soprovozhdeniya" as="vid_sopr" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_sopr" />
+            <column table="vid_sopr" column="id" />
+          </call>
+        </query>
+        <query name="yn" as="vip" join="left outer">
+          <call function="=">
+            <column table="a" column="vip" />
+            <column table="vip" column="kod" />
+          </call>
+        </query>
+        <query name="yn" as="export_v_tc" join="left outer">
+          <call function="=">
+            <column table="a" column="export_v_tc" />
+            <column table="export_v_tc" column="kod" />
+          </call>
+        </query>
+        <query name="yn" as="zakr_aktom" join="left outer">
+          <call function="=">
+            <column table="a" column="zakr_aktom" />
+            <column table="zakr_aktom" column="kod" />
+          </call>
+        </query>
+        <query name="yn" as="proveren_zak" join="left outer">
+          <call function="=">
+            <column table="a" column="proveren_zak" />
+            <column table="proveren_zak" column="kod" />
+          </call>
+        </query>
+        <query name="yn" as="proveren_test" join="left outer">
+          <call function="=">
+            <column table="a" column="proveren_test" />
+            <column table="proveren_test" column="kod" />
+          </call>
+        </query>
+        <query name="yn" as="proveren_isp" join="left outer">
+          <call function="=">
+            <column table="a" column="proveren_isp" />
+            <column table="proveren_isp" column="kod" />
+          </call>
+        </query>
+        <query name="zakazchik" as="zakazchik" join="left outer">
+          <call function="=">
+            <column table="a" column="zakazchik" />
+            <column table="zakazchik" column="id" />
+          </call>
+        </query>
+        <query name="status_tz" as="status_tz" join="left outer">
+          <call function="=">
+            <column table="a" column="status_tz" />
+            <column table="status_tz" column="id" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="zayavka_akt" class="1" timestamp="23.03.2016 17:22:52" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\zayavka_akt.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="zayavka" type="number" title="" />
+        <column table="a" column="akt" type="number" title="" />
+        <column table="a" column="procent" type="number" title="" />
+        <column table="a" column="trud" type="number" title="" />
+      </select>
+      <from>
+        <table name="zayavka_akt" as="a" />
+        <query name="zayavka" as="zayavka" join="left outer">
+          <call function="=">
+            <column table="a" column="zayavka" />
+            <column table="zayavka" column="nomer" />
+          </call>
+        </query>
+        <query name="akt" join="left outer" as="akt">
+          <call function="=">
+            <column table="a" column="akt" />
+            <column table="akt" column="id" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="zayavka_proekt" class="1" timestamp="10.03.2016 18:39:30" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\original\zayavka_proekt.xml">
+      <select>
+        <column table="a" column="id" type="number" title="" />
+        <column table="a" column="zayavka" type="number" title="" />
+        <column table="a" column="proekt" type="number" title="" />
+      </select>
+      <from>
+        <table name="zayavka_proekt" as="a" />
+        <query name="proekt" as="proekt" join="left outer">
+          <call function="=">
+            <column table="a" column="proekt" />
+            <column table="proekt" column="id" />
+          </call>
+        </query>
+        <query name="zayavka" as="zayavka" join="left outer">
+          <call function="=">
+            <column table="a" column="zayavka" />
+            <column table="zayavka" column="nomer" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="bav_test" timestamp="27.08.2018 11:00:50" file="sql.builder.templates\sql.builder\projects\servicedesk\scheme\test\bav_test.xml">
+      <select>
+        <column table="a" column="kod_bav_test" key="1" type="number" />
+        <column table="a" column="kod_bav_test_spr" type="number" title="Справочник" />
+        <column table="a" column="v1" title="Значение 1" type="string" />
+        <column table="a" column="v2" title="Значение 2 (multiline)" type="string" controlType="UITextEx" />
+        <column table="a" column="d1" title="Дата 1" type="date" />
+        <column table="a" column="d2" title="Дата 2" type="date" />
+        <column table="a" column="n1" title="Число 1" type="number" />
+        <column table="a" column="n2" title="Число 2" type="number" />
+        <column table="a" column="c1" title="Признак 1" type="number" controlType="UICheck" />
+        <call function="||" as="vsum" title="Результат">
+          <column table="this" column="v1" />
+          <const>','</const>
+          <column table="this" column="v2" />
+        </call>
+      </select>
+      <from>
+        <table name="bav_test" as="a" />
+        <query name="bav_test_spr" as="kod_bav_test_spr" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bav_test_spr" />
+            <column table="kod_bav_test_spr" column="kod_bav_test_spr" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="test_colgroup_saldo" title="Тест группировки в колонках (сальдо)" visible="0" datareader1="1" use-temp1="1" timestamp="12.01.2017 16:06:05" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <customers>
+        <customer id="99" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_colgroup_saldo.xlsx" title="Тест группировки в колонках" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_colgroup_saldo_gr" as="a">
+          <dimquery table="ym1" dimension="ym" />
+          <dimquery table="ym1" dimension="ymtit" />
+          <dimquery table="ym1" dimension="ymfc" />
+          <dimquery table="ym1" dimension="ym1" />
+        </query>
+        <query name="test_colgroup_saldo_ym" as="ym1" />
+      </queries>
+    </report>
+    <report name="test_colgroup_saldo_simple" title="Тест группировки в колонках (сальдо) упрощенный" visible="0" datareader1="1" use-temp1="1" timestamp="12.01.2017 16:06:05" file="sql.builder.templates\sql.builder\projects\servicedesk\reports\test_colgroup_saldo.xml">
+      <customers>
+        <customer id="99" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_colgroup_saldo_simple.xlsx" title="Тест группировки в колонках" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_colgroup_saldo_gr_simple" as="a"></query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="AKT-LIST" timestamp="28.04.2016 17:23:29" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\akts.xml">
+      <content>
+        <grid table="akt" show-toolbar="1" show-footer="1">
+          <events>
+            <useaction event-name="double-click" action-rows="selected" action-type="dynamic-form" call="AKT-CARD">
+              <useparam name="code_akt" />
+            </useaction>
+          </events>
+          <menu>
+            <uicommand action-type="dynamic-form" call="AKT-CARD">
+              <useparam name="code_akt" />
+            </uicommand>
+          </menu>
+          <columns>
+            <column table="akt" column="id" parname="code_akt" />
+            <column table="akt" column="name" />
+            <column table="akt" column="data_nach" />
+            <column table="akt" column="data_okonch" />
+            <column table="akt" column="zakazchik" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="akt" />
+      </from>
+    </form>
+    <form name="AKT-CARD" timestamp="29.04.2016 11:29:42" as="AKT-CARD" title="AKT-CARD" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\akts.xml">
+      <params>
+        <param type="number" as="code_akt" title="code_akt" name="code_akt" />
+      </params>
+      <content>
+        <column table="akt" column="name" />
+        <column table="akt" column="data_nach" title="Дата с" />
+        <column table="akt" column="data_okonch" title="Дата по" />
+        <column table="akt" column="zakazchik" title="Заказчик" />
+        <column table="akt" column="is_podpis" title="Подписан" />
+        <column table="akt" column="dogovor" title="Договор" />
+        <column table="zayavka_akt" column="trud" title="Сумма" group="sum" controlType="UIText" />
+        <grid table="zayavka_akt" show-toolbar="1" show-footer="1" multi-select="0">
+          <columns>
+            <column table="zayavka_akt" column="zayavka" />
+            <column table="zayavka_akt" column="procent" />
+            <column table="zayavka_akt" column="trud" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="akt">
+          <elink name="zayavka_akt" />
+          <where>
+            <call function="=">
+              <column table="akt" column="id" />
+              <useparam table="zayavka_akt" column="akt" name="code_akt" />
+            </call>
+          </where>
+        </query>
+        <query name="zayavka_akt" exclude="1" />
+      </from>
+    </form>
+    <form name="bav_test" timestamp="22.06.2018 19:42:45" title="Тест: [:a.vsum]" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <fieldgroup title="Группа 1">
+          <usefield field="cmn_list" type="number" name="p_zak" title="Заказчик11" show-nulls="1">
+            <listquery>
+              <query name="zakazchik" />
+            </listquery>
+          </usefield>
+          <usefield field="cmn_list" type="number" name="tst1" title="Заявка" rows-limit="100">
+            <listquery>
+              <query name="zayavka_list" />
+            </listquery>
+          </usefield>
+          <usefield field="cmn_combo_num" name="ccc" title="Комбо">
+            <listquery>
+              <query name="zakazchik" />
+            </listquery>
+          </usefield>
+        </fieldgroup>
+        <fieldgroup title="Группа 2">
+          <usefield field="cmn_combo_num" name="ccc1" title="Комбо(null)" show-nulls="1">
+            <listquery>
+              <query name="zakazchik" />
+            </listquery>
+          </usefield>
+          <usefield field="cmn_string" title="Строка" name="ssss" />
+          <column table="a" column="v1" />
+          <column table="a" column="v2" />
+        </fieldgroup>
+        <column table="a" column="vsum" />
+      </content>
+      <from>
+        <query name="bav_test" as="a" />
+      </from>
+    </form>
+    <form name="bav_test2" timestamp="05.07.2017 17:36:19" title="Тест: [:a.vsum]" show-toolbar="1" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <usefield field="cmn_list" type="number" name="tst" title="Заказчик11">
+          <listquery>
+            <query name="zakazchik" />
+          </listquery>
+        </usefield>
+        <column table="a" column="v1" />
+        <column table="a" column="v2" />
+        <uicommand action-type="dynamic-form" call="bav_test" title="Открыть" />
+        <column table="a" column="vsum" />
+        <column table="a" column="d1" />
+        <column table="a" column="n1" />
+        <column table="a" column="c1" />
+      </content>
+      <from>
+        <query name="bav_test" as="a" />
+      </from>
+    </form>
+    <form name="bav_test3" timestamp="08.08.2018 21:08:43" title="Тест таблицы" show-toolbar="1" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <usefield field="cmn_list" type="number" name="tst" title="Заказчик11">
+          <listquery>
+            <query name="zakazchik" />
+          </listquery>
+        </usefield>
+        <grid table="a" show-toolbar="1">
+          <columns>
+            <column table="a" column="kod_bav_test" />
+            <column table="a" column="v1" />
+            <column table="a" column="kod_bav_test_spr" />
+            <column table="a" column="v2" />
+            <column table="a" column="vsum" />
+            <column table="a" column="d1" />
+            <column table="a" column="n1" />
+            <column table="a" column="c1" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="bav_test" as="a" />
+      </from>
+    </form>
+    <form name="bav_test4" timestamp="28.06.2018 03:00:34" title="Тест: [:a.vsum]" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <tabcontainer>
+          <fieldgroup title="Группа 1">
+            <usefield field="cmn_list" type="number" name="p_zak" title="Заказчик11" show-nulls="1">
+              <listquery>
+                <query name="zakazchik" />
+              </listquery>
+            </usefield>
+            <usefield field="cmn_list" type="number" name="tst1" title="Заявка" rows-limit="100">
+              <listquery>
+                <query name="zayavka_list" />
+              </listquery>
+            </usefield>
+            <usefield field="cmn_combo_num" name="ccc" title="Комбо">
+              <listquery>
+                <query name="zakazchik" />
+              </listquery>
+            </usefield>
+          </fieldgroup>
+          <fieldgroup title="Группа 2">
+            <usefield field="cmn_combo_num" name="ccc1" title="Комбо(null)" show-nulls="1">
+              <listquery>
+                <query name="zakazchik" />
+              </listquery>
+            </usefield>
+            <usefield field="cmn_string" title="Строка" name="ssss" />
+            <column table="a" column="v1" />
+            <column table="a" column="v2" />
+          </fieldgroup>
+        </tabcontainer>
+      </content>
+      <from>
+        <query name="bav_test" as="a" />
+      </from>
+    </form>
+    <form name="bav_test5" timestamp="27.08.2018 11:01:27" title="Тест полей" show-toolbar="1" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <column table="a" column="v1" />
+        <column table="a" column="kod_bav_test_spr" />
+        <column table="a" column="v2" />
+        <column table="a" column="vsum" />
+        <column table="a" column="d1" />
+        <column table="a" column="d2" as="dt1" title="Дата время 1" controlType="UIDateTime" />
+        <column table="a" column="n1" format="F0" />
+        <column table="a" column="n2" as="mm1" title="Деньги 1" format="N2" />
+        <column table="a" column="c1" />
+      </content>
+      <from>
+        <query name="bav_test" as="a" />
+      </from>
+    </form>
+    <form name="bav_test6" timestamp="17.09.2018 15:57:07" show-toolbar="1" title="Много полей" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <column table="a" column="s1" />
+        <column table="a" column="s2" />
+        <column table="a" column="s3" />
+        <column table="a" column="s4" />
+        <column table="a" column="s5" />
+        <column table="a" column="s6" />
+        <column table="a" column="s7" />
+        <column table="a" column="s8" />
+        <column table="a" column="s9" />
+        <column table="a" column="s10" />
+        <column table="a" column="s11" />
+        <column table="a" column="s12" />
+        <column table="a" column="s13" />
+        <column table="a" column="s14" />
+        <column table="a" column="s15" />
+        <column table="a" column="s16" />
+        <column table="a" column="s17" />
+        <column table="a" column="s18" />
+        <column table="a" column="s19" />
+        <column table="a" column="s20" />
+        <column table="a" column="s21" />
+        <column table="a" column="s22" />
+        <column table="a" column="s23" />
+        <column table="a" column="s24" />
+        <column table="a" column="s25" />
+        <column table="a" column="s26" />
+        <column table="a" column="s27" />
+        <column table="a" column="s28" />
+        <column table="a" column="s29" />
+        <column table="a" column="s30" />
+        <column table="a" column="s31" exclude="1" />
+        <column table="a" column="s32" exclude="1" />
+        <column table="a" column="s33" exclude="1" />
+        <column table="a" column="s34" exclude="1" />
+        <column table="a" column="s35" exclude="1" />
+        <column table="a" column="s36" exclude="1" />
+        <column table="a" column="s37" exclude="1" />
+        <column table="a" column="s38" exclude="1" />
+        <column table="a" column="s39" exclude="1" />
+        <column table="a" column="s40" exclude="1" />
+        <column table="a" column="s41" exclude="1" />
+        <column table="a" column="s42" exclude="1" />
+        <column table="a" column="s43" exclude="1" />
+        <column table="a" column="s44" exclude="1" />
+        <column table="a" column="s45" exclude="1" />
+        <column table="a" column="s46" exclude="1" />
+        <column table="a" column="s47" exclude="1" />
+        <column table="a" column="s48" exclude="1" />
+        <column table="a" column="s49" exclude="1" />
+        <column table="a" column="s50" exclude="1" />
+        <column table="a" column="s51" exclude="1" />
+        <column table="a" column="s52" exclude="1" />
+        <column table="a" column="s53" exclude="1" />
+        <column table="a" column="s54" exclude="1" />
+        <column table="a" column="s55" exclude="1" />
+        <column table="a" column="s56" exclude="1" />
+        <column table="a" column="s57" exclude="1" />
+        <column table="a" column="s58" exclude="1" />
+        <column table="a" column="s59" exclude="1" />
+        <column table="a" column="s60" exclude="1" />
+        <column table="a" column="s61" exclude="1" />
+        <column table="a" column="s62" exclude="1" />
+        <column table="a" column="s63" exclude="1" />
+        <column table="a" column="s64" exclude="1" />
+        <column table="a" column="s65" exclude="1" />
+        <column table="a" column="s66" exclude="1" />
+        <column table="a" column="s67" exclude="1" />
+        <column table="a" column="s68" exclude="1" />
+        <column table="a" column="s69" exclude="1" />
+        <column table="a" column="s70" exclude="1" />
+        <column table="a" column="s71" exclude="1" />
+        <column table="a" column="s72" exclude="1" />
+        <column table="a" column="s73" exclude="1" />
+        <column table="a" column="s74" exclude="1" />
+        <column table="a" column="s75" exclude="1" />
+        <column table="a" column="s76" exclude="1" />
+        <column table="a" column="s77" exclude="1" />
+        <column table="a" column="s78" exclude="1" />
+        <column table="a" column="s79" exclude="1" />
+        <column table="a" column="s80" exclude="1" />
+        <column table="a" column="s81" exclude="1" />
+        <column table="a" column="s82" exclude="1" />
+        <column table="a" column="s83" exclude="1" />
+        <column table="a" column="s84" exclude="1" />
+        <column table="a" column="s85" exclude="1" />
+        <column table="a" column="s86" exclude="1" />
+        <column table="a" column="s87" exclude="1" />
+        <column table="a" column="s88" exclude="1" />
+        <column table="a" column="s89" exclude="1" />
+        <column table="a" column="s90" exclude="1" />
+        <column table="a" column="s91" exclude="1" />
+        <column table="a" column="s92" exclude="1" />
+        <column table="a" column="s93" exclude="1" />
+        <column table="a" column="s94" exclude="1" />
+        <column table="a" column="s95" exclude="1" />
+        <column table="a" column="s96" exclude="1" />
+        <column table="a" column="s97" exclude="1" />
+        <column table="a" column="s98" exclude="1" />
+        <column table="a" column="s99" exclude="1" />
+        <column table="a" column="s100" exclude="1" />
+        <column table="a" column="s101" exclude="1" />
+        <column table="a" column="s102" exclude="1" />
+        <column table="a" column="s103" exclude="1" />
+        <column table="a" column="s104" exclude="1" />
+        <column table="a" column="s105" exclude="1" />
+        <column table="a" column="s106" exclude="1" />
+        <column table="a" column="s107" exclude="1" />
+        <column table="a" column="s108" exclude="1" />
+        <column table="a" column="s109" exclude="1" />
+        <column table="a" column="s110" exclude="1" />
+        <column table="a" column="s111" exclude="1" />
+        <column table="a" column="s112" exclude="1" />
+        <column table="a" column="s113" exclude="1" />
+        <column table="a" column="s114" exclude="1" />
+        <column table="a" column="s115" exclude="1" />
+        <column table="a" column="s116" exclude="1" />
+        <column table="a" column="s117" exclude="1" />
+        <column table="a" column="s118" exclude="1" />
+        <column table="a" column="s119" exclude="1" />
+        <column table="a" column="s120" exclude="1" />
+        <column table="a" column="s121" exclude="1" />
+        <column table="a" column="s122" exclude="1" />
+        <column table="a" column="s123" exclude="1" />
+        <column table="a" column="s124" exclude="1" />
+        <column table="a" column="s125" exclude="1" />
+        <column table="a" column="s126" exclude="1" />
+        <column table="a" column="s127" exclude="1" />
+        <column table="a" column="s128" exclude="1" />
+        <column table="a" column="s129" exclude="1" />
+        <column table="a" column="s130" exclude="1" />
+        <column table="a" column="s131" exclude="1" />
+        <column table="a" column="s132" exclude="1" />
+        <column table="a" column="s133" exclude="1" />
+        <column table="a" column="s134" exclude="1" />
+        <column table="a" column="s135" exclude="1" />
+        <column table="a" column="s136" exclude="1" />
+        <column table="a" column="s137" exclude="1" />
+        <column table="a" column="s138" exclude="1" />
+        <column table="a" column="s139" exclude="1" />
+        <column table="a" column="s140" exclude="1" />
+        <column table="a" column="s141" exclude="1" />
+        <column table="a" column="s142" exclude="1" />
+        <column table="a" column="s143" exclude="1" />
+        <column table="a" column="s144" exclude="1" />
+        <column table="a" column="s145" exclude="1" />
+        <column table="a" column="s146" exclude="1" />
+        <column table="a" column="s147" exclude="1" />
+        <column table="a" column="s148" exclude="1" />
+        <column table="a" column="s149" exclude="1" />
+        <column table="a" column="s150" exclude="1" />
+        <column table="a" column="s151" exclude="1" />
+        <column table="a" column="s152" exclude="1" />
+        <column table="a" column="s153" exclude="1" />
+        <column table="a" column="s154" exclude="1" />
+        <column table="a" column="s155" exclude="1" />
+        <column table="a" column="s156" exclude="1" />
+        <column table="a" column="s157" exclude="1" />
+        <column table="a" column="s158" exclude="1" />
+        <column table="a" column="s159" exclude="1" />
+        <column table="a" column="s160" exclude="1" />
+        <column table="a" column="s161" exclude="1" />
+        <column table="a" column="s162" exclude="1" />
+        <column table="a" column="s163" exclude="1" />
+        <column table="a" column="s164" exclude="1" />
+        <column table="a" column="s165" exclude="1" />
+        <column table="a" column="s166" exclude="1" />
+        <column table="a" column="s167" exclude="1" />
+        <column table="a" column="s168" exclude="1" />
+        <column table="a" column="s169" exclude="1" />
+        <column table="a" column="s170" exclude="1" />
+        <column table="a" column="s171" exclude="1" />
+        <column table="a" column="s172" exclude="1" />
+        <column table="a" column="s173" exclude="1" />
+        <column table="a" column="s174" exclude="1" />
+        <column table="a" column="s175" exclude="1" />
+        <column table="a" column="s176" exclude="1" />
+        <column table="a" column="s177" exclude="1" />
+        <column table="a" column="s178" exclude="1" />
+        <column table="a" column="s179" exclude="1" />
+        <column table="a" column="s180" exclude="1" />
+        <column table="a" column="s181" exclude="1" />
+        <column table="a" column="s182" exclude="1" />
+        <column table="a" column="s183" exclude="1" />
+        <column table="a" column="s184" exclude="1" />
+        <column table="a" column="s185" exclude="1" />
+        <column table="a" column="s186" exclude="1" />
+        <column table="a" column="s187" exclude="1" />
+        <column table="a" column="s188" exclude="1" />
+        <column table="a" column="s189" exclude="1" />
+        <column table="a" column="s190" exclude="1" />
+        <column table="a" column="s191" exclude="1" />
+        <column table="a" column="s192" exclude="1" />
+        <column table="a" column="s193" exclude="1" />
+        <column table="a" column="s194" exclude="1" />
+        <column table="a" column="s195" exclude="1" />
+        <column table="a" column="s196" exclude="1" />
+        <column table="a" column="s197" exclude="1" />
+        <column table="a" column="s198" exclude="1" />
+        <column table="a" column="s199" exclude="1" />
+      </content>
+      <from>
+        <query name="bav_test6" as="a" />
+      </from>
+    </form>
+    <form name="bav_test6s" timestamp="17.09.2018 16:14:14" show-toolbar="1" title="Очень много полей" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\bav_test.xml">
+      <content>
+        <column table="a" column="s1" />
+        <column table="a" column="s2" />
+        <column table="a" column="s3" />
+        <column table="a" column="s4" />
+        <column table="a" column="s5" />
+        <column table="a" column="s6" />
+        <column table="a" column="s7" />
+        <column table="a" column="s8" />
+        <column table="a" column="s9" />
+        <column table="a" column="s10" />
+        <column table="a" column="s11" />
+        <column table="a" column="s12" />
+        <column table="a" column="s13" />
+        <column table="a" column="s14" />
+        <column table="a" column="s15" />
+        <column table="a" column="s16" />
+        <column table="a" column="s17" />
+        <column table="a" column="s18" />
+        <column table="a" column="s19" />
+        <column table="a" column="s20" />
+        <column table="a" column="s21" />
+        <column table="a" column="s22" />
+        <column table="a" column="s23" />
+        <column table="a" column="s24" />
+        <column table="a" column="s25" />
+        <column table="a" column="s26" />
+        <column table="a" column="s27" />
+        <column table="a" column="s28" />
+        <column table="a" column="s29" />
+        <column table="a" column="s30" />
+        <column table="a" column="s31" />
+        <column table="a" column="s32" />
+        <column table="a" column="s33" />
+        <column table="a" column="s34" />
+        <column table="a" column="s35" />
+        <column table="a" column="s36" />
+        <column table="a" column="s37" />
+        <column table="a" column="s38" />
+        <column table="a" column="s39" />
+        <column table="a" column="s40" />
+        <column table="a" column="s41" />
+        <column table="a" column="s42" />
+        <column table="a" column="s43" />
+        <column table="a" column="s44" />
+        <column table="a" column="s45" />
+        <column table="a" column="s46" />
+        <column table="a" column="s47" />
+        <column table="a" column="s48" />
+        <column table="a" column="s49" />
+        <column table="a" column="s50" />
+        <column table="a" column="s51" />
+        <column table="a" column="s52" />
+        <column table="a" column="s53" />
+        <column table="a" column="s54" />
+        <column table="a" column="s55" />
+        <column table="a" column="s56" />
+        <column table="a" column="s57" />
+        <column table="a" column="s58" />
+        <column table="a" column="s59" />
+        <column table="a" column="s60" />
+        <column table="a" column="s61" />
+        <column table="a" column="s62" />
+        <column table="a" column="s63" />
+        <column table="a" column="s64" />
+        <column table="a" column="s65" />
+        <column table="a" column="s66" />
+        <column table="a" column="s67" />
+        <column table="a" column="s68" />
+        <column table="a" column="s69" />
+        <column table="a" column="s70" />
+        <column table="a" column="s71" />
+        <column table="a" column="s72" />
+        <column table="a" column="s73" />
+        <column table="a" column="s74" />
+        <column table="a" column="s75" />
+        <column table="a" column="s76" />
+        <column table="a" column="s77" />
+        <column table="a" column="s78" />
+        <column table="a" column="s79" />
+        <column table="a" column="s80" />
+        <column table="a" column="s81" />
+        <column table="a" column="s82" />
+        <column table="a" column="s83" />
+        <column table="a" column="s84" />
+        <column table="a" column="s85" />
+        <column table="a" column="s86" />
+        <column table="a" column="s87" />
+        <column table="a" column="s88" />
+        <column table="a" column="s89" />
+        <column table="a" column="s90" />
+        <column table="a" column="s91" />
+        <column table="a" column="s92" />
+        <column table="a" column="s93" />
+        <column table="a" column="s94" />
+        <column table="a" column="s95" />
+        <column table="a" column="s96" />
+        <column table="a" column="s97" />
+        <column table="a" column="s98" />
+        <column table="a" column="s99" />
+        <column table="a" column="s100" />
+        <column table="a" column="s101" />
+        <column table="a" column="s102" />
+        <column table="a" column="s103" />
+        <column table="a" column="s104" />
+        <column table="a" column="s105" />
+        <column table="a" column="s106" />
+        <column table="a" column="s107" />
+        <column table="a" column="s108" />
+        <column table="a" column="s109" />
+        <column table="a" column="s110" />
+        <column table="a" column="s111" />
+        <column table="a" column="s112" />
+        <column table="a" column="s113" />
+        <column table="a" column="s114" />
+        <column table="a" column="s115" />
+        <column table="a" column="s116" />
+        <column table="a" column="s117" />
+        <column table="a" column="s118" />
+        <column table="a" column="s119" />
+        <column table="a" column="s120" />
+        <column table="a" column="s121" />
+        <column table="a" column="s122" />
+        <column table="a" column="s123" />
+        <column table="a" column="s124" />
+        <column table="a" column="s125" />
+        <column table="a" column="s126" />
+        <column table="a" column="s127" />
+        <column table="a" column="s128" />
+        <column table="a" column="s129" />
+        <column table="a" column="s130" />
+        <column table="a" column="s131" />
+        <column table="a" column="s132" />
+        <column table="a" column="s133" />
+        <column table="a" column="s134" />
+        <column table="a" column="s135" />
+        <column table="a" column="s136" />
+        <column table="a" column="s137" />
+        <column table="a" column="s138" />
+        <column table="a" column="s139" />
+        <column table="a" column="s140" />
+        <column table="a" column="s141" />
+        <column table="a" column="s142" />
+        <column table="a" column="s143" />
+        <column table="a" column="s144" />
+        <column table="a" column="s145" />
+        <column table="a" column="s146" />
+        <column table="a" column="s147" />
+        <column table="a" column="s148" />
+        <column table="a" column="s149" />
+        <column table="a" column="s150" />
+        <column table="a" column="s151" />
+        <column table="a" column="s152" />
+        <column table="a" column="s153" />
+        <column table="a" column="s154" />
+        <column table="a" column="s155" />
+        <column table="a" column="s156" />
+        <column table="a" column="s157" />
+        <column table="a" column="s158" />
+        <column table="a" column="s159" />
+        <column table="a" column="s160" />
+        <column table="a" column="s161" />
+        <column table="a" column="s162" />
+        <column table="a" column="s163" />
+        <column table="a" column="s164" />
+        <column table="a" column="s165" />
+        <column table="a" column="s166" />
+        <column table="a" column="s167" />
+        <column table="a" column="s168" />
+        <column table="a" column="s169" />
+        <column table="a" column="s170" />
+        <column table="a" column="s171" />
+        <column table="a" column="s172" />
+        <column table="a" column="s173" />
+        <column table="a" column="s174" />
+        <column table="a" column="s175" />
+        <column table="a" column="s176" />
+        <column table="a" column="s177" />
+        <column table="a" column="s178" />
+        <column table="a" column="s179" />
+        <column table="a" column="s180" />
+        <column table="a" column="s181" />
+        <column table="a" column="s182" />
+        <column table="a" column="s183" />
+        <column table="a" column="s184" />
+        <column table="a" column="s185" />
+        <column table="a" column="s186" />
+        <column table="a" column="s187" />
+        <column table="a" column="s188" />
+        <column table="a" column="s189" />
+        <column table="a" column="s190" />
+        <column table="a" column="s191" />
+        <column table="a" column="s192" />
+        <column table="a" column="s193" />
+        <column table="a" column="s194" />
+        <column table="a" column="s195" />
+        <column table="a" column="s196" />
+        <column table="a" column="s197" />
+        <column table="a" column="s198" />
+        <column table="a" column="s199" />
+      </content>
+      <from>
+        <query name="bav_test6" as="a" />
+      </from>
+    </form>
+    <form name="zayavka" timestamp="17.09.2018 14:37:53" title="Заявка" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\zayavka.xml">
+      <params>
+        <param type="number" name="nomer">
+          <const>12350</const>
+        </param>
+      </params>
+      <content>
+        <column table="zayavka" column="nomer" />
+        <column table="zayavka" column="sostoyanie" />
+        <column table="zayavka" column="name" />
+        <column table="zayavka" column="zagol" />
+        <column table="zayavka" column="opisan" />
+        <column table="zayavka" column="vazhn" />
+        <column table="zayavka" column="data_vnes" />
+        <column table="zayavka" column="konsult" />
+        <column table="zayavka" column="zakazchik" />
+        <column table="zayavka" column="kontakt" />
+        <column table="zayavka" column="trud_fact" />
+        <column table="zayavka" column="data_vipoln" />
+        <column table="zayavka" column="otch_ispoln" />
+        <column table="zayavka" column="otch_testir" />
+        <column table="zayavka" column="prich_zakr" />
+        <column table="zayavka" column="vers" />
+        <column table="zayavka" column="testir" />
+        <column table="zayavka" column="tc_nomer" />
+        <column table="zayavka" column="ispolnit" />
+        <column table="zayavka" column="export_v_tc" />
+        <column table="zayavka" column="data_plan" />
+        <column table="zayavka" column="postanovshik" />
+        <column table="zayavka" column="tc_sostoyanie" />
+        <column table="zayavka" column="trud_plan" />
+        <column table="zayavka" column="srok_plan" />
+        <column table="zayavka" column="data_izmen" />
+        <column table="zayavka" column="user_izmen" />
+        <column table="zayavka" column="tc_data_fact" />
+        <column table="zayavka" column="sluzh_zapiska" />
+        <column table="zayavka" column="sluzh_perep" />
+        <column table="zayavka" column="vid_sopr" />
+        <column table="zayavka" column="curator" />
+        <column table="zayavka" column="vnositel" />
+        <column table="zayavka" column="otch_analiz" />
+        <column table="zayavka" column="data_treb" />
+        <column table="zayavka" column="parent" />
+        <column table="zayavka" column="assoc_type" />
+        <column table="zayavka" column="tip_zayavki" />
+        <column table="zayavka" column="tip_vnositel" />
+        <column table="zayavka" column="deyst_history" />
+        <column table="zayavka" column="rassm_otv" />
+        <column table="zayavka" column="otch_konsult" />
+        <column table="zayavka" column="kurator" />
+        <column table="zayavka" column="status_podtv" />
+        <column table="zayavka" column="status_vipoln" />
+        <column table="zayavka" column="spos_vip" />
+        <column table="zayavka" column="treb_test" />
+        <column table="zayavka" column="vers_plan" />
+        <column table="zayavka" column="data_vipusk_plan" />
+        <column table="zayavka" column="otch_ispoln_publ" />
+        <column table="zayavka" column="zadan_testir" />
+        <column table="zayavka" column="treb_opis" />
+        <column table="zayavka" column="slozhnost" />
+        <column table="zayavka" column="tc_proekt" />
+        <column table="zayavka" column="proveren_isp" />
+        <column table="zayavka" column="proveren_test" />
+        <column table="zayavka" column="zakr_aktom" />
+        <column table="zayavka" column="data_sozd" />
+        <column table="zayavka" column="proveren_zak" />
+        <column table="zayavka" column="vers_rep" />
+        <column table="zayavka" column="wrong_tc_num" />
+        <column table="zayavka" column="has_assoc" />
+        <column table="zayavka" column="val_kachestvo" />
+        <column table="zayavka" column="val_skorost" />
+        <column table="zayavka" column="data_rassm" />
+        <column table="zayavka" column="data_tc_sync" />
+        <column table="zayavka" column="data_vipusk" />
+        <column table="zayavka" column="versiya1" />
+        <column table="zayavka" column="data_utochn" />
+        <column table="zayavka" column="data_vrab" />
+        <column table="zayavka" column="data_otv" />
+        <column table="zayavka" column="sost_v_sist_zak" />
+        <column table="zayavka" column="vip" />
+        <column table="zayavka" column="col_problem" />
+        <column table="zayavka" column="sverhsrochn" />
+        <column table="zayavka" column="child_index" />
+        <column table="zayavka" column="nomer_parent" />
+        <column table="zayavka" column="trud_neopl" />
+        <column table="zayavka" column="auto_trud" />
+        <column table="zayavka" column="status_tz" />
+        <column table="zayavka" column="tc_nomer1" />
+        <column table="zayavka" column="tfs_nomer" />
+        <column table="zayavka" column="is_ready" />
+      </content>
+      <from>
+        <query name="zayavka">
+          <where>
+            <call function="=">
+              <column table="zayavka" column="nomer" />
+              <useparam name="nomer" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="zayavki" title="Заявки" timestamp="10.03.2016 18:51:03" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\zayavka.xml">
+      <content>
+        <grid table="zayavka">
+          <columns>
+            <column table="zayavka" column="name" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="zayavka" />
+      </from>
+    </form>
+    <form name="zayavka_akt" timestamp="25.04.2016 13:05:58" title="Редактирование актов" file="sql.builder.templates\sql.builder\projects\servicedesk\forms\zayavka_akt.xml">
+      <content>
+        <grid table="zayavka_akt" show-toolbar="1">
+          <columns>
+            <column table="zayavka_akt" column="id" />
+            <column table="zayavka_akt" column="zayavka" />
+            <column table="zayavka_akt" column="akt" />
+            <column table="zayavka_akt" column="procent" />
+            <column table="zayavka_akt" column="trud" />
+            <column table="zayavka_akt" column="is_new" />
+            <column table="zayavka_akt" column="is_not_new" />
+            <column table="zayavka" column="zagol" />
+            <column table="zayavka" column="opisan" />
+            <column table="akt" column="data_nach" />
+            <column table="akt" column="data_okonch" />
+            <column table="akt" column="zakazchik" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="zayavka_akt">
+          <link name="zayavka">
+            <link name="zakazchik" />
+          </link>
+          <link name="akt" />
+        </query>
+      </from>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

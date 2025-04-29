@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_kazn" title="Казначейство" security-id="asuse_ur_isp_kazn" with-behavior="0" timestamp="28.12.2023 14:10:00">
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">232</const>
+        </param>
+        <param name="kod_isp" type="number">
+          <const exclude="1">34</const>
+        </param>
+      </params>
+      <content>
+        <column table="kod_mat" column="kod_mat" as="kod_mat_main" parname="kod_mat_main" column-visible="0" />
+        <column table="ur_inkasso_kodb_def" column="kodb" parname="kodb_def" column-visible="0" exclude="1" />
+        <column table="f10" column="val" parname="f10" column-editable="1" column-visible="0" />
+        <grid table="ur_kazn" show-toolbar="1">
+          <toolbar>
+            <uicommand action-type="dynamic-form" call="ur_dp_kazn" modal="1">
+              <useparam name="cur_kod_kazn" />
+              <useparam name="kod_mat_main" />
+            </uicommand>
+            <uicommand name="upech_doc" editable="item_is_not_new">
+              <useparam name="cur_kod_kazn" />
+              <const>12</const>
+              <useparam name="kod_folders" />
+            </uicommand>
+          </toolbar>
+          <columns>
+            <column table="ur_kazn" column="kod_kazn" parname="cur_kod_kazn" column-visible="0" />
+            <column table="ur_kazn" column="num_reg" title="Номер письма" />
+            <column table="ur_kazn" column="dat_doc" title="Дата письма" />
+            <column table="ur_kazn" column="kod_dog_kazn" title="Казначейство" />
+            <column table="ur_kazn" column="dat_podachi" title="Дата передачи письма" />
+            <band title="Сумма задолженности заявленная к выплате">
+              <fact table="ur_kazn" column="dolg_on_il_hnd" title="Всего" />
+              <fact table="ur_kazn" column="dolg_on_il_osn" title="Основная реализация" />
+              <fact table="ur_kazn" column="dolg_on_il_peni" title="Проценты (пени)" />
+              <fact column="peni_period_str" table="ur_kazn" title="Период пени" column-visible="is_customer10_flag" />
+              <fact table="ur_kazn" column="dolg_on_il_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <fact table="ur_kazn" column="ur_hist_mat_dec_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_kazn" column="dolg_on_il_gp_doc" title="Гос. пошлина" />
+              <fact table="ur_kazn" column="dolg_on_il_astr" width-perc="50" title="Астрент" />
+              <fact table="ur_kazn" column="ur_hist_mat_dec_sud_izd" />
+            </band>
+            <column table="ur_kazn" column="kod_state" title="Состояние" />
+            <column table="ur_kazn" column="dat_otv" />
+            <column table="ur_kazn" column="dat_otz" title="Дата отзыва" />
+            <band title="Задолженность удовлетворена на сумму">
+              <fact table="ur_kazn" column="ur_opl_kazn" title="Всего" />
+              <fact table="ur_kazn" column="ur_opl_posl_il_osn" title="Основная реализация" />
+              <fact table="ur_kazn" column="ur_opl_posl_il_peni" title="Проценты (пени)" />
+              <fact table="ur_kazn" column="ur_opl_posl_il_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <column table="ur_kazn" column="ogr_v" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_kazn" column="ur_opl_posl_il_gp" title="Гос. пошлина" />
+              <column table="ur_kazn" column="astrent_v" title="Астрент" />
+              <column table="ur_kazn" column="sud_izd_v" title="Судебные издержки" />
+            </band>
+            <band title="Остаток задолженности">
+              <fact table="ur_kazn" column="dolg_kazn" title="Всего" />
+              <fact table="ur_kazn" column="dolg_resh_tek_osn" title="Основная реализация" />
+              <fact table="ur_kazn" column="dolg_resh_tek_peni" title="Проценты (пени)" />
+              <fact table="ur_kazn" column="dolg_resh_tek_shtr" title="Штраф" visible="f10" visible-invert="1" />
+              <fact table="ur_kazn" column="dolg_kazn_tek_ogr" title="Расх. за введ. огр. реж. энергопотр." />
+              <fact table="ur_kazn" column="dolg_resh_tek_gp_doc" title="Гос. пошлина" />
+              <fact table="ur_kazn" column="dolg_kazn_tek_astr" title="Астрент" />
+              <fact table="ur_kazn" column="dolg_kazn_tek_sud_izd" title="Судебные издержки" />
+            </band>
+            <column table="ur_kazn" column="prim" title="Примечание" />
+            <column table="ur_kazn" column="kod_scan" />
+            <fact table="ur_kazn" column="kr_dog_name" />
+            <column table="ur_kazn" column="is_not_new" column-visible="0" parname="item_is_not_new" as="is_not_new" />
+          </columns>
+          <events>
+            <useaction event-name="new-row-save" action-type="execute-add" call="ur_dp_kazn_insert_all">
+              <useparam name="cur_kod_kazn" />
+            </useaction>
+          </events>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders_isp" as="ur_folders">
+          <link name="kod_isp">
+            <link name="kod_hist_mat">
+              <link name="kod_mat" />
+            </link>
+          </link>
+          <elink name="ur_kazn" />
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+        <query name="ur_inkasso_kodb_def" exclude="1">
+          <withparams>
+            <useparam name="kod_isp" />
+          </withparams>
+        </query>
+        <query name="is_customer10_flag" as="f10" />
+      </from>
+    </form>
+  </forms>
+</root>

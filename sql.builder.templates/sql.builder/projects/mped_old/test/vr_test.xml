@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="va_test" timestamp="22.11.2017 15:18:56" title="Тест" is-report="1" order="ord" can-use-simple-params="1">
+      <content>
+        <usefield field="va_direct1" />
+        <usefield field="va_god" />
+        <fieldgroup title="Месяц">
+          <usefield field="va_mes" name="p_mes1" title="C" />
+          <usefield field="va_mes" name="p_mes2" title="По" />
+        </fieldgroup>
+      </content>
+      <select>
+        <column table="va_acc_02_item" column="kod_acc_02_item" />
+        <column table="va_acc_02_item" column="ord" />
+        <column table="va_acc_02_item" column="num" halign="right" />
+        <column table="va_acc_02_item" column="name" />
+        <fact column="va_cb_acc_002_p_val" table="a" />
+        <fact column="va_cb_acc_002_f_val" table="a" title="Факт" />
+      </select>
+      <from>
+        <qube>
+          <dimset as="a">
+            <link name="va_god" />
+            <link name="va_mes" />
+            <link name="va_direct_main" />
+            <where>
+              <call function="=">
+                <column table="va_god" column="val" />
+                <useparam name="p_god" />
+              </call>
+              <call function="ge" optional="1">
+                <column table="va_mes" column="val" />
+                <useparam name="p_mes1" />
+              </call>
+              <call function="le" optional="1">
+                <column table="va_mes" column="val" />
+                <useparam name="p_mes2" />
+              </call>
+              <call optional="1" function="in">
+                <column table="va_direct_main" column="kod_direct" />
+                <useparam name="p_kod_direct1" />
+              </call>
+            </where>
+          </dimset>
+          <link name="va_acc_02_item" all-rows="1" />
+        </qube>
+      </from>
+    </query>
+  </queries>
+</root>

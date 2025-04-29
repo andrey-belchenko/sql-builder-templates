@@ -1,0 +1,1639 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns="sqlbuilder" targetNamespace="sqlbuilder" xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="enum.xsd"/>
+  
+  <!--Атрибуты-->
+  
+  <xs:attributeGroup name="attrdefaul">
+    <xs:annotation>
+      <xs:documentation>Атрибуты по умолчанию</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" use="required">
+      <xs:annotation>
+        <xs:documentation>Имя</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="as">
+      <xs:annotation>
+        <xs:documentation>Алиас</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="attr_col">
+    <xs:annotation>
+      <xs:documentation>Атрибуты колонки</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="as">
+      <xs:annotation>
+        <xs:documentation>Алиас колонки</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title">
+      <xs:annotation>
+        <xs:documentation>Заголовок колонки</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="class-title">
+      <xs:annotation>
+        <xs:documentation>Заголовок верхней колонки</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group">
+      <xs:annotation>
+        <xs:documentation>Группировка по колонке</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nvl">
+      <xs:annotation>
+        <xs:documentation>Указывается значение, если пусто</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nullif">
+      <xs:annotation>
+        <xs:documentation>Выводится пусто, если значение равно указанному в атрибуте</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dimname">
+      <xs:annotation>
+        <xs:documentation>Имя для тега pivot. К колонке применяется тоже разложение, где описан тег</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" type="list_type">
+      <xs:annotation>
+        <xs:documentation>Тип колонки</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="key">
+      <xs:annotation>
+        <xs:documentation>Признак ключа</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="agg">
+      <xs:annotation>
+        <xs:documentation>Формула для итоговой строки DataColumn.Expression</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="format" type="list_format">
+      <xs:annotation>
+        <xs:documentation>Формат вывода</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="qv_split" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Раскладываем дату на день, месяц, квартал, год (для QlikView)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="qlikview" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Включаем/исключаем (1/0) колонку (для QlikView)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dgroup">
+      <xs:annotation>
+        <xs:documentation>Группировка по всем колонкам, в которых нет данного атрибута</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="if" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя тега if. Условие применяется к данной колонке</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mp" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>умножить на 10 в степени mp ([:имя параметра])</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="master" type="xs:string">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cumulate" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Накопление по полю (например ym)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="window" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Перечисление колонок для группировки в PARTITION BY для агрегатной фунцкии SUM </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="timeline" type="xs:string">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="stored" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Сохранять ли в хранилище</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="colset" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Область колонки для возможности исключения из отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="exclude" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Признак исключения колокни из запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="attr_query">
+    <xs:annotation>
+      <xs:documentation>Атрибуты запроса</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" type="list_queryname">
+      <xs:annotation>
+        <xs:documentation>Имя</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="as" type="xs:NCName">
+      <xs:annotation>
+        <xs:documentation>Алиас</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pushpred"  type="xs:integer" ></xs:attribute>
+    <xs:attribute name="grouplevel"  type="xs:string"></xs:attribute>
+    <xs:attribute name="order"  type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Сортировка по колонке</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="materialize"  type="xs:integer"></xs:attribute>
+    <xs:attribute name="inherit"  type="xs:string"></xs:attribute>
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Наименование запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="join" type="list_joinname">
+      <xs:annotation>
+        <xs:documentation>Тип join</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cstyle" type="xs:string">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="stored" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя таблицы/хранилища для сохранения/чтения данных</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="fixed" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Колонки из дочерних запросов не выбрасываются. Поумолчанию значение 0 - выбрасываются</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="use-repository" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Использовать ли хранилище</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="changes" type="xs:string">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="hint" type="xs:string" >
+      <xs:annotation>
+        <xs:documentation>Хинт для запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="calctree" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Признак расчета итоговых значений по дереву</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+
+  <xs:attributeGroup name="attr_field">
+    <xs:annotation>
+      <xs:documentation>Атрибуты элементов</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" use="required">
+      <xs:annotation>
+        <xs:documentation>Имя</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="controlType" use="required">
+      <xs:annotation>
+        <xs:documentation>Тип контрола</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Текст контрола</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Видимость контрола по умолчанию</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="valuequery" type="xs:string">
+      <xs:annotation>
+        <xs:documentation></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mandatory" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Обязательное заполнение компонента</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="parent-field-name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя родителя для дерева</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-nulls" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Показывать строку для выбора "(пусто)"</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="val-field-name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя колонки с возвращаемым значением</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="expand-all" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Развернутое/свернутое состояние дерева</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="special-type" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Тип элемента пока для выбора групп колонок (colsets)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checked" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Установка галочки поумолчанию. Только для UICheck</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="edit-mask" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Маска для вводимого значения</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="attr_report">
+    <xs:annotation>
+      <xs:documentation>Атрибуты отчета</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name"  type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Имя запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title"  type="xs:string" >
+      <xs:annotation>
+        <xs:documentation>Заголовок отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="form"  type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя набора компонентов</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="folder"  type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя папки</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autobands" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Генерирование заголовков</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="edit-columns" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Возможность выбора колонок отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Видимость отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nogrid" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Вывод сразу в печатную форму</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="editable" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Возможность редактирования отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="use-repository" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Использовать хранилище (данные берутся из таблицы указанной в query в атрибуте stored)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="allow-save" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Сохранить шаблон</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="params-customization" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Возможность настраивать видимость параметров</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="kod-menu" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Право на формирование отчета, в противном случае будет не виден</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mode" type="list_mode">
+      <xs:annotation>
+        <xs:documentation>Вид таблицы для отображения отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="datareader" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Признак записи данных без форматирования</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dx-export" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Экспорт в Excel через DevExpress</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="attr_report_query">
+    <xs:annotation>
+      <xs:documentation>Атрибуты отчета для запроса</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="is-report" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Признак формирования отчета по query</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="form"  type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя набора компонентов</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="folder"  type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Имя папки</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autobands" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Генерирование заголовков</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="edit-columns" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Возможность выбора колонок отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Видимость отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="nogrid" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Вывод сразу в печатную форму</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="editable" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Возможность редактирования отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="allow-save" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Сохранить шаблон</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="params-customization" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Возможность настраивать видимость параметров</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="kod-menu" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Право на формирование отчета, в противном случае будет не виден</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mode" type="list_mode">
+      <xs:annotation>
+        <xs:documentation>Вид таблицы для отображения отчета</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="datareader" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>Признак записи данных без форматирования</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+  
+  <!--Типы-->
+
+  <xs:complexType name="params" >
+    <xs:annotation>
+      <xs:documentation>Перечисление входящих параметров</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="param" minOccurs="1" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="query_full">
+    <xs:sequence>
+      <xs:element name="params" type="params" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element ref="select" minOccurs="1" maxOccurs="1"> </xs:element>
+      <xs:element ref="links" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element name="from" type="from" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element ref="where" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element ref="start" minOccurs="0" maxOccurs="1"></xs:element>
+      <xs:element ref="connect" minOccurs="0" maxOccurs="1"></xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="attr_query"></xs:attributeGroup>
+  </xs:complexType>
+
+  <xs:complexType name="query_name">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="slink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="elink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="select" minOccurs="1" maxOccurs="1"> </xs:element>
+        <xs:element name="from" type="from" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="where" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="withparams" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="using" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="grsets" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="extendwhere" minOccurs="0" maxOccurs="1"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="attr_query"></xs:attributeGroup>
+  </xs:complexType>
+
+  <xs:complexType name="query_pivot">
+    <xs:complexContent>
+      <xs:restriction base="query_full">
+        <xs:sequence>
+          <xs:element name="params" type="params" minOccurs="0" maxOccurs="0"></xs:element>
+          <xs:element ref="select" minOccurs="1" maxOccurs="1"> </xs:element>
+          <xs:element ref="links" minOccurs="0" maxOccurs="0"></xs:element>
+          <xs:element name="from" type="from" minOccurs="1" maxOccurs="1"></xs:element>
+          <xs:element ref="where" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element ref="start" minOccurs="0" maxOccurs="0"></xs:element>
+          <xs:element ref="connect" minOccurs="0" maxOccurs="0"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" use="prohibited"></xs:attribute>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="query_report">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="union" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element name="columns" type="columns" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="withparams" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="transpose" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element name="query" type="query_report" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attributeGroup ref="attr_query"></xs:attributeGroup>
+    <xs:attribute name="node-id" type="xs:string" default="growid">
+      <xs:annotation>
+        <xs:documentation>Наименование колонки-ключа (для grset запросов growid)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="parent-node-id" type="xs:string" default="parent_growid">
+      <xs:annotation>
+        <xs:documentation>Наименование колонки parent (для grset запросов parent_growid)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="from">
+    <xs:annotation>
+      <xs:documentation>from из запроса по имени</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="query" type="query_name" id="duery" minOccurs="1" maxOccurs="unbounded"></xs:element>
+      <xs:element ref="table" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="column">
+    <xs:attribute name="table" type="xs:string"></xs:attribute>
+    <xs:attribute name="name" type="xs:string"></xs:attribute>
+    <xs:attribute name="column" type="xs:string"></xs:attribute>
+    <!--<xs:attribute name="agg" type="xs:string"></xs:attribute>-->
+    <xs:attributeGroup ref="attr_col"></xs:attributeGroup>
+  </xs:complexType>
+  
+  <xs:complexType name="column_report">
+    <xs:complexContent>
+      <xs:restriction base="column">
+        <xs:attribute name="column" type="xs:string" use="prohibited"></xs:attribute>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="usefield">
+    <xs:annotation>
+      <xs:documentation>Параметр для отчета уже описан</xs:documentation>
+    </xs:annotation>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="defaultquery" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:choice>
+    <xs:attribute name="field" type="list_field">
+      <xs:annotation>
+        <xs:documentation>Идентификатор параметра</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="name" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Переопределение имени параметра</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="column_using">
+    <xs:complexContent>
+      <xs:restriction base="column">       
+        <xs:attribute name="table" type="xs:string" use="prohibited"></xs:attribute>
+        <xs:attribute name="name" type="xs:string" use="prohibited"></xs:attribute>
+        <xs:attribute name="agg" type="xs:string" use="prohibited"></xs:attribute>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="call">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="const" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="array" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="function" use="required" type="list_function">
+      <xs:annotation>
+        <xs:documentation>Имя функции</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    
+  </xs:complexType>
+
+  <xs:complexType name="call_all">
+    <xs:complexContent>
+      <xs:extension base="call">
+        <xs:sequence>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="column"  minOccurs="0" maxOccurs="unbounded"></xs:element>
+            <xs:element ref="useparam"  minOccurs="0" maxOccurs="unbounded"></xs:element>
+            <xs:element name="query" type="query_full"></xs:element>
+          </xs:choice>
+        </xs:sequence>
+        <xs:attributeGroup ref="attr_col"></xs:attributeGroup>
+        <xs:attribute name="optional">
+          <xs:annotation>
+            <xs:documentation>Если параметры пустые, то функция не выполняется</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="call_field">
+    <xs:complexContent>
+      <xs:extension base="call">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="fieldvalue" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+        <xs:attribute name="function" use="required" type="list_function">
+          <xs:annotation>
+            <xs:documentation>Имя функции</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="array">
+  </xs:complexType>
+
+  <xs:complexType name="array_field">
+    <xs:complexContent>
+      <xs:extension base="array">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="fieldvalue"></xs:element>
+        </xs:choice>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name ="columns">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="column" type="column_report" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="usepart"></xs:element>
+        <xs:element ref="band" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!--<xs:complexType name="query_union">
+    <xs:sequence>
+      <xs:element ref="union" minOccurs="0" maxOccurs="1"></xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+  </xs:complexType>-->
+
+  <!--<xs:complexType name="useparam" id="useparam">
+    <xs:annotation>
+      <xs:documentation>Применение параметра в условиях</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="useparam" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Применение параметра</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="name" use="required">
+            <xs:annotation>
+              <xs:documentation>Имя параметра</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>-->
+
+  <!--<xs:complexType name="column" id="column">
+    <xs:annotation>
+      <xs:documentation>Описание колонок</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="column" minOccurs="1" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Определение колонки</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="table" use="required">
+            <xs:annotation>
+              <xs:documentation>Имя таблицы/алиас, из которой берем колонку</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="column" use="required">
+            <xs:annotation>
+              <xs:documentation>Имя колонки/алиас или "*" вывод всех колонок таблицы</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="as">
+            <xs:annotation>
+              <xs:documentation>Алиас колонки</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="title">
+            <xs:annotation>
+              <xs:documentation>Заголовок колонки</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="group">
+            <xs:annotation>
+              <xs:documentation>Группировка по колонке</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="nvl">
+            <xs:annotation>
+              <xs:documentation>Указывается значение, если пусто</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="dgroup">
+            <xs:annotation>
+              <xs:documentation>Группировка по всем колонкам, в которых не данного атрибута</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="dimname">
+            <xs:annotation>
+              <xs:documentation></xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="type">
+            <xs:annotation>
+              <xs:documentation>Тип колонки</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>-->
+
+  <!--<xs:complexType name="link" >
+    <xs:annotation>
+      <xs:documentation>Описание связи таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="link" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Связь таблиц/запросов</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>-->
+
+  <!--<xs:complexType name="slink" >
+    <xs:annotation>
+      <xs:documentation>Описание связи таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="slink" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Связь таблиц/запросов</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="withparams" minOccurs="0" maxOccurs="1"></xs:element>
+          </xs:sequence>
+          <xs:attribute name="name" use="required">
+            <xs:annotation>
+              <xs:documentation>Имя таблицы/запроса из схем в .xml или алиас, если такой указан</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="as">
+            <xs:annotation>
+              <xs:documentation>Алиас таблицы/запроса</xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>-->
+
+  <!--<xs:complexType name="dlink">
+    <xs:annotation>
+      <xs:documentation>Описание связи таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="dlink" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Связь таблиц/запросов</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>-->
+  
+  <!--Элементы-->
+
+  <xs:element name="content">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="field" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="const">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="attr_col"></xs:attributeGroup>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="array">
+  </xs:element>
+
+  <xs:element name="param">
+    <xs:annotation>
+      <xs:documentation>Определение параметра</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="const" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="array" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="call" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="defaultquery" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>Переопределение значения по умолчанию для параметра</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="name" use="required">
+        <xs:annotation>
+          <xs:documentation>Имя параметра</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="type" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Тип параметра</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="field" type="list_field">
+        <xs:annotation>
+          <xs:documentation>Ссылка на описание field</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="mandatory" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>Переопределение обязательности заполнения параметра для отчета</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="useparam">
+    <xs:annotation>
+      <xs:documentation>Применение параметра в условиях</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <!--<xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="array"></xs:element>
+          <xs:element ref="const"></xs:element>
+        </xs:choice>
+      </xs:sequence>-->
+      <xs:attribute name="name" use="required">
+        <xs:annotation>
+          <xs:documentation>Имя параметра</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="undefined">
+    <xs:annotation>
+      <xs:documentation>Неопределенное значение параметра</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name ="customers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customer" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>Видимость отчета для определенной энергосистемы</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="id" use="required" type="list_customer"></xs:attribute>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="print-templates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="excel">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="template" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="name" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Полное имя шаблона ("name.xml")</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="title" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Заголовок файла</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="del-cols" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Удалять ли колонки из шаблона, если они отсутсвуют в запросе (0 - нет (по умолчанию), 1 - удалять)</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="print-proc" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Указываем как описаны данные в шаблоне (1- value:a.name , 2 - [:a.name])</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="output-format" type="xs:string">
+                    <xs:annotation>
+                      <xs:documentation>Формат файла (по умолчанию - xlsx, например xlsb)</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="headmarker" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Используются метки для заголовков</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="cells-merge" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Используются метки для слияния ячеек в колонках</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="cells-delete" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Используются метки-формулы для удаления ячеек в колонках</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="rows-height" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Используются метки для явного указания высоты строк</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                  <xs:attribute name="page-breaks" type="xs:int">
+                    <xs:annotation>
+                      <xs:documentation>Используются метки для явного задания границ страницы</xs:documentation>
+                    </xs:annotation>
+                  </xs:attribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+    
+  <xs:element name="withparams">
+    <xs:annotation>
+      <xs:documentation>Применение параметра в условиях</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="useparam" minOccurs="1" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="undefined" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="array"></xs:element>
+          <xs:element ref="const"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="extendwhere">
+    <xs:annotation>
+      <xs:documentation>Блок условий, которые применяются ко всем вложенным запросам</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  
+
+  <xs:element name="pivot">
+    <xs:annotation>
+      <xs:documentation>Описание разложения по колонкам</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="column" minOccurs="1" maxOccurs="1"></xs:element>
+          <xs:element ref="call" minOccurs="1" maxOccurs="1"/>
+          <xs:element ref="section" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+        <xs:element name="query" type="query_pivot" minOccurs="1" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+      <xs:attribute name="title" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Наименование запроса</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="if">
+    <xs:annotation>
+      <xs:documentation>Описание применения условия</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <!--<xs:element ref="column" minOccurs="1" maxOccurs="1"></xs:element>-->
+          <xs:element ref="call" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+        <!--<xs:element name="query" type="query_pivot" minOccurs="1" maxOccurs="unbounded"></xs:element>-->
+      </xs:sequence>
+      <xs:attribute name="title" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Наименование запроса</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="pfx" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Постфикс к наименованию колонки</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="section">
+    <xs:annotation>
+      <xs:documentation>Описание применения условия для колонок с нарастающим итогом (cumulate="ym")</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="call" minOccurs="1" maxOccurs="1"/>
+          <xs:element ref="column" minOccurs="1" maxOccurs="1"/>
+          <xs:element ref="const" minOccurs="1" maxOccurs="1"/>
+          <xs:element ref="array" minOccurs="1" maxOccurs="1"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="title" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Наименование запроса</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="pfx" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Постфикс к наименованию колонки</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="column">
+    <xs:annotation>
+      <xs:documentation>Определение колонки</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="pivot" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element ref="if" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element ref="section" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="1"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="table" use="required" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Имя таблицы/алиас, из которой берем колонку</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="column" use="required">
+        <xs:annotation>
+          <xs:documentation>Имя колонки/алиас или "*" вывод всех колонок таблицы</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attributeGroup ref="attr_col"></xs:attributeGroup>
+    </xs:complexType>
+    <xs:key name="table">
+      <xs:selector xpath="query"/>
+      <xs:field xpath="@as"/>
+    </xs:key>
+  </xs:element>
+
+  <xs:element name="grset">
+    <xs:annotation>
+      <xs:documentation>Группировка запроса</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="grset" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="where" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="level" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Уровень группировки</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="title" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Заголовок для группировки</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="as" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Алияс группировки</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="order" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Сортировка по колонкам (наименования через ",")</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="grsets">
+    <xs:annotation>
+      <xs:documentation>Описание блока группировок</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="grset" minOccurs="1" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="using">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="column" type="column_using" minOccurs="0" maxOccurs="unbounded">
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="band">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="column" type="column_report"  minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <!--<xs:element ref="column" minOccurs="0" maxOccurs="unbounded"></xs:element>-->
+        <xs:element ref="band" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+      <xs:attribute name="dimension"></xs:attribute>
+      <xs:attribute name="title"></xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="dimension">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="column" minOccurs="1" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="values">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="column" minOccurs="1" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="transpose">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="dimension" minOccurs="1" maxOccurs="1"></xs:element>
+        <xs:element ref="values" minOccurs="1" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="union">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="query" type="query_full" minOccurs="2" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="link">
+    <xs:annotation>
+      <xs:documentation>Связь таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="elink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="slink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="where" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+      <xs:attribute name="hint" type="xs:string" >
+        <xs:annotation>
+        <xs:documentation>Хинт для запроса</xs:documentation>
+      </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="elink">
+    <xs:annotation>
+      <xs:documentation>Связь таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="elink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="slink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="where" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+    <xs:attribute name="hint" type="xs:string" >
+      <xs:annotation>
+        <xs:documentation>Хинт для запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="links">
+    <xs:annotation>
+      <xs:documentation>Связь таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="slink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="elink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="attrdefaul">
+        <xs:annotation>
+        <xs:documentation>Хинт для запроса</xs:documentation>
+      </xs:annotation>
+      </xs:attributeGroup>
+    </xs:complexType>
+  </xs:element>
+ 
+  <xs:element name="slink">
+    <xs:annotation>
+      <xs:documentation>Связь таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="where" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="withparams" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="elink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="slink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+    <xs:attribute name="hint" type="xs:string" >
+      <xs:annotation>
+        <xs:documentation>Хинт для запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="dlink">
+    <xs:annotation>
+      <xs:documentation>Связь таблиц/запросов</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="elink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="slink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="where" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+    <xs:attribute name="hint" type="xs:string" >
+      <xs:annotation>
+        <xs:documentation>Хинт для запроса</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="call">
+    <xs:annotation>
+      <xs:documentation>Описание функции</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="column"  minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="useparam"  minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="const" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="array" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element name="query" type="query_full"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="function" use="required" type="list_function">
+        <xs:annotation>
+          <xs:documentation>Имя функции</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attributeGroup ref="attr_col"></xs:attributeGroup>
+      <xs:attribute name="optional">
+        <xs:annotation>
+          <xs:documentation>Если параметры пустые, то функция не выполняется</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="selective" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>Функция применима только к запросам в которых есть используемая колонка</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="virtual" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>Функция применима только к запросам, использующих текущий query</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="listquery">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="query" type="query_name" minOccurs="1" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="defaultquery">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="query" type="query_name" minOccurs="1" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="return">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="call" type="call_field" minOccurs="1" maxOccurs="1"></xs:element>
+          <xs:element name="array" type="array_field" minOccurs="1" maxOccurs="1">
+            <xs:annotation>
+              <xs:documentation>Массив для field</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="fieldvalue">
+  </xs:element>
+  
+  <xs:element name="fieldgroup">
+    <xs:annotation>
+      <xs:documentation>Группа компонентов</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="field" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:sequence>
+      <xs:attribute name="title" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Заголовок группы</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="expanded" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>Развернутая или свернутая группа по умолчанию</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="field">
+    <xs:annotation>
+      <xs:documentation>Описание параметра для отчета</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="listquery" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="defaultquery" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="return" minOccurs="0" maxOccurs="1"></xs:element>
+      </xs:sequence>
+      <xs:attributeGroup ref="attr_field"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="start">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="call"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="connect">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="call"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="select">
+    <xs:complexType>
+      <!--Позволяет создать элементы в любом порядке-->
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded" >
+          <xs:element ref="column"></xs:element>
+          <xs:element ref="call" ></xs:element>
+          <xs:element ref="const"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element name="query" type="query_full"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="where">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="call" minOccurs="1" maxOccurs="1"></xs:element>
+          <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="having">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="call" minOccurs="1" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="push">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="from" type="from" minOccurs="1" maxOccurs="1"></xs:element>
+        <xs:element ref="where" minOccurs="0" maxOccurs="1"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--<xs:element name="from">
+    <xs:annotation>
+      <xs:documentation>from из запроса с union</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="query" type="query_union"></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>-->
+
+  <!--Составные элементы для отчета-->
+  
+  <xs:element name="part">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded" >
+          <xs:element ref="fieldgroup" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="field" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="call" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="column" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element name="params" type="params" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element ref="param" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="link" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="dlink" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="useparam" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="band" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="withparams" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="if" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element ref="pivot" minOccurs="0" maxOccurs="unbounded"></xs:element>
+          <xs:element name="query" type="query_name" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string"></xs:attribute>
+    </xs:complexType>  
+  </xs:element>
+  
+  <xs:element name="usepart">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="const" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="column" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:choice>
+      <xs:attribute name="part" type="list_part">
+        <xs:annotation>
+          <xs:documentation>Имя используемой части</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attributeGroup ref="attr_col"></xs:attributeGroup>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="form">
+    <xs:annotation>
+      <xs:documentation>Блок компонентов для отчета</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="content" minOccurs="1" maxOccurs="1"></xs:element>
+        <xs:element name="usefield" type="usefield" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="usepart" minOccurs="0" maxOccurs="unbounded"></xs:element>
+        <xs:element ref="field" minOccurs="0" maxOccurs="unbounded"></xs:element>
+      </xs:choice>
+      <xs:attribute name="name" use="required">
+        <xs:annotation>
+          <xs:documentation>Имя набора описанных документов</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="report">
+    <xs:annotation>
+      <xs:documentation>Описание отчета</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded" >
+          <xs:element name="params" type="params" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:choice minOccurs="0" maxOccurs="unbounded" >
+            <xs:element ref="customers" minOccurs="1" maxOccurs="1"></xs:element>
+            <xs:element ref="print-templates" minOccurs="0" maxOccurs="1"></xs:element>
+          </xs:choice>
+          <xs:element name="columns" type="columns" minOccurs="0" maxOccurs="1"></xs:element>
+          <xs:element name="queries" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="query" type="query_report" minOccurs="1" maxOccurs="unbounded">
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attr_report"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="query">
+    <xs:annotation>
+      <xs:documentation>Описание запроса</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="const"></xs:element>
+          <xs:group ref="group_query"></xs:group>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attr_query"></xs:attributeGroup>
+      <xs:attributeGroup ref="attr_report_query"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:group name="group_query">
+    <xs:annotation>
+      <xs:documentation>Группа набора элементов стандартного заспроса</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="customers" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="print-templates" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="params" type="params" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="select" minOccurs="1" maxOccurs="1"> </xs:element>
+        <xs:element ref="links" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element name="from" type="from" minOccurs="1" maxOccurs="1"></xs:element>
+        <xs:element ref="push" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="where" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="having" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="start" minOccurs="0" maxOccurs="1"></xs:element>
+        <xs:element ref="connect" minOccurs="0" maxOccurs="1"></xs:element>
+      </xs:choice>
+
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="table">
+    <xs:annotation>
+      <xs:documentation>Описание таблицы</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="attrdefaul"></xs:attributeGroup>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

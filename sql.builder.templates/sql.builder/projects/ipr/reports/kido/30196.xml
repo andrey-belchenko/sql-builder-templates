@@ -1,0 +1,762 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="30196-if-dir-list">
+      <params>
+        <param name="kod_dir" type="number" />
+      </params>
+      <if pfx="_[:kod_dir]">
+        <call function="and">
+          <call function="in">
+            <column table="kod_person" column="kod_direct" />
+            <query>
+              <select>
+                <column table="a" column="kod_direct" />
+              </select>
+              <from>
+                <query name="is_spr_direct-listchild" as="a">
+                  <withparams>
+                    <useparam name="kod_dir" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </call>
+          <call function="not in">
+            <column table="a" column="kod_spr_viz" />
+            <array>4,6,131,37,141,125,133</array>
+          </call>
+        </call>
+      </if>
+    </part>
+    <part id="30196-if-dir">
+      <params>
+        <param name="kod_dir" type="number" />
+      </params>
+      <if pfx="_[:kod_dir]">
+        <call function="and">
+          <call function="in">
+            <column table="kod_person" column="kod_direct" />
+            <useparam name="kod_dir" />
+          </call>
+          <call function="not in">
+            <column table="a" column="kod_spr_viz" />
+            <array>4,6,131,37,141,125,133</array>
+          </call>
+        </call>
+      </if>
+    </part>
+    <part id="30196-if-depart">
+      <params>
+        <param name="kod_depart" type="number" />
+      </params>
+      <if pfx="_other">
+        <call function="and">
+          <call function="in">
+            <column table="this" column="n_department_a" />
+            <useparam name="kod_depart" />
+          </call>
+          <call function="not in">
+            <column table="a" column="kod_spr_viz" />
+            <array>4,6,131,37,141,125,133</array>
+          </call>
+        </call>
+      </if>
+    </part>
+    <part id="30196-if-viz">
+      <params>
+        <param name="kod_spr_viz" type="array" />
+      </params>
+      <if>
+        <call function="in">
+          <column table="a" column="kod_spr_viz" />
+          <useparam name="kod_spr_viz" />
+        </call>
+      </if>
+    </part>
+    <part id="30196-if-viz-notnull">
+      <params>
+        <param name="kod_spr_viz" type="array" />
+      </params>
+      <if>
+        <call function="and">
+          <call function="in">
+            <column table="a" column="kod_spr_viz" />
+            <useparam name="kod_spr_viz" />
+          </call>
+          <call function="is not null">
+            <column table="a" column="dat_viz" />
+          </call>
+          <!--<call function="=">
+            <call function="qg_settings_read.f_is_contains_value_nb">
+              <call function="to_char">
+                <column table="a" column="kod_person" />
+              </call>
+            </call>
+            <const>1</const>
+          </call>-->
+          <!--<call function="in">
+            <column table="a" column="kod_person" />
+            <array>301394</array>
+          </call>-->
+        </call>
+      </if>
+    </part>
+  </parts>
+  <forms>
+    <form name="30196" timestamp="21.11.2016 14:27:50" with-behavior="0">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <usefield field="cmn_date" name="dates" title="С даты" mandatory="1">
+          <defaultquery>
+            <query name="30196-begin-year" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_date_cur" name="datepo" title="По дату" mandatory="1" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="30196" folder="kido" form="30196" visible="1" title="Отчет о согласовании и подписании договоров об осуществлении технологического присоединения" nogrid="1">
+      <params>
+        <param name="dates" />
+        <param name="datepo" />
+      </params>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="30196.xml" title="Отчет о согласовании и подписании договоров об осуществлении технологического присоединения" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="30196-group" as="a">
+          <withparams>
+            <useparam name="dates" />
+            <useparam name="datepo" />
+          </withparams>
+        </query>
+        <query name="30196-title" as="t">
+          <withparams>
+            <useparam name="dates" />
+            <useparam name="datepo" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="30196-begin-year">
+      <select>
+        <call function="year begin time" as="val">
+          <call function="year">
+            <const>sysdate</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="30196-title">
+      <params>
+        <param name="dates" />
+        <param name="datepo" />
+      </params>
+      <select>
+        <call function="day" as="day" type="number">
+          <useparam name="datepo" />
+        </call>
+        <call function="mes-name-rp" as="month" type="string">
+          <call function="month">
+            <useparam name="datepo" />
+          </call>
+        </call>
+        <call function="year" as="year" type="number">
+          <useparam name="datepo" />
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="30196-group" order="kod_dop_contract,n_row">
+      <params>
+        <param name="dates" />
+        <param name="datepo" />
+      </params>
+      <select>
+        <column table="a" column="kod_dop_contract" group="1" />
+        <column table="a" column="n_row" group="1" />
+        <column table="a" column="name" group="max" />
+        <column table="a" column="lp_addr" group="max" />
+        <column table="a" column="kn_zone" group="max" />
+        <column table="a" column="num_req" group="max" />
+        <column table="a" column="dt_request" group="max" />
+        <column table="a" column="power" group="max" />
+        <column table="a" column="category" group="max" />
+        <column table="a" column="num_dog" group="max" />
+        <column table="a" column="dat_ouco" group="max" />
+        <column table="a" column="dt_contract" group="max" />
+        <column table="a" column="dat_post" group="max" />
+        <column table="a" column="kod_direct" group="max" />
+        <column table="a" column="kod_viza" group="max" />
+        <column table="a" column="dat_post_671" group="max" />
+        <call function="dense_rank" as="ndoc_671">
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="dat_post_671" />
+            <call function="if">
+              <call function="is not null">
+                <column table="this" column="dat_post_671" />
+              </call>
+              <column table="this" column="kod_viza" />
+            </call>
+          </call>
+        </call>
+        <column table="a" column="dat_viz_671" group="max" />
+        <column table="a" column="name_tech_671" group="max" />
+        <column table="a" column="dat_post_424" group="max" />
+        <call function="dense_rank" as="ndoc_424">
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="dat_post_424" />
+          </call>
+        </call>
+        <column table="a" column="dat_viz_424" group="max" />
+        <column table="a" column="dat_post_1" group="max" />
+        <call function="dense_rank" as="ndoc_1">
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="dat_post_1" />
+          </call>
+        </call>
+        <column table="a" column="dat_viz_1" group="max" />
+        <column table="a" column="dat_post_6" group="max" />
+        <column table="a" column="name_kr" group="max" />
+        <column table="a" column="dat_post_732" group="max" />
+        <column table="a" column="dat_viz_732" group="max" />
+        <column table="a" column="dat_post_other" group="max" />
+        <column table="a" column="dat_viz_other" group="max" />
+        <column table="a" column="name_go_other" group="max" />
+        <column table="a" column="name_kr1_other" group="max" />
+        <column table="a" column="dat_viz_131" group="max" />
+        <column table="a" column="dat_viz_37" group="max" />
+        <column table="a" column="dat_viz_125" group="max" />
+        <column table="a" column="dat_viz_133" group="max" />
+        <!-- тут число между днями -->
+        <column table="a" column="dat_viz_125_cntr" group="max" />
+        <column table="a" column="dat_viz_37_cntr" group="max" />
+        <call function="decode" as="dayregistr" type="number">
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="dayperson" />
+              </call>
+              <call function="is not null">
+                <column table="this" column="allday" />
+              </call>
+            </call>
+            <call function="-">
+              <column table="this" column="allday" />
+              <column table="this" column="dayperson" />
+            </call>
+          </call>
+          <const>0</const>
+          <const>1</const>
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="dayperson" />
+              </call>
+              <call function="is not null">
+                <column table="this" column="allday" />
+              </call>
+            </call>
+            <call function="-">
+              <column table="this" column="allday" />
+              <column table="this" column="dayperson" />
+            </call>
+          </call>
+        </call>
+        <call function="decode" as="dayperson" type="number">
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="dat_viz_125_cntr" />
+              </call>
+              <call function="is not null">
+                <column table="this" column="dat_viz_37_cntr" />
+              </call>
+            </call>
+            <call function="is_period_.get_srok_doc">
+              <column table="this" column="dat_viz_125_cntr" />
+              <column table="this" column="dat_viz_37_cntr" />
+            </call>
+          </call>
+          <const>0</const>
+          <const>1</const>
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="dat_viz_125_cntr" />
+              </call>
+              <call function="is not null">
+                <column table="this" column="dat_viz_37_cntr" />
+              </call>
+            </call>
+            <call function="is_period_.get_srok_doc">
+              <column table="this" column="dat_viz_125_cntr" />
+              <column table="this" column="dat_viz_37_cntr" />
+            </call>
+          </call>
+        </call>
+        <call function="decode" as="allday" type="number">
+          <call function="if">
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="dat_ouco" />
+              </call>
+              <call function="is not null">
+                <column table="this" column="dt_contract" />
+              </call>
+            </call>
+            <call function="is_period_.get_srok_doc">
+              <column table="this" column="dt_contract" />
+              <column table="this" column="dat_ouco" />
+            </call>
+          </call>
+          <const>0</const>
+          <const>1</const>
+          <call function="if" as="allday" type="number">
+            <call function="and">
+              <call function="is not null">
+                <column table="this" column="dat_ouco" />
+              </call>
+              <call function="is not null">
+                <column table="this" column="dt_contract" />
+              </call>
+            </call>
+            <call function="is_period_.get_srok_doc">
+              <column table="this" column="dt_contract" />
+              <column table="this" column="dat_ouco" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="30196-analytics" as="a">
+          <withparams>
+            <useparam name="dates" />
+            <useparam name="datepo" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="30196-analytics" grouplevel="no">
+      <params>
+        <param name="dates" />
+        <param name="datepo" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+        <call function="over" as="n_department_b" type="number">
+          <call function="lag">
+            <column table="this" column="n_department_a" />
+            <const>1</const>
+            <const>0</const>
+          </call>
+          <call function="order by 2">
+            <column table="this" column="kod_dop_contract" />
+            <column table="this" column="dat_post" />
+            <column table="this" column="kod_viza" />
+          </call>
+        </call>
+        <call function="if" as="n_department_c">
+          <call function="and">
+            <call function="ge">
+              <column table="this" column="n_department_b" />
+              <column table="this" column="n_department_a" />
+            </call>
+            <!--<call function="!=">
+              <column table="this" column="n_department_b" />
+              <const>6</const>
+            </call>-->
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call function="over" as="n_row" type="number">
+          <call function="sum">
+            <column table="this" column="n_department_c" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="kod_dop_contract" />
+            <column table="this" column="dat_post" />
+            <column table="this" column="kod_viza" />
+          </call>
+        </call>
+        <call function="over" as="dat_viz_125_cntr" type="date">
+          <call function="max">
+            <column table="this" column="dat_viz_125" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+        <call function="over" as="dat_viz_37_cntr" type="date">
+          <call function="max">
+            <column table="this" column="dat_viz_37" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="30196-data" as="a" order="kod_dop_contract,dat_post,kod_viza">
+          <withparams>
+            <useparam name="dates" />
+            <useparam name="datepo" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="or">
+            <call function="is not null">
+              <column table="a" column="dat_post_671" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_post_424" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_post_1" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_post_6" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_post_732" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_viz_131" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_viz_37" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_viz_125" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_viz_133" />
+            </call>
+            <call function="is not null">
+              <column table="a" column="dat_post_other" />
+            </call>
+          </call>
+          <call function="ge">
+            <column table="a" column="n_department_a" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="30196-data" grouplevel="no">
+      <params>
+        <param name="dates" />
+        <param name="datepo" />
+      </params>
+      <select>
+        <column table="a" column="kod_dop_contract" />
+        <column table="kn_customer" column="name" />
+        <column table="kod_dop_contract" column="lp_addr" />
+        <column table="kod_dop_contract" column="kn_zone" />
+        <column table="kod_dop_contract" column="num_req" />
+        <column table="kod_dop_contract" column="dt_request" />
+        <column table="kod_dop_contract" column="power" />
+        <column table="kod_dop_contract" column="category" />
+        <column table="kod_dop_contract" column="dat_ouco" />
+        <column table="kod_dop_contract" column="dt_contract" />
+        <call function="if" as="num_dog" type="string">
+          <call function="is not null">
+            <column table="kod_dop_contract" column="kn_contract_p" />
+          </call>
+          <call function="||">
+            <column table="kod_dop_contract" column="num_ouco" />
+            <const>'/'</const>
+            <column table="kod_dop_contract" column="num_ds" />
+          </call>
+          <column table="kod_dop_contract" column="num_ouco" />
+        </call>
+        <column table="a" column="dat_post" />
+        <column table="a" column="dat_viz" />
+        <column table="kod_person" column="kod_direct" />
+        <column table="a" column="kod_viza" />
+        <call function="case" as="n_department_a" type="number">
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="kod_person" column="kod_direct" />
+                <query>
+                  <select>
+                    <column table="a" column="kod_direct" />
+                  </select>
+                  <from>
+                    <query name="is_spr_direct-listchild" as="a">
+                      <withparams>
+                        <const>671</const>
+                      </withparams>
+                    </query>
+                  </from>
+                </query>
+                <!--<const>671</const>-->
+              </call>
+              <call function="not in">
+                <column table="a" column="kod_spr_viz" />
+                <array>4,6,131,37,141,125,133</array>
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="kod_person" column="kod_direct" />
+                <const>424</const>
+              </call>
+              <call function="not in">
+                <column table="a" column="kod_spr_viz" />
+                <array>4,6,131,37,141,125,133</array>
+              </call>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="a" column="kod_spr_viz" />
+                <array>4</array>
+              </call>
+              <call function="is not null">
+                <column table="a" column="dat_viz" />
+              </call>
+              <!--<call function="=">
+                <call function="qg_settings_read.f_is_contains_value_nb">
+                  <call function="to_char">
+                    <column table="a" column="kod_person" />
+                  </call>
+                </call>
+                <const>1</const>
+              </call>-->
+              <!--<call function="in">
+                <column table="a" column="kod_person" />
+                <array>301394</array>
+              </call>-->
+            </call>
+            <const>3</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="kod_person" column="kod_direct" />
+                <const>732</const>
+              </call>
+              <call function="not in">
+                <column table="a" column="kod_spr_viz" />
+                <array>4,6,131,37,141,125,133</array>
+              </call>
+            </call>
+            <const>4</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <array>6</array>
+            </call>
+            <const>6</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <array>131</array>
+            </call>
+            <const>7</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <array>37,141</array>
+            </call>
+            <const>8</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <array>125</array>
+            </call>
+            <const>9</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <array>133</array>
+            </call>
+            <const>10</const>
+          </call>
+          <call function="else">
+            <const>5</const>
+          </call>
+        </call>
+        <column table="a" column="dat_post" title="технический аудит на согласование (дата)">
+          <usepart part="30196-if-dir-list">
+            <const>671</const>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" title="технический аудит согласовано (дата)">
+          <usepart part="30196-if-dir-list">
+            <const>671</const>
+          </usepart>
+        </column>
+        <column table="a" column="name_direct" as="name_tech" title="служба тех.аудита">
+          <usepart part="30196-if-dir-list">
+            <const>671</const>
+          </usepart>
+        </column>
+        <column table="a" column="dat_post" title="юридическая служба на согласование (дата)">
+          <usepart part="30196-if-dir">
+            <const>424</const>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" title="юридическая служба согласовано (дата)">
+          <usepart part="30196-if-dir">
+            <const>424</const>
+          </usepart>
+        </column>
+        <column table="a" column="dat_post" as="+_1" title="на подпись (дата)">
+          <usepart part="30196-if-viz-notnull">
+            <array>4</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" as="+_1" title="подписано (дата)">
+          <usepart part="30196-if-viz-notnull">
+            <array>4</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_post" as="+_6" title="возврат на доработку (дата)">
+          <usepart part="30196-if-viz">
+            <array>6</array>
+          </usepart>
+        </column>
+        <column table="a" column="name_direct" as="name_kr" title="служба">
+          <usepart part="30196-if-viz">
+            <array>6</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_post" title="передано в ЦРКП (дата)">
+          <usepart part="30196-if-dir">
+            <const>732</const>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" title="передано ЦРКП (дата)">
+          <usepart part="30196-if-dir">
+            <const>732</const>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" as="+_131" title="сообщено о готовности (дата)">
+          <usepart part="30196-if-viz">
+            <array>131</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" as="+_37" title="выдано на подпись (дата)">
+          <usepart part="30196-if-viz">
+            <array>37,141</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" as="+_125" title="подписано заявителем (дата)">
+          <usepart part="30196-if-viz">
+            <array>125</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz" as="+_133" title="отказ заявителя (дата)">
+          <usepart part="30196-if-viz">
+            <array>133</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_post">
+          <usepart part="30196-if-depart">
+            <array>5</array>
+          </usepart>
+        </column>
+        <column table="a" column="dat_viz">
+          <usepart part="30196-if-depart">
+            <array>5</array>
+          </usepart>
+        </column>
+        <column table="kod_spr_viz" column="name" as="name_go">
+          <usepart part="30196-if-depart">
+            <array>5</array>
+          </usepart>
+        </column>
+        <column table="a" column="name_direct" as="name_kr1">
+          <usepart part="30196-if-depart">
+            <array>5</array>
+          </usepart>
+        </column>
+      </select>
+      <from>
+        <query name="is_viza" as="a">
+          <link name="kod_dop_contract">
+            <link name="kn_customer" />
+          </link>
+          <link name="kod_spr_viz" />
+          <link name="kod_person">
+            <link name="kod_direct" />
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <!--<call function="in">
+            <column table="a" column="kod_dop_contract" />
+            <array>3179091</array>
+          </call>-->
+          <!--<call function="or">
+            <call function="in">
+              <column table="kod_person" column="kod_direct" />
+              <array>857,424,732</array>
+            </call>
+            <call function="in">
+              <column table="a" column="kod_spr_viz" />
+              <array>1,4,6,131,37,125,133</array>
+            </call>
+          </call>-->
+          <call function="between" optional="1">
+            <column table="a" column="dat_post" />
+            <useparam name="dates" />
+            <useparam name="datepo" />
+          </call>
+          <call function="is not null">
+            <column table="a" column="kod_dop_contract" />
+          </call>
+          <!--<call function="=">
+            <column table="kod_dop_contract" column="status" />
+            <const>0</const>
+          </call>-->
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

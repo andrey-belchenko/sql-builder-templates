@@ -1,0 +1,481 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="61880_11-main" timestamp="17.02.2022 21:04:11" nogrid="1">
+      <select>
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" group="max" title="№ договора" />
+        <column table="a" column="payer_name" group="max" title="Наименование клиента" />
+        <column group="sum" table="a" column="dz_beg1" title="ДЗ на начало периода" />
+        <column group="sum" table="a" column="nach_per1" title="Фактическое потребление в периоде" />
+        <column group="sum" table="a" column="opl_per1" title="Фактическая оплата в периоде" />
+        <column group="sum" table="a" column="dz_end1" title="ДЗ на конец периода" />
+        <column group="sum" table="a" column="dz_beg2" title="ДЗ на начало периода" />
+        <column group="sum" table="a" column="nach_per2" title="Фактическое потребление в периоде" />
+        <column group="sum" table="a" column="opl_per2" title="Фактическая оплата в периоде" />
+        <column group="sum" table="a" column="dz_end2" title="ДЗ на конец периода" />
+        <column group="sum" table="a" column="dz_beg3" title="ДЗ на начало периода" />
+        <column group="sum" table="a" column="nach_per3" title="Фактическое потребление в периоде" />
+        <column group="sum" table="a" column="opl_per3" title="Фактическая оплата в периоде" />
+        <column group="sum" table="a" column="dz_end3" title="ДЗ на конец периода" />
+        <band title="Период 1" exclude="1">
+          <column group="sum" table="a" column="dz_beg1" title="ДЗ на начало периода" />
+          <column group="sum" table="a" column="nach_per1" title="Фактическое потребление в периоде" />
+          <column group="sum" table="a" column="opl_per1" title="Фактическая оплата в периоде" />
+          <column group="sum" table="a" column="dz_end1" title="ДЗ на конец периода" />
+        </band>
+        <band title="Период " exclude="1">
+          <column group="sum" table="a" column="dz_beg2" title="ДЗ на начало периода" />
+          <column group="sum" table="a" column="nach_per2" title="Фактическое потребление в периоде" />
+          <column group="sum" table="a" column="opl_per2" title="Фактическая оплата в периоде" />
+          <column group="sum" table="a" column="dz_end2" title="ДЗ на конец периода" />
+        </band>
+        <band title="Период [:p_ym_beg]" exclude="1">
+          <column group="sum" table="a" column="dz_beg3" title="ДЗ на начало периода" />
+          <column group="sum" table="a" column="nach_per3" title="Фактическое потребление в периоде" />
+          <column group="sum" table="a" column="opl_per3" title="Фактическая оплата в периоде" />
+          <column group="sum" table="a" column="dz_end3" title="ДЗ на конец периода" />
+        </band>
+        <column table="a" column="dz_pros_beg" group="sum" title="ДЗ ПР на начало последнего периода" />
+        <column table="a" column="dz_pros_end" group="sum" title="ДЗ ПР на конец последнего периода" />
+        <call function="-nvl" title="Динамика ДЗ ПР  последнего периода" as="ddz_pros">
+          <column table="this" column="dz_pros_end" />
+          <column table="this" column="dz_pros_beg" />
+        </call>
+        <column table="a" column="otrasl" group="max" title="Отрасль" exclude="1" />
+        <column table="a" column="budget" group="max" title="Бюджет" exclude="1" />
+        <column table="a" column="raion" group="max" title="Район / Город" exclude="1" />
+        <column table="kod_otrasl" column="name" as="otrasl" group="max" />
+        <column group="max" table="kod_ist" column="name" as="budget" />
+        <column table="m" column="name_p" title="Район" as="raion" group="max" />
+        <call function="adress_region" as="n77">
+          <column table="kodp" column="kod_d" />
+        </call>
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_11_tbl" as="a" />
+        <query name="kr_dogovor" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kr_dogovor" column="kod_dog" />
+          </call>
+          <link name="kodp">
+            <link name="kod_otrasl" />
+          </link>
+          <link name="kod_ist" />
+        </query>
+        <query name="adr_m" as="m" join="left outer">
+          <call function="=">
+            <column table="m" column="kod_m" />
+            <column table="this" column="n77" />
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="dog">
+            <group>
+              <column table="this" column="kod_dog" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880_11-param" timestamp="02.02.2022 18:03:50">
+      <params>
+        <param name="dep" type="number" />
+        <param part="54556-params" name="ym" type="number" />
+      </params>
+      <select>
+        <call function="ym to char" as="ym_0">
+          <useparam name="ym" />
+        </call>
+        <call function="ym to char" as="ym_1">
+          <call function="ym add month">
+            <useparam name="ym" />
+            <const>-1</const>
+          </call>
+        </call>
+        <call function="ym to char" as="ym_2">
+          <call function="ym add month">
+            <useparam name="ym" />
+            <const>-2</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="61880_13-main" nogrid="1" timestamp="05.02.2024 17:17:07">
+      <select>
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" title="Номер договора" />
+        <column table="a" column="payer_name" title="Клиент" />
+        <column table="a" column="ym" />
+        <call function="mes-name" title="Месяц" as="mes">
+          <call function="mes">
+            <column table="a" column="ym" />
+          </call>
+        </call>
+        <call function="year" title="Год" as="year" type="string">
+          <call function="ym begin time">
+            <column table="a" column="ym" />
+          </call>
+        </call>
+        <column table="a" column="dz_beg" title="Сальдо на нач. мес." />
+        <column table="a" column="nach_per" title="Начислено (руб.)" />
+        <column table="a" column="opl_per" title="Оплачено (руб.)" />
+        <call title="Процент оплаты" function="/" as="perc_opl">
+          <call function="*">
+            <column table="a" column="opl_per" />
+            <const>100</const>
+          </call>
+          <column table="a" column="nach_per" />
+        </call>
+        <column table="a" column="dz_end" title="Сальдо на кон. мес. (руб.)" />
+        <column table="a" column="cust" title="Начислено, кВтч" />
+        <call function="()" as="n1" title="Вид ценообразования">
+          <const type="string" as="n1">'Договорная цена'</const>
+        </call>
+        <column table="rs127" column="name" title="Группа клиентов" as="n2" />
+        <call function="()" as="n3" title="Министерство">
+          <const type="string" as="n1">''</const>
+        </call>
+        <call table="kod_okved" column="name" title="ОКВЭД" as="n4" function="||-">
+          <column table="kod_okved" column="okved" />
+          <column table="kod_okved" column="name" />
+        </call>
+        <column table="rs123" column="name" as="n5" title="Отрасль НХ" />
+        <call function="()" as="n6" title="Признак малого и среднего бизнеса">
+          <const type="string" as="n1">''</const>
+        </call>
+        <call function="adress_region" as="n77">
+          <column table="kodp" column="kod_d" />
+        </call>
+        <column table="m" column="name_p" title="Район" as="n7" />
+        <call function="()" as="n8" title="Статус договора">
+          <const type="string" as="n1">'Действует'</const>
+        </call>
+        <column table="kod_vdog" column="name" as="n9" title="Тип договора" />
+        <call function="()" as="n10" title="Тип учета">
+          <const type="string" as="n1">''</const>
+        </call>
+        <column table="kod_tipdoc" column="name" as="n10" title="Тип учета" exclude="1" />
+        <column table="rs125" column="name" as="n11" title="Тип учета УПЮЛ" />
+        <column table="kod_ist" column="name" title="Бюджет" as="n12" />
+        <column table="gc" column="name_level_1" title="Отрасль ээ 1 уровень" as="gr_potr_name_level1" comment="&quot;Группа потребителей&quot; из справочника &quot;Отрасли ЭЭ&quot;, первый уровень" />
+        <column table="gc" column="name_level_2" title="Отрасль ээ 2 уровень" as="gr_potr_name_level2" comment="&quot;Группа потребителей&quot; из справочника &quot;Отрасли ЭЭ&quot;, второй уровень" />
+        <column table="gc" column="name_level_3" title="Отрасль ээ 3 уровень" as="gr_potr_name_level3" comment="&quot;Группа потребителей&quot; из справочника &quot;Отрасли ЭЭ&quot;, третий уровень" />
+        <column table="gc" column="name_level_4" title="Отрасль ээ 4 уровень" as="gr_potr_name_level4" comment="&quot;Группа потребителей&quot; из справочника &quot;Отрасли ЭЭ&quot;, четвертый уровень" />
+        <column table="gc" column="name_level_5" title="Отрасль ээ 5 уровень" as="gr_potr_name_level5" comment="&quot;Группа потребителей&quot; из справочника &quot;Отрасли ЭЭ&quot;, пятый уровень" />
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_13_tbl" as="a" />
+        <query name="kr_dogovor_dop" join="left outer" as="dd">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="dd" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kv_group_cust_level" join="left outer" as="gc">
+          <call function="=">
+            <column table="dd" column="kod_group_cust" />
+            <column table="gc" column="kod_group_cust" />
+          </call>
+        </query>
+        <query name="rr_refprop_dog_127" join="left outer" as="r127">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="r127" column="kod_dog" />
+          </call>
+        </query>
+        <query name="rs_refcode" join="left outer" as="rs127">
+          <call function="=">
+            <column table="r127" column="kod_refcode" />
+            <column table="rs127" column="kod_refcode" />
+          </call>
+        </query>
+        <query name="kr_dogovor" join="inner" as="d">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+          <link name="kodp">
+            <link name="kod_okved" />
+          </link>
+          <link name="kod_vdog" />
+          <link name="kod_ist" />
+        </query>
+        <query name="rr_refprop_dog_123" join="left outer" as="r123">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="r127" column="kod_dog" />
+          </call>
+        </query>
+        <query name="rs_refcode" join="left outer" as="rs123">
+          <call function="=">
+            <column table="r123" column="kod_refcode" />
+            <column table="rs123" column="kod_refcode" />
+          </call>
+        </query>
+        <query name="adr_m" as="m" join="left outer">
+          <call function="=">
+            <column table="m" column="kod_m" />
+            <column table="this" column="n77" />
+          </call>
+        </query>
+        <query name="rr_refprop_dog_125" join="left outer" as="r125">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="r125" column="kod_dog" />
+          </call>
+        </query>
+        <query name="rs_refcode" join="left outer" as="rs125">
+          <call function="=">
+            <column table="r125" column="kod_refcode" />
+            <column table="rs125" column="kod_refcode" />
+          </call>
+        </query>
+      </from>
+      <grouping exclude="1">
+        <grset as="itog">
+          <grset as="dog">
+            <group>
+              <column table="this" column="kod_dog" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="61880_11-main_new" timestamp="20.05.2022 20:51:43" nogrid="1">
+      <params>
+        <usepart part="61880_11-params" />
+      </params>
+      <select>
+        <column table="a" column="kodp" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" group="max" title="№ договора" />
+        <column table="a" column="payer_name" group="max" title="Наименование клиента" />
+        <column group="sum" table="a" column="dz_beg" title="ДЗ на начало периода" dimname="ym">
+          <pivot>
+            <call function="=">
+              <column table="a" column="ym" />
+              <column table="dim" column="ym" />
+            </call>
+            <query order="ym">
+              <select>
+                <column table="t" column="ym" />
+                <column table="t" column="name" />
+              </select>
+              <from>
+                <query name="spr_time_ym" as="t" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="between">
+                    <column table="t" column="ym" />
+                    <query>
+                      <select>
+                        <column table="y" column="ym" group="min" />
+                      </select>
+                      <from>
+                        <query name="sqlb_rep_61880_11_new_tbl" as="y" />
+                      </from>
+                    </query>
+                    <query>
+                      <select>
+                        <column table="y" column="ym" group="max" />
+                      </select>
+                      <from>
+                        <query name="sqlb_rep_61880_11_new_tbl" as="y" />
+                      </from>
+                    </query>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column group="sum" table="a" column="nach_per" title="Фактическое потребление в периоде" dimname="ym" />
+        <column group="sum" table="a" column="opl_per" title="Фактическая оплата в периоде" dimname="ym" />
+        <column group="sum" table="a" column="dz_end" title="ДЗ на конец периода" dimname="ym" />
+        <column table="a" column="dz_pros_beg" group="sum" title="ДЗ ПР на начало последнего периода" />
+        <column table="a" column="dz_pros_end" group="sum" title="ДЗ ПР на конец последнего периода" />
+        <call function="-nvl" title="Динамика ДЗ ПР  последнего периода" as="ddz_pros">
+          <column table="this" column="dz_pros_end" />
+          <column table="this" column="dz_pros_beg" />
+        </call>
+        <column table="kod_otrasl" column="name" as="otrasl" group="max" />
+        <column group="max" table="kod_ist" column="name" as="budget" />
+        <column table="m" column="name_p" title="Район" as="raion" group="max" />
+        <call function="adress_region" as="n77">
+          <column table="kodp" column="kod_d" />
+        </call>
+      </select>
+      <from>
+        <query name="sqlb_rep_61880_11_new_tbl" as="a" />
+        <query name="kr_dogovor" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kr_dogovor" column="kod_dog" />
+          </call>
+          <link name="kodp">
+            <link name="kod_otrasl" />
+          </link>
+          <link name="kod_ist" />
+        </query>
+        <query name="adr_m" as="m" join="left outer">
+          <call function="=">
+            <column table="m" column="kod_m" />
+            <column table="this" column="n77" />
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog">
+          <grset as="dog">
+            <group>
+              <column table="this" column="kod_dog" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+  <reports>
+    <report name="61880_11" timestamp="02.02.2022 18:12:38" title="4.6.2.3.4.4. Дебиторская задолженность с несколькими отчетными периодами" nogrid="1" form="61880_11">
+      <params>
+        <usepart part="61880_11-params" />
+      </params>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_11.fill_table(:p_ym_beg);
+end;
+      </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="61880_11.xlsx" title="Дебиторская задолженность с несколькими отчетными периодами" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="61880_11-main" as="a" />
+        <query name="61880_11-param" as="param">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_ym_beg" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+    <report name="61880_13" timestamp="17.02.2022 20:53:42" title="Справка о платежах и задолженности" form="61880_13" nogrid="1">
+      <params>
+        <usepart part="61880_13-params" />
+      </params>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_13.fill_table(:p_year);
+end;
+      </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="61880_13.xlsx" title="Справка о платежах и задолженности" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="61880_13-main" as="a" />
+      </queries>
+    </report>
+    <report name="61880_11_new" timestamp="20.05.2022 20:52:19" title="4.6.2.3.4.4. Дебиторская задолженность с несколькими отчетными периодами" form="61880_11" nogrid="1">
+      <params>
+        <usepart part="61880_11-params" />
+      </params>
+      <procedure>
+        <text>
+begin
+    delete vr_number_array;
+    for rec in (select * from kr_org where kodp in :p_dep)
+    loop
+      insert into vr_number_array (array_id,val) values ('p_dep',rec.kodp);
+    end loop;
+    sqlb_rep_61880_11_new.fill_table(:p_ym_beg);
+end;
+      </text>
+      </procedure>
+      <print-templates>
+        <excel>
+          <template name="61880_11_new.xlsx" title="Дебиторская задолженность с несколькими отчетными периодами" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="61880_11-main_new" as="a">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_ym_beg" />
+          </withparams>
+        </query>
+        <query name="61880_11-param" as="param">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_ym_beg" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <parts>
+    <part id="61880_11-params" timestamp="02.02.2022 18:04:01">
+      <param type="array" name="p_dep">
+        <const exclude="1">1172</const>
+      </param>
+      <param type="number" name="p_ym_beg">
+        <const exclude="1">2021.08</const>
+      </param>
+    </part>
+    <part id="61880_11-params" timestamp="02.02.2022 18:03:38">
+      <param type="array" name="p_dep">
+        <const exclude="1">1172</const>
+      </param>
+      <param type="number" name="p_ym_beg">
+        <const exclude="1">2021.08</const>
+      </param>
+      <param type="number" name="p_ym_end">
+        <const exclude="1">2021.09</const>
+      </param>
+    </part>
+    <part id="61880_13-params" timestamp="17.02.2022 15:20:57">
+      <param type="array" name="p_dep">
+        <const exclude="1">1172</const>
+      </param>
+      <param type="number" name="p_year">
+        <const exclude="1">2021.08</const>
+      </param>
+    </part>
+  </parts>
+  <forms>
+    <form name="61880_11" timestamp="09.03.2022 10:50:16">
+      <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym_beg" mandatory="1" title="Период" />
+    </form>
+    <form name="61880_13" timestamp="17.02.2022 15:52:14">
+      <usefield field="asuse_dep" name="p_dep" mandatory="1" />
+      <usefield field="asuse_year" name="p_year" mandatory="1" show-checkbox="0" title="Год" />
+    </form>
+  </forms>
+</root>

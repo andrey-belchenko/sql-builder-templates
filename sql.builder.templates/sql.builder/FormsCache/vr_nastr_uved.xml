@@ -1,0 +1,597 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vr_nastr_uved" timestamp="28.12.2023 14:57:14" title="Настройка расчета уведомлений" file="sql.builder.templates\sql.builder\projects\asuse2\projects\37989\vr_nastr_uved.xml" elid="287" ord="287" leaf="0" lvl="2" pelid="">
+    <grid table="a" show-toolbar="1" id="45740647">
+      <toolbar id="61053772">
+        <uicommand button-type="grid-add" visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="21642782" />
+        <uicommand button-type="grid-delete" visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="367" ord="367" leaf="1" lvl="2" pelid="" title="" id="6216777" />
+      </toolbar>
+      <columns id="5927851">
+        <field table="a" name="dep" title="Отделение" width="324" controlType="UICombo" rows-limit="100" id="14624455" />
+        <field table="a" name="is_new_alg" title="Новая процедура расчета" controlType="UICheck" rows-limit="100" id="32203049" />
+        <field table="a" name="is_opl_virt_av" title="Рассчитывать оплату виртуальных авансов" controlType="UICheck" rows-limit="100" id="38468396" />
+        <field table="a" name="virt_avans" title="Использование в расчетах задолженности виртуальных авансов" width="118" controlType="UICheck" rows-limit="100" id="18411075" />
+        <field table="a" name="pereplata" title="Учитывать переплаты прошлых периодов" width="108" controlType="UICheck" rows-limit="100" id="12716297" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="vr_nastr_uved" key="kod_nastr_uved" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select a.dep as dep, /*Отделение*//*number*/
+a.is_new_alg as is_new_alg, /*Новая процедура расчета*//*number*/
+a.is_opl_virt_av as is_opl_virt_av, /*Рассчитывать оплату виртуальных авансов*//*number*/
+nastr_rep.virt_avans as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+nastr_rep.pereplata as pereplata, /*Учитывать переплаты прошлых периодов*//*number*/
+dep_x_n.name as dep_x_n, /*Отделение*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_nastr_uved as kod_nastr_uved/*number*//*key*/
+
+from (
+--vr_nastr_uved
+select a.kod_nastr_uved as kod_nastr_uved, /**//*number*//*key*/
+a.dep as dep, /**//*number*/
+a.is_new_alg as is_new_alg, /*Новая процедура расчета*//*number*/
+a.is_opl_virt_av as is_opl_virt_av, /*Рассчитывать оплату виртуальных авансов*//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from vr_nastr_uved
+a
+--\vr_nastr_uved
+)
+a
+--\vr_nastr_uved
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Отделение*//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+dep_x_n on a.dep = dep_x_n.kodp--\kr_org
+left outer join
+(
+--ks_tf_nastr_rep_uved
+select a.dep as dep, /**//*number*//*key*/
+max(a.virt_avans)  as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+max(a.pereplata)  as pereplata/*Учитывать переплаты прошлых периодов*//*number*/
+
+from (
+--ks_tf_nastr_rep
+select a.kod_nastr_rep as kod_nastr_rep, /*number*//*key*/
+a.dep as dep, /**//*number*/
+a.pr_byt as pr_byt, /**//*number*/
+a.tep_el as tep_el, /**//*number*/
+a.virt_avans as virt_avans, /**//*number*/
+a.pereplata as pereplata/**//*number*/
+
+from ks_tf_nastr_rep
+a
+--\ks_tf_nastr_rep
+)
+a
+--\ks_tf_nastr_rep
+where
+( nvl( a.pr_byt ,0)  != nvl( 1 ,0) )  and ( nvl( a.tep_el ,-1000)  = nvl( 1 ,-1000) )  group by
+a.dep/**//*number*//*key*/
+)
+nastr_rep on nastr_rep.dep = a.dep--\ks_tf_nastr_rep_uved
+--\
+</select-text>
+      <columns>
+        <column name="dep" table="a" type="number" title="Отделение" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="dep" temp-col-name="n1">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_nastr_uved_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_nastr_uved_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select nastr_rep.virt_avans as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+nastr_rep.pereplata as pereplata, /*Учитывать переплаты прошлых периодов*//*number*/
+dep_x_n.name as dep_x_n, /*Отделение*//*string*/
+a.kod_nastr_uved as kod_nastr_uved/*number*//*key*/
+
+from (
+--vr_nastr_uved
+select a.kod_nastr_uved as kod_nastr_uved, /**//*number*//*key*/
+a.dep as dep/**//*number*/
+
+from (select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+a
+--\(select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+)
+a
+--\vr_nastr_uved
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Отделение*//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+dep_x_n on a.dep = dep_x_n.kodp--\kr_org
+left outer join
+(
+--ks_tf_nastr_rep_uved
+select a.dep as dep, /**//*number*//*key*/
+max(a.virt_avans)  as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+max(a.pereplata)  as pereplata/*Учитывать переплаты прошлых периодов*//*number*/
+
+from (
+--ks_tf_nastr_rep
+select a.kod_nastr_rep as kod_nastr_rep, /*number*//*key*/
+a.dep as dep, /**//*number*/
+a.pr_byt as pr_byt, /**//*number*/
+a.tep_el as tep_el, /**//*number*/
+a.virt_avans as virt_avans, /**//*number*/
+a.pereplata as pereplata/**//*number*/
+
+from ks_tf_nastr_rep
+a
+--\ks_tf_nastr_rep
+)
+a
+--\ks_tf_nastr_rep
+where
+( nvl( a.pr_byt ,0)  != nvl( 1 ,0) )  and ( nvl( a.tep_el ,-1000)  = nvl( 1 ,-1000) )  group by
+a.dep/**//*number*//*key*/
+)
+nastr_rep on nastr_rep.dep = a.dep--\ks_tf_nastr_rep_uved
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="virt_avans" table="a" />
+            <dependant name="pereplata" table="a" />
+            <dependant name="dep_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="is_new_alg" table="a" type="number" title="Новая процедура расчета" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="is_new_alg" temp-col-name="n2" />
+        <column name="is_opl_virt_av" table="a" type="number" title="Рассчитывать оплату виртуальных авансов" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="is_opl_virt_av" temp-col-name="n3" />
+        <column name="virt_avans" table="nastr_rep" type="number" title="Использование в расчетах задолженности виртуальных авансов" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_nastr_uved_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_nastr_uved_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select nastr_rep.virt_avans as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+a.kod_nastr_uved as kod_nastr_uved/*number*//*key*/
+
+from (
+--vr_nastr_uved
+select a.kod_nastr_uved as kod_nastr_uved, /**//*number*//*key*/
+a.dep as dep/**//*number*/
+
+from (select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+a
+--\(select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+)
+a
+--\vr_nastr_uved
+left outer join
+(
+--ks_tf_nastr_rep_uved
+select a.dep as dep, /**//*number*//*key*/
+max(a.virt_avans)  as virt_avans/*Использование в расчетах задолженности виртуальных авансов*//*number*/
+
+from (
+--ks_tf_nastr_rep
+select a.kod_nastr_rep as kod_nastr_rep, /*number*//*key*/
+a.dep as dep, /**//*number*/
+a.pr_byt as pr_byt, /**//*number*/
+a.tep_el as tep_el, /**//*number*/
+a.virt_avans as virt_avans/**//*number*/
+
+from ks_tf_nastr_rep
+a
+--\ks_tf_nastr_rep
+)
+a
+--\ks_tf_nastr_rep
+where
+( nvl( a.pr_byt ,0)  != nvl( 1 ,0) )  and ( nvl( a.tep_el ,-1000)  = nvl( 1 ,-1000) )  group by
+a.dep/**//*number*//*key*/
+)
+nastr_rep on nastr_rep.dep = a.dep--\ks_tf_nastr_rep_uved
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="pereplata" table="nastr_rep" type="number" title="Учитывать переплаты прошлых периодов" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_nastr_uved_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_nastr_uved_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select nastr_rep.pereplata as pereplata, /*Учитывать переплаты прошлых периодов*//*number*/
+a.kod_nastr_uved as kod_nastr_uved/*number*//*key*/
+
+from (
+--vr_nastr_uved
+select a.kod_nastr_uved as kod_nastr_uved, /**//*number*//*key*/
+a.dep as dep/**//*number*/
+
+from (select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+a
+--\(select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+)
+a
+--\vr_nastr_uved
+left outer join
+(
+--ks_tf_nastr_rep_uved
+select a.dep as dep, /**//*number*//*key*/
+max(a.pereplata)  as pereplata/*Учитывать переплаты прошлых периодов*//*number*/
+
+from (
+--ks_tf_nastr_rep
+select a.kod_nastr_rep as kod_nastr_rep, /*number*//*key*/
+a.dep as dep, /**//*number*/
+a.pr_byt as pr_byt, /**//*number*/
+a.tep_el as tep_el, /**//*number*/
+a.pereplata as pereplata/**//*number*/
+
+from ks_tf_nastr_rep
+a
+--\ks_tf_nastr_rep
+)
+a
+--\ks_tf_nastr_rep
+where
+( nvl( a.pr_byt ,0)  != nvl( 1 ,0) )  and ( nvl( a.tep_el ,-1000)  = nvl( 1 ,-1000) )  group by
+a.dep/**//*number*//*key*/
+)
+nastr_rep on nastr_rep.dep = a.dep--\ks_tf_nastr_rep_uved
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="dep_x_n" table="a.dep" type="string" title="Отделение" text-source-for="dep" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_nastr_uved_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_nastr_uved_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select dep_x_n.name as dep_x_n, /*Отделение*//*string*/
+a.kod_nastr_uved as kod_nastr_uved/*number*//*key*/
+
+from (
+--vr_nastr_uved
+select a.kod_nastr_uved as kod_nastr_uved, /**//*number*//*key*/
+a.dep as dep/**//*number*/
+
+from (select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+a
+--\(select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+)
+a
+--\vr_nastr_uved
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Отделение*//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+dep_x_n on a.dep = dep_x_n.kodp--\kr_org
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="kod_nastr_uved" table="a" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_nastr_uved" temp-col-name="n4" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:dep as dep 
+,:is_new_alg as is_new_alg 
+,:is_opl_virt_av as is_opl_virt_av 
+,:kod_nastr_uved as kod_nastr_uved 
+ 
+from dual ) 
+ 
+loop 
+insert into vr_nastr_uved 
+(dep 
+,is_new_alg 
+,is_opl_virt_av 
+,kod_nastr_uved 
+) 
+ values  
+(r.dep 
+,r.is_new_alg 
+,r.is_opl_virt_av 
+,r.kod_nastr_uved 
+) 
+ returning  
+kod_nastr_uved into :kod_nastr_uved; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vr_nastr_uved where kod_nastr_uved=:kod_nastr_uved</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_nastr_uved; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:dep as dep 
+,:is_new_alg as is_new_alg 
+,:is_opl_virt_av as is_opl_virt_av 
+,:kod_nastr_uved as kod_nastr_uved 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+,n4 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_nastr_uved 
+,:row_state_id 
+,r.dep 
+,r.is_new_alg 
+,r.is_opl_virt_av 
+,r.kod_nastr_uved 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:dep as dep 
+,:is_new_alg as is_new_alg 
+,:is_opl_virt_av as is_opl_virt_av 
+,:kod_nastr_uved as kod_nastr_uved 
+,a.u_m 
+,a.d_m 
+ 
+from vr_nastr_uved a  where kod_nastr_uved=:kod_nastr_uved) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+,n4 
+,s1 
+,d1 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_nastr_uved 
+,:row_state_id 
+,r.dep 
+,r.is_new_alg 
+,r.is_opl_virt_av 
+,r.kod_nastr_uved 
+,r.u_m 
+,r.d_m 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vr_nastr_uved set  
+(dep 
+,is_new_alg 
+,is_opl_virt_av 
+,kod_nastr_uved 
+) 
+= 
+ ( select  
+:dep as dep 
+,:is_new_alg as is_new_alg 
+,:is_opl_virt_av as is_opl_virt_av 
+,:kod_nastr_uved as kod_nastr_uved 
+ 
+from dual ) 
+ 
+where 
+kod_nastr_uved=:kod_nastr_uved 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vr_nastr_uved" as="a">
+          <columns>
+            <column name="dep" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new_alg" type="number" title="Новая процедура расчета" />
+            <column name="is_opl_virt_av" type="number" title="Рассчитывать оплату виртуальных авансов" />
+            <column name="virt_avans" type="number" title="Использование в расчетах задолженности виртуальных авансов" />
+            <column name="pereplata" type="number" title="Учитывать переплаты прошлых периодов" />
+            <column name="dep_x_n" type="string" title="Отделение" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_nastr_uved" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="dep_x_n" type="string" title="Отделение" />
+            <column name="dep" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new_alg" type="number" title="Новая процедура расчета" />
+            <column name="is_opl_virt_av" type="number" title="Рассчитывать оплату виртуальных авансов" />
+            <column name="virt_avans" type="number" title="Использование в расчетах задолженности виртуальных авансов" />
+            <column name="pereplata" type="number" title="Учитывать переплаты прошлых периодов" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_nastr_uved" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_nastr_uved_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_nastr_uved_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select a.dep as dep, /*Отделение*//*number*/
+a.is_new_alg as is_new_alg, /*Новая процедура расчета*//*number*/
+a.is_opl_virt_av as is_opl_virt_av, /*Рассчитывать оплату виртуальных авансов*//*number*/
+nastr_rep.virt_avans as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+nastr_rep.pereplata as pereplata, /*Учитывать переплаты прошлых периодов*//*number*/
+dep_x_n.name as dep_x_n, /*Отделение*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_nastr_uved as kod_nastr_uved/*number*//*key*/
+
+from (
+--vr_nastr_uved
+select a.kod_nastr_uved as kod_nastr_uved, /**//*number*//*key*/
+a.dep as dep, /**//*number*/
+a.is_new_alg as is_new_alg, /*Новая процедура расчета*//*number*/
+a.is_opl_virt_av as is_opl_virt_av, /*Рассчитывать оплату виртуальных авансов*//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep,a.is_new_alg as is_new_alg,a.is_opl_virt_av as is_opl_virt_av,0 as is_new,1 as is_not_new  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep,t.n2 as is_new_alg,t.n3 as is_opl_virt_av,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+a
+--\(select a.kod_nastr_uved as kod_nastr_uved,a.dep as dep,a.is_new_alg as is_new_alg,a.is_opl_virt_av as is_opl_virt_av,0 as is_new,1 as is_not_new  from vr_nastr_uved a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_nastr_uved=t.f2 ) and   a.kod_nastr_uved in :kod_nastr_uved_prm   union all  select t.n4 as kod_nastr_uved,t.n1 as dep,t.n2 as is_new_alg,t.n3 as is_opl_virt_av,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_nastr_uved_prm )
+)
+a
+--\vr_nastr_uved
+left outer join
+(
+--kr_org
+select a.kodp as kodp, /**//*number*//*key*/
+a.name as name/*Отделение*//*string*/
+
+from kr_org
+a
+--\kr_org
+)
+dep_x_n on a.dep = dep_x_n.kodp--\kr_org
+left outer join
+(
+--ks_tf_nastr_rep_uved
+select a.dep as dep, /**//*number*//*key*/
+max(a.virt_avans)  as virt_avans, /*Использование в расчетах задолженности виртуальных авансов*//*number*/
+max(a.pereplata)  as pereplata/*Учитывать переплаты прошлых периодов*//*number*/
+
+from (
+--ks_tf_nastr_rep
+select a.kod_nastr_rep as kod_nastr_rep, /*number*//*key*/
+a.dep as dep, /**//*number*/
+a.pr_byt as pr_byt, /**//*number*/
+a.tep_el as tep_el, /**//*number*/
+a.virt_avans as virt_avans, /**//*number*/
+a.pereplata as pereplata/**//*number*/
+
+from ks_tf_nastr_rep
+a
+--\ks_tf_nastr_rep
+)
+a
+--\ks_tf_nastr_rep
+where
+( nvl( a.pr_byt ,0)  != nvl( 1 ,0) )  and ( nvl( a.tep_el ,-1000)  = nvl( 1 ,-1000) )  group by
+a.dep/**//*number*//*key*/
+)
+nastr_rep on nastr_rep.dep = a.dep--\ks_tf_nastr_rep_uved
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

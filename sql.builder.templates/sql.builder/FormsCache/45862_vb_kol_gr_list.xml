@@ -1,0 +1,1470 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="45862_vb_kol_gr_list" timestamp="28.12.2023 14:39:03" title="Кольцевые группы" file="sql.builder.templates\sql.builder\projects\45862\form\forms.xml" elid="64" ord="64" leaf="0" lvl="2" pelid="">
+    <field id="13038962" controlType="UICombo" type="number" elid="399" ord="399" leaf="1" lvl="2" pelid="" title="Филиал" name="kod_fl" column-mandatory="1" show-checkbox="0">
+      <listquery>
+        <query name="jv_rep_cons_d_fl" />
+      </listquery>
+    </field>
+    <field id="19976362" controlType="UITextEx" type="string" elid="392" ord="392" leaf="1" lvl="2" pelid="" name="init_dummy" show-checkbox="0" column-visible="0">
+      <defaultquery>
+        <query name="45862_init_filial" />
+      </defaultquery>
+    </field>
+    <splitcontainer id="48298120">
+      <fieldgroup title="Кольцевые группы" id="42083704">
+        <grid table="a" show-toolbar="1" id="66636691">
+          <columns id="6322115">
+            <field table="a" name="name" title="Наименование" width="313" controlType="UIText" rows-limit="100" id="52114256" />
+            <field table="a" name="kod_fl" title="Филиал" controlType="UICombo" rows-limit="100" id="24514564" />
+          </columns>
+        </grid>
+      </fieldgroup>
+      <fieldgroup title="Период действия группы" id="38897434">
+        <grid table="gn" show-toolbar="1" id="32389038">
+          <toolbar id="29655969">
+            <uicommand title="Обновить имя КГ" name="vb_kol_gr_pack.upd_kg_name" id="34417710">
+              <useparam name="kod_nastr" id="15843850" />
+            </uicommand>
+            <uicommand action-type="dynamic-form" call="45862_vb_kol_gr" editable="gn_is_not_new" modal="1" title="Настройка" id="42344310">
+              <useparam name="kod_fl" id="12199311" />
+              <useparam name="kod_nastr" id="42583713" />
+            </uicommand>
+          </toolbar>
+          <columns id="4409728">
+            <field table="gn" name="is_not_new" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="28262504" />
+            <field table="gn" name="name" title="Наименование" width="314" controlType="UIText" rows-limit="100" id="45262285" />
+            <band title="Период" id="33435233">
+              <field table="gn" name="s" title="С" controlType="UICombo" rows-limit="100" id="37571686" />
+              <field table="gn" name="po" title="По" controlType="UICombo" rows-limit="100" id="43731810" />
+            </band>
+            <field table="gn" name="kod_kol_gr_nastr" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="27236922" />
+          </columns>
+        </grid>
+      </fieldgroup>
+    </splitcontainer>
+  </form>
+  <dataset>
+    <fields>
+      <field type="number" name="kod_fl" parname="kod_fl" title="Филиал" ColumnMandatory="1" />
+      <field type="string" name="init_dummy" parname="init_dummy" title="" ColumnVisible="0" />
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+      <field type="string" name="gn_has_changes" parname="gn_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="vb_kol_gr" key="kod_kol_gr" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select a.name as name, /*Наименование*//*string*/
+a.kod_fl as kod_fl, /*Филиал*//*number*/
+kod_fl_x_n.name as kod_fl_x_n, /*Филиал*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_kol_gr as kod_kol_gr/*number*//*key*/
+
+from (
+--vb_kol_gr
+select a.kod_kol_gr as kod_kol_gr, /*number*//*key*/
+a.name as name, /*Наименование*//*string*/
+a.kod_fl as kod_fl, /*Код филиала*//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from vb_kol_gr
+a
+--\vb_kol_gr
+
+order by kod_kol_gr)
+a
+--\vb_kol_gr
+left outer join
+(
+--jv_rep_cons_d_fl
+select a.kod_fl as kod_fl, /*number*//*key*/
+a.name as name/*Филиал*//*string*/
+
+from jv_rep_cons_d_fl
+a
+--\jv_rep_cons_d_fl
+)
+kod_fl_x_n on a.kod_fl = kod_fl_x_n.kod_fl--\jv_rep_cons_d_fl
+where
+( 0=1 )  {  or (a.kod_fl = :kod_fl )  } --\
+</select-text>
+      <columns>
+        <column name="name" table="a" type="string" title="Наименование" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="name" temp-col-name="s1" />
+        <column name="kod_fl" table="a" type="number" title="Филиал" ColumnEditable="0" ClientDefault="kod_fl" is-updateable="1" is-updateable-ext="1" update-target="kod_fl" temp-col-name="n1">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_kol_gr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_kol_gr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_fl_x_n.name as kod_fl_x_n, /*Филиал*//*string*/
+a.kod_kol_gr as kod_kol_gr/*number*//*key*/
+
+from (
+--vb_kol_gr
+select a.kod_kol_gr as kod_kol_gr, /*number*//*key*/
+a.kod_fl as kod_fl/*Код филиала*//*number*/
+
+from (select a.kod_kol_gr as kod_kol_gr,a.kod_fl as kod_fl  from vb_kol_gr a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_kol_gr=t.f2 ) and   a.kod_kol_gr in :kod_kol_gr_prm   union all  select t.n2 as kod_kol_gr,t.n1 as kod_fl  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_prm )
+a
+--\(select a.kod_kol_gr as kod_kol_gr,a.kod_fl as kod_fl  from vb_kol_gr a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_kol_gr=t.f2 ) and   a.kod_kol_gr in :kod_kol_gr_prm   union all  select t.n2 as kod_kol_gr,t.n1 as kod_fl  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_prm )
+
+order by kod_kol_gr)
+a
+--\vb_kol_gr
+left outer join
+(
+--jv_rep_cons_d_fl
+select a.kod_fl as kod_fl, /*number*//*key*/
+a.name as name/*Филиал*//*string*/
+
+from jv_rep_cons_d_fl
+a
+--\jv_rep_cons_d_fl
+)
+kod_fl_x_n on a.kod_fl = kod_fl_x_n.kod_fl--\jv_rep_cons_d_fl
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_fl_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="kod_fl_x_n" table="a.kod_fl" type="string" title="Филиал" text-source-for="kod_fl" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_kol_gr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_kol_gr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_fl_x_n.name as kod_fl_x_n, /*Филиал*//*string*/
+a.kod_kol_gr as kod_kol_gr/*number*//*key*/
+
+from (
+--vb_kol_gr
+select a.kod_kol_gr as kod_kol_gr, /*number*//*key*/
+a.kod_fl as kod_fl/*Код филиала*//*number*/
+
+from (select a.kod_kol_gr as kod_kol_gr,a.kod_fl as kod_fl  from vb_kol_gr a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_kol_gr=t.f2 ) and   a.kod_kol_gr in :kod_kol_gr_prm   union all  select t.n2 as kod_kol_gr,t.n1 as kod_fl  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_prm )
+a
+--\(select a.kod_kol_gr as kod_kol_gr,a.kod_fl as kod_fl  from vb_kol_gr a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_kol_gr=t.f2 ) and   a.kod_kol_gr in :kod_kol_gr_prm   union all  select t.n2 as kod_kol_gr,t.n1 as kod_fl  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_prm )
+
+order by kod_kol_gr)
+a
+--\vb_kol_gr
+left outer join
+(
+--jv_rep_cons_d_fl
+select a.kod_fl as kod_fl, /*number*//*key*/
+a.name as name/*Филиал*//*string*/
+
+from jv_rep_cons_d_fl
+a
+--\jv_rep_cons_d_fl
+)
+kod_fl_x_n on a.kod_fl = kod_fl_x_n.kod_fl--\jv_rep_cons_d_fl
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="kod_kol_gr" table="a" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_kol_gr" temp-col-name="n2" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:name as name 
+,:kod_fl as kod_fl 
+,:kod_kol_gr as kod_kol_gr 
+ 
+from dual ) 
+ 
+loop 
+insert into vb_kol_gr 
+(name 
+,kod_fl 
+,kod_kol_gr 
+) 
+ values  
+(r.name 
+,r.kod_fl 
+,r.kod_kol_gr 
+) 
+ returning  
+kod_kol_gr into :kod_kol_gr; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vb_kol_gr where kod_kol_gr=:kod_kol_gr</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_kol_gr; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:name as name 
+,:kod_fl as kod_fl 
+,:kod_kol_gr as kod_kol_gr 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n1 
+,n2 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_kol_gr 
+,:row_state_id 
+,r.name 
+,r.kod_fl 
+,r.kod_kol_gr 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:name as name 
+,:kod_fl as kod_fl 
+,:kod_kol_gr as kod_kol_gr 
+,a.u_m 
+,a.d_m 
+,a.kol_gr_comment 
+ 
+from vb_kol_gr a  where kod_kol_gr=:kod_kol_gr) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n1 
+,n2 
+,s2 
+,d1 
+,s3 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_kol_gr 
+,:row_state_id 
+,r.name 
+,r.kod_fl 
+,r.kod_kol_gr 
+,r.u_m 
+,r.d_m 
+,r.kol_gr_comment 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vb_kol_gr set  
+(name 
+,kod_fl 
+,kod_kol_gr 
+) 
+= 
+ ( select  
+:name as name 
+,:kod_fl as kod_fl 
+,:kod_kol_gr as kod_kol_gr 
+ 
+from dual ) 
+ 
+where 
+kod_kol_gr=:kod_kol_gr 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vb_kol_gr" as="a">
+          <columns>
+            <column name="name" type="string" title="Наименование" />
+            <column name="kod_fl" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_fl_x_n" type="string" title="Филиал" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_kol_gr" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="name" type="string" title="Наименование" />
+            <column name="kod_fl_x_n" type="string" title="Филиал" />
+            <column name="kod_fl" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_kol_gr" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_kol_gr_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_kol_gr_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select a.name as name, /*Наименование*//*string*/
+a.kod_fl as kod_fl, /*Филиал*//*number*/
+kod_fl_x_n.name as kod_fl_x_n, /*Филиал*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_kol_gr as kod_kol_gr/*number*//*key*/
+
+from (
+--vb_kol_gr
+select a.kod_kol_gr as kod_kol_gr, /*number*//*key*/
+a.name as name, /*Наименование*//*string*/
+a.kod_fl as kod_fl, /*Код филиала*//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_kol_gr as kod_kol_gr,a.name as name,a.kod_fl as kod_fl,0 as is_new,1 as is_not_new  from vb_kol_gr a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_kol_gr=t.f2 ) and   a.kod_kol_gr in :kod_kol_gr_prm   union all  select t.n2 as kod_kol_gr,t.s1 as name,t.n1 as kod_fl,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_prm )
+a
+--\(select a.kod_kol_gr as kod_kol_gr,a.name as name,a.kod_fl as kod_fl,0 as is_new,1 as is_not_new  from vb_kol_gr a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_kol_gr=t.f2 ) and   a.kod_kol_gr in :kod_kol_gr_prm   union all  select t.n2 as kod_kol_gr,t.s1 as name,t.n1 as kod_fl,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_prm )
+
+order by kod_kol_gr)
+a
+--\vb_kol_gr
+left outer join
+(
+--jv_rep_cons_d_fl
+select a.kod_fl as kod_fl, /*number*//*key*/
+a.name as name/*Филиал*//*string*/
+
+from jv_rep_cons_d_fl
+a
+--\jv_rep_cons_d_fl
+)
+kod_fl_x_n on a.kod_fl = kod_fl_x_n.kod_fl--\jv_rep_cons_d_fl
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+    <table name="gn" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="vb_kol_gr_nastr" key="kod_kol_gr_nastr" parent-table="a" parent-key="kod_kol_gr" is-ms-upd="1">
+      <select-text>
+--
+select gn.is_not_new as is_not_new, /*number*/
+gn.name as name, /*Наименование*//*string*/
+gn.s as s, /*С*//*number*/
+gn.po as po, /*По*//*number*/
+gn.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+s_x_n.name as s_x_n, /*С*//*string*/
+po_x_n.name as po_x_n, /*По*//*string*/
+gn.is_new as is_new, /*number*/
+gn.kod_kol_gr as kod_kol_gr/*Код кольцевой группы*//*number*/
+
+from (
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.kod_kol_gr as kod_kol_gr, /*Код кольцевой группы*//*number*/
+a.name as name, /*Наименование*//*string*/
+a.s as s, /*Период с*//*number*/
+a.po as po, /*Период по*//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from vb_kol_gr_nastr
+a
+--\vb_kol_gr_nastr
+)
+gn
+--\vb_kol_gr_nastr
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+po_x_n on po_x_n.ym = gn.po--\spr_time_ym
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+s_x_n on gn.s = s_x_n.ym--\spr_time_ym
+where
+gn.kod_kol_gr = :fk_kod_kol_gr 
+order by s asc nulls last, po asc nulls first--\
+</select-text>
+      <columns>
+        <column name="is_not_new" table="gn" type="number" title="" parname="gn_is_not_new" ColumnVisible="0" />
+        <column name="name" table="gn" type="string" title="Наименование" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="name" temp-col-name="s2" />
+        <column name="s" table="gn" type="number" title="С" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="s" temp-col-name="n2">
+          <sel-list-compiled>
+            <root>
+              <query class="1" order="ym desc" timestamp="20.01.2022 15:04:32" file="sql.builder.templates\sql.builder\projects\common\time\spr_time_intervals.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="ym">ym</column>
+                </order>
+                <select>--a
+select <column table="a" column="ym" key="1" as="ym" used="1" type="number" into="n1">a.ym as ym, /*number*//*key*/
+</column><column table="a" column="name" vid="1" is-name="1" as="name" key="0" used="1" type="string" title="Период" into="s1">a.name as name, /*Период*//*string*/
+</column><column table="a" column="ym2" as="ym2" key="0" used="1" type="number" into="n2">a.ym2 as ym2, /*number*/
+</column><column table="a" column="year" as="year" key="0" used="1" type="number" into="n3">a.year as year, /*number*/
+</column><call function="||" as="name_str" pth="" type="string" key="0" used="1" into="s2"><call function="mes-name" pth="" type="string">(<text txtype="func"> decode ( </text><call function="mes" pth="" type="number">(<text txtype="func"> mod( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> , 1)*100 </text>) </call><text txtype="func"> ,1,'Январь',2,'Февраль',3,'Март',4,'Апрель',5,'Май',6,'Июнь',7,'Июль',8,'Август',9,'Сентябрь',10,'Октябрь',11,'Ноябрь',12,'Декабрь') </text>) </call><text txtype="func"> || </text><const><text>' '</text></const><text txtype="func"> || </text><column table="a" column="year" as="year" thissrc="year">a.year</column> as name_str, /*string*/
+</call><call function="mes" as="mon" pth="" type="number" key="0" used="1" into="n4"><text txtype="func"> mod( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> , 1)*100 </text> as mon/*number*/
+</call></select>
+                <from>
+from <query name="spr_time_ym_pre" as="a" path="./a/a" order="ym" haskeys="1" used="1">(
+<order notext="1"><column column="ym">ym</column></order><select>--spr_time_ym_pre
+select <call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text> as ym, /*number*//*key*/
+</call><call function="date to ym2" as="ym2" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM')) </text> as ym2, /*number*/
+</call><call function="year" as="year" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYY')) </text> as year, /*number*/
+</call><call function="ym to char" as="name" title="Период" key="0" group="max" pth="" type="string" used="1">max(<text txtype="func"> trim(to_char( </text><call function="date to ym" as="ym" key="1" pth="" type="number" thissrc="ym">(<text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>) </call><text txtype="func"> ,'9999.99')) </text>)  as name/*Период*//*string*/
+</call></select><from>
+from <table name="vv_day" as="a" used="1">vv_day
+a
+--\vv_day
+</table></from><group> group by
+<call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>, /*number*//*key*/
+</call><call function="date to ym2" as="ym2" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM')) </text>, /*number*/
+</call><call function="year" as="year" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYY')) </text>/*number*/
+</call></group><order>
+order by ym</order>)
+a
+--\spr_time_ym_pre
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> in </text><const><text>:obj_name </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> ) like lower( </text><const><text>:ym_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ym2" as="ym2" thissrc="ym2">a.ym2</column><text txtype="func"> ) like lower( </text><const><text>:ym2_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="year" as="year" thissrc="year">a.year</column><text txtype="func"> ) like lower( </text><const><text>:year_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by ym desc</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" order="ym desc" timestamp="20.01.2022 15:04:32" file="sql.builder.templates\sql.builder\projects\common\time\spr_time_intervals.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" order="ym desc" timestamp="20.01.2022 15:04:32" file="sql.builder.templates\sql.builder\projects\common\time\spr_time_intervals.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="obj_name" type="array" />
+                    <param name="ym_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="ym2_filter" type="string" />
+                    <param name="year_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="ym" key="1" as="ym" />
+                    <column table="a" column="name" vid="1" is-name="1" as="name" />
+                    <column table="a" column="ym2" as="ym2" />
+                    <column table="a" column="year" as="year" />
+                    <call function="||" as="name_str">
+                      <call function="mes-name">
+                        <call function="mes">
+                          <column table="this" column="ym" />
+                        </call>
+                      </call>
+                      <const>' '</const>
+                      <column table="this" column="year" />
+                    </call>
+                    <call function="mes" as="mon">
+                      <column table="this" column="ym" />
+                    </call>
+                  </select>
+                  <from>
+                    <query name="spr_time_ym_pre" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="obj_name" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="ym_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym2" />
+                        <useparam name="ym2_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="year" />
+                        <useparam name="year_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="obj_name" />
+                    <useparam name="ym_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="ym2_filter" />
+                    <useparam name="year_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="obj_name" type="array">
+                  <const>:obj_name </const>
+                </param>
+                <param name="ym_filter" type="string">
+                  <const>:ym_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="ym2_filter" type="string">
+                  <const>:ym2_filter </const>
+                </param>
+                <param name="year_filter" type="string">
+                  <const>:year_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="gn">
+              <params>
+                <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select s_x_n.name as s_x_n, /*С*//*string*/
+gn.kod_kol_gr_nastr as kod_kol_gr_nastr/*number*//*key*/
+
+from (
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.s as s/*Период с*//*number*/
+
+from (select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.s as s  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n2 as s  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+a
+--\(select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.s as s  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n2 as s  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+)
+gn
+--\vb_kol_gr_nastr
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+s_x_n on gn.s = s_x_n.ym--\spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="s_x_n" table="gn" />
+          </dependants>
+        </column>
+        <column name="po" table="gn" type="number" title="По" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="po" temp-col-name="n5">
+          <sel-list-compiled>
+            <root>
+              <query class="1" order="ym desc" timestamp="20.01.2022 15:04:32" file="sql.builder.templates\sql.builder\projects\common\time\spr_time_intervals.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="ym">ym</column>
+                </order>
+                <select>--a
+select <column table="a" column="ym" key="1" as="ym" used="1" type="number" into="n1">a.ym as ym, /*number*//*key*/
+</column><column table="a" column="name" vid="1" is-name="1" as="name" key="0" used="1" type="string" title="Период" into="s1">a.name as name, /*Период*//*string*/
+</column><column table="a" column="ym2" as="ym2" key="0" used="1" type="number" into="n2">a.ym2 as ym2, /*number*/
+</column><column table="a" column="year" as="year" key="0" used="1" type="number" into="n3">a.year as year, /*number*/
+</column><call function="||" as="name_str" pth="" type="string" key="0" used="1" into="s2"><call function="mes-name" pth="" type="string">(<text txtype="func"> decode ( </text><call function="mes" pth="" type="number">(<text txtype="func"> mod( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> , 1)*100 </text>) </call><text txtype="func"> ,1,'Январь',2,'Февраль',3,'Март',4,'Апрель',5,'Май',6,'Июнь',7,'Июль',8,'Август',9,'Сентябрь',10,'Октябрь',11,'Ноябрь',12,'Декабрь') </text>) </call><text txtype="func"> || </text><const><text>' '</text></const><text txtype="func"> || </text><column table="a" column="year" as="year" thissrc="year">a.year</column> as name_str, /*string*/
+</call><call function="mes" as="mon" pth="" type="number" key="0" used="1" into="n4"><text txtype="func"> mod( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> , 1)*100 </text> as mon/*number*/
+</call></select>
+                <from>
+from <query name="spr_time_ym_pre" as="a" path="./a/a" order="ym" haskeys="1" used="1">(
+<order notext="1"><column column="ym">ym</column></order><select>--spr_time_ym_pre
+select <call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text> as ym, /*number*//*key*/
+</call><call function="date to ym2" as="ym2" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM')) </text> as ym2, /*number*/
+</call><call function="year" as="year" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYY')) </text> as year, /*number*/
+</call><call function="ym to char" as="name" title="Период" key="0" group="max" pth="" type="string" used="1">max(<text txtype="func"> trim(to_char( </text><call function="date to ym" as="ym" key="1" pth="" type="number" thissrc="ym">(<text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>) </call><text txtype="func"> ,'9999.99')) </text>)  as name/*Период*//*string*/
+</call></select><from>
+from <table name="vv_day" as="a" used="1">vv_day
+a
+--\vv_day
+</table></from><group> group by
+<call function="date to ym" as="ym" key="1" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM'))/100 </text>, /*number*//*key*/
+</call><call function="date to ym2" as="ym2" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYYMM')) </text>, /*number*/
+</call><call function="year" as="year" key="0" group="1" pth="" type="number" used="1"><text txtype="func"> to_number(to_char( </text><column table="a" column="dat_day">a.dat_day</column><text txtype="func"> ,'YYYY')) </text>/*number*/
+</call></group><order>
+order by ym</order>)
+a
+--\spr_time_ym_pre
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> in </text><const><text>:obj_name </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ym" key="1" as="ym" thissrc="ym">a.ym</column><text txtype="func"> ) like lower( </text><const><text>:ym_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" vid="1" is-name="1" as="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="ym2" as="ym2" thissrc="ym2">a.ym2</column><text txtype="func"> ) like lower( </text><const><text>:ym2_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="year" as="year" thissrc="year">a.year</column><text txtype="func"> ) like lower( </text><const><text>:year_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by ym desc</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" order="ym desc" timestamp="20.01.2022 15:04:32" file="sql.builder.templates\sql.builder\projects\common\time\spr_time_intervals.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" order="ym desc" timestamp="20.01.2022 15:04:32" file="sql.builder.templates\sql.builder\projects\common\time\spr_time_intervals.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="obj_name" type="array" />
+                    <param name="ym_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="ym2_filter" type="string" />
+                    <param name="year_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="ym" key="1" as="ym" />
+                    <column table="a" column="name" vid="1" is-name="1" as="name" />
+                    <column table="a" column="ym2" as="ym2" />
+                    <column table="a" column="year" as="year" />
+                    <call function="||" as="name_str">
+                      <call function="mes-name">
+                        <call function="mes">
+                          <column table="this" column="ym" />
+                        </call>
+                      </call>
+                      <const>' '</const>
+                      <column table="this" column="year" />
+                    </call>
+                    <call function="mes" as="mon">
+                      <column table="this" column="ym" />
+                    </call>
+                  </select>
+                  <from>
+                    <query name="spr_time_ym_pre" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="obj_name" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym" />
+                        <useparam name="ym_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym2" />
+                        <useparam name="ym2_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="year" />
+                        <useparam name="year_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <order>
+                    <column column="ym" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="obj_name" />
+                    <useparam name="ym_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="ym2_filter" />
+                    <useparam name="year_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="obj_name" type="array">
+                  <const>:obj_name </const>
+                </param>
+                <param name="ym_filter" type="string">
+                  <const>:ym_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="ym2_filter" type="string">
+                  <const>:ym2_filter </const>
+                </param>
+                <param name="year_filter" type="string">
+                  <const>:year_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="gn">
+              <params>
+                <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select po_x_n.name as po_x_n, /*По*//*string*/
+gn.kod_kol_gr_nastr as kod_kol_gr_nastr/*number*//*key*/
+
+from (
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.po as po/*Период по*//*number*/
+
+from (select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.po as po  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n5 as po  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+a
+--\(select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.po as po  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n5 as po  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+)
+gn
+--\vb_kol_gr_nastr
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+po_x_n on po_x_n.ym = gn.po--\spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="po_x_n" table="gn" />
+          </dependants>
+        </column>
+        <column name="kod_kol_gr_nastr" table="gn" type="number" title="" parname="kod_nastr" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_kol_gr_nastr" temp-col-name="n3" />
+        <column name="s_x_n" table="gn.s" type="string" title="С" text-source-for="s" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select s_x_n.name as s_x_n, /*С*//*string*/
+gn.kod_kol_gr_nastr as kod_kol_gr_nastr/*number*//*key*/
+
+from (
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.s as s/*Период с*//*number*/
+
+from (select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.s as s  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n2 as s  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+a
+--\(select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.s as s  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n2 as s  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+)
+gn
+--\vb_kol_gr_nastr
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+s_x_n on gn.s = s_x_n.ym--\spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="po_x_n" table="gn.po" type="string" title="По" text-source-for="po" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select po_x_n.name as po_x_n, /*По*//*string*/
+gn.kod_kol_gr_nastr as kod_kol_gr_nastr/*number*//*key*/
+
+from (
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.po as po/*Период по*//*number*/
+
+from (select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.po as po  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n5 as po  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+a
+--\(select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.po as po  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n5 as po  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+)
+gn
+--\vb_kol_gr_nastr
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+po_x_n on po_x_n.ym = gn.po--\spr_time_ym
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="gn" type="number" title="" is-user-editable="1" />
+        <column name="kod_kol_gr" table="gn" type="number" title="Код кольцевой группы" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_kol_gr" temp-col-name="n4">
+          <sel-list-compiled>
+            <root>
+              <query timestamp="23.01.2019 16:34:13" class="1" order="kod_kol_gr" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\vb_kol_gr.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <order notext="1">
+                  <column column="kod_kol_gr">kod_kol_gr</column>
+                </order>
+                <select>--a
+select <column type="number" table="a" column="kod_kol_gr" key="1" as="kod_kol_gr" sourcetable="./a" sourcecolumn="kod_kol_gr" used="1" into="n1">a.kod_kol_gr as kod_kol_gr, /*number*//*key*/
+</column><column type="string" table="a" column="name" data-size="4000" title="Наименование" as="name" sourcetable="./a" sourcecolumn="name" key="0" used="1" into="s1">a.name as name, /*Наименование*//*string*/
+</column><column type="number" table="a" column="kod_fl" title="Код филиала" as="kod_fl" reference="jv_rep_cons_d_fl" refcol="kod_fl" sourcetable="./a" sourcecolumn="kod_fl" key="0" used="1" into="n2">a.kod_fl as kod_fl, /*Код филиала*//*number*/
+</column><column type="string" table="a" column="u_m" data-size="4000" as="u_m" sourcetable="./a" sourcecolumn="u_m" key="0" used="1" into="s2">a.u_m as u_m, /*string*/
+</column><column type="date" table="a" column="d_m" as="d_m" sourcetable="./a" sourcecolumn="d_m" key="0" used="1" into="d1">a.d_m as d_m, /*date*/
+</column><column table="a" column="kol_gr_comment" type="string" title="Дополнение" as="kol_gr_comment" sourcetable="./a" sourcecolumn="kol_gr_comment" key="0" used="1" into="s3">a.kol_gr_comment as kol_gr_comment, /*Дополнение*//*string*/
+</column><column table="a" column="is_new" type="number" sys="1" as="is_new" sourcetable="./a" sourcecolumn="is_new" key="0" used="1" into="n3">0 as is_new, /*number*/
+</column><column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" sourcetable="./a" sourcecolumn="is_not_new" key="0" used="1" into="n4">1 as is_not_new/*number*/
+</column></select>
+                <from>
+from <table name="vb_kol_gr" as="a" used="1">vb_kol_gr
+a
+--\vb_kol_gr
+</table></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column type="number" table="a" column="kod_kol_gr" key="1" as="kod_kol_gr" sourcetable="./a" sourcecolumn="kod_kol_gr" thissrc="kod_kol_gr">a.kod_kol_gr</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column type="number" table="a" column="kod_kol_gr" key="1" as="kod_kol_gr" sourcetable="./a" sourcecolumn="kod_kol_gr" thissrc="kod_kol_gr">a.kod_kol_gr</column><text txtype="func"> ) like lower( </text><const><text>:kod_kol_gr_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column type="string" table="a" column="name" data-size="4000" title="Наименование" as="name" sourcetable="./a" sourcecolumn="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column type="number" table="a" column="kod_fl" title="Код филиала" as="kod_fl" reference="jv_rep_cons_d_fl" refcol="kod_fl" sourcetable="./a" sourcecolumn="kod_fl" thissrc="kod_fl">a.kod_fl</column><text txtype="func"> ) like lower( </text><const><text>:kod_fl_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column type="string" table="a" column="u_m" data-size="4000" as="u_m" sourcetable="./a" sourcecolumn="u_m" thissrc="u_m">a.u_m</column><text txtype="func"> ) like lower( </text><const><text>:u_m_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column type="date" table="a" column="d_m" as="d_m" sourcetable="./a" sourcecolumn="d_m" thissrc="d_m">a.d_m</column><text txtype="func"> ) like lower( </text><const><text>:d_m_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kol_gr_comment" type="string" title="Дополнение" as="kol_gr_comment" sourcetable="./a" sourcecolumn="kol_gr_comment" thissrc="kol_gr_comment">a.kol_gr_comment</column><text txtype="func"> ) like lower( </text><const><text>:kol_gr_comment_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_new" type="number" sys="1" as="is_new" sourcetable="./a" sourcecolumn="is_new" thissrc="is_new">0</column><text txtype="func"> ) like lower( </text><const><text>:is_new_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" sourcetable="./a" sourcecolumn="is_not_new" thissrc="is_not_new">1</column><text txtype="func"> ) like lower( </text><const><text>:is_not_new_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>
+                <order>
+order by kod_kol_gr</order>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" timestamp="23.01.2019 16:34:13" class="1" order="kod_kol_gr" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\vb_kol_gr.xml" haskeys="1" as="a">
+              <queries>
+                <query timestamp="23.01.2019 16:34:13" class="1" order="kod_kol_gr" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\original\vb_kol_gr.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_kol_gr_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="kod_fl_filter" type="string" />
+                    <param name="u_m_filter" type="string" />
+                    <param name="d_m_filter" type="string" />
+                    <param name="kol_gr_comment_filter" type="string" />
+                    <param name="is_new_filter" type="string" />
+                    <param name="is_not_new_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column type="number" table="a" column="kod_kol_gr" key="1" as="kod_kol_gr" />
+                    <column type="string" table="a" column="name" data-size="4000" title="Наименование" as="name" />
+                    <column type="number" table="a" column="kod_fl" title="Код филиала" as="kod_fl" reference="jv_rep_cons_d_fl" refcol="kod_fl" />
+                    <column type="string" table="a" column="u_m" data-size="4000" as="u_m" />
+                    <column type="date" table="a" column="d_m" as="d_m" />
+                    <column table="a" column="kol_gr_comment" type="string" title="Дополнение" as="kol_gr_comment" />
+                    <column table="a" column="is_new" type="number" sys="1" as="is_new" />
+                    <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" />
+                  </select>
+                  <from>
+                    <table name="vb_kol_gr" as="a" />
+                    <query join="left outer" name="jv_rep_cons_d_fl" as="kod_fl" dname="vb_kol_gr" title="изм1: Код филиала">
+                      <call function="=">
+                        <column table="a" column="kod_fl" />
+                        <column table="kod_fl" column="kod_fl" />
+                      </call>
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_kol_gr" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_kol_gr" />
+                        <useparam name="kod_kol_gr_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_fl" />
+                        <useparam name="kod_fl_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="u_m" />
+                        <useparam name="u_m_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="d_m" />
+                        <useparam name="d_m_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kol_gr_comment" />
+                        <useparam name="kol_gr_comment_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_new" />
+                        <useparam name="is_new_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_not_new" />
+                        <useparam name="is_not_new_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <order>
+                    <column column="kod_kol_gr" />
+                  </order>
+                  <order>
+                    <column column="kod_kol_gr" />
+                  </order>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_kol_gr_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="kod_fl_filter" />
+                    <useparam name="u_m_filter" />
+                    <useparam name="d_m_filter" />
+                    <useparam name="kol_gr_comment_filter" />
+                    <useparam name="is_new_filter" />
+                    <useparam name="is_not_new_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_kol_gr_filter" type="string">
+                  <const>:kod_kol_gr_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="kod_fl_filter" type="string">
+                  <const>:kod_fl_filter </const>
+                </param>
+                <param name="u_m_filter" type="string">
+                  <const>:u_m_filter </const>
+                </param>
+                <param name="d_m_filter" type="string">
+                  <const>:d_m_filter </const>
+                </param>
+                <param name="kol_gr_comment_filter" type="string">
+                  <const>:kol_gr_comment_filter </const>
+                </param>
+                <param name="is_new_filter" type="string">
+                  <const>:is_new_filter </const>
+                </param>
+                <param name="is_not_new_filter" type="string">
+                  <const>:is_not_new_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+        </column>
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:name as name 
+,:s as s 
+,:po as po 
+,:kod_kol_gr_nastr as kod_kol_gr_nastr 
+,:kod_kol_gr as kod_kol_gr 
+ 
+from dual ) 
+ 
+loop 
+insert into vb_kol_gr_nastr 
+(name 
+,s 
+,po 
+,kod_kol_gr_nastr 
+,kod_kol_gr 
+) 
+ values  
+(r.name 
+,r.s 
+,r.po 
+,r.kod_kol_gr_nastr 
+,r.kod_kol_gr 
+) 
+ returning  
+kod_kol_gr_nastr into :kod_kol_gr_nastr; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vb_kol_gr_nastr where kod_kol_gr_nastr=:kod_kol_gr_nastr</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='gn' 
+and 
+names=:form_id 
+and 
+f2=:kod_kol_gr_nastr; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:name as name 
+,:s as s 
+,:po as po 
+,:kod_kol_gr_nastr as kod_kol_gr_nastr 
+,:kod_kol_gr as kod_kol_gr 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s2 
+,n2 
+,n5 
+,n3 
+,n4 
+) 
+ values  
+('gn' 
+,:form_id 
+,:kod_kol_gr_nastr 
+,:row_state_id 
+,r.name 
+,r.s 
+,r.po 
+,r.kod_kol_gr_nastr 
+,r.kod_kol_gr 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:name as name 
+,:s as s 
+,:po as po 
+,:kod_kol_gr_nastr as kod_kol_gr_nastr 
+,:kod_kol_gr as kod_kol_gr 
+,a.u_m 
+,a.d_m 
+,a.kod_fl 
+,a.kol_gr_comment 
+,a.is_auto_kg 
+ 
+from vb_kol_gr_nastr a  where kod_kol_gr_nastr=:kod_kol_gr_nastr) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s2 
+,n2 
+,n5 
+,n3 
+,n4 
+,s3 
+,d1 
+,n1 
+,s1 
+,n6 
+) 
+ values  
+('gn' 
+,:form_id 
+,:kod_kol_gr_nastr 
+,:row_state_id 
+,r.name 
+,r.s 
+,r.po 
+,r.kod_kol_gr_nastr 
+,r.kod_kol_gr 
+,r.u_m 
+,r.d_m 
+,r.kod_fl 
+,r.kol_gr_comment 
+,r.is_auto_kg 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='gn' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vb_kol_gr_nastr set  
+(name 
+,s 
+,po 
+,kod_kol_gr_nastr 
+,kod_kol_gr 
+) 
+= 
+ ( select  
+:name as name 
+,:s as s 
+,:po as po 
+,:kod_kol_gr_nastr as kod_kol_gr_nastr 
+,:kod_kol_gr as kod_kol_gr 
+ 
+from dual ) 
+ 
+where 
+kod_kol_gr_nastr=:kod_kol_gr_nastr 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vb_kol_gr_nastr" as="gn">
+          <columns>
+            <column name="is_not_new" type="number" title="" visible="0" />
+            <column name="name" type="string" title="Наименование" />
+            <column name="s" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="po" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_kol_gr_nastr" type="number" title="" visible="0" />
+            <column name="s_x_n" type="string" title="С" />
+            <column name="po_x_n" type="string" title="По" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_kol_gr" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="is_not_new" type="number" title="" visible="0" />
+            <column name="name" type="string" title="Наименование" />
+            <band title="Период">
+              <column name="s_x_n" type="string" title="С" />
+              <column name="s" type="number" invisible-in-column-chooser="1" visible="0" />
+              <column name="po_x_n" type="string" title="По" />
+              <column name="po" type="number" invisible-in-column-chooser="1" visible="0" />
+            </band>
+            <column name="kod_kol_gr_nastr" type="number" title="" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_kol_gr" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_kol_gr_nastr_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select gn.is_not_new as is_not_new, /*number*/
+gn.name as name, /*Наименование*//*string*/
+gn.s as s, /*С*//*number*/
+gn.po as po, /*По*//*number*/
+gn.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+s_x_n.name as s_x_n, /*С*//*string*/
+po_x_n.name as po_x_n, /*По*//*string*/
+gn.is_new as is_new, /*number*/
+gn.kod_kol_gr as kod_kol_gr/*Код кольцевой группы*//*number*/
+
+from (
+--vb_kol_gr_nastr
+select a.kod_kol_gr_nastr as kod_kol_gr_nastr, /*number*//*key*/
+a.kod_kol_gr as kod_kol_gr, /*Код кольцевой группы*//*number*/
+a.name as name, /*Наименование*//*string*/
+a.s as s, /*Период с*//*number*/
+a.po as po, /*Период по*//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.kod_kol_gr as kod_kol_gr,a.name as name,a.s as s,a.po as po,0 as is_new,1 as is_not_new  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n4 as kod_kol_gr,t.s2 as name,t.n2 as s,t.n5 as po,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+a
+--\(select a.kod_kol_gr_nastr as kod_kol_gr_nastr,a.kod_kol_gr as kod_kol_gr,a.name as name,a.s as s,a.po as po,0 as is_new,1 as is_not_new  from vb_kol_gr_nastr a where not exists (select * from rr_temp t where t.skod ='gn' and t.names=:form_id  and a.kod_kol_gr_nastr=t.f2 ) and   a.kod_kol_gr_nastr in :kod_kol_gr_nastr_prm   union all  select t.n3 as kod_kol_gr_nastr,t.n4 as kod_kol_gr,t.s2 as name,t.n2 as s,t.n5 as po,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='gn' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_kol_gr_nastr_prm )
+)
+gn
+--\vb_kol_gr_nastr
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+po_x_n on po_x_n.ym = gn.po--\spr_time_ym
+left outer join
+(
+--spr_time_ym
+select a.ym as ym, /*number*//*key*/
+a.name as name/*Период*//*string*/
+
+from (
+--spr_time_ym_pre
+select  to_number(to_char( a.dat_day ,'YYYYMM'))/100  as ym, /*number*//*key*/
+max( trim(to_char( ( to_number(to_char( a.dat_day ,'YYYYMM'))/100 )  ,'9999.99')) )  as name/*Период*//*string*/
+
+from vv_day
+a
+--\vv_day
+ group by
+ to_number(to_char( a.dat_day ,'YYYYMM'))/100 /*number*//*key*/
+
+order by ym)
+a
+--\spr_time_ym_pre
+)
+s_x_n on gn.s = s_x_n.ym--\spr_time_ym
+
+order by s asc nulls last, po asc nulls first--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

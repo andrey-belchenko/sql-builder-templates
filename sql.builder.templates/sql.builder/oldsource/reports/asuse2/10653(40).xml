@@ -1,0 +1,653 @@
+<root>
+  <forms>
+    <form name="10653(40)">
+      <content>
+        <field name="ym" controlType="UIComboRange" title="Период составления акта">
+          <listquery>
+            <query name="n_calc_dist">
+            </query>
+          </listquery>
+          <defaultquery>
+            <query name="n_calc_max">
+            </query>
+          </defaultquery>
+        </field>
+        <field name="dep" controlType="UIList" title="Отделение">
+          <listquery>
+            <query name="kr_org_dep%tbl">
+            </query>
+          </listquery>
+        </field>
+        <field name="org" controlType="UIList" title="Организация составившая акт">
+          <listquery>
+            <query name="hr_bu_org">
+            </query>
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="10653(40)" title="Приложение № 6. Начисление   абонированных юридических потребителей с разбивкой на составляющие цены (старый)" form="10653(40)" folder="bu" kod-menu="12209"  visible="0" >
+      <customers>
+        <customer id="10" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="10653(40)-6.xml" title="Приложение № 6"/>
+        </excel>
+      </print-templates>
+      <params>
+        <param name="ym1">
+        </param>
+        <param name="ym2">
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <queries>
+        <query name="10653(40)-itog" as="a" title="Всего">
+          <withparams>
+            <useparam name="ym1" />
+            <useparam name="ym2" />
+            <useparam name="dep" />
+            <useparam name="org" />
+          </withparams>
+          <query name="10653(40)-org" as="a1" title="По организациям составившим акт">
+            <withparams>
+              <useparam name="ym1" />
+              <useparam name="ym2" />
+              <useparam name="dep" />
+              <useparam name="org" />
+            </withparams>
+            <call function="=">
+              <column table="a" column="id"/>
+              <column table="a1" column="pid"/>
+            </call>
+            <query name="10653(40)-tar" as="a2" title="По тарифным группам">
+              <withparams>
+                <useparam name="ym1" />
+                <useparam name="ym2" />
+                <useparam name="dep" />
+                <useparam name="org" />
+              </withparams>
+              <call function="=">
+                <column table="a1" column="kod_bu_org"/>
+                <column table="a2" column="kod_bu_org"/>
+              </call>
+              <query name="10653(40)-category" as="a3" title="По категориям">
+                <withparams>
+                  <useparam name="ym1" />
+                  <useparam name="ym2" />
+                  <useparam name="dep" />
+                  <useparam name="org" />
+                </withparams>
+                <call function="and">
+                  <call function="=">
+                    <column table="a2" column="kod_bu_org"/>
+                    <column table="a3" column="kod_bu_org"/>
+                  </call>
+                  <call function="=">
+                    <column table="a2" column="obj_tar"/>
+                    <column table="a3" column="obj_tar"/>
+                  </call>
+                </call>
+                <query name="10653(40)-ar" as="a4" title="По районам" main="1">
+                  <withparams>
+                    <useparam name="ym1" />
+                    <useparam name="ym2" />
+                    <useparam name="dep" />
+                    <useparam name="org" />
+                  </withparams>
+                  <call function="and">
+                    <call function="=">
+                      <column table="a3" column="kod_bu_org"/>
+                      <column table="a4" column="kod_bu_org"/>
+                    </call>
+                    <call function="=">
+                      <column table="a3" column="obj_tar"/>
+                      <column table="a4" column="obj_tar"/>
+                    </call>
+                    <call function="=">
+                      <column table="a3" column="kod_gr"/>
+                      <column table="a4" column="kod_gr"/>
+                    </call>
+                  </call>
+                  <query name="10653(40)-1" as="a5" title="Детализация по начислениям">
+                    <withparams>
+                      <useparam name="ym1" />
+                      <useparam name="ym2" />
+                      <useparam name="dep" />
+                      <useparam name="org" />
+                    </withparams>
+                    <call function="and">
+                      <call function="=">
+                        <column table="a4" column="kod_bu_org"/>
+                        <column table="a5" column="kod_bu_org"/>
+                      </call>
+                      <call function="=">
+                        <column table="a4" column="obj_tar"/>
+                        <column table="a5" column="obj_tar"/>
+                      </call>
+                      <call function="=">
+                        <column table="a4" column="kod_gr"/>
+                        <column table="a5" column="kod_gr"/>
+                      </call>
+                      <call function="=">
+                        <column table="a4" column="obj_kod_m"/>
+                        <column table="a5" column="obj_kod_m"/>
+                      </call>
+                    </call>
+                  </query>
+                </query>
+              </query>
+            </query>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+
+  <parts>
+    <part id="10653(40)-columns">
+      <column table="a" column="nachisl" group="sum"/>
+      <column table="a" column="nachisl_s1" group="sum"/>
+      <column table="a" column="nachisl_s2" group="sum"/>
+      <column table="a" column="nachisl_s10" group="sum"/>
+      <column table="a" column="nachisl_s16" group="sum"/>
+      <column table="a" column="nachisl_t22" group="sum"/>
+      <column table="a" column="nachisl_t72" group="sum"/>
+      <column table="a" column="nach" group="sum"/>
+      <column table="a" column="nach_s1" group="sum"/>
+      <column table="a" column="nach_s2" group="sum"/>
+      <column table="a" column="nach_s10" group="sum"/>
+      <column table="a" column="nach_s16" group="sum"/>
+      <column table="a" column="nach_t22" group="sum"/>
+      <column table="a" column="nach_t72" group="sum"/>
+      <column table="a" column="cust3" group="sum"/>
+      <column table="a" column="cust4" group="sum"/>
+      <column table="a" column="nal" group="sum"/>
+    </part>
+
+    <part id="10653(40)-group-columns">
+      <call function="||" as="kod_gr">
+        <column table="a" column="category"/>
+        <const>','</const>
+        <column table="a" column="voltage"/>
+        <const>','</const>
+        <column table="a" column="kodinterval"/>
+      </call>
+      <call function="||" as="gr_name" title="Группа">
+        <!--<call function="case">
+          <call function="when">
+            <call function="!=">
+              <column table="a" column="category"/>
+              <const>0</const>
+            </call>
+            <call function="||">
+              <column table="a" column="category_name"/>
+              <const>', '</const>
+            </call>
+          </call>
+        </call>-->
+        <call function="||">
+          <column table="a" column="category_name"/>
+          <const>', '</const>
+        </call>
+        <column table="a" column="voltage_abbr"/>
+        <call function="case">
+          <call function="when">
+            <call function="!=">
+              <column table="a" column="kodinterval"/>
+              <const>24</const>
+            </call>
+            <call function="||">
+              <const>', '</const>
+              <column table="a" column="interval_name"/>
+            </call>
+          </call>
+        </call>
+      </call>
+    </part>
+
+  </parts>
+  
+  <queries>
+
+
+    <query name="10653(40)-title">
+      <params>
+        <param name="ym1">
+          <const>2014.03</const>
+        </param>
+        <param name="ym2">
+          <const>2014.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <column table="a" column="puser">
+        </column>
+        <call function="date to char" as="dat1" title="c">
+          <call function="ym begin time">
+            <useparam name="ym1">
+            </useparam>
+          </call>
+        </call>
+        <call function="date to char" as="dat2" title="по">
+          <call function="ym end time">
+            <useparam name="ym2">
+            </useparam>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="ks_user_cur" as="a">
+        </query>
+      </from>
+    </query>
+    
+    <query name="10653(40)-itog">
+      <params>
+        <param name="ym1">
+          <const>2013.03</const>
+        </param>
+        <param name="ym2">
+          <const>2015.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <const as="id" group="1" type="number">1</const>
+        <call function="date to char" as="dat1"  group="1" title="Дата c">
+          <call function="ym begin time">
+            <useparam name="ym1">
+            </useparam>
+          </call>
+        </call>
+        <call function="date to char" as="dat2"  group="1" title="Дата по">
+          <call function="ym end time">
+            <useparam name="ym2">
+            </useparam>
+          </call>
+        </call>
+        <usepart part="10653(40)-columns"/>
+      </select>
+      <from>
+        <query name="10653(40)-1" as="a">
+          <withparams>
+            <useparam name="ym1"/>
+            <useparam name="ym2"/>
+            <useparam name="dep" />
+            <useparam name="org" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+
+
+    <query name="10653(40)-org" order="rwn">
+      <params>
+        <param name="ym1">
+          <const>2013.03</const>
+        </param>
+        <param name="ym2">
+          <const>2015.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <column table="a" column="rwn" group="min"/>
+        <const as="pid" group="1" type="number">1</const>
+        <column table="a" column="kod_bu_org" group="1"/>
+        <column table="a" column="akt_bu_org_name" group="max"/>
+        <usepart part="10653(40)-columns"/>
+      </select>
+      <from>
+        <query name="10653(40)-1" as="a">
+          <withparams>
+            <useparam name="ym1"/>
+            <useparam name="ym2"/>
+            <useparam name="dep" />
+            <useparam name="org" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    
+    
+    <query name="10653(40)-tar" order="rwn">
+      <params>
+        <param name="ym1">
+          <const>2013.03</const>
+        </param>
+        <param name="ym2">
+          <const>2015.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <column table="a" column="rwn" group="min"/>
+        <column table="a" column="kod_bu_org" group="1"/>
+        <column table="a" column="akt_bu_org_name" group="max"/>
+        <column table="a" column="obj_tar" group="1"/>
+        <column table="a" column="obj_tar_name" group="max"/>
+        <usepart part="10653(40)-columns"/>
+      </select>
+      <from>
+        <query name="10653(40)-1" as="a">
+          <withparams>
+            <useparam name="ym1"/>
+            <useparam name="ym2"/>
+            <useparam name="dep" />
+            <useparam name="org" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+
+
+    <query name="10653(40)-category" order="rwn">
+      <params>
+        <param name="ym1">
+          <const>2013.03</const>
+        </param>
+        <param name="ym2">
+          <const>2015.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <column table="a" column="rwn" group="min"/>
+        <column table="a" column="kod_bu_org" group="1"/>
+        <column table="a" column="akt_bu_org_name" group="max"/>
+        <column table="a" column="obj_tar" group="1"/>
+        <column table="a" column="obj_tar_name" group="max"/>
+        <column table="a" column="kod_gr" group="1"/>
+        <column table="a" column="gr_name" group="max"/>
+        <usepart part="10653(40)-columns"/>
+      </select>
+      <from>
+        <query name="10653(40)-1" as="a">
+          <withparams>
+            <useparam name="ym1"/>
+            <useparam name="ym2"/>
+            <useparam name="dep" />
+            <useparam name="org" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    
+    
+    <query name="10653(40)-ar" order="rwn">
+      <params>
+        <param name="ym1">
+          <const>2013.03</const>
+        </param>
+        <param name="ym2">
+          <const>2015.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <column table="a" column="rwn" group="min"/>
+        <column table="a" column="kod_bu_org" group="1"/>
+        <column table="a" column="akt_bu_org_name" group="max"/>
+        <column table="a" column="obj_tar" group="1"/>
+        <column table="a" column="obj_tar_name" group="max"/>
+        <column table="a" column="kod_gr" group="1"/>
+        <column table="a" column="gr_name" group="max"/>
+        <column table="a" column="obj_kod_m" group="1"/>
+        <column table="a" column="obj_adr_m_name" group="max"/>
+        <usepart part="10653(40)-columns"/>
+      </select>
+      <from>
+        <query name="10653(40)-1" as="a">
+          <withparams>
+            <useparam name="ym1"/>
+            <useparam name="ym2"/>
+            <useparam name="dep" />
+            <useparam name="org" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+
+ 
+
+
+
+    <query name="10653(40)-1">
+      <params>
+        <param name="ym1">
+          <const>2013.03</const>
+        </param>
+        <param name="ym2">
+          <const>2015.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+
+        <call function="row_number" as="rwn" type="number" title="№ пп">
+          <call function="order by 2">
+            <column table="a" column="akt_bu_org_name"/>
+            <column table="a" column="obj_tar_name"/>
+            <column table="a" column="category"/>
+            <column table="a" column="voltage"/>
+            <column table="a" column="kodinterval"/>
+            <column table="a" column="obj_adr_m_name"/>
+          </call>
+        </call>
+        <column table="a" column="kod_account"/>
+        <column table="a" column="dep"/>
+        <column table="a" column="dep_name" title="Отделение"/>
+        <column table="a" column="kod_bu_org"/>
+        <column table="a" column="akt_bu_org_name"/>
+        <column table="a" column="kod_dog"/>
+        <column table="a" column="ndog"/>
+        <column table="a" column="akt_bu_dat"/>
+        <column table="a" column="akt_bu_num"/>
+        <column table="a" column="obj_tar"/>
+        <column table="a" column="obj_tar_name"/>
+
+        <usepart part="10653(40)-group-columns"/>
+        
+        <column table="a" column="kod_bu_akt"/>
+
+        <call function="*" as="cust3">
+          <column table="a" column="cust3"/>
+          <column table="b" column="proc_cust"/>
+        </call>
+
+        <call function="*" as="cust4">
+          <column table="a" column="cust4"/>
+          <column table="b" column="proc_cust"/>
+        </call>
+
+        <call function="*" as="nachisl">
+          <column table="a" column="nachisl"/>
+          <column table="b" column="proc"/>
+        </call>
+
+
+        <call function="*" as="nal" title="">
+          <column table="a" column="nal"/>
+          <column table="b" column="proc"/>
+        </call>
+       
+       
+        <call function="-nvl" as="nach" title="">
+          <column table="this" column="nachisl"/>
+          <column table="this" column="nal"/>
+        </call>
+        
+        <call function="+nvl" as="tax" title="">
+          <call function="/nvl">
+            <column table="this" column="nal"/>
+            <column table="this" column="nach"/>
+          </call>
+          <const>1</const>
+        </call>
+
+
+
+        <call function="*" as="nach_s1" title="">
+          <column table="a" column="nachisl_s1"/>
+          <column table="b" column="proc"/>
+        </call>
+        
+        <call function="*"  as="nach_s2" title="">
+          <column table="a" column="nachisl_s2" />
+          <column table="b" column="proc"/>
+        </call>
+
+
+        <call function="*"  as="nach_s10" title="">
+          <column table="a" column="nachisl_s10"/>
+          <column table="b" column="proc"/>
+        </call>
+
+        <call function="*" as="nach_s16" title="">
+          <column table="a" column="nachisl_s16"/>
+          <column table="b" column="proc"/>
+        </call>
+
+        <call function="*" as="nachisl_t22">
+          <column table="a" column="nachisl_t22"/>
+          <column table="b" column="proc"/>
+        </call>
+
+        <call function="*" as="nachisl_t72">
+          <column table="a" column="nachisl_t72"/>
+          <column table="b" column="proc"/>
+        </call>
+
+        
+
+        <call function="*" as="nachisl_s1">
+          <column table="a" column="nachisl_s1"/>
+          <column table="this" column="tax"/>
+          <column table="b" column="proc"/>
+        </call>
+        <call function="*" as="nachisl_s2">
+          <column table="a" column="nachisl_s2"/>
+          <column table="this" column="tax"/>
+          <column table="b" column="proc"/>
+        </call>
+        <call function="*" as="nachisl_s10">
+          <column table="a" column="nachisl_s10"/>
+          <column table="this" column="tax"/>
+          <column table="b" column="proc"/>
+        </call>
+        <call function="*" as="nachisl_s16">
+          <column table="a" column="nachisl_s16"/>
+          <column table="this" column="tax"/>
+          <column table="b" column="proc"/>
+        </call>
+
+        <call function="/" as="nach_t72" title="">
+          <column table="a" column="nachisl_t72"/>
+          <column table="this" column="tax"/>
+          <column table="b" column="proc"/>
+        </call>
+        <call function="/" as="nach_t22" title="">
+          <column table="a" column="nachisl_t22"/>
+          <column table="this" column="tax"/>
+          <column table="b" column="proc"/>
+        </call>
+        <column table="a" column="obj_kod_m"/>
+        <column table="a" column="obj_adr_m_name"/>
+        <column table="a" column="voltage"/>
+        <column table="a" column="category"/>
+        <column table="a" column="kodinterval"/>
+        <column table="a" column="voltage_abbr"/>
+        <column table="a" column="category_name"/>
+        <column table="a" column="interval_name"/>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+          <link name="nch"/>
+        </query>
+        <query name="10653(52)-ym-nachisl-gr" as="b" join="inner">
+          <withparams>
+            <useparam name="ym1"/>
+            <useparam name="ym2"/>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_bu_akt"/>
+            <column table="b" column="kod_bu_akt"/>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="kod_bu_org"/>
+          </call>
+          <call function="=">
+            <column table="nch" column="vid_real"/>
+            <const>2</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_bu_org"/>
+            <useparam name="org" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep"/>
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    
+    
+    <query name="10653(40)-test">
+      <select>
+        <column table="a" column="kod_account"/>
+        <column table="a" column="nachisl_s1"/>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="is not null">
+          <column table="a" column="kod_bu_akt"/>
+        </call>
+      </where>
+    </query>
+
+
+
+    <query name="10653(40)-test2">
+      <params>
+        <param name="ym1">
+          <const>2014.03</const>
+        </param>
+        <param name="ym2">
+          <const>2014.03</const>
+        </param>
+        <param name="dep"/>
+        <param name="org"/>
+      </params>
+      <select>
+        <column table="a" column="kod_bu_akt"/>
+        <column table="a" column="nachisl_s1"/>
+      </select>
+      <from>
+        <query name="hr_bu_akt" as="a">
+        </query>
+      </from>
+    </query>
+
+  </queries>
+</root>

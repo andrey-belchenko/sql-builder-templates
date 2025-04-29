@@ -1,0 +1,2454 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-05-23T04:05:18.2121496+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="46239-pre" timestamp="01.12.2021 12:26:42" title="Начальный сбор данных" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <call function="||-" as="kod_pre" key="1">
+          <column table="ob" column="kod_link" />
+          <column table="o" column="kod_opl" />
+        </call>
+        <column table="ob" column="kod_link" title="Код банковского платежа" as="kod_link" />
+        <column table="ob" column="dat_opl" title="Дата банковского платежа" as="dat_opl" />
+        <call function="nvl" as="kod_dest">
+          <column table="o" column="kod_dest" title="Код назначения платежа" />
+          <column table="ob" column="kod_dest" title="Код назначения платежа" />
+        </call>
+        <column table="ob" column="num_opl" title="Номер банковского платежа" as="num_opl" />
+        <column table="ob" column="remark" title="Назначение банковского платежа" as="remark" />
+        <column table="o" column="kod_opl" title="Код разноса оплаты" as="kod_opl" />
+        <call function="nvl" as="opl" title="Сумма разноса/банковского платежа">
+          <call function="+no_nvl" comment="null, если opl null">
+            <column table="o" column="opl" />
+            <call function="nvl0">
+              <column table="o" column="opls" />
+            </call>
+          </call>
+          <column table="ob" column="opl" />
+        </call>
+        <call function="null" as="opl_51" />
+        <call function="if" title="Подразделение" as="dep" comment="для госконтрактов из договора, для остальных их банка получателя">
+          <call function="=">
+            <call function="nvl0">
+              <column table="str" column="pr_goscontract" />
+            </call>
+            <const>1</const>
+          </call>
+          <column table="kod_dog" column="dep" />
+          <column table="kodbpol" column="dep" />
+        </call>
+        <call function="if" title="Подразделение" as="dep_name" comment="для госконтрактов из договора, для остальных их банка получателя">
+          <call function="=">
+            <call function="nvl0">
+              <column table="str" column="pr_goscontract" />
+            </call>
+            <const>1</const>
+          </call>
+          <column table="dep" column="sname" />
+          <column table="bpol_dep" column="sname" />
+        </call>
+        <column table="o" column="vid_real" title="Код вида реализации" as="vid_real" />
+        <call function="case" as="column_name" type="string" title="Название колонки" comment="данные для разбивки по колонкам, название в отчете">
+          <call function="when">
+            <call function="not in">
+              <column table="o" column="vid_real" />
+              <call function="array">
+                <const>5</const>
+                <const>7</const>
+              </call>
+            </call>
+            <column table="vid_real" column="name" />
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Сальдо%'</const>
+              </call>
+              <call function="=">
+                <column table="ob" column="pr_kvit" />
+                <const>1</const>
+              </call>
+            </call>
+            <const type="string">'51 перевод сальдо'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Комиссия%'</const>
+              </call>
+              <call function="=">
+                <column table="ob" column="pr_kvit" />
+                <const>1</const>
+              </call>
+            </call>
+            <const type="string">'91/2 комиссия банка'</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="o" column="vid_real" />
+              <call function="array">
+                <const>5</const>
+              </call>
+            </call>
+            <call function="||">
+              <column table="vid_real" column="name" />
+              <const>' - '</const>
+              <call function="nvl">
+                <column table="kod_dest_o" column="name" />
+                <column table="kod_dest" column="name" />
+              </call>
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="o" column="vid_real" />
+                <call function="array">
+                  <const>7</const>
+                </call>
+              </call>
+              <call function="=">
+                <column table="pre_arbitrage" column="kod_not_edit" />
+                <const>1</const>
+              </call>
+              <call function="is not null">
+                <column table="pre_arbitrage" column="kod_result" />
+              </call>
+              <call function="le">
+                <call function="nvl">
+                  <column table="pre_arbitrage" column="dat_resh" />
+                  <call function="ym end time">
+                    <call function="ym add month">
+                      <useparam name="ympo" />
+                      <const>1</const>
+                    </call>
+                  </call>
+                </call>
+                <call function="ym end time">
+                  <useparam name="ympo" />
+                </call>
+              </call>
+            </call>
+            <call function="||">
+              <column table="vid_real" column="name" />
+              <const>' по суду'</const>
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="o" column="vid_real" />
+                <call function="array">
+                  <const>7</const>
+                </call>
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="pre_arbitrage" column="kod_result" />
+                </call>
+                <call function="!=">
+                  <column table="pre_arbitrage" column="kod_not_edit" />
+                  <const>1</const>7</call>
+              </call>
+            </call>
+            <call function="||">
+              <column table="vid_real" column="name" />
+              <const>' за просрочку оплаты'</const>
+            </call>
+          </call>
+          <call function="else">
+            <call function="nvl">
+              <column table="kod_dest_o" column="name" />
+              <column table="kod_dest" column="name" />
+            </call>
+          </call>
+        </call>
+        <call function="case" as="column_id" type="string" title="id колонки" comment="данные для разбивки по колонкам, id для разбивки">
+          <call function="when">
+            <call function="not in">
+              <column table="o" column="vid_real" />
+              <call function="array">
+                <const>5</const>
+                <const>7</const>
+              </call>
+            </call>
+            <call function="||">
+              <const type="string">'vr'</const>
+              <column table="vid_real" column="vid_real" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Сальдо%'</const>
+              </call>
+              <call function="=">
+                <column table="ob" column="pr_kvit" />
+                <const>1</const>
+              </call>
+            </call>
+            <const type="string">'perev_sald_51'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Комиссия%'</const>
+              </call>
+              <call function="=">
+                <column table="ob" column="pr_kvit" />
+                <const>1</const>
+              </call>
+            </call>
+            <const type="string">'kom_bnk_91_2'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="o" column="vid_real" />
+              <const>5</const>
+            </call>
+            <call function="||">
+              <const type="string">'dupt_kd'</const>
+              <call function="nvl">
+                <column table="kod_dest_o" column="kod_dest" />
+                <column table="kod_dest" column="kod_dest" />
+              </call>
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="o" column="vid_real" />
+                <call function="array">
+                  <const>7</const>
+                </call>
+              </call>
+              <call function="=">
+                <column table="pre_arbitrage" column="kod_not_edit" />
+                <const>1</const>
+              </call>
+              <call function="is not null">
+                <column table="pre_arbitrage" column="kod_result" />
+              </call>
+              <call function="le">
+                <call function="nvl">
+                  <column table="pre_arbitrage" column="dat_resh" />
+                  <call function="ym end time">
+                    <call function="ym add month">
+                      <useparam name="ympo" />
+                      <const>1</const>
+                    </call>
+                  </call>
+                </call>
+                <call function="ym end time">
+                  <useparam name="ympo" />
+                </call>
+              </call>
+            </call>
+            <call function="||">
+              <const type="string">'peni_kd1'</const>
+            </call>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="o" column="vid_real" />
+                <call function="array">
+                  <const>7</const>
+                </call>
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="pre_arbitrage" column="kod_result" />
+                </call>
+                <call function="!=">
+                  <column table="pre_arbitrage" column="kod_not_edit" />
+                  <const>1</const>7</call>
+              </call>
+            </call>
+            <call function="||">
+              <const type="string">'peni_kd2'</const>
+            </call>
+          </call>
+          <call function="else">
+            <call function="||">
+              <const type="string">'kd'</const>
+              <call function="nvl">
+                <column table="kod_dest_o" column="kod_dest" />
+                <column table="kod_dest" column="kod_dest" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="case" as="column_type" type="string" title="id колонки" comment="данные для разбивки по колонкам, группа колонок в отчете">
+          <call function="when">
+            <call function="=">
+              <column table="o" column="vid_real" />
+              <const>2</const>
+            </call>
+            <const>'0 - Основная'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="o" column="vid_real" />
+              <const>0</const>
+            </call>
+            <const>'1 - Аванс'</const>
+          </call>
+          <call function="when">
+            <call function="not in">
+              <column table="o" column="vid_real" />
+              <call function="array">
+                <const>5</const>
+                <const>7</const>
+              </call>
+            </call>
+            <const>'2 - Вид реализации'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Сальдо%'</const>
+              </call>
+              <call function="=">
+                <column table="ob" column="pr_kvit" />
+                <const>1</const>
+              </call>
+            </call>
+            <const type="string">'Расход'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Комиссия%'</const>
+              </call>
+              <call function="=">
+                <column table="ob" column="pr_kvit" />
+                <const>1</const>
+              </call>
+            </call>
+            <const type="string">'Расход'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="o" column="vid_real" />
+              <const>5</const>
+            </call>
+            <const type="string">'4 - ДУПТ - Назначение платежа'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="o" column="vid_real" />
+                <call function="array">
+                  <const>7</const>
+                </call>
+              </call>
+              <call function="=">
+                <column table="pre_arbitrage" column="kod_not_edit" />
+                <const>1</const>
+              </call>
+              <call function="is not null">
+                <column table="pre_arbitrage" column="kod_result" />
+              </call>
+              <call function="le">
+                <call function="nvl">
+                  <column table="pre_arbitrage" column="dat_resh" />
+                  <call function="ym end time">
+                    <call function="ym add month">
+                      <useparam name="ympo" />
+                      <const>1</const>
+                    </call>
+                  </call>
+                </call>
+                <call function="ym end time">
+                  <useparam name="ympo" />
+                </call>
+              </call>
+            </call>
+            <const type="string">'3 1 - Пени по суду'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="o" column="vid_real" />
+                <call function="array">
+                  <const>7</const>
+                </call>
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="pre_arbitrage" column="kod_result" />
+                </call>
+                <call function="!=">
+                  <column table="pre_arbitrage" column="kod_not_edit" />
+                  <const>1</const>7</call>
+              </call>
+            </call>
+            <const type="string">'3 2 - Пени за просрочку оплаты'</const>
+          </call>
+          <call function="else">
+            <const>'5 - Назначение платежа'</const>
+          </call>
+        </call>
+        <call function="nvl" as="kodp" title="Код абонента договора разноса/банковского платежа" comment="данные из разносов в приоритете">
+          <column table="kod_dog" column="kodp" />
+          <column table="ob" column="kodp" />
+        </call>
+        <call function="nvl" as="kodp_name" title="Имя абонента договора разноса/банковского платежа" comment="данные из разносов в приоритете">
+          <column table="kodp_dog" column="name" />
+          <column table="kodp_opl" column="name" />
+        </call>
+        <column table="kod_dog" column="ndog" as="ndog" />
+        <column table="pre_arbitrage" column="num_delo" as="num_delo" />
+        <column table="str" column="name" as="r_s_name" title="Субгруппа платежей (строка)" />
+        <column table="str" column="min_order" as="r_s_order" />
+        <column table="str" column="kod_group" title="Код группы платежа" as="kod_group" />
+        <call function="nvl" as="main_kod_gr_kodb">
+          <call function="nvl">
+            <column table="kod_parent2" column="kodb" />
+            <column table="kod_parent" column="kodb" />
+          </call>
+          <column table="kodbist" column="kodb" />
+        </call>
+        <call function="if" as="kod_gr_kodb">
+          <call function="=1">
+            <column table="kod_pach" column="PR_REESTR" />
+          </call>
+          <column table="this" column="main_kod_gr_kodb" />
+        </call>
+        <call function="nvl" as="name_gr_kodb">
+          <call function="nvl">
+            <column table="kod_parent2" column="name" />
+            <column table="kod_parent" column="name" />
+          </call>
+          <column table="kodbist" column="name" />
+        </call>
+        <call function="nvl" as="pr_detail" title="Применить к субгруппе детализацию">
+          <column table="str" column="pr_detail" />
+          <const type="number">0</const>
+        </call>
+      </select>
+      <from>
+        <query name="sr_opl_bank" as="ob">
+          <link name="kod_dest" as="kod_dest" table="ss_dest_opl" child="sr_opl_bank" field="kod_dest" parent="ss_dest_opl" back="sr_opl_bank" />
+          <link name="kodp" as="kodp_opl" table="kr_payer" child="sr_opl_bank" field="kodp" parent="kr_payer" back="sr_opl_bank" title="Абонент" />
+          <link name="kod_pach" as="kod_pach" table="sr_pach" child="sr_opl_bank" field="kod_pach" parent="sr_pach" back="sr_opl_bank">
+            <link name="kodbist" as="kodbist" table="ks_bank" child="sr_pach" field="kodbist" parent="ks_bank" back="sr_pach">
+              <link name="kod_parent" as="kod_parent" table="ks_bank" child="ks_bank" field="kod_parent" parent="ks_bank" back="ks_bank">
+                <link name="kod_parent" as="kod_parent2" table="ks_bank" child="ks_bank" field="kod_parent" parent="ks_bank" back="ks_bank" />
+              </link>
+            </link>
+          </link>
+        </query>
+        <query name="sr_opl" join="left outer" as="o" dname="46239-pre">
+          <call function="=">
+            <column table="ob" column="kod_link" />
+            <column table="o" column="kod_link" />
+          </call>
+          <link name="kod_dog" as="kod_dog" table="kr_dogovor" child="sr_opl" field="kod_dog" parent="kr_dogovor" back="sr_opl" title="Договор">
+            <link name="dep" as="dep" table="kr_org" child="kr_dogovor" field="dep" parent="kr_org" back="kr_dog_dep" />
+            <link name="kodp" as="kodp_dog" table="kr_payer" child="kr_dogovor" field="kodp" parent="kr_payer" back="kr_dogovor" title="Абонент" />
+          </link>
+          <link name="vid_real" as="vid_real" table="sk_vid_real" child="sr_opl" field="vid_real" parent="sk_vid_real" back="sr_opl" title="Вид реализации" />
+          <link name="kod_dest" as="kod_dest_o" table="ss_dest_opl" child="sr_opl" field="kod_dest" parent="ss_dest_opl" back="sr_opl" />
+        </query>
+        <query join="inner" name="46239-pre_kodbpol_kod" as="kodbpol_kod" dname="46239-pre" title="используемый kodbpol">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+          <call function="=">
+            <column table="ob" column="kod_link" />
+            <column table="kodbpol_kod" column="kod_link" />
+          </call>
+        </query>
+        <query name="ks_bankpol" as="kodbpol" join="inner" comment="привязка к банку получателя через отдельную таблицу хитрую" dname="46239-pre">
+          <call function="=">
+            <column table="kodbpol_kod" column="kodbpol" />
+            <column table="kodbpol" column="kodbpol" />
+          </call>
+          <link name="dep" as="bpol_dep" table="kr_org" child="ks_bankpol" field="dep" parent="kr_org" back="ks_bankpol" />
+        </query>
+        <query name="sqlb_46239_bp_gr_persistant" as="str" join="inner" dname="46239-pre" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column table="kodbpol" column="kodbpol" />
+              <column table="str" column="kodbpol" />
+            </call>
+            <call function="or" comment="если вид оплаты есть для банка получателя в НСИ, то используем его">
+              <call function="is null">
+                <column table="str" column="kod_vidopl" />
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="o" column="kod_vidopl" />
+                  <column table="ob" column="kod_vidopl" />
+                </call>
+                <column table="str" column="kod_vidopl" />
+              </call>
+            </call>
+          </call>
+        </query>
+        <query join="left outer" name="46239-pre_arbitrage" as="pre_arbitrage" dname="46239-pre" title="Данные из рабитража для детализаций">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+          <call function="=">
+            <column table="ob" column="kod_link" />
+            <column table="pre_arbitrage" column="kod_link" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <const>1</const>
+            <const>1</const>
+          </call>
+          <call function="ge">
+            <column table="ob" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="ob" column="dat_opl" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+          <call function="not in" comment="исключение каких-то нехороших оплат">
+            <call function="nvl">
+              <column table="o" column="kod_opl" />
+              <const>-1</const>
+            </call>
+            <query>
+              <select>
+                <column table="qw_sro" column="kod_opl" as="kod_opl" />
+              </select>
+              <from>
+                <query name="sr_recalc_opl" as="qw_sro">
+                  <link name="kod_recalc" as="qw_sr" table="sr_recalc" child="sr_recalc_opl" field="kod_recalc" parent="sr_recalc" back="sr_recalc_opl" />
+                </query>
+              </from>
+              <where>
+                <call function="and">
+                  <call function="is not null">
+                    <column table="qw_sr" column="kod_recalc_parent" />
+                  </call>
+                  <call function="=">
+                    <column table="qw_sr" column="type" />
+                    <const>1</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-detail_pivot" timestamp="18.11.2021 14:50:26" order="r_s_name,dep_name,kodp_name,dat_opl,num_opl" title="Пивот для листов детализации" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="r_s_name" as="r_s_name" key="0" />
+        <column table="a" column="r_s_order" type="number" as="r_s_order" key="0" />
+        <column table="a" column="kodp_name" group="max" as="kodp_name" key="0" />
+        <column table="a" column="ndog" group="max" as="ndog" key="0" />
+        <column table="a" column="num_delo" group="max" as="num_delo" key="0" />
+        <column table="a" column="dat_opl" group="max" as="dat_opl" key="0" />
+        <column table="a" column="num_opl" group="max" as="num_opl" key="0" />
+        <column table="a" column="opl" as="oplt" group="sum" key="0" />
+        <call function="if" group="sum" as="opl_osn_avans" comment="для отдельной колонки с суммой" key="0">
+          <call function="in">
+            <column table="a" column="column_id" />
+            <call function="array">
+              <const>'vr0'</const>
+              <const>'vr2'</const>
+            </call>
+          </call>
+          <column table="a" column="opl" />
+        </call>
+        <column table="a" column="remark" group="max" as="remark" key="0" />
+        <column table="a" column="dep_name" group="max" as="dep_name" key="0" />
+        <column table="a" column="opl" dimname="cols" group="sum" as="opl" key="0" pivot="1">
+          <pivot title="по видам">
+            <column table="a" column="column_id" as="column_id" />
+            <query order="column_type, column_name">
+              <select>
+                <call function="distinct" as="column_id">
+                  <column table="b" column="column_id" />
+                </call>
+                <column table="b" column="column_name" as="column_name" />
+                <column table="b" column="column_type" as="column_type" />
+              </select>
+              <from>
+                <query name="46239-pre" as="b" title="Начальный сбор данных">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="b" column="pr_detail" />
+                    <const type="number">1</const>
+                  </call>
+                  <call function="not in">
+                    <column table="b" column="column_name" />
+                    <call function="array">
+                      <const>'51 перевод сальдо'</const>
+                      <const>'91/2 комиссия банка'</const>
+                    </call>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="kod_link" as="kod_link" key="0" />
+      </select>
+      <from>
+        <query name="46239-pre" as="a" title="Начальный сбор данных">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="pr_detail" />
+            <const type="number">1</const>
+          </call>
+          <call function="not in">
+            <column table="a" column="column_name" />
+            <call function="array">
+              <const>'51 перевод сальдо'</const>
+              <const>'91/2 комиссия банка'</const>
+            </call>
+          </call>
+          <call function="!=" optional="1">
+            <useparam name="no_detail" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog" order="r_s_order,r_s_name">
+          <group>
+            <column table="this" column="r_s_order" />
+            <column table="this" column="r_s_name" />
+          </group>
+          <grset as="row" order="dep_name,kodp_name,dat_opl,num_opl">
+            <group>
+              <column table="this" column="kod_link" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+      <order>
+        <column column="r_s_name" />
+        <column column="dep_name" />
+        <column column="kodp_name" />
+        <column column="dat_opl" />
+        <column column="num_opl" />
+      </order>
+    </query>
+    <query name="46239-main_pre" timestamp="09.11.2021 11:32:03" title="Группировка pre для основной страницы" comment="все обычные платежи из pre" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="dep_name" group="1" as="dep_name" key="1" fixed="1" />
+        <column table="a" column="column_name" group="1" as="column_name" key="1" fixed="1" />
+        <column table="a" column="column_id" group="1" as="column_id" key="1" fixed="1" />
+        <column table="a" column="column_type" group="1" as="column_type" key="1" fixed="1" />
+        <column table="a" column="r_s_name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="a" column="r_s_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="a" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <column group="1" table="a" column="kod_gr_kodb" as="kod_gr_kodb" key="1" fixed="1" />
+        <column group="1" table="a" column="name_gr_kodb" as="name_gr_kodb" key="1" fixed="1" />
+        <column table="a" column="opl" group="sum" as="opl" key="0" />
+        <column table="a" column="opl_51" group="sum" as="opl_51" key="0" />
+      </select>
+      <from>
+        <query name="46239-pre" as="a" title="Начальный сбор данных">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="46239-main_pre_ink" timestamp="29.11.2021 16:13:28" title="Инкассо для основной страницы" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="dep" column="sname" group="1" as="dep_name" key="1" fixed="1" />
+        <call function="()" as="column_name" group="1" key="1" fixed="1">
+          <const>'57'</const>
+        </call>
+        <call function="()" as="column_id" group="1" key="1" fixed="1">
+          <const>'ink_57'</const>
+        </call>
+        <call function="()" as="column_type" group="1" key="1" fixed="1">
+          <const>'Расход'</const>
+        </call>
+        <column table="str" column="name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="str" column="min_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="str" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <call function="null" group="1" as="kod_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="1" as="name_gr_kodb" key="1" fixed="1" />
+        <column table="a" column="summa" group="sum" as="opl" key="0" />
+        <call function="null" group="sum" as="opl_51" key="0" />
+      </select>
+      <from>
+        <query name="sr_inkasso" as="a">
+          <link name="dep" as="dep" table="kr_dep" child="sr_inkasso" field="dep" parent="kr_dep" back="sr_inkasso" />
+        </query>
+        <query name="sqlb_46239_bp_gr_persistant" as="str" join="inner" dname="46239-main_pre_ink" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kodbpol" />
+              <column table="str" column="kodbpol" />
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="str" column="kod_vidopl" />
+              </call>
+              <call function="nvl0">
+                <column table="str" column="min_vidopl" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ge">
+            <column table="a" column="dat" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="a" column="dat" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-main" timestamp="01.12.2021 12:28:32" title="Данные для основной страницы" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="b" column="dep_name" type="string" as="dep_name" key="0" />
+        <call function="if" as="column_name" comment="подставляем в основную, чтобы попасть в пивот правильно, сами данные выносятся в статическую колонку" type="string" key="0">
+          <call function="not in">
+            <column table="b" column="column_id" />
+            <call function="array">
+              <const>'perev_sald_51'</const>
+              <const>'ink_57'</const>
+              <const>'kom_bnk_91_2'</const>
+              <const>'sld_beg'</const>
+            </call>
+          </call>
+          <column table="b" column="column_name" />
+          <const>'Основная реализация'</const>
+        </call>
+        <call function="if" as="column_id" type="string" comment="подставляем в основную, чтобы попасть в пивот правильно, сами данные выносятся в статическую колонку" key="0">
+          <call function="not in">
+            <column table="b" column="column_id" />
+            <call function="array">
+              <const>'perev_sald_51'</const>
+              <const>'ink_57'</const>
+              <const>'kom_bnk_91_2'</const>
+              <const>'sld_beg'</const>
+            </call>
+          </call>
+          <column table="b" column="column_id" />
+          <const>'vr2'</const>
+        </call>
+        <call function="if" as="column_type" type="string" comment="подставляем в основную, чтобы попасть в пивот правильно, сами данные выносятся в статическую колонку" key="0">
+          <call function="not in">
+            <column table="b" column="column_id" />
+            <call function="array">
+              <const>'perev_sald_51'</const>
+              <const>'ink_57'</const>
+              <const>'kom_bnk_91_2'</const>
+              <const>'sld_beg'</const>
+            </call>
+          </call>
+          <column table="b" column="column_type" />
+          <const>'0 - Основная'</const>
+        </call>
+        <column table="b" column="r_s_name" type="string" as="r_s_name" key="0" />
+        <column table="b" column="r_s_order" type="number" as="r_s_order" key="0" />
+        <column table="b" column="kod_group" type="number" as="kod_group" reference="sqlb_46239_groups_persistant" refcol="kod_group" key="0" />
+        <column table="b" column="kod_gr_kodb" as="kod_gr_kodb" key="0" />
+        <column table="b" column="name_gr_kodb" as="name_gr_kodb" key="0" />
+        <column table="sqlb_46239_groups_persistant" column="name" as="gr1_name" key="0" />
+        <call function="if" as="kod_group_12_rowheight" comment="группировка мужду  1 и 2 уровнем" type="number" key="0">
+          <call function="in">
+            <column table="b" column="kod_group" type="number" />
+            <call function="array">
+              <const>1</const>
+              <const>2</const>
+              <const>11</const>
+              <const>12</const>
+            </call>
+          </call>
+          <const>15</const>
+          <const>0</const>
+        </call>
+        <call function="case" as="kod_group_12_name" comment="группировка мужду  1 и 2 уровнем" type="string" key="0">
+          <call function="when">
+            <call function="in">
+              <column table="b" column="kod_group" type="number" />
+              <call function="array">
+                <const>1</const>
+                <const>2</const>
+              </call>
+            </call>
+            <const>'Итого по расчетным счетам с учетом перекидок'</const>
+          </call>
+          <call function="when">
+            <call function="in">
+              <column table="b" column="kod_group" type="number" />
+              <call function="array">
+                <const>11</const>
+                <const>12</const>
+              </call>
+            </call>
+            <const>'Приход по кассе - итого'</const>
+          </call>
+          <call function="else">
+            <const>'-'</const>
+          </call>
+        </call>
+        <call function="if" as="kod_group_2" comment="денежные/не денежные" key="0">
+          <call function="in">
+            <column table="b" column="kod_group" type="number" />
+            <call function="array">
+              <const>1</const>
+              <const>2</const>
+              <const>3</const>
+              <const>9</const>
+              <const>11</const>
+              <const>12</const>
+            </call>
+          </call>
+          <const>'денежные'</const>
+          <const>'не денежные'</const>
+        </call>
+        <call function="if" as="opl" type="number" key="0">
+          <call function="not in">
+            <column table="b" column="column_id" />
+            <call function="array">
+              <const>'perev_sald_51'</const>
+              <const>'ink_57'</const>
+              <const>'kom_bnk_91_2'</const>
+              <const>'sld_beg'</const>
+            </call>
+          </call>
+          <column table="b" column="opl" />
+        </call>
+        <column table="b" column="opl_51" as="perev_sald_51" key="0" />
+        <call function="if" as="ink_57" type="number" comment="вынос колонки в статическую" key="0">
+          <call function="=">
+            <column table="b" column="column_id" />
+            <const>'ink_57'</const>
+          </call>
+          <column table="b" column="opl" />
+        </call>
+        <call function="if" as="kom_bnk_91_2" type="number" comment="вынос колонки в статическую" key="0">
+          <call function="=">
+            <column table="b" column="column_id" />
+            <const>'kom_bnk_91_2'</const>
+          </call>
+          <column table="b" column="opl" />
+        </call>
+        <call function="if" as="sld_beg" type="number" comment="вынос колонки в статическую" key="0">
+          <call function="=">
+            <column table="b" column="column_id" />
+            <const>'sld_beg'</const>
+          </call>
+          <column table="b" column="opl" />
+        </call>
+        <call function="over" as="cnt_vals" comment="подсчет заполненных колонок для строки, если заполнено только сальдо, то строку выводить не надо" key="0">
+          <call function="count">
+            <call function="if">
+              <call function="!=">
+                <column table="b" column="column_id" />
+                <const>'sld_beg'</const>
+              </call>
+              <column table="b" column="column_id" />
+              <call function="null" />
+            </call>
+          </call>
+          <call function="partition by">
+            <column table="b" column="r_s_name" type="string" />
+          </call>
+        </call>
+        <call function="if" as="oploa" comment="отдельная колонка с суммой основной и аванса" key="0">
+          <call function="in">
+            <column table="this" column="column_id" />
+            <call function="array">
+              <const>'vr0'</const>
+              <const>'vr2'</const>
+            </call>
+          </call>
+          <column table="this" column="opl" />
+        </call>
+      </select>
+      <from>
+        <query as="b">
+          <union>
+            <query comment="сальдо для отчета">
+              <select>
+                <column table="v0" column="dep_name" as="dep_name" key="0" />
+                <column table="v0" column="column_name" as="column_name" key="0" />
+                <column table="v0" column="column_id" as="column_id" key="0" />
+                <column table="v0" column="column_type" as="column_type" key="0" />
+                <column table="v0" column="r_s_name" as="r_s_name" key="0" />
+                <column table="v0" column="kod_group" as="kod_group" key="0" />
+                <column table="v0" column="kod_gr_kodb" as="kod_gr_kodb" key="0" />
+                <column table="v0" column="name_gr_kodb" as="name_gr_kodb" key="0" />
+                <column table="v0" column="opl" as="opl" key="0" />
+                <column table="v0" column="opl_51" as="opl_51" key="0" />
+                <column table="v0" column="r_s_order" as="r_s_order" key="0" />
+              </select>
+              <from>
+                <query name="46239-main_pre_sld" as="v0" title="Расчет сальдо">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+            <query comment="инкассо для колонки">
+              <select>
+                <column table="v1" column="dep_name" as="dep_name" />
+                <column table="v1" column="column_name" as="column_name" />
+                <column table="v1" column="column_id" as="column_id" />
+                <column table="v1" column="column_type" as="column_type" />
+                <column table="v1" column="r_s_name" as="r_s_name" />
+                <column table="v1" column="kod_group" as="kod_group" />
+                <column table="v1" column="kod_gr_kodb" as="kod_gr_kodb" />
+                <column table="v1" column="name_gr_kodb" as="name_gr_kodb" />
+                <column table="v1" column="opl" as="opl" />
+                <column table="v1" column="opl_51" as="opl_51" />
+                <column table="v1" column="r_s_order" as="r_s_order" />
+              </select>
+              <from>
+                <query name="46239-main_pre_ink" as="v1" title="Инкассо для основной страницы">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+            <query comment="основные данные">
+              <select>
+                <column table="v2" column="dep_name" as="dep_name" />
+                <column table="v2" column="column_name" as="column_name" />
+                <column table="v2" column="column_id" as="column_id" />
+                <column table="v2" column="column_type" as="column_type" />
+                <column table="v2" column="r_s_name" as="r_s_name" />
+                <column table="v2" column="kod_group" as="kod_group" />
+                <column table="v2" column="kod_gr_kodb" as="kod_gr_kodb" />
+                <column table="v2" column="name_gr_kodb" as="name_gr_kodb" />
+                <column table="v2" column="opl" as="opl" />
+                <column table="v2" column="opl_51" as="opl_51" />
+                <column table="v2" column="r_s_order" as="r_s_order" />
+              </select>
+              <from>
+                <query name="46239-main_pre" as="v2" title="Группировка pre для основной страницы">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+            <query comment="комиссии для строки комиссии">
+              <select>
+                <column table="v3" column="dep_name" as="dep_name" />
+                <column table="v3" column="column_name" as="column_name" />
+                <column table="v3" column="column_id" as="column_id" />
+                <column table="v3" column="column_type" as="column_type" />
+                <column table="v3" column="r_s_name" as="r_s_name" />
+                <column table="v3" column="kod_group" as="kod_group" />
+                <column table="v3" column="kod_gr_kodb" as="kod_gr_kodb" />
+                <column table="v3" column="name_gr_kodb" as="name_gr_kodb" />
+                <column table="v3" column="opl" as="opl" />
+                <column table="v3" column="opl_51" as="opl_51" />
+                <column table="v3" column="r_s_order" as="r_s_order" />
+              </select>
+              <from>
+                <query name="46239-main_pre_kom_from" as="v3" title="Комиссии строками">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+            <query comment="вычет комиссии для строки, куда пришел платеж">
+              <select>
+                <column table="v4" column="dep_name" as="dep_name" />
+                <column table="v4" column="column_name" as="column_name" />
+                <column table="v4" column="column_id" as="column_id" />
+                <column table="v4" column="column_type" as="column_type" />
+                <column table="v4" column="r_s_name" as="r_s_name" />
+                <column table="v4" column="kod_group" as="kod_group" />
+                <column table="v4" column="kod_gr_kodb" as="kod_gr_kodb" />
+                <column table="v4" column="name_gr_kodb" as="name_gr_kodb" />
+                <column table="v4" column="opl" as="opl" />
+                <column table="v4" column="opl_51" as="opl_51" />
+                <column table="v4" column="r_s_order" as="r_s_order" />
+              </select>
+              <from>
+                <query name="46239-main_pre_kom_to" as="v4" title="Комиссии строками">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+            <query comment="вычет комиссии для строки, куда пришел платеж">
+              <select>
+                <column table="v5" column="dep_name" as="dep_name" />
+                <column table="v5" column="column_name" as="column_name" />
+                <column table="v5" column="column_id" as="column_id" />
+                <column table="v5" column="column_type" as="column_type" />
+                <column table="v5" column="r_s_name" as="r_s_name" />
+                <column table="v5" column="kod_group" as="kod_group" />
+                <column table="v5" column="kod_gr_kodb" as="kod_gr_kodb" />
+                <column table="v5" column="name_gr_kodb" as="name_gr_kodb" />
+                <column table="v5" column="opl" as="opl" />
+                <column table="v5" column="opl_51" as="opl_51" />
+                <column table="v5" column="r_s_order" as="r_s_order" />
+              </select>
+              <from>
+                <query name="46239-main_pre_51" as="v5" title="Комиссии строками">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </union>
+        </query>
+        <query join="left outer" name="sqlb_46239_groups_persistant" as="sqlb_46239_groups_persistant" dname="46239-main" title="Группы для отчета">
+          <call function="=">
+            <column table="sqlb_46239_groups_persistant" column="kod_group" />
+            <column table="b" column="kod_group" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="46239-details_lists" timestamp="18.11.2021 14:50:00" order="r_s_order,r_s_name" title="Список листов детализаций" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="r_s_order" group="1" as="r_s_order" type="number" key="1" fixed="1" />
+        <column table="a" column="r_s_name" group="1" as="r_s_name" key="1" fixed="1" />
+        <call function="substr" as="r_s_name_sheet" group="1" key="1" fixed="1">
+          <column table="a" column="r_s_name" />
+          <const>1</const>
+          <const>30</const>
+        </call>
+      </select>
+      <from>
+        <query name="46239-pre" as="a" title="Начальный сбор данных">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="pr_detail" />
+            <const type="number">1</const>
+          </call>
+          <call function="not in">
+            <column table="a" column="column_name" />
+            <call function="array">
+              <const>'51 перевод сальдо'</const>
+              <const>'91/2 комиссия банка'</const>
+            </call>
+          </call>
+          <call function="!=" optional="1" comment="параметр &quot;без детализаций&quot;">
+            <useparam name="no_detail" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+      <order>
+        <column column="r_s_order" />
+        <column column="r_s_name" />
+      </order>
+    </query>
+    <query name="46239-main_pivot" timestamp="12.11.2021 11:42:34" order="r_s_name" title="Пивот для основной страницы, основная группа строк" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="dep_name" as="dep_name" key="0" />
+        <column table="a" column="r_s_name" as="r_s_name" key="0" />
+        <column table="a" column="r_s_order" as="r_s_order" key="0" />
+        <column table="a" column="kod_group" as="kod_group" key="0" />
+        <column table="a" column="kod_gr_kodb" as="kod_gr_kodb" key="0" />
+        <column table="a" column="name_gr_kodb" as="name_gr_kodb" key="0" />
+        <column table="a" column="kod_group_12_rowheight" type="number" as="kod_group_12_rowheight" key="0" />
+        <column table="a" column="kod_group_12_name" type="string" as="kod_group_12_name" key="0" />
+        <column table="a" column="kod_group_2" type="string" as="kod_group_2" key="0" />
+        <column table="a" column="gr1_name" as="gr1_name" key="0" />
+        <column table="a" column="opl" group="sum" as="oplt" key="0" />
+        <column table="a" column="oploa" group="sum" as="oploa" key="0" />
+        <column table="a" column="opl" dimname="filwhy" group="sum" as="opl" key="0" pivot="1">
+          <pivot title="по видам">
+            <column table="a" column="column_id" as="column_id" />
+            <query order="column_type, column_name">
+              <select>
+                <call function="distinct" as="column_id">
+                  <column table="b" column="column_id" />
+                </call>
+                <column table="b" column="column_name" as="column_name" />
+                <column table="b" column="column_type" as="column_type" />
+              </select>
+              <from>
+                <query name="46239-main" as="b" title="Данные для основной страницы">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <call function="*" group="sum" as="perev_sald_51" key="0">
+          <column table="a" column="perev_sald_51" type="number" />
+          <const>-1</const>
+        </call>
+        <column table="a" column="ink_57" group="sum" as="ink_57" key="0" />
+        <column table="a" column="kom_bnk_91_2" group="sum" as="kom_bnk_91_2" key="0" />
+        <column table="a" column="sld_beg" group="sum" as="sld_beg" key="0" />
+      </select>
+      <from>
+        <query name="46239-main" as="a" title="Данные для основной страницы">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="not in">
+            <column table="this" column="kod_group" />
+            <call function="array">
+              <const>7</const>
+            </call>
+          </call>
+          <call function="gt" comment="подсчет заполненных колонок для строки, если заполнено только сальдо, то строку выводить не надо">
+            <column table="a" column="cnt_vals" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset order="kod_group_2" as="gr2">
+          <group>
+            <column table="this" column="kod_group_2" />
+          </group>
+          <grset as="gr12" order="kod_group_12_rowheight desc">
+            <group>
+              <column table="this" column="kod_group_12_rowheight" />
+              <column table="this" column="kod_group_12_name" />
+            </group>
+            <grset as="gr1" order="kod_group">
+              <group>
+                <column table="this" column="kod_group" />
+                <column table="this" column="gr1_name" />
+              </group>
+              <grset as="row" order="r_s_order,r_s_name">
+                <group>
+                  <column table="this" column="r_s_order" />
+                  <column table="this" column="r_s_name" />
+                  <column table="this" column="dep_name" />
+                </group>
+                <grset as="row3" order="name_gr_kodb">
+                  <group>
+                    <column table="this" column="kod_gr_kodb" />
+                    <column table="this" column="name_gr_kodb" />
+                  </group>
+                  <where>
+                    <call function="and">
+                      <call function="is not null">
+                        <column table="this" column="kod_gr_kodb" />
+                      </call>
+                      <call function="=1">
+                        <call function="nvlu">
+                          <useparam name="no_reestr" />
+                          <const>0</const>
+                        </call>
+                      </call>
+                    </call>
+                  </where>
+                </grset>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+      <order>
+        <column column="r_s_name" />
+      </order>
+    </query>
+    <query name="46239-main_pivot_dep" timestamp="14.01.2022 13:59:37" order="r_s_name" title="Пивот для основной страницы, строки группировки по подразделениям" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="dep_name" as="dep_name" key="0" />
+        <column table="a" column="r_s_name" as="r_s_name" key="0" />
+        <column table="a" column="kod_group" as="kod_group" key="0" />
+        <column table="a" column="kod_group_12_rowheight" type="number" as="kod_group_12_rowheight" key="0" />
+        <column table="a" column="kod_group_2" type="string" as="kod_group_2" key="0" />
+        <column table="a" column="gr1_name" as="gr1_name" key="0" />
+        <column table="a" column="opl" group="sum" as="oplt" key="0" />
+        <column table="a" column="oploa" group="sum" as="oploa" key="0" />
+        <column table="a" column="opl" dimname="dcols" group="sum" as="opl" key="0" pivot="1">
+          <pivot title="по видам">
+            <column table="a" column="column_id" as="column_id" />
+            <query order="column_type, column_name">
+              <select>
+                <call function="distinct" as="column_id">
+                  <column table="b" column="column_id" />
+                </call>
+                <column table="b" column="column_name" as="column_name" />
+                <column table="b" column="column_type" as="column_type" />
+              </select>
+              <from>
+                <query name="46239-main" as="b" title="Данные для основной страницы">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <call function="*" group="sum" as="perev_sald_51" key="0">
+          <column table="a" column="perev_sald_51" type="number" />
+          <const>-1</const>
+        </call>
+        <column table="a" column="ink_57" group="sum" as="ink_57" key="0" />
+        <column table="a" column="kom_bnk_91_2" group="sum" as="kom_bnk_91_2" key="0" />
+        <column table="a" column="sld_beg" group="sum" as="sld_beg" key="0" />
+      </select>
+      <from>
+        <query name="46239-main" as="a" title="Данные для основной страницы">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="not in">
+            <column table="this" column="kod_group" />
+            <call function="array">
+              <const>7</const>
+            </call>
+          </call>
+          <call function="gt" comment="подсчет заполненных колонок для строки, если заполнено только сальдо, то строку выводить не надо">
+            <column table="a" column="cnt_vals" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog" />
+        <grset as="dep" order="dep_name">
+          <group>
+            <column table="this" column="dep_name" />
+          </group>
+        </grset>
+      </grouping>
+      <order>
+        <column column="r_s_name" />
+      </order>
+    </query>
+    <query name="46239-main_pre_sld_bnk" timestamp="30.11.2021 17:02:30" comment="Расчет сальдо на начало основной старницы" title="Расчет сальдо на начало" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <call function="if" title="Подразделение" as="dep_name" group="1" key="1" fixed="1">
+          <call function="=" comment="возвраты по госконтрактам, списание дебеторской задолженности по нчтс, Бух. справка ГК">
+            <call function="nvl0">
+              <column table="str" column="pr_goscontract" />
+            </call>
+            <const>1</const>
+          </call>
+          <column table="dep" column="sname" />
+          <column table="bpol_dep" column="sname" />
+        </call>
+        <call function="()" as="column_name" group="1" key="1" fixed="1">
+          <const>'Сальдо на начало'</const>
+        </call>
+        <call function="()" as="column_id" group="1" key="1" fixed="1">
+          <const>'sld_beg'</const>
+        </call>
+        <call function="()" as="column_type" group="1" key="1" fixed="1">
+          <const>'Сальдо на начало'</const>
+        </call>
+        <column table="str" column="name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="str" column="min_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="str" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <call function="nvl" group="1" as="kod_gr_kodb" key="1" fixed="1">
+          <call function="nvl">
+            <column table="kod_parent2" column="kodb" />
+            <column table="kod_parent" column="kodb" />
+          </call>
+          <column table="kodb" column="kodb" />
+        </call>
+        <call function="nvl" group="1" as="name_gr_kodb" key="1" fixed="1">
+          <call function="nvl">
+            <column table="kod_parent2" column="name" />
+            <column table="kod_parent" column="name" />
+          </call>
+          <column table="kodb" column="name" />
+        </call>
+        <call function="nvl" as="opl" title="Сумма разноса/банковского платежа" group="sum" key="0">
+          <call function="+no_nvl" comment="null, если opl null">
+            <column table="o" column="opl" />
+            <call function="nvl0">
+              <column table="o" column="opls" />
+            </call>
+          </call>
+          <column table="ob" column="opl" />
+        </call>
+      </select>
+      <from>
+        <query name="sr_opl_bank" as="ob">
+          <link name="kod_dest" as="kod_dest" table="ss_dest_opl" child="sr_opl_bank" field="kod_dest" parent="ss_dest_opl" back="sr_opl_bank" />
+          <link name="kodp" as="kodp_opl" table="kr_payer" child="sr_opl_bank" field="kodp" parent="kr_payer" back="sr_opl_bank" title="Абонент" />
+          <link name="kodbpol" as="kodbpol" table="ks_bankpol" child="sr_opl_bank" field="kodbpol" parent="ks_bankpol" back="sr_opl_bank">
+            <link name="dep" as="bpol_dep" table="kr_org" child="ks_bankpol" field="dep" parent="kr_org" back="ks_bankpol" />
+          </link>
+          <link name="kodb" as="kodb" table="ks_bank" child="sr_opl_bank" field="kodb" parent="ks_bank" back="sr_opl_bank">
+            <link name="kod_parent" as="kod_parent" table="ks_bank" child="ks_bank" field="kod_parent" parent="ks_bank" back="ks_bank">
+              <link name="kod_parent" as="kod_parent2" table="ks_bank" child="ks_bank" field="kod_parent" parent="ks_bank" back="ks_bank" />
+            </link>
+          </link>
+        </query>
+        <query name="sr_opl" join="left outer" as="o" dname="46239-main_pre_sld_bnk">
+          <call function="=">
+            <column table="ob" column="kod_link" />
+            <column table="o" column="kod_link" />
+          </call>
+          <link name="kod_dog" as="kod_dog" table="kr_dogovor" child="sr_opl" field="kod_dog" parent="kr_dogovor" back="sr_opl" title="Договор">
+            <link name="dep" as="dep" table="kr_org" child="kr_dogovor" field="dep" parent="kr_org" back="kr_dog_dep" />
+            <link name="kodp" as="kodp_dog" table="kr_payer" child="kr_dogovor" field="kodp" parent="kr_payer" back="kr_dogovor" title="Абонент" />
+          </link>
+          <link name="vid_real" as="vid_real" table="sk_vid_real" child="sr_opl" field="vid_real" parent="sk_vid_real" back="sr_opl" title="Вид реализации" />
+          <link name="kod_vidopl" as="kod_vidopl" table="ss_vidopl" child="sr_opl" field="kod_vidopl" parent="ss_vidopl" back="sr_opl" />
+          <link name="sr_recalc_opl" as="sr_recalc_opl" table="sr_recalc_opl" child="sr_opl" field="sr_recalc_opl" parent="sr_recalc_opl" back="sr_opl" />
+          <link name="kod_dest" as="kod_dest_o" table="ss_dest_opl" child="sr_opl" field="kod_dest" parent="ss_dest_opl" back="sr_opl" />
+        </query>
+        <query as="str" join="inner" name="sqlb_46239_bp_gr_persistant" dname="46239-main_pre_sld_bnk" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column column="kodbpol" table="ob" />
+              <column column="kodbpol" table="str" />
+            </call>
+            <call function="or">
+              <call function="is null">
+                <column column="kod_vidopl" table="str" />
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="o" column="kod_vidopl" />
+                  <column table="ob" column="kod_vidopl" />
+                </call>
+                <column column="kod_vidopl" table="str" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="lt">
+            <column table="ob" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="in">
+            <column table="kod_vidopl" column="alg" />
+            <call function="array">
+              <const>1</const>
+            </call>
+          </call>
+          <call function="in" comment="попросили выводить только в кассах">
+            <column table="str" column="kod_group" />
+            <call function="array">
+              <const>3</const>
+              <const>11</const>
+              <const>12</const>
+            </call>
+          </call>
+          <call function="is null" comment="33324(48)">
+            <column table="sr_recalc_opl" column="kod_recalc" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-main_pre_sld_ink" timestamp="30.11.2021 17:06:07" title="Расчет начального сальдо по инкассо" comment="Расчет сальдо основной старницы" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="dep" column="sname" group="1" as="dep_name" key="1" fixed="1" />
+        <call function="()" as="column_name" group="1" key="1" fixed="1">
+          <const>'Сальдо на начало'</const>
+        </call>
+        <call function="()" as="column_id" group="1" key="1" fixed="1">
+          <const>'sld_beg'</const>
+        </call>
+        <call function="()" as="column_type" group="1" key="1" fixed="1">
+          <const>'Сальдо на начало'</const>
+        </call>
+        <column table="str" column="name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="str" column="min_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="str" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <call function="null" group="1" as="kod_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="1" as="name_gr_kodb" key="1" fixed="1" />
+        <call function="*" group="sum" as="opl" key="0">
+          <column table="a" column="summa" />
+          <const>-1</const>
+        </call>
+      </select>
+      <from>
+        <query name="sr_inkasso" as="a">
+          <link name="dep" as="dep" table="kr_dep" child="sr_inkasso" field="dep" parent="kr_dep" back="sr_inkasso" />
+        </query>
+        <query name="sqlb_46239_bp_gr_persistant" as="str" join="inner" dname="46239-main_pre_sld_ink" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kodbpol" />
+              <column table="str" column="kodbpol" />
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="str" column="kod_vidopl" />
+              </call>
+              <call function="nvl0">
+                <column table="str" column="min_vidopl" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="lt">
+            <column table="a" column="dat" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="in">
+            <column table="str" column="kod_group" />
+            <call function="array">
+              <const>3</const>
+              <const>11</const>
+              <const>12</const>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-per_info" timestamp="30.07.2019 15:41:57" title="Для вывода параметров" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <call as="p_per_info" function="||" key="0">
+          <call function="if">
+            <call function="!=">
+              <useparam name="yms" />
+              <useparam name="ympo" />
+            </call>
+            <const>'с '</const>
+          </call>
+          <call function="lower">
+            <call function="ym to char">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="if">
+            <call function="!=">
+              <useparam name="yms" />
+              <useparam name="ympo" />
+            </call>
+            <call function="||">
+              <const>' по '</const>
+              <call function="lower">
+                <call function="ym to char">
+                  <useparam name="ympo" />
+                </call>
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" as="dual" />
+      </from>
+    </query>
+    <query name="46239-pre_arbitrage" timestamp="03.02.2021 15:09:12" title="Данные из рабитража для детализаций" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="ob" column="kod_link" title="Код банковского платежа" group="1" as="kod_link" key="1" fixed="1" />
+        <column table="kod_mat_pp" column="num_delo" group="stragg" as="num_delo" key="0" />
+        <column group="min" table="ur_hist_mat_dec" column="kod_result" as="kod_result" key="0" />
+        <column group="min" table="ur_hist_mat_dec" column="dat_resh" as="dat_resh" key="0" />
+        <column group="min" table="kod_result" column="kod_not_edit" as="kod_not_edit" key="0" />
+      </select>
+      <from>
+        <query name="sr_opl_bank" as="ob" />
+        <query name="sr_opl" join="left outer" as="o" dname="46239-pre_arbitrage">
+          <call function="=">
+            <column table="ob" column="kod_link" />
+            <column table="o" column="kod_link" />
+          </call>
+          <link name="kod_sf" as="kod_sf" table="sr_facvip" child="sr_opl" field="kod_sf" parent="sr_facvip" back="sr_opl">
+            <elink name="vv_all_deb_sf" as="vv_all_deb_sf" table="vv_all_deb_sf" child="vv_all_deb_sf" field="kod_sf" parent="sr_facvip" back="vv_all_deb_sf">
+              <elink name="ur_dogplat" as="ur_dogplat" table="ur_dogplat" child="ur_dogplat" field="kod_deb_sf" parent="vv_all_deb_sf" back="ur_dogplat">
+                <link name="kod_mat_pp" as="kod_mat_pp" table="ur_mat" child="ur_dogplat" field="kod_mat_pp" parent="ur_mat" back="ur_dogplat_pp" title="Материалы переданные в суд">
+                  <elink name="ur_hist_mat_dec" as="ur_hist_mat_dec" table="ur_hist_mat_dec" child="ur_hist_mat_dec" field="kod_mat" parent="ur_mat" back="ur_hist_mat_dec" title="Решение по делу">
+                    <link name="kod_result" as="kod_result" table="us_result" child="ur_hist_mat_dec" field="kod_result" parent="us_result" back="ur_hist_mat_dec" />
+                  </elink>
+                </link>
+              </elink>
+            </elink>
+          </link>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ge">
+            <column table="ob" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="ob" column="dat_opl" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-main_pre_sld" timestamp="09.11.2021 11:36:56" title="Расчет сальдо" comment="Расчет сальдо для основной страницы" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <call function="nvl" as="dep_name" key="0">
+          <column table="a" column="dep_name" />
+          <column table="b" column="dep_name" />
+        </call>
+        <call function="nvl" as="column_name" key="0">
+          <column table="a" column="column_name" />
+          <column table="b" column="column_name" />
+        </call>
+        <call function="nvl" as="column_id" key="0">
+          <column table="a" column="column_id" />
+          <column table="b" column="column_id" />
+        </call>
+        <call function="nvl" as="column_type" key="0">
+          <column table="a" column="column_type" />
+          <column table="b" column="column_type" />
+        </call>
+        <call function="nvl" as="r_s_name" key="0">
+          <column table="a" column="r_s_name" />
+          <column table="b" column="r_s_name" />
+        </call>
+        <call function="nvl" as="r_s_order" key="0">
+          <column table="a" column="r_s_order" />
+          <column table="b" column="r_s_order" />
+        </call>
+        <call function="nvl" as="kod_group" key="0">
+          <column table="a" column="kod_group" />
+          <column table="b" column="kod_group" />
+        </call>
+        <call function="nvl" as="kod_gr_kodb" key="0">
+          <column table="a" column="kod_gr_kodb" />
+          <column table="b" column="kod_gr_kodb" />
+        </call>
+        <call function="nvl" as="name_gr_kodb" key="0">
+          <column table="a" column="name_gr_kodb" />
+          <column table="b" column="name_gr_kodb" />
+        </call>
+        <call function="+nvl" as="opl" key="0">
+          <column table="a" column="opl" />
+          <column table="b" column="opl" />
+        </call>
+        <call function="null" as="opl_51" key="0" />
+      </select>
+      <from>
+        <query name="46239-main_pre_sld_ink" as="a" title="Расчет начального сальдо по инкассо">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+        <query name="46239-main_pre_sld_bnk" join="full outer" as="b" dname="46239-main_pre_sld" title="Расчет сальдо на начало">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+          <call function="and">
+            <call function="=">
+              <column table="a" column="dep_name" />
+              <column table="b" column="dep_name" />
+            </call>
+            <call function="=">
+              <column table="a" column="r_s_name" />
+              <column table="b" column="r_s_name" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_group" />
+              <column table="b" column="kod_group" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="46239-main_pre_kom_from" timestamp="10.12.2021 10:16:36" comment="для основной страницы, поправка раздела строк комиссий" title="Комиссии строками" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="dep" column="sname" group="1" as="dep_name" key="1" fixed="1" />
+        <call function="()" as="column_name" group="1" key="1" fixed="1">
+          <const>'Основная реализация'</const>
+        </call>
+        <call function="()" as="column_id" group="1" key="1" fixed="1">
+          <const>'vr2'</const>
+        </call>
+        <call function="()" as="column_type" group="1" key="1" fixed="1">
+          <const>'0 - Основная'</const>
+        </call>
+        <column table="str" column="name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="str" column="min_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="str" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <call function="null" group="1" as="kod_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="1" as="name_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="sum" as="opl" key="0" />
+        <call function="null" group="sum" as="opl_51" key="0" />
+      </select>
+      <from>
+        <query name="sr_komiss" as="a">
+          <link name="bank_pl" as="bank_pl" table="ks_bankpol" child="sr_komiss" field="bank_pl" parent="ks_bankpol" back="sr_komiss">
+            <link name="dep" as="dep" table="kr_org" child="ks_bankpol" field="dep" parent="kr_org" back="ks_bankpol" />
+          </link>
+        </query>
+        <query name="sqlb_46239_bp_gr_persistant" as="str" join="inner" dname="46239-main_pre_kom_from" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="bank_pl" />
+              <column table="str" column="kodbpol" />
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="str" column="kod_vidopl" />
+              </call>
+              <call function="nvl0">
+                <column table="str" column="min_vidopl" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ge">
+            <column table="a" column="dat" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="a" column="dat" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-main_pre_kom_to" timestamp="10.12.2021 10:05:55" comment="для основной страницы, поправка раздела строк комиссий" title="Комиссии строками" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="dep" column="sname" group="1" as="dep_name" key="1" fixed="1" />
+        <call function="()" as="column_name" group="1" key="1" fixed="1">
+          <const>'Основная реализация'</const>
+        </call>
+        <call function="()" as="column_id" group="1" key="1" fixed="1">
+          <const>'vr2'</const>
+        </call>
+        <call function="()" as="column_type" group="1" key="1" fixed="1">
+          <const>'0 - Основная'</const>
+        </call>
+        <column table="str" column="name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="str" column="min_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="str" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <call function="null" group="1" as="kod_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="1" as="name_gr_kodb" key="1" fixed="1" />
+        <column table="a" column="komiss" group="sum" as="opl" key="0" />
+        <call table="a" column="komiss" group="sum" as="opl_51" function="null" key="0" />
+      </select>
+      <from>
+        <query name="sr_komiss" as="a">
+          <link name="bank_pol" as="bank_pol" table="ks_bankpol" child="sr_komiss" field="bank_pol" parent="ks_bankpol" back="sr_komiss">
+            <link name="dep" as="dep" table="kr_org" child="ks_bankpol" field="dep" parent="kr_org" back="ks_bankpol" />
+          </link>
+        </query>
+        <query name="sqlb_46239_bp_gr_persistant" as="str" join="inner" dname="46239-main_pre_kom_to" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="bank_pol" />
+              <column table="str" column="kodbpol" />
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="str" column="kod_vidopl" />
+              </call>
+              <call function="nvl0">
+                <column table="str" column="min_vidopl" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ge">
+            <column table="a" column="dat" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="a" column="dat" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-pre_kodbpol_kod" timestamp="30.07.2019 17:01:48" comment="Для комиссий и Сальдо берется банк отправителя" title="используемый kodbpol" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="ob" column="kod_link" as="kod_link" key="1" fixed="1" />
+        <call function="if" as="kodbpol" title="Банк получателя" key="0">
+          <call function="and">
+            <call function="or">
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Сальдо%'</const>
+              </call>
+              <call function="like">
+                <column table="ob" column="remark" />
+                <const type="string">'Комиссия%'</const>
+              </call>
+            </call>
+            <call function="=">
+              <column table="ob" column="pr_kvit" />
+              <const>1</const>
+            </call>
+          </call>
+          <call function="nvl">
+            <query>
+              <select>
+                <column table="bp_from_no_dep" column="kodbpol" as="kodbpol" />
+              </select>
+              <from>
+                <query name="ks_bankpol" as="bp_from_no_dep" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="bp_from_no_dep" column="rs" />
+                    <column table="ob" column="paccount" />
+                  </call>
+                  <call function="=">
+                    <column table="bp_from_no_dep" column="dep" />
+                    <column table="ob" column="kodp" />
+                  </call>
+                </call>
+              </where>
+            </query>
+            <query>
+              <select>
+                <column table="bp_from_dep" column="kodbpol" as="kodbpol" />
+              </select>
+              <from>
+                <query name="ks_bankpol" as="bp_from_dep" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="bp_from_dep" column="rs" />
+                    <column table="ob" column="paccount" />
+                  </call>
+                  <call function="is null">
+                    <column table="bp_from_dep" column="dep" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+          <column table="ob" column="kodbpol" title="Код банка получателя" />
+        </call>
+      </select>
+      <from>
+        <query name="sr_opl_bank" as="ob">
+          <link name="kodbpol" as="kodbpol" table="ks_bankpol" child="sr_opl_bank" field="kodbpol" parent="ks_bankpol" back="sr_opl_bank" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ge">
+            <column table="ob" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="ob" column="dat_opl" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+          <call function="=">
+            <column table="kodbpol" column="pr_active" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="46239-main_ref" timestamp="12.11.2021 16:13:39" order="r_s_name" title="Пивот для основной страницы, справочно" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <column table="a" column="dep_name" as="dep_name" key="0" />
+        <column table="a" column="r_s_name" as="r_s_name" key="0" />
+        <column table="a" column="r_s_order" as="r_s_order" key="0" />
+        <column table="a" column="kod_group" as="kod_group" key="0" />
+        <column table="a" column="kod_gr_kodb" as="kod_gr_kodb" key="0" />
+        <column table="a" column="name_gr_kodb" as="name_gr_kodb" key="0" />
+        <column table="a" column="kod_group_12_rowheight" type="number" as="kod_group_12_rowheight" key="0" />
+        <column table="a" column="kod_group_12_name" type="string" as="kod_group_12_name" key="0" />
+        <column table="a" column="kod_group_2" type="string" as="kod_group_2" key="0" />
+        <column table="a" column="gr1_name" as="gr1_name" key="0" />
+        <column table="a" column="opl" group="sum" as="oplt" key="0" />
+        <column table="a" column="oploa" group="sum" as="oploa" key="0" />
+        <column table="a" column="opl" dimname="filwhy" group="sum" as="opl" key="0" pivot="1">
+          <pivot title="по видам">
+            <column table="a" column="column_id" as="column_id" />
+            <query order="column_type, column_name">
+              <select>
+                <call function="distinct" as="column_id">
+                  <column table="b" column="column_id" />
+                </call>
+                <column table="b" column="column_name" as="column_name" />
+                <column table="b" column="column_type" as="column_type" />
+              </select>
+              <from>
+                <query name="46239-main" as="b" title="Данные для основной страницы">
+                  <withparams>
+                    <useparam name="yms" />
+                    <useparam name="ympo" />
+                    <useparam name="no_detail" />
+                    <useparam name="no_reestr" />
+                  </withparams>
+                </query>
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <call function="*" group="sum" as="perev_sald_51" key="0">
+          <column table="a" column="perev_sald_51" type="number" />
+          <const>-1</const>
+        </call>
+        <column table="a" column="ink_57" group="sum" as="ink_57" key="0" />
+        <column table="a" column="kom_bnk_91_2" group="sum" as="kom_bnk_91_2" key="0" />
+        <column table="a" column="sld_beg" group="sum" as="sld_beg" key="0" />
+      </select>
+      <from>
+        <query name="46239-main" as="a" title="Данные для основной страницы">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="this" column="kod_group" />
+            <call function="array">
+              <const>7</const>
+            </call>
+          </call>
+          <call function="gt" comment="подсчет заполненных колонок для строки, если заполнено только сальдо, то строку выводить не надо">
+            <column table="a" column="cnt_vals" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset order="kod_group_2" as="gr2">
+          <group>
+            <column table="this" column="kod_group_2" />
+          </group>
+          <grset as="gr12" order="kod_group_12_rowheight desc">
+            <group>
+              <column table="this" column="kod_group_12_rowheight" />
+              <column table="this" column="kod_group_12_name" />
+            </group>
+            <grset as="gr1" order="kod_group">
+              <group>
+                <column table="this" column="kod_group" />
+                <column table="this" column="gr1_name" />
+              </group>
+              <grset as="row" order="r_s_order,r_s_name">
+                <group>
+                  <column table="this" column="r_s_order" />
+                  <column table="this" column="r_s_name" />
+                  <column table="this" column="dep_name" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+      <order>
+        <column column="r_s_name" />
+      </order>
+    </query>
+    <query name="46239-main_pre_51" timestamp="01.12.2021 16:28:27" comment="для основной страницы, поправка раздела строк комиссий" title="Комиссии строками" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml" haskeys="1">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <select>
+        <call function="nvl" as="dep_name" group="1" key="1" fixed="1">
+          <call function="if" title="Подразделение" comment="для госконтрактов из договора, для остальных их банка получателя">
+            <call function="=">
+              <call function="nvl0">
+                <column table="str" column="pr_goscontract" />
+              </call>
+              <const>1</const>
+            </call>
+            <column table="dep" column="sname" />
+            <column table="bpol_dep" column="sname" />
+          </call>
+          <column table="kodp" column="nump" />
+        </call>
+        <call function="()" as="column_name" group="1" key="1" fixed="1">
+          <const>'Основная реализация'</const>
+        </call>
+        <call function="()" as="column_id" group="1" key="1" fixed="1">
+          <const>'vr2'</const>
+        </call>
+        <call function="()" as="column_type" group="1" key="1" fixed="1">
+          <const>'0 - Основная'</const>
+        </call>
+        <column table="str" column="name" group="1" as="r_s_name" key="1" fixed="1" />
+        <column table="str" column="min_order" group="1" as="r_s_order" key="1" fixed="1" />
+        <column table="str" column="kod_group" group="1" as="kod_group" key="1" fixed="1" />
+        <call function="null" group="1" as="kod_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="1" as="name_gr_kodb" key="1" fixed="1" />
+        <call function="null" group="sum" as="opl" key="0" />
+        <column function="*" group="sum" as="opl_51" table="a" column="opl" key="0" />
+      </select>
+      <from>
+        <query name="sr_opl_bank" as="a">
+          <link name="kodp" as="kodp" table="kr_payer" child="sr_opl_bank" field="kodp" parent="kr_payer" back="sr_opl_bank" title="Абонент" />
+        </query>
+        <query name="sr_opl" join="left outer" as="o" dname="46239-main_pre_51">
+          <call function="=">
+            <column table="a" column="kod_link" />
+            <column table="o" column="kod_link" />
+          </call>
+          <link name="kod_dog" as="kod_dog" table="kr_dogovor" child="sr_opl" field="kod_dog" parent="kr_dogovor" back="sr_opl" title="Договор">
+            <link name="dep" as="dep" table="kr_org" child="kr_dogovor" field="dep" parent="kr_org" back="kr_dog_dep" />
+          </link>
+        </query>
+        <query name="ks_bankpol" as="b" join="left outer" dname="46239-main_pre_51">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="paccount" />
+              <column table="b" column="rs" />
+            </call>
+          </call>
+          <link name="dep" as="bpol_dep" table="kr_org" child="ks_bankpol" field="dep" parent="kr_org" back="ks_bankpol" />
+        </query>
+        <query name="sqlb_46239_bp_gr_persistant" as="str" join="inner" dname="46239-main_pre_51" title="Строки на основном листе в отчете">
+          <call function="and">
+            <call function="=">
+              <column table="b" column="kodbpol" />
+              <column table="str" column="kodbpol" />
+            </call>
+            <call function="=">
+              <call function="nvl0">
+                <column table="str" column="kod_vidopl" />
+              </call>
+              <call function="nvl0">
+                <column table="str" column="min_vidopl" />
+              </call>
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="ge">
+            <column table="a" column="dat_opl" />
+            <call function="ym begin time">
+              <useparam name="yms" />
+            </call>
+          </call>
+          <call function="le">
+            <column table="a" column="dat_opl" />
+            <call function="ym end time">
+              <useparam name="ympo" />
+            </call>
+          </call>
+          <call function="is null">
+            <column table="a" column="raznos_type" />
+          </call>
+          <call function="lt">
+            <column table="a" column="opl" />
+            <const>0</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="form:46239" haskeys="1">
+      <select>
+        <column table="u" column="title" title="Параметр" as="title" />
+        <column table="u" column="name" key="1" as="name" />
+        <column table="u" column="text" title="Значение" as="text" />
+      </select>
+      <from>
+        <query as="u">
+          <union>
+            <query>
+              <select>
+                <const type="string" as="title">'Период с'</const>
+                <const type="string" as="name">'yms'</const>
+                <const type="string" as="text">NULL</const>
+              </select>
+              <from>
+                <table name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const>'Период по'</const>
+                <const>'ympo'</const>
+                <const>NULL</const>
+              </select>
+              <from>
+                <table name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const>'Не выводить детализацию'</const>
+                <const>'no_detail'</const>
+                <const>NULL</const>
+              </select>
+              <from>
+                <table name="dual" />
+              </from>
+            </query>
+            <query>
+              <select>
+                <const>'Выводить по банкам-источникам'</const>
+                <const>'no_reestr'</const>
+                <const>NULL</const>
+              </select>
+              <from>
+                <table name="dual" />
+              </from>
+            </query>
+          </union>
+        </query>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id">
+    <part id="46239-params" timestamp="30.11.2021 14:15:31" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <param type="number" name="yms">
+        <const>2021.10</const>
+      </param>
+      <param type="number" name="ympo">
+        <const>2021.10</const>
+      </param>
+      <param type="number" name="no_detail" />
+      <param name="no_reestr" type="number" />
+    </part>
+    <part id="46239-withparams" timestamp="16.07.2021 10:58:58" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <useparam name="yms" />
+      <useparam name="ympo" />
+      <useparam name="no_detail" />
+      <useparam name="no_reestr" />
+    </part>
+  </parts>
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="46239" timestamp="18.11.2021 14:38:35" title="Отчет по банковским оплатам" form="46239" nogrid="1" datareader="1" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <params>
+        <param type="number" name="yms">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="ympo">
+          <const>2021.10</const>
+        </param>
+        <param type="number" name="no_detail" />
+        <param name="no_reestr" type="number" />
+      </params>
+      <customers>
+        <customer id="101" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="46239.xlsx" title="Отчет по банковским оплатам" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query as="c" title="data" name="46239-main_pivot">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+        <query title="data" name="46239-main_ref" as="r">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+        <query as="ci" title="data" name="46239-main_pivot_dep">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+        <query as="l" title="data" name="46239-details_lists">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+          <query as="a" title="data" name="46239-detail_pivot">
+            <withparams>
+              <useparam name="yms" />
+              <useparam name="ympo" />
+              <useparam name="no_detail" />
+              <useparam name="no_reestr" />
+            </withparams>
+            <call function="=">
+              <column table="l" column="r_s_name" />
+              <column table="a" column="r_s_name" />
+            </call>
+          </query>
+        </query>
+        <query name="46239-per_info" as="par">
+          <withparams>
+            <useparam name="yms" />
+            <useparam name="ympo" />
+            <useparam name="no_detail" />
+            <useparam name="no_reestr" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="46239" timestamp="15.07.2021 16:59:14" file="sql.builder.templates\sql.builder\projects\46239\all\all.xml">
+      <content>
+        <field name="yms" controlType="UICombo" type="number" title="Период с" mandatory="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+          <listquery>
+            <query name="kr_calc_list"></query>
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max"></query>
+          </defaultquery>
+        </field>
+        <field name="ympo" controlType="UICombo" type="number" title="Период по" mandatory="1" file="sql.builder.templates\sql.builder\projects\asuse2_ipr\param_fields_asuse.xml">
+          <listquery>
+            <query name="kr_calc_list"></query>
+          </listquery>
+          <defaultquery>
+            <query name="kr_calc_max"></query>
+          </defaultquery>
+        </field>
+        <field controlType="UICheck" checked="0" type="number" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" title="Не выводить детализацию" name="no_detail" />
+        <field controlType="UICheck" checked="0" type="number" file="sql.builder.templates\sql.builder\projects\common\param_fields_common.xml" title="Выводить по банкам-источникам" name="no_reestr" />
+      </content>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

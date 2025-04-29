@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_deb_reduction" class="1" timestamp="24.04.2025 03:08:00">
+      <select>
+        <column table="a" column="kod_deb_reduction" type="number" column-mandatory="1" />
+        <column table="a" column="reduction_type" type="string" data-size="20" title="" comment="Тип сущности с которой связана запись: BNK - банкротство, ISP - исполнительный лист" />
+        <column table="a" column="kod_pir_entity" type="number" comment="ID сущности с которой связана запись" />
+        <column table="a" column="kod_dogplat" type="number" />
+        <column table="a" column="kod_link" type="number" comment="ID банковской оплаты" />
+        <column table="a" column="kod_opl" type="number" />
+        <column table="a" column="reason" type="number" title="" comment="Основание уменьшения долга" />
+        <column table="a" column="prim" type="string" data-size="1500" title="" comment="Комментарий" />
+        <column table="a" column="prim2" type="string" data-size="1500" title="" />
+        <column table="a" column="u_m" type="string" data-size="20" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="kod_osn_um_mor_dolg" type="number" title="" />
+        <column table="kod_opl" column="opl" type="number" title="Сумма оплаты (руб.)" />
+        <column table="kod_link" column="num_opl" type="string" title="" />
+        <column table="kod_opl" column="dat_opl" type="date" title="" />
+      </select>
+      <from>
+        <table name="ur_deb_reduction" as="a" />
+        <query name="ur_isp_other_reason" as="reason" join="left outer">
+          <call function="=">
+            <column table="a" column="reason" />
+            <column table="reason" column="id" />
+          </call>
+        </query>
+        <query name="ur_dogplat" as="kod_dogplat" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dogplat" />
+            <column table="kod_dogplat" column="kod_dogplat" />
+          </call>
+        </query>
+        <query name="sr_opl_bank" as="kod_link" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_link" />
+            <column table="kod_link" column="kod_link" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+        <query name="us_osn_um_mor_dolg" as="kod_osn_um_mor_dolg" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_osn_um_mor_dolg" />
+            <column table="kod_osn_um_mor_dolg" column="kod_osn_um_mor_dolg" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

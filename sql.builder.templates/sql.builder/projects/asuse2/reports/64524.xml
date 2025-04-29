@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="64524" form="64524" nogrid="1" title="Уменьшение задолженности по исполнительному производству" timestamp="abbr 15:37:58">
+      <params>
+        <param name="p_date_s" type="date" part-id="64524_params" />
+        <param name="p_date_po" type="date" part-id="64524_params" />
+        <param name="p_kodp" type="array" part-id="64524_params" />
+        <param name="p_kod_emp" type="number" part-id="64524_params" />
+      </params>
+      <procedure>
+        begin
+		DELETE FROM vr_number_array;
+        INSERT INTO vr_number_array (array_id, val)
+        SELECT
+        '64524_param_kod_podr',
+        a.kodp
+        FROM kr_org a
+        WHERE a.kodp IN /*nvlu*/ :p_kodp;
+
+        sqlb_rep_64524.fill_table(:p_date_s, :p_date_po);
+        end;
+</procedure>
+      <print-templates>
+        <excel>
+          <template name="64524.xlsx" title="Уменьшение задолженности по исполнительному производству" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="64524_report_params" as="t">
+          <withparams>
+            <useparam name="p_date_s" />
+            <useparam name="p_date_po" />
+            <useparam name="p_kodp" />
+            <useparam name="p_kod_emp" />
+          </withparams>
+        </query>
+        <query name="sqlb_rep_64524_tbl" as="q1" />
+        <query name="64524_totals" as="q2" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="sqlb_rep_64524_tbl" title="Результат процедуры sqlb_rep_64524.fill_table" timestamp="06.02.2023 18:42:32">
+      <select>
+        <column table="a" column="rn" type="number" title="" as="rownumber" />
+        <column table="a" column="potr_category" type="string" title="" />
+        <column table="a" column="voluntary_payment" type="number" title="" />
+        <column table="a" column="force_payment" type="number" title="" />
+        <column table="a" column="cancel_judgment" type="number" title="" />
+        <column table="a" column="debt_relief" type="number" title="" />
+        <column table="a" column="bankruptcy" type="number" title="" />
+        <column table="a" column="abbr" type="number" title="" />
+		<column table="a" column="other" type="number" title="" />
+        <column table="a" column="total" type="number" title="" />
+      </select>
+      <from>
+        <table name="sqlb_rep_64524_tbl" as="a" />
+      </from>
+    </query>
+    <query name="64524_report_params" title="Вывод параметров отчета" timestamp="06.02.2023 16:36:25">
+      <params>
+        <usepart part="64524_params" />
+      </params>
+      <select>
+        <column table="a" column="report_date" type="string" title="" />
+        <column table="a" column="period" type="string" title="" />
+        <column table="a" column="filial" type="string" title="" />
+        <column table="a" column="executor" type="string" title="" />
+      </select>
+      <from>
+        <table name="64524_report_params_view" as="a" view="1" />
+      </from>
+    </query>
+    <query name="64524_filials" title="Список филиалов" order="kodp" timestamp="06.02.2023 16:50:27">
+      <select>
+        <column table="a" column="kodp" type="number" title="" />
+        <column table="a" column="name" type="string" title="" />
+      </select>
+      <from>
+        <query name="kr_org" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="kod_separator" />
+            <const>2</const>
+          </call>
+          <call function="=">
+            <column table="a" column="kod_ecls" />
+            <const>4</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="64524_report_executors" title="Список исполнителей отчета" order="fio" timestamp="06.02.2023 17:26:26">
+      <select>
+        <column table="a" column="kod_emp" type="number" title="" />
+        <column table="a" column="fio" type="string" title="ФИО" />
+        <column table="a" column="tel" type="string" title="Телефон" />
+        <column table="kodp" column="name" />
+      </select>
+      <from>
+        <query name="kr_employee" as="a">
+          <link name="kodp" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="kodp" column="kod_separator" />
+            <const>2</const>
+          </call>
+          <call function="=">
+            <column table="kodp" column="kod_ecls" />
+            <const>4</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="64524_totals" title="Итоги" timestamp="06.02.2023 18:54:56">
+      <select>
+        <column table="a" column="voluntary_payment" type="number" title="" />
+        <column table="a" column="force_payment" type="number" title="" />
+        <column table="a" column="cancel_judgment" type="number" title="" />
+        <column table="a" column="debt_relief" type="number" title="" />
+        <column table="a" column="bankruptcy" type="number" title="" />
+        <column table="a" column="abbr" type="number" title="" />
+		<column table="a" column="other" type="number" title="" />
+        <column table="a" column="total" type="number" title="" />
+      </select>
+      <from>
+        <table name="64524_totals_view" as="a" view="1" />
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="64524_report_params_view">
+      SELECT
+      TO_CHAR(sysdate, 'DD.MM.YYYY') AS report_date,
+      TO_CHAR(:p_date_s, 'DD.MM.YYYY') || ' по ' || TO_CHAR(:p_date_po, 'DD.MM.YYYY') AS period,
+      NVL(
+      (
+      SELECT
+      CASE
+      WHEN count(kodp) = MAX(cnt_total) THEN 'Все'
+      ELSE listagg(name, '; ') within group (order by kodp)
+      END
+      FROM kr_org a
+      CROSS JOIN (
+      SELECT COUNT(*) AS cnt_total
+      FROM kr_org
+      WHERE kod_separator = 2
+      AND kod_ecls = 4
+      ) b
+      WHERE a.kodp IN /*nvlu*/ :p_kodp
+      ),
+      'Все'
+      ) AS filial,
+      (
+      SELECT fio || chr(13) || chr(10) || tel
+      FROM kr_employee
+      WHERE kod_emp = /*nvlu*/ :p_kod_emp
+      ) AS executor
+      FROM dual
+    </view>
+    <view name="64524_totals_view">
+      SELECT
+          SUM(voluntary_payment) AS voluntary_payment,
+          SUM(force_payment) AS force_payment,
+          SUM(cancel_judgment) AS cancel_judgment,
+          SUM(debt_relief) AS debt_relief,
+          SUM(bankruptcy) AS bankruptcy,
+          SUM(abbr) AS abbr,
+		  SUM(abbr) AS other,
+          SUM(total) AS total
+      FROM (
+          SELECT
+              0 AS voluntary_payment,
+              0 AS force_payment,
+              0 AS cancel_judgment,
+              0 AS debt_relief,
+              0 AS bankruptcy,
+              0 AS abbr,
+			  0 AS other,
+              0 AS total
+          FROM dual
+              UNION ALL
+          SELECT
+              voluntary_payment,
+              force_payment,
+              cancel_judgment,
+              debt_relief,
+              bankruptcy,
+              abbr,
+			  other,
+              total
+          FROM sqlb_rep_64524_tbl
+          ) a
+    </view>
+  </views>
+  <forms>
+    <form name="64524" timestamp="06.02.2023 17:10:34">
+      <content>
+        <fieldgroup title="Период отчета">
+          <usefield field="date" name="p_date_s" title="Дата начала" type="date" mandatory="1" />
+          <usefield field="date" name="p_date_po" title="Дата окончания" type="date" mandatory="1" />
+        </fieldgroup>
+        <field name="p_kodp" title="Филиал" type="number" controlType="UIList">
+          <listquery>
+            <query name="64524_filials" />
+          </listquery>
+        </field>
+        <field name="p_kod_emp" title="Исполнитель отчета" type="number" controlType="UICombo">
+          <listquery>
+            <query name="64524_report_executors" />
+          </listquery>
+        </field>
+      </content>
+    </form>
+  </forms>
+</root>

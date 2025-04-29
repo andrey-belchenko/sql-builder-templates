@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="sqlbuilder">
+  <queries>
+    <query name="sr_facvip_rec_info_m" class="1" timestamp="08.06.2017 12:03:03" intrval="FREQ=HOURLY; INTERVAL=1" stored="vv_sr_facvip_rec_info_m">
+      <select>
+        <column table="a" column="kod_sf" type="number" index="1" />
+        <column table="a" column="kod_sf_old_neg" type="number" index="1" />
+      </select>
+      <from>
+        <table name="sr_facvip_rec_info_m" as="a" view="1" />
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="sr_facvip_rec_info_m">
+      SELECT KOD_SF,KOD_SF_OLD_NEG
+      FROM
+
+      (WITH rec1
+      AS (  SELECT /*+materialize*/
+      kod_recalc, kod_sf
+      FROM sr_recalc_sf
+      GROUP BY kod_recalc, kod_sf)
+      SELECT rec1.kod_sf,
+      CASE WHEN a.pr_negative_recalc = 1 THEN v.kod_sf_first END
+      kod_sf_old_neg
+      FROM rec1
+      INNER JOIN sr_facvip v ON (rec1.kod_sf = v.kod_sf)
+      INNER JOIN (select distinct kod_recalc,pr_negative_recalc
+      from
+      (  SELECT kod_recalc,
+      CASE WHEN sum(b.nachisl) over (partition by v.kod_sf_first)  &lt;= 0 THEN 1 END
+              pr_negative_recalc
+              FROM rec1 a
+              INNER JOIN sr_facras b ON (a.kod_sf = b.kod_sf)
+              INNER JOIN sr_facvip v on (b.kod_sf = v.kod_sf)
+              )
+                ) a
+      ON (rec1.kod_recalc = a.kod_recalc)
+      )
+
+      WHERE kod_sf_old_neg IS NOT NULL
+
+      GROUP BY KOD_SF,KOD_SF_OLD_NEG
+    </view>
+  </views>
+</root>

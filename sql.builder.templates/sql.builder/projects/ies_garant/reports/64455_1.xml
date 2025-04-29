@@ -1,0 +1,658 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="64455_1" form="64455_1" nogrid="1" title="Полезный отпуск" timestamp="16.12.2024 11:12:41">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <params>
+        <param name="dep" type="number" />
+        <param name="p_ym" type="number" />
+        <param name="p_kodp_pwrcompany" type="array" />
+        <param name="p_kod_dog" type="number" />
+      </params>
+      <procedure><![CDATA[DECLARE
+  p_kod_dog     kr_dogovor.kod_dog%type;
+  p_dep         kr_dogovor.dep%type;
+  p_ym          nv_account_sost.ym%type;
+  s_data_id     rr_temp.skod%type;
+BEGIN
+  p_dep        := :dep;
+  p_ym         := :p_ym;
+  p_kod_dog    := :p_kod_dog;
+  s_data_id    := '{7D212244-454A-4FF2-8D40-0A4C2FED9A2E}';
+  --
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  -- 1. Приёмки за энергию (кВт-ч)
+  INSERT INTO rr_temp (skod, rn, n1, n2, n3, n4, n5, n6, n7, n10 /* is_2rate */, n11, s1, n12 /* object_kodd */,
+                       n13, n14, n15, n16, s2, n18 /* kod_pointmain */,
+                       s4, s5, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28 /* kod_polbalans */, n29, n31 /* num_obj */, s6 /*src_dat_name - источник показаний (наименование)*/) 
+    SELECT s_data_id, ROW_NUMBER () OVER (PARTITION BY ac.kod_numobj, ac.voltage ORDER BY pr.nomer NULLS LAST, ac.kod_account) as rn,
+           ac.kod_dog, ac.kod_account, ac.rym, ac.kod_numobj, ac.voltage, ac.kodinterval, ac.cust as energy, ac.is_2rate,
+           no.kod_obj, no.name AS object_name, ob.kodd AS object_kodd,
+           pr.kod_priem, pr.kod_point, pr.tpoint, pr.nomer AS point_nomer, pr.name AS point_name, 
+	   NVL(pr.kod_pointmain_transit, pr.kod_pointmain) AS kod_pointmain,
+           CASE WHEN pu.kod_tippu IS NOT NULL THEN hg_pasp_pu_r.name_pu(pu.kod_tippu, 2) ELSE '' END AS type_pu,
+           pr.nom_pu, pr.readlast, pr.readprev, pr.outcounter, pr.outadd, pr.out, pr.rkoeff, 
+	   pr.razr, pr.razr2, pr.kod_point_har, pr.kod_polbalans, 0 as power,
+	   no.num_obj, ng_report.get_src_dat_name(pr.kod_priem)
+    FROM   (SELECT a.kod_dog, a.kod_account, a.ym, a.rym, a.kod_numobj, a.kod_account_priem, a.voltage, a.kodinterval, a.cust, a.price, a.money, a.vid_t,
+                   kg_tarif.is_2rate(kg_tarif.subtarif_voltage(a.tarif, a.voltage, a.dat_priem - 1E-5), a.dat_priem - 1E-5) as is_2rate
+            FROM   kr_dogovor d JOIN nv_account_sost a ON d.kod_dog = a.kod_dog
+                                JOIN hr_reglament_pp p ON p.kod_reglament = a.kod_reglament
+                                JOIN hr_calc_variant v ON v.kod_variant = p.kod_variant
+            WHERE d.dep = p_dep
+              AND (p_kod_dog IS NULL OR d.kod_dog = p_kod_dog)
+              AND a.ym = p_ym
+              AND v.kod_typevariant = 1
+              AND v.pr_notransit = 1
+              AND a.price is not null
+              AND a.vid_t != -222
+              AND a.tip_tarif_sost = 2
+	    ) ac 
+	 JOIN kr_numobj no ON no.kod_numobj = ac.kod_numobj
+         JOIN kr_object ob ON ob.kod_obj = no.kod_obj
+         LEFT OUTER JOIN nr_account_priem ac_pr ON ac_pr.kod_account_priem = ac.kod_account_priem
+         LEFT OUTER JOIN nv_priem pr ON pr.kod_priem = ac_pr.kod_priem
+         LEFT OUTER JOIN hr_point_pu pu ON pu.kod_point_pu = pr.kod_point_pu;
+
+  -- 2. Приёмки за энергию (кВт в n29)
+  FOR cur IN (SELECT a.kod_dog, a.kod_account, a.rym, a.kod_numobj, a.kod_account_priem, a.voltage, a.kodinterval, a.cust, a.price, a.money, a.vid_t,
+                     kg_tarif.is_2rate(kg_tarif.subtarif_voltage(a.tarif, a.voltage, a.dat_priem - 1E-5), a.dat_priem - 1E-5) as is_2rate,
+                     no.kod_obj, no.name AS object_name, ob.kodd AS object_kodd
+              FROM   kr_dogovor d JOIN nv_account_sost a ON d.kod_dog = a.kod_dog
+                                  JOIN hr_reglament_pp p ON p.kod_reglament = a.kod_reglament
+                                  JOIN hr_calc_variant v ON v.kod_variant = p.kod_variant
+                                  JOIN kr_numobj no ON no.kod_numobj = a.kod_numobj
+                                  JOIN kr_object ob ON ob.kod_obj = no.kod_obj
+            WHERE d.dep = p_dep
+              AND (p_kod_dog IS NULL OR d.kod_dog = p_kod_dog)
+              AND a.ym = p_ym
+              AND v.kod_typevariant = 1
+              AND v.pr_notransit = 1
+              AND a.price is not null
+              AND a.vid_t = -222) LOOP
+    UPDATE rr_temp
+    SET    n29 = n29 + NVL(cur.cust, 0)
+    WHERE  skod = s_data_id AND n4 = cur.kod_numobj AND rn = 1 AND n5 = cur.voltage;
+    IF SQL%ROWCOUNT = 0 THEN
+      INSERT INTO rr_temp (skod, rn, n1, n2, n3, n4, n5, n6, n7, n10 /* is_2rate */, n11, s1, n12 /* object_kodd */,
+                           n13, n14, n15, n16, s2, n18 /* kod_pointmain */,
+                           s4, s5, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28 /* kod_polbalans */, n29) 
+        VALUES (s_data_id, 1,
+                cur.kod_dog, cur.kod_account, cur.rym, cur.kod_numobj, cur.voltage, cur.kodinterval, NULL /* energy */, cur.is_2rate,
+                cur.kod_obj, cur.object_name, cur.object_kodd,
+                NULL /* kod_priem */, NULL /* kod_point */, NULL /* tpoint */, NULL /* point_nomer */, '' /* point_name */, NULL /* kod_pointmain */,
+                '' /* type_pu */, '' /* nom_pu */, NULL /* readlast */, NULL /* readprev */, NULL /* outcounter */, NULL /* outadd */, NULL /* out */, NULL /* rkoeff */, NULL /* razr */, NULL /* razr2 */, NULL /* kod_point_har */, NULL /* kod_polbalans */, cur.cust);
+    END IF;
+  END LOOP;
+
+  -- 3. Проставляем kod_attpoint (в n30)
+  UPDATE rr_temp
+  SET    n30 = CASE WHEN n14 IS NOT NULL THEN (SELECT pt.kod_attpoint FROM hr_point pt WHERE pt.kod_point = n14)
+                    ELSE (SELECT MAX(att.kod_attpoint) AS kod_attpoint FROM hr_nugruzpotreb nug JOIN hr_attpoint att ON att.kodnagruzpotreb = nug.kodnagruzpotreb WHERE nug.kod_obj = n11) END
+  WHERE  skod = s_data_id AND n14 IS NOT NULL;
+
+  -- 4. Внешний транзит
+  INSERT INTO rr_temp (skod, rn, n1, n2, n3, n4, n5, n6, n7, n10 /* is_2rate */, n11, s1, n12 /* object_kodd */,
+                       n13, n14, n15, n16, s2, n18 /* kod_pointmain */,
+                       s4, s5, n19, n20, n21, n22, n23, n24, n25, n26, n27, n28 /* kod_polbalans */, n29, n30, n31 /* num_obj */, s6 /*src_dat_name - источник показаний (наименование)*/)
+    SELECT s_data_id, ROW_NUMBER() OVER (PARTITION BY pr.kod_numobj ORDER BY pr.nomer NULLS LAST, pr.kod_priem) as rn,
+           pr.kod_dog, NULL AS kod_account, NULL AS rym,
+           no.kod_numobj, pr.voltage, 24 AS kodinterval, NULL AS energy,
+           (SELECT NVL(MAX(t.n10),0) as is_2rate
+              FROM   rr_temp t
+             WHERE  t.skod = s_data_id AND t.n15 /*tpoint*/ != 3 AND t.n14 = pr.kod_pointmain) AS is_2rate,
+           no.kod_obj, no.name AS object_name, ob.kodd AS object_kodd,
+           pr.kod_priem, pr.kod_point, pr.tpoint, pr.nomer AS point_nomer, pr.name AS point_name, pr.kod_pointmain,
+           CASE WHEN pu.kod_tippu IS NOT NULL THEN hg_pasp_pu_r.name_pu(pu.kod_tippu, 2) ELSE '' END AS type_pu,
+           pr.nom_pu, pr.readlast, pr.readprev, pr.outcounter, pr.outadd, -pr.out, pr.rkoeff, 
+	       pr.razr, pr.razr2, pr.kod_point_har, pr.kod_polbalans, 0 as power,
+           pt.kod_attpoint,
+		   no.num_obj,
+	       ng_report.get_src_dat_name(pr.kod_priem)
+    FROM   kr_dogovor d JOIN nv_priem pr ON pr.kod_dog = d.kod_dog
+                        JOIN hr_point pt ON pt.kod_point = pr.kod_point
+                        JOIN kr_numobj no ON no.kod_numobj = pr.kod_numobj
+                        JOIN kr_object ob ON ob.kod_obj = no.kod_obj
+                        LEFT OUTER JOIN hr_point_pu pu ON pu.kod_point_pu = pr.kod_point_pu
+    WHERE  pr.tpoint = 3
+       AND d.dep = p_dep
+       AND (p_kod_dog IS NULL OR d.kod_dog = p_kod_dog)
+       AND pr.kod_pointmain IN (SELECT t.n14 as kod_point FROM rr_temp t WHERE t.skod = s_data_id AND t.n15 /*tpoint*/ != 3)
+       AND pr.ym = p_ym;
+END;]]></procedure>
+      <print-templates>
+        <excel>
+          <template name="64455_1.xml" print-proc="2" title="Полезный отпуск" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="64455_1" as="data">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_kodp_pwrcompany" />
+          </withparams>
+        </query>
+        <query name="64455_1_params" as="params">
+          <withparams>
+            <useparam name="dep" />
+            <useparam name="p_ym" />
+            <useparam name="p_kodp_pwrcompany" />
+            <useparam name="p_kod_dog" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="64455_1" timestamp="17.03.2023 12:50:00">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <content>
+        <usefield field="asuse_dep_single" name="dep" title="Филиал" mandatory="1" />
+        <usefield field="asuse_ym_tek" name="p_ym" title="Отчетный период" mandatory="1" />
+        <field name="p_kodp_pwrcompany" type="number" controlType="UIList" val-field-name="kodp_pwrcompany" name-field-name="name" title="ТСО">
+          <listquery>
+            <query name="64455_1_pwrcompany" />
+          </listquery>
+        </field>
+        <usefield field="asuse_kod_dog_cmb" name="p_kod_dog" title="Договор" />
+      </content>
+    </form>
+  </forms>
+  <queries>
+    <query name="64455_1_params" title="Параметры отчёта 64455_1" timestamp="10.08.2023 13:05:00">
+      <params>
+        <param name="p_dep" type="number">
+          <const comment="Оренбургский филиал" exclude="1">20488</const>
+        </param>
+        <param name="p_ym" type="number">
+          <const exclude="1">2022.03</const>
+        </param>
+        <param name="p_kodp_pwrcompany" type="array">
+          <array exclude="1">22370,22379</array>
+        </param>
+        <param name="p_kod_dog" type="number">
+          <const exclude="1">7772</const>
+        </param>
+      </params>
+      <select>
+        <call function="||" type="string" as="period">
+          <const>'за '</const>
+          <call function="to_char">
+            <useparam name="p_ym" />
+            <const>'FM9990D00'</const>
+          </call>
+        </call>
+        <column table="kr_org" column="name" as="filial" />
+        <call function="nvl" as="tec">
+          <call function="()">
+            <query>
+              <select>
+                <column table="org" column="name" group="stragg" />
+              </select>
+              <from>
+                <query name="kr_org" as="org" />
+              </from>
+              <where>
+                <call function="or">
+                  <call function="false" />
+                  <call function="in" optional="1">
+                    <column table="org" column="kodp" />
+                    <useparam name="p_kodp_pwrcompany" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+          <const>'все'</const>
+        </call>
+        <call function="nvl" as="dogovor">
+          <call function="()">
+            <query>
+              <select>
+                <call function="||" type="string">
+                  <column table="d" column="ndog" />
+                  <const>' '</const>
+                  <column table="p" column="name" />
+                </call>
+              </select>
+              <from>
+                <query name="kr_dogovor" as="d" />
+                <query name="kr_payer" as="p" join="inner">
+                  <call function="=">
+                    <column table="p" column="kodp" />
+                    <column table="d" column="kodp" />
+                  </call>
+                </query>
+              </from>
+              <where>
+                <call function="or">
+                  <call function="false" />
+                  <call function="=" optional="1">
+                    <column table="d" column="kod_dog" />
+                    <useparam name="p_kod_dog" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+          <const>'все'</const>
+        </call>
+      </select>
+      <from>
+        <query name="kr_org" as="kr_org" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="kr_org" column="kodp" />
+          <useparam name="p_dep" />
+        </call>
+      </where>
+    </query>
+    <query name="64455_1" order="ndog, kod_dog, num_obj, point_nomer" title="Основной запрос отчёта 64455_1" timestamp="04.10.2023 17:34:36">
+      <params>
+        <param name="p_ym" type="number" />
+        <param name="p_kodp_pwrcompany" type="array" />
+      </params>
+      <select>
+        <call function="row_number" type="number" as="row_num" key="1">
+          <call function="order by simple">
+            <column table="a" column="ndog" />
+          </call>
+        </call>
+        <column table="a" column="kod_dog" title="" />
+        <column table="a" column="ndog" title="Номер договора" />
+        <column table="vd" column="name" as="vid_dog" intern="1" title="Тип договора" />
+        <column table="p" column="name" intern="1" title="Наименование клиента" />
+        <column table="a" column="object_name" intern="1" title="Наименование объекта" />
+        <column table="a" column="point_name" title="Наименование точки учёта" />
+        <call function="if" type="string" as="tpoint" intern="1" title="Транзитная точка учёта">
+          <call function="!=">
+            <column table="a" column="tpoint" />
+            <const>0</const>
+          </call>
+          <column table="tp" column="abbr" />
+          <const>' '</const>
+        </call>
+        <call function="if" type="string" as="main_point_name" intern="1" title="Вычитается из точки учёта">
+          <call function="is not null">
+            <column table="mpt" column="kod_point" />
+          </call>
+          <call function="||">
+            <const>'('</const>
+            <call function="to_char">
+              <column table="mpt" column="kod_point" />
+            </call>
+            <const>')-'</const>
+            <column table="mpt" column="name" />
+          </call>
+          <const>''</const>
+        </call>
+        <call function="if" type="string" as="num_gtp" title="Номер ГТП">
+          <call function="is null">
+            <column table="gtp" column="kod_gtp" />
+          </call>
+          <const>'—'</const>
+          <column table="gtp" column="xls_gtp_id" />
+        </call>
+        <column table="a" column="point_nomer" title="Номер точки учёта" />
+        <call function="to_char" type="string" as="kod_point" title="Код точки учёта НЭСК">
+          <column table="a" column="kod_point" />
+        </call>
+        <column table="a" column="point_prim" title="Код точки учёта ТСО" />
+        <column table="a" column="num_obj" title="Код объекта" />
+        <column table="a" column="nom_pu" title="Номер счётчика" />
+        <column table="a" column="type_pu" title="Тип счётчика" />
+        <call function="if" type="string" as="interval" intern="1" title="Зонность счётчика">
+          <call function="!=">
+            <column table="i" column="kodinterval" />
+            <const>24</const>
+          </call>
+          <column table="i" column="name" />
+          <const>''</const>
+        </call>
+        <call function="if" type="string" as="razr" intern="1" title="Значность счётчика">
+          <call function="and">
+            <call function="is null">
+              <column table="a" column="razr" />
+            </call>
+            <call function="is null">
+              <column table="a" column="razr2" />
+            </call>
+          </call>
+          <const>''</const>
+          <call function="||">
+            <column table="a" column="razr" />
+            <const>'.'</const>
+            <call function="nvl">
+              <column table="a" column="razr2" />
+              <const>0</const>
+            </call>
+          </call>
+        </call>
+        <column table="a" column="readprev" title="Показания счетчика на начало расчётного периода" />
+        <column table="a" column="readlast" title="Показания счетчика на конец расчётного периода" />
+        <column table="a" column="rkoeff" title="Расчётный коэффициент" />
+        <call function="nvl" type="number" as="poteri_percent" title="% потерь (переменные потери)">
+          <call function="ng_priem.get_poteri_percent">
+            <column table="a" column="kod_point_har" />
+            <useparam name="p_ym" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="if" type="string" as="apply_method" title="Метод применения на ТУ">
+          <call function="!=">
+            <column table="a" column="tpoint" />
+            <const>0</const>
+          </call>
+          <const>'Вычитать'</const>
+          <const>''</const>
+        </call>
+        <call function="decode" type="string" as="pol_balans" intern="1" title="Как применять потери">
+          <column table="a" column="kod_polbalans" />
+          <const>2</const>
+          <const>'Вычитать'</const>
+          <const>3</const>
+          <const>'Прибавлять'</const>
+          <const>''</const>
+        </call>
+        <column table="a" column="outcounter" title="Расход по ПУ" />
+        <call function="nvl" as="outadd" title="Доп. расход">
+          <column table="a" column="outadd" />
+          <const>0</const>
+        </call>
+        <call function="nvl" type="number" as="poteri_kvth" title="Постоянные потери, кВт·ч">
+          <call function="ng_priem.get_poteri_kvth">
+            <column table="a" column="kod_point_har" />
+            <useparam name="p_ym" />
+          </call>
+          <const>0</const>
+        </call>
+        <column table="a" column="out" title="Расход по ТУ с учётом потерь" />
+        <column table="a" column="energy" title="Сальдо-расход по объекту, кВт·ч" />
+        <column table="v" column="abbr" as="voltage" intern="1" title="Напряжение (тарифное)" />
+        <call function="decode" type="string" as="tarif_group" intern="1" title="Тарифная группа для услуг">
+          <column table="a" column="is_2rate" />
+          <const>1</const>
+          <const>'двухставочный'</const>
+          <const>0</const>
+          <const>'одноставочный'</const>
+          <const>''</const>
+        </call>
+        <column table="net" column="name" as="net_name" intern="1" title="К чьим сетям подключена точка" />
+        <column table="tco" column="name" as="tco" intern="1" title="ТСО для расчёта услуги" />
+        <column table="tco_loss" column="name" as="tco_loss" intern="1" title="ТСО для расчёта потерь" />
+        <column table="rsk" column="name" as="rsk_name" intern="1" title="РЭС" />
+        <column table="pwrc" column="dnum" as="pс_name" intern="1" title="Подстанция" />
+        <call function="()" type="string" as="pcline_name" intern="1" title="Фидер">
+          <query>
+            <select>
+              <column table="f" column="dnum" />
+            </select>
+            <from>
+              <query name="hr_eofider" as="f" />
+            </from>
+            <where>
+              <call function="=">
+                <column table="f" column="eobj_id" />
+                <call function="hg_sx.get_ip_ff">
+                  <column table="a" column="eobj_id" />
+                  <column table="a" column="kod_src" />
+                </call>
+              </call>
+            </where>
+          </query>
+        </call>
+        <call function="if" type="string" as="rp" intern="1" title="РП">
+          <call function="is not null">
+            <column table="a" column="eobj_id" />
+          </call>
+          <call function="hg_sx.getsrcnameonsxbykind" as="rp">
+            <column table="a" column="eobj_id" />
+            <const comment="РТП">2</const>
+            <const comment="РП">4</const>
+          </call>
+          <const>''</const>
+        </call>
+        <call function="||" as="substation" intern="1" title="ТП">
+          <column table="srck" column="sname" />
+          <const>' '</const>
+          <column table="src" column="dnum" />
+        </call>
+        <call function="to_char" type="string" as="rym" title="Период перерасчёта">
+          <column table="a" column="rym" />
+          <const>'FM9999D00'</const>
+        </call>
+        <call function="nk_adress.kp_get_region_name" as="region" intern="1" title="Регион">
+          <call function="if">
+            <call function="!=">
+              <column table="a" column="object_kodd" />
+              <const>-1</const>
+            </call>
+            <column table="a" column="object_kodd" />
+            <column table="a" column="dog_kodd" />
+          </call>
+        </call>
+        <call function="case" type="string" as="market_type" intern="1" title="Покупка (ОРЭМ/РРЭМ)">
+          <call function="when">
+            <call function="is null">
+              <column table="gtp" column="kod_gtp" />
+            </call>
+            <const>'—'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="gtp" column="pr_opt" />
+              <const>1</const>
+            </call>
+            <const comment="оптовый рынок электроэнергии">'ОРЭМ'</const>
+          </call>
+          <call function="else">
+            <const comment="розничный рынок электроэнергии">'РРЭМ'</const>
+          </call>
+        </call>
+        <column table="a" column="power" title="Мощность услуг по передаче ЭЭ, кВт" />
+        <column table="a" column="src_dat_name" title="Наименование источника показаний" type="string" as="src_dat_name" />
+      </select>
+      <from>
+        <query name="64455_1_priem_tco" as="a">
+          <withparams>
+            <useparam name="p_kodp_pwrcompany" />
+          </withparams>
+        </query>
+        <query name="kr_payer" as="p" join="inner">
+          <call function="=">
+            <column table="p" column="kodp" />
+            <column table="a" column="kodp" />
+          </call>
+        </query>
+        <query name="ks_vdog" as="vd" join="inner">
+          <call function="=">
+            <column table="vd" column="kod_vdog" />
+            <column table="a" column="kod_vdog" />
+          </call>
+        </query>
+        <query name="hk_tpoint" as="tp" join="left outer">
+          <call function="=">
+            <column table="tp" column="tpoint" />
+            <column table="a" column="tpoint" />
+          </call>
+        </query>
+        <query name="hr_point" as="mpt" join="left outer">
+          <call function="=">
+            <column table="mpt" column="kod_point" />
+            <column table="a" column="kod_pointmain" />
+          </call>
+        </query>
+        <query name="kr_org" as="tco" join="left outer">
+          <call function="=">
+            <column table="tco" column="kodp" />
+            <column table="a" column="kodp_pwrcompany" />
+          </call>
+        </query>
+        <query name="kr_org" as="net" join="left outer">
+          <call function="=">
+            <column table="net" column="kodp" />
+            <column table="a" column="kodp_net" />
+          </call>
+        </query>
+        <query name="kr_org" as="tco_loss" join="left outer">
+          <call function="=">
+            <column table="tco_loss" column="kodp" />
+            <column table="a" column="kodp_losscompany" />
+          </call>
+        </query>
+        <query name="kr_org" as="rsk" join="left outer">
+          <call function="=">
+            <column table="rsk" column="kodp" />
+            <column table="a" column="kodp_rsk" />
+          </call>
+        </query>
+        <query name="hr_eobject" as="eo" join="left outer">
+          <call function="=">
+            <column table="eo" column="eobj_id" />
+            <column table="a" column="eobj_id" />
+          </call>
+        </query>
+        <query name="hr_eosrc" as="src" join="left outer">
+          <call function="=">
+            <column table="src" column="eobj_id" />
+            <column table="eo" column="parent_id" />
+          </call>
+        </query>
+        <query name="hk_srckind" as="srck" join="left outer">
+          <call function="=">
+            <column table="srck" column="kod_srckind" />
+            <column table="src" column="kod_srckind" />
+          </call>
+        </query>
+        <query name="hr_eosrc" as="pwrc" join="left outer">
+          <call function="=">
+            <column table="pwrc" column="eobj_id" />
+            <column table="a" column="kod_src" />
+          </call>
+        </query>
+        <query name="hk_voltage" as="v" join="left outer">
+          <call function="=">
+            <column table="v" column="voltage" />
+            <column table="a" column="voltage" />
+          </call>
+        </query>
+        <query name="kk_interval" as="i" join="left outer">
+          <call function="=">
+            <column table="i" column="kodinterval" />
+            <column table="a" column="kodinterval" />
+          </call>
+        </query>
+        <query name="hs_gtp" as="gtp" join="left outer">
+          <call function="=">
+            <column table="gtp" column="kod_gtp" />
+            <call function="hg_common.get_gtp">
+              <column table="a" column="kod_numobj" />
+              <useparam name="p_ym" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="64455_1_priem_tco" timestamp="04.10.2023 17:33:31">
+      <params>
+        <param name="p_kodp_pwrcompany" type="array" />
+      </params>
+      <select>
+        <column table="u" column="kod_account" type="number" key="1" />
+        <column table="d" column="kodp" />
+        <column table="d" column="kod_dog" />
+        <column table="d" column="ndog" />
+        <column table="d" column="kod_vdog" />
+        <column table="d" column="kod_d_dog" as="dog_kodd" />
+        <column table="u" column="rym" type="number" />
+        <column table="u" column="kod_numobj" type="number" />
+        <column table="u" column="voltage" type="number" />
+        <column table="u" column="kodinterval" type="number" />
+        <column table="u" column="energy" type="number" />
+        <column table="u" column="is_2rate" type="number" />
+        <column table="u" column="kod_priem" type="number" />
+        <column table="u" column="object_name" type="string" />
+        <column table="u" column="object_kodd" type="number" />
+        <column table="u" column="kod_point" type="number" />
+        <column table="u" column="tpoint" type="number" />
+        <column table="u" column="point_nomer" type="number" />
+        <column table="u" column="point_name" type="string" />
+        <column table="pt" column="prim" type="string" as="point_prim" />
+        <column table="u" column="kod_pointmain" type="number" />
+        <column table="u" column="nom_pu" type="string" />
+        <column table="u" column="type_pu" type="string" />
+        <column table="u" column="readlast" type="number" />
+        <column table="u" column="readprev" type="number" />
+        <column table="u" column="outcounter" type="number" />
+        <column table="u" column="outadd" type="number" />
+        <column table="u" column="out" type="number" />
+        <column table="u" column="rkoeff" type="number" />
+        <column table="u" column="razr" type="number" />
+        <column table="u" column="razr2" type="number" />
+        <column table="u" column="kod_point_har" type="number" />
+        <column table="u" column="kod_polbalans" type="number" />
+        <column table="u" column="kod_attpoint" type="number" />
+        <column table="u" column="power" type="number" />
+        <column table="u" column="num_obj" type="number" />
+        <column table="u" column="src_dat_name" type="string" title="Наименование источника показаний" as="src_dat_name" />
+        <call function="nvl" as="kodp_pwrcompany">
+          <column table="attp" column="kodp_pwrcompany" />
+          <const>-10</const>
+        </call>
+        <column table="attp" column="kodp_net" />
+        <column table="attp" column="kodp_losscompany" />
+        <column table="attp" column="kodp_rsk" />
+        <column table="attp" column="eobj_id" />
+        <column table="attp" column="kod_src" />
+      </select>
+      <from>
+        <table name="64455_1_priem" as="u" view="1" />
+        <query name="kr_dogovor" as="d" join="inner">
+          <call function="=">
+            <column table="d" column="kod_dog" />
+            <column table="u" column="kod_dog" />
+          </call>
+        </query>
+        <query name="hr_point" as="pt" join="left outer">
+          <call function="=">
+            <column table="pt" column="kod_point" />
+            <column table="u" column="kod_point" />
+          </call>
+        </query>
+        <query name="hr_attpoint" as="attp" join="left outer">
+          <call function="=">
+            <column table="attp" column="kod_attpoint" />
+            <column table="u" column="kod_attpoint" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="attp" column="kodp_pwrcompany" />
+            <useparam name="p_kodp_pwrcompany" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="64455_1_priem" timestamp="17.03.2023 12:25:00"><![CDATA[
+SELECT rn, n1 as kod_dog, n2 as kod_account, n3 as rym, n4 as kod_numobj, n5 as voltage, n6 as kodinterval, n7 as energy, n10 as is_2rate,
+       n11 as kod_obj, s1 as object_name, n12 as object_kodd,
+       n13 as kod_priem, n14 as kod_point, n15 as tpoint, n16 as point_nomer, s2 as point_name, n18 as kod_pointmain,
+       s4 as type_pu, s5 as nom_pu, n19 as readlast, n20 as readprev, n21 as outcounter, n22 as outadd, n23 as out, n24 as rkoeff, 
+       n25 as razr, n26 as razr2, n27 as kod_point_har, n28 as kod_polbalans, n29 as power, n30 as kod_attpoint,
+       n31 as num_obj,
+       s6 as src_dat_name 
+FROM   rr_temp
+WHERE  skod = '{7D212244-454A-4FF2-8D40-0A4C2FED9A2E}'
+]]></view>
+  </views>
+</root>

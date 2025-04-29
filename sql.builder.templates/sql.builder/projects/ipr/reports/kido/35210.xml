@@ -1,0 +1,669 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="35210" with-behavior="0" timestamp="21.11.2016 14:27:54">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <content>
+        <usefield field="date" name="dat" valuequery="cur-date" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="35210" folder="invpro_ofz" visible="0" form="35210" title="Аналитика по абонентским договорам и договорам подряда ПАО 'Ленэнерго'" timestamp="11.04.2016 10:18:54" mode="excel">
+      <params>
+        <param name="dat" />
+      </params>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="35210.xml" title="Аналитика по абонентским договорам и договорам подряда ПАО 'Ленэнерго'" print-proc="2" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="35210" as="a">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+          <events>
+            <useaction event-name="double-click" action-type="open-grouping-detail" call="35210-detail" />
+          </events>
+        </query>
+        <query name="35210-title" as="t">
+          <withparams>
+            <useparam name="dat" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="35210-title">
+      <params>
+        <param name="dat"></param>
+      </params>
+      <select>
+        <call function="date to char" as="sdate" group="max">
+          <useparam name="dat" />
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a" />
+      </from>
+    </query>
+    <query name="35210" timestamp="05.04.2016 09:59:06">
+      <params>
+        <param name="dat">
+          <const>sysdate</const>
+        </param>
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="35210-data" as="a">
+          <!--<withparams>
+            <useparam name="dat" />
+          </withparams>-->
+          <grsets>
+            <grset level="1" as="np2" title="2">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>3</const>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np31" title="3.1">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>2</const>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np311" title="3.1.1">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>2</const>
+                  </call>
+                  <call function="=">
+                    <column table="a" column="status" />
+                    <const>4</const>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np312" title="3.1.2">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>2</const>
+                  </call>
+                  <call function="in">
+                    <column table="a" column="status" />
+                    <array>2,12</array>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np313" title="3.1.3">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>2</const>
+                  </call>
+                  <call function="not in">
+                    <column table="a" column="status" />
+                    <array>2,12,4</array>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np32" title="3.2">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>1</const>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np321" title="3.2.1">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>1</const>
+                  </call>
+                  <call function="=">
+                    <column table="a" column="status" />
+                    <const>4</const>
+                  </call>
+                  <call function="le">
+                    <call function="trunc">
+                      <column table="a" column="dat_status_4" />
+                    </call>
+                    <useparam name="dat" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np322" title="3.2.2">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>1</const>
+                  </call>
+                  <call function="or">
+                    <call function="and">
+                      <call function="=">
+                        <column table="a" column="status" />
+                        <const>2</const>
+                      </call>
+                      <call function="le">
+                        <call function="trunc">
+                          <column table="a" column="dat_status_2" />
+                        </call>
+                        <useparam name="dat" />
+                      </call>
+                    </call>
+                    <call function="and">
+                      <call function="=">
+                        <column table="a" column="status" />
+                        <const>12</const>
+                      </call>
+                      <call function="le">
+                        <call function="trunc">
+                          <column table="a" column="dat_rastorg" />
+                        </call>
+                        <useparam name="dat" />
+                      </call>
+                    </call>
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset level="1" as="np323" title="3.2.3">
+              <where>
+                <call function="and">
+                  <call function="=nvl">
+                    <column table="a" column="pr_ofz" />
+                    <const>1</const>
+                  </call>
+                  <call function="not">
+                    <call function="or">
+                      <call function="and">
+                        <call function="=">
+                          <column table="a" column="status" />
+                          <const>4</const>
+                        </call>
+                        <call function="le">
+                          <call function="trunc">
+                            <column table="a" column="dat_status_4" />
+                          </call>
+                          <useparam name="dat" />
+                        </call>
+                      </call>
+                      <call function="and">
+                        <call function="=">
+                          <column table="a" column="status" />
+                          <const>2</const>
+                        </call>
+                        <call function="le">
+                          <call function="trunc">
+                            <column table="a" column="dat_status_2" />
+                          </call>
+                          <useparam name="dat" />
+                        </call>
+                      </call>
+                      <call function="and">
+                        <call function="=">
+                          <column table="a" column="status" />
+                          <const>12</const>
+                        </call>
+                        <call function="le">
+                          <call function="trunc">
+                            <column table="a" column="dat_rastorg" />
+                          </call>
+                          <useparam name="dat" />
+                        </call>
+                      </call>
+                    </call>
+                  </call>
+                </call>
+              </where>
+            </grset>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="35210-data" grouplevel="no" timestamp="25.02.2016 21:22:36">
+      <!--<params>
+        <param name="dat">
+          <const>sysdate</const>
+        </param>
+      </params>-->
+      <select>
+        <const as="npp" key="1" group="1" type="number">1</const>
+        <column table="kod_dop_contract" column="kod_dop_contract" group="2" />
+        <column table="kod_dop_contract" column="pr_ofz" nvl="0" group="3" />
+        <column table="kod_dop_contract" column="status" group="4" />
+        <column table="kod_dop_contract" column="dat_status_4" group="5" />
+        <column table="kod_dop_contract" column="dat_status_2" group="6" />
+        <column table="kod_dop_contract" column="dat_rastorg" group="7" />
+        <fact column="is_dop_cont_count" as="is_dop_cont_count" group="sum" title="Всего по Ленэнерго" />
+        <fact column="is_dop_cont_count" as="is_dop_cont_count_spb" group="sum" title="Всего СПб">
+          <!--<if>
+            <call function="gt">
+              <column table="kod_dop_contract" column="kod_region" />
+              <const>0</const>
+            </call>
+          </if>-->
+          <if>
+            <call function="not in">
+              <column table="kod_dop_contract" column="kodres" />
+              <array>21,22,24,26,20,27,23</array>
+            </call>
+          </if>
+        </fact>
+        <fact column="is_dop_cont_count" as="is_dop_cont_count_lo" group="sum" title="Всего ЛО">
+          <!--<if>
+            <call function="=">
+              <column table="kod_dop_contract" column="kod_region" />
+              <const>0</const>
+            </call>
+          </if>-->
+          <if>
+            <call function="in">
+              <column table="kod_dop_contract" column="kodres" />
+              <array>21,22,24,26,20,27,23</array>
+            </call>
+          </if>
+        </fact>
+        <column table="this" column="is_dop_cont_count_lo" group="sum" dimname="fil" as="is_dop_cont_count_f">
+          <pivot title="по филиалам">
+            <column table="kod_dop_contract" column="kodres" group="1" as="kod_direct" />
+            <query order="name">
+              <select>
+                <column table="kod_direct" column="kod_direct" />
+                <column table="kod_direct" column="name_kr" as="name" />
+              </select>
+              <from>
+                <query name="is_spr_direct" as="kod_direct" />
+              </from>
+              <where>
+                <call function="and">
+                  <call function="=">
+                    <column table="kod_direct" column="gor_obl" />
+                    <const>0</const>
+                  </call>
+                  <call function="=1">
+                    <column table="kod_direct" column="invest_pr" />
+                  </call>
+                  <call function="=">
+                    <column table="kod_direct" column="kod_parent" />
+                    <const>3</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract">
+            <link name="kodres" />
+          </link>
+        </qube>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+        </call>
+      </where>
+    </query>
+    <query name="35210-detail" grouplevel="no" timestamp="21.11.2016 14:21:01" is-report="1" title="Абонентские договоры" with-behavior="0">
+      <params>
+        <param name="gor_obl" />
+        <param name="kodres" />
+      </params>
+      <select>
+        <column table="level1" column="kod_dop_contr_anl_gr" as="kod_dop_contr_anl_gr1" />
+        <column table="level2" column="kod_dop_contr_anl_gr" as="kod_dop_contr_anl_gr2" />
+        <column table="level3" column="kod_dop_contr_anl_gr" as="kod_dop_contr_anl_gr3" />
+        <call function="coalesce" as="num" title="№">
+          <column table="level3" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr3" />
+          <column table="level2" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr2" />
+          <column table="level1" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr1" />
+        </call>
+        <call function="coalesce" as="g_name" title="Группа">
+          <column table="level3" column="name" as="name3" />
+          <column table="level2" column="name" as="name2" />
+          <column table="level1" column="name" as="name1" />
+        </call>
+        <column table="kodres" column="name_kr" />
+        <column table="kn_customer" column="name" />
+        <column table="kod_dop_contract" column="num_ad" />
+        <column table="kod_dop_contract" column="dt_contract" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract" all-rows="1">
+            <link name="kodres" />
+            <link name="kn_customer" />
+          </link>
+          <link name="kido_kod_dop_contr_anl_gr" as="kod_dop_contr_anl_gr">
+            <link name="level1" />
+            <link name="level2" />
+            <link name="level3" />
+          </link>
+          <where>
+            <call function="=" optional="1">
+              <column table="kod_dop_contract" column="kod_region" />
+              <useparam name="gor_obl" />
+            </call>
+            <call function="=" optional="1">
+              <column table="kod_dop_contract" column="kodres" />
+              <useparam name="kodres" />
+            </call>
+          </where>
+        </qube>
+      </from>
+      <!--<params>
+        <param name="dat">
+          <const>sysdate</const>
+        </param>
+      </params>-->
+    </query>
+    <query name="35210-new" timestamp="19.04.2019 19:13:12" is-report="1" folder="invpro_ofz" title="Аналитика по абонентским договорам и договорам подряда ПАО 'Ленэнерго'" mode="excel" with-behavior="0">
+      <content>
+        <usefield field="date" name="dat" valuequery="cur-date" />
+      </content>
+      <procedure>
+        <text>BEGIN
+    vg_kido_analytics.fill_dop_contr_anl (:dat);
+
+END;
+</text>
+      </procedure>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="35210-new.xml" title="Аналитика по абонентским договорам и договорам подряда ПАО 'Ленэнерго'" print-proc="2" />
+        </excel>
+      </print-templates>
+      <events>
+        <useaction event-name="double-click" action-type="open-grouping-detail" call="35210-detail" column="is_dop_cont_count_spb">
+          <const>1</const>
+        </useaction>
+        <useaction event-name="double-click" action-type="open-grouping-detail" call="35210-detail" column="is_dop_cont_count_lo">
+          <const>0</const>
+        </useaction>
+        <useaction event-name="double-click" action-type="open-grouping-detail" call="35210-detail" column="is_dop_cont_count_f">
+          <const>0</const>
+          <col-dim-val name="fil" />
+        </useaction>
+        <useaction event-name="double-click" action-type="open-grouping-detail" call="35210-detail" column="is_dop_cont_count" />
+      </events>
+      <!--<params>
+        <param name="dat">
+          <const>sysdate</const>
+        </param>
+      </params>-->
+      <select>
+        <call function="date to char" as="sdate" group="max">
+          <useparam name="dat" />
+        </call>
+        <column table="level1" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr1" />
+        <column table="level1" column="name" as="name1" />
+        <column table="level2" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr2" />
+        <column table="level2" column="name" as="name2" />
+        <column table="level3" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr3" />
+        <column table="level3" column="name" as="name3" />
+        <call function="coalesce" as="num" title="№" group="max" exclude="1">
+          <column table="level3" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr3" />
+          <column table="level2" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr2" />
+          <column table="level1" column="kod_dop_contr_anl_gr" title="№" as="kod_dop_contr_anl_gr1" />
+        </call>
+        <fact column="is_dop_cont_count" as="is_dop_cont_count" group="sum" title="Всего по Ленэнерго" />
+        <fact column="is_dop_cont_count" as="is_dop_cont_count_spb" group="sum" title="Всего СПб">
+          <if>
+            <call function="=">
+              <column table="kod_dop_contract" column="kod_region" />
+              <const>1</const>
+            </call>
+            <call function="not in" exclude="1">
+              <column table="kod_dop_contract" column="kodres" />
+              <array>21,22,24,26,20,27,23</array>
+            </call>
+          </if>
+          <!--<if>
+            <call function="gt">
+              <column table="kod_dop_contract" column="kod_region" />
+              <const>0</const>
+            </call>
+          </if>-->
+        </fact>
+        <fact column="is_dop_cont_count" as="is_dop_cont_count_lo" group="sum" title="Всего ЛО">
+          <if>
+            <call function="in" exclude="1">
+              <column table="kod_dop_contract" column="kodres" />
+              <array>21,22,24,26,20,27,23</array>
+            </call>
+            <call function="=">
+              <column table="kod_dop_contract" column="kod_region" />
+              <const>0</const>
+            </call>
+          </if>
+          <!--<if>
+            <call function="=">
+              <column table="kod_dop_contract" column="kod_region" />
+              <const>0</const>
+            </call>
+          </if>-->
+        </fact>
+        <column table="kod_dop_contract" column="kodres" group="max" />
+        <column table="this" column="is_dop_cont_count_lo" group="sum" dimname="fil" as="is_dop_cont_count_f">
+          <pivot title="по филиалам">
+            <column table="this" column="kodres" group="" />
+            <query order="name">
+              <select>
+                <column table="kodres" column="kod_direct" group="1" />
+                <column table="kodres" column="name_kr" as="name" group="max" />
+              </select>
+              <from>
+                <qube>
+                  <link name="kod_dop_contract" all-rows="1">
+                    <link name="kodres" />
+                  </link>
+                  <link name="kido_kod_dop_contr_anl_gr" as="kod_dop_contr_anl_gr" />
+                  <where>
+                    <call function="=">
+                      <column table="kod_dop_contract" column="kod_region" />
+                      <const>0</const>
+                    </call>
+                    <call function="is not null">
+                      <column table="kod_dop_contr_anl_gr" column="kod_dop_contr_anl_gr" />
+                    </call>
+                  </where>
+                </qube>
+                <query name="is_dop_contract" as="kod_dop_contract" exclude="1">
+                  <link name="kodres" />
+                  <link name="kod_direct" />
+                </query>
+              </from>
+              <where exclude="1">
+                <call function="and">
+                  <call function="=">
+                    <column table="kod_direct" column="gor_obl" />
+                    <const>0</const>
+                  </call>
+                  <call function="=1">
+                    <column table="kod_direct" column="invest_pr" />
+                  </call>
+                  <call function="=">
+                    <column table="kod_direct" column="kod_parent" />
+                    <const>3</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dop_contract">
+            <link name="kodres" />
+          </link>
+          <link name="kido_kod_dop_contr_anl_gr" all-rows="1" as="kod_dop_contr_anl_gr">
+            <link name="level1" />
+            <link name="level2" />
+            <link name="level3" />
+          </link>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="all">
+          <where>
+            <call function="is not null">
+              <column table="this" column="kod_dop_contr_anl_gr1" />
+            </call>
+          </where>
+        </grset>
+        <grset as="np1">
+          <group>
+            <sourcelink table="level1" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr1" />
+              <const>'1'</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="np1x">
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr1" />
+              <const>'1'</const>
+            </call>
+            <call function="is not null">
+              <column table="this" column="kod_dop_contr_anl_gr2" />
+            </call>
+          </where>
+          <group>
+            <sourcelink table="level2" />
+          </group>
+        </grset>
+        <grset as="np2">
+          <group>
+            <sourcelink table="level1" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr1" />
+              <const>'2'</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="np2x">
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr1" />
+              <const>'2'</const>
+            </call>
+            <call function="is not null">
+              <column table="this" column="kod_dop_contr_anl_gr2" />
+            </call>
+          </where>
+          <group>
+            <sourcelink table="level2" />
+          </group>
+        </grset>
+        <grset as="np3">
+          <group>
+            <sourcelink table="level1" />
+          </group>
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr1" />
+              <const>'3'</const>
+            </call>
+          </where>
+        </grset>
+        <grset as="np31">
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr2" />
+              <const>'3.1'</const>
+            </call>
+          </where>
+          <group>
+            <sourcelink table="level2" />
+          </group>
+          <grset as="np31x">
+            <where>
+              <call function="is not null">
+                <column table="this" column="kod_dop_contr_anl_gr3" />
+              </call>
+            </where>
+            <group>
+              <sourcelink table="level3" />
+            </group>
+          </grset>
+        </grset>
+        <grset as="np32">
+          <where>
+            <call function="=">
+              <column table="this" column="kod_dop_contr_anl_gr2" />
+              <const>'3.2'</const>
+            </call>
+          </where>
+          <group>
+            <sourcelink table="level2" />
+          </group>
+          <grset as="np32x">
+            <where>
+              <call function="le">
+                <column table="this" column="kod_dop_contr_anl_gr3" />
+                <const>'3.2.4'</const>
+              </call>
+            </where>
+            <group>
+              <sourcelink table="level3" />
+            </group>
+          </grset>
+          <grset as="np32xo">
+            <where>
+              <call function="gt">
+                <column table="this" column="kod_dop_contr_anl_gr3" />
+                <const>'3.2.4'</const>
+              </call>
+            </where>
+            <group>
+              <sourcelink table="level3" />
+            </group>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

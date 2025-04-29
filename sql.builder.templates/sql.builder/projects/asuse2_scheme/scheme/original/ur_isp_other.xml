@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_isp_other" class="1" timestamp="22.09.2023 15:00:01">
+      <select>
+        <column table="a" column="kod_isp_other" type="number" />
+        <column table="a" column="kod_folders" type="number" column-mandatory="1" />
+        <column table="a" column="u_m" type="string" data-size="20" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="dat_event" type="date" title="Дата события" comment="Дата события" />
+        <column table="a" column="name" type="string" data-size="30" title="Наименование" comment="Наименование события" />
+        <column table="a" column="paid_rvre" type="number" title="" comment="Задолженность удовлетворена на сумму : Расх. за введ. огр. реж. элеткропотр." agg="sum" is-fact="1" />
+        <column table="a" column="paid_astr" type="number" title="" comment="Задолженность удовлетворена на сумму : Астрент" agg="sum" is-fact="1" />
+        <column table="a" column="paid_sud_izd" type="number" title="" comment="Задолженность удовлетворена на сумму : Судебные издержки" agg="sum" is-fact="1" />
+        <column table="a" column="paid_onsreal" type="number" title="" comment="Задолженность удовлетворена на сумму : Основная реализация" agg="sum" is-fact="1" />
+        <column table="a" column="paid_peni" type="number" title="" comment="Задолженность удовлетворена на сумму : Пени" agg="sum" is-fact="1" />
+        <column table="a" column="paid_gp" type="number" title="" comment="Задолженность удовлетворена на сумму : Госпошлина" agg="sum" is-fact="1" />
+        <call function="+nvl" as="hand_opl" fact="ur_isp_other_hand_opl" agg="sum" comment="ручные оплаты">
+          <column table="this" column="paid_rvre" />
+          <column table="this" column="paid_astr" />
+          <column table="this" column="paid_sud_izd" />
+          <column table="this" column="paid_onsreal" />
+          <column table="this" column="paid_peni" />
+          <column table="this" column="paid_gp" />
+        </call>
+      </select>
+      <from>
+        <table name="ur_isp_other" as="a" />
+        <query name="ur_folders" as="kod_folders" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="ur_folders_isp" as="kod_folders_isp" join="left outer" dimension="kod_folders_isp" dname="ur_isp_other_isp">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders_isp" column="kod_folders" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

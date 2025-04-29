@@ -1,0 +1,78 @@
+<root>
+  <queries>
+    <query name="ks_bankpol">
+      <select>
+        <column table="a" column="kodbpol" type="number">
+        </column>
+        <column table="b" column="name" as="bank_name">
+        </column>
+        <column table="a" column="rs" type="string" title="Счет">
+        </column>
+        <call function="case" as="rs_name" title="Счет получателя" type="string">
+          <call function="when">
+            <call function="is null">
+              <column table="a" column="kodb">
+              </column>
+            </call>
+            <column table="a" column="rs">
+            </column>
+          </call>
+          <call function="else">
+            <call function="||">
+              <const>'р/с '</const>
+              <column table="a" column="rs">
+              </column>
+            </call>
+          </call>
+        </call>
+        <column table="a" column="pr_active" type="number">
+        </column>
+      </select>
+      <from>
+        <table name="ks_bankpol" as="a">
+        </table>
+        <query name="ks_bank" as="b" join="left outer">
+          <call function="=">
+            <column table="a" column="kodb">
+            </column>
+            <column table="b" column="kodb">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_bankpol%sl">
+      <select>
+        <column table="a" column="kodbpol" type="number">
+        </column>
+        <column table="a" column="rs_name" type="string">
+        </column>
+      </select>
+      <from>
+        <query name="ks_bankpol" as="a">
+        </query>
+      </from>
+    </query>
+    <query name="ks_bankpol%tbl">
+      <select>
+        <column table="a" column="kodbpol">
+        </column>
+        <column table="a" column="bank_name">
+        </column>
+        <column table="a" column="rs">
+        </column>
+      </select>
+      <from>
+        <query name="ks_bankpol" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="pr_active">
+          </column>
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

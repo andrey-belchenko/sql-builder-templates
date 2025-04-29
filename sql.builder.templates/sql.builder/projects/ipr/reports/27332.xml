@@ -1,0 +1,292 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="27332" title="Приложение 1.3" form="25499" folder="invpro" nogrid="1" timestamp="24.10.2016 19:35:28">
+      <params>
+        <param name="kod_doc" />
+        <param name="year" />
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor" />
+        <param name="pr_child" />
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="kod_ofz" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="27332.xml" title="Приложение 1.3" />
+        </excel>
+      </print-templates>
+      <customers>
+        <customer id="17" />
+      </customers>
+      <queries>
+        <query name="27332" as="a" title="1" calctree="1">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+        <query name="25499-title" as="b" title="2">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <!--<query name="27332-title">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2014</const>
+        </param>
+      </params>
+      <select>
+        <call function="" as="year" type="number" key="1">
+          <useparam name="year"/>
+        </call>
+        <call function="" as="kod_doc" type="number">
+          <useparam name="kod_doc"/>
+        </call>
+      </select>
+      <from>
+        <table name="dual" as="a"/>
+      </from>
+    </query>-->
+    <query name="27332" order="rwn" timestamp="24.10.2016 19:39:08">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2014</const>
+        </param>
+        <param name="kod_subject" />
+        <param name="kod_direct" />
+        <param name="pr_sbor" />
+        <param name="pr_child" />
+        <param name="kod_dirisp" />
+        <param name="pr_all_razdel" />
+        <param name="pr_dont_show_wfp" />
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <usepart part="25499-columns" />
+        <column table="dat" column="*" />
+      </select>
+      <from>
+        <query name="25499-tree" as="tree">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="kod_subject" />
+            <useparam name="kod_direct" />
+            <useparam name="pr_sbor" />
+            <useparam name="pr_child" />
+            <useparam name="kod_dirisp" />
+            <useparam name="pr_all_razdel" />
+            <useparam name="pr_dont_show_wfp" />
+            <useparam name="year" />
+            <useparam name="kod_ofz" />
+          </withparams>
+        </query>
+        <query name="27332-dat" as="dat" join="left outer">
+          <withparams>
+            <useparam name="kod_doc" />
+            <useparam name="year" />
+            <useparam name="pr_child" />
+            <useparam name="kod_ofz" />
+          </withparams>
+          <using>
+            <column column="kod_titul_ip" />
+          </using>
+        </query>
+      </from>
+    </query>
+    <query name="27332-dat" timestamp="24.10.2016 19:38:53">
+      <params>
+        <param name="kod_doc">
+          <const>43383</const>
+        </param>
+        <param name="year">
+          <const>2014</const>
+        </param>
+        <param name="pr_child">
+          <const>1</const>
+        </param>
+        <param name="kod_ofz" />
+      </params>
+      <select>
+        <usepart part="25499-dat-kod_titul_ip" />
+        <column table="ipr_ipr_data" column="kod_doc_osn" group="max" />
+        <column table="ipr_ipr_data" column="pr_last" group="max" />
+        <column table="kod_titul_ip" column="beg_year" group="min" />
+        <column table="kod_titul_ip" column="end_year" group="max" />
+        <column table="kod_direct" column="name" as="direct_name" group="max" />
+        <column table="kod_subject" column="name" as="subject_name" group="max" />
+        <column table="a" column="summ_bn" group="sum" mp="-6" />
+        <column table="a" column="vvod_sum_itog" as="vvod_sum_do" title="Ввод мощностей в ОФ (руб.) на начало N года" group="sum" mp="-6" if="do">
+          <section>
+            <call function="num to ym2">
+              <call function="-">
+                <useparam name="year" />
+                <const>1</const>
+              </call>
+              <const>12</const>
+            </call>
+          </section>
+        </column>
+        <column table="a" column="vvod_sum" as="vvod_sum_first" title="Ввод мощностей в ОФ (руб.) за N год" group="sum" mp="-6" if="first">
+          <if>
+            <call function="=">
+              <column table="a" column="year" />
+              <useparam name="year" />
+            </call>
+          </if>
+        </column>
+        <column table="a" column="pow_mba" as="pow_mba_first" group="sum" title="Ввод мощностей в ОФ (МВа) за N год" if="first" />
+        <column table="a" column="pow_km" as="pow_km_first" group="sum" title="Ввод мощностей в ОФ ВЛ (км) за N год" if="first" />
+        <column table="a" column="pow_km_kl" as="pow_km_kl_first" group="sum" title="Ввод мощностей в ОФ КЛ (км) за N год" if="first" />
+        <column table="a" column="pow_mba_del" as="pow_mba_del_first" group="sum" title="Вывод мощностей в ОФ (МВа) за N год" if="first" />
+        <column table="a" column="pow_km_del" as="pow_km_del_first" group="sum" title="Вывод мощностей в ОФ ВЛ (км) за N год" if="first" />
+        <column table="a" column="pow_km_kl_del" as="pow_km_kl_del_first" group="sum" title="Вывод мощностей в ОФ КЛ (км) за N год" if="first" />
+        <column table="a" column="vvod_sum" as="vvod_sum_all" title="Ввод мощностей в ОФ (руб.) итого" group="sum" mp="-6" if="all">
+          <if>
+            <call function="between">
+              <column table="a" column="year" />
+              <useparam name="year" />
+              <call function="+">
+                <useparam name="year" />
+                <const>5</const>
+              </call>
+            </call>
+          </if>
+        </column>
+        <column table="a" column="pow_mba" as="pow_mba_all" group="sum" title="Ввод мощностей в ОФ (МВа) итого" if="all" />
+        <column table="a" column="pow_km" as="pow_km_all" group="sum" title="Ввод мощностей в ОФ ВЛ (км) итого" if="all" />
+        <column table="a" column="pow_km_kl" as="pow_km_kl_all" group="sum" title="Ввод мощностей в ОФ КЛ (км) итого" if="all" />
+        <column table="a" column="pow_mba_del" as="pow_mba_del_all" group="sum" title="Вывод мощностей в ОФ (МВа) итого" if="all" />
+        <column table="a" column="pow_km_del" as="pow_km_del_all" group="sum" title="Вывод мощностей в ОФ ВЛ (км) итого" if="all" />
+        <column table="a" column="pow_km_kl_del" as="pow_km_kl_del_all" group="sum" title="Вывод мощностей в ОФ КЛ (км) итого" if="all" />
+        <column table="a" column="vvod_sum" as="vvod_sum_by_y" title="Ввод мощностей в ОФ (руб.) по годам" group="sum" mp="-6" dimname="year">
+          <pivot>
+            <column table="a" column="year" />
+            <query>
+              <select>
+                <column table="yl" column="god_ip" />
+                <column table="yl" column="name" />
+              </select>
+              <from>
+                <query name="25499-year_list" as="yl" />
+              </from>
+              <where>
+                <call function="between">
+                  <column table="yl" column="god_ip" />
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>1</const>
+                  </call>
+                  <call function="+">
+                    <useparam name="year" />
+                    <const>5</const>
+                  </call>
+                </call>
+              </where>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="pow_mba" as="pow_mba_by_y" title="Ввод мощностей в ОФ (МВа) по годам" group="sum" dimname="year" />
+        <column table="a" column="pow_km" as="pow_km_by_y" title="Ввод мощностей в ОФ ВЛ (км) по годам" group="sum" dimname="year" />
+        <column table="a" column="pow_km_kl" as="pow_km_kl_by_y" title="Ввод мощностей в ОФ КЛ (км) по годам" group="sum" dimname="year" />
+        <column table="a" column="pow_mba_del" as="pow_mba_del_by_y" title="Вывод мощностей в ОФ (МВа) по годам" group="sum" dimname="year" />
+        <column table="a" column="pow_km_del" as="pow_km_del_by_y" title="Вывод мощностей в ОФ ВЛ (км) по годам" group="sum" dimname="year" />
+        <column table="a" column="pow_km_kl_del" as="pow_km_kl_del_by_y" title="Вывод мощностей в ОФ КЛ (км) по годам" group="sum" dimname="year" />
+        <column table="a" column="vvod_sum" as="vvod_sum_by_kv" title="Ввод мощностей в ОФ (руб.) по кварталам N года" group="sum" mp="-6" dimname="kv">
+          <pivot>
+            <call function="and">
+              <call function="=">
+                <call function="mes to kv">
+                  <column table="a" column="period" />
+                </call>
+                <column table="dim" column="kvartal" />
+              </call>
+              <call function="=">
+                <column table="a" column="year" />
+                <useparam name="year" />
+              </call>
+            </call>
+            <query>
+              <select>
+                <column table="b" column="kvartal" />
+                <column table="b" column="name" />
+              </select>
+              <from>
+                <query name="kvartal" as="b" />
+              </from>
+            </query>
+          </pivot>
+        </column>
+        <column table="a" column="pow_mba" as="pow_mba_by_kv" title="Ввод мощностей в ОФ (МВа) по кварталам N года" group="sum" dimname="kv" />
+        <column table="a" column="pow_km" as="pow_km_by_kv" title="Ввод мощностей в ОФ ВЛ (км) по кварталам N года" group="sum" dimname="kv" />
+        <column table="a" column="pow_km_kl" as="pow_km_kl_by_kv" title="Ввод мощностей в ОФ КЛ (км) по кварталам N года" group="sum" dimname="kv" />
+        <column table="a" column="pow_mba_del" as="pow_mba_del_by_kv" title="Вывод мощностей в ОФ (МВа) по кварталам N года" group="sum" dimname="kv" />
+        <column table="a" column="pow_km_del" as="pow_km_del_by_kv" title="Вывод мощностей в ОФ ВЛ (км) по кварталам N года" group="sum" dimname="kv" />
+        <column table="a" column="pow_km_kl_del" as="pow_km_kl_del_by_kv" title="Вывод мощностей в ОФ КЛ (км) по кварталам N года" group="sum" dimname="kv" />
+        <column table="kod_kriteria" column="abbr" as="kriteria_name" title="Критерии включения объектов ИПР" group="max" />
+        <column table="kod_priority_insert_ip" column="abbr" as="priority_name" title="Приоритеты включения объектов ИПР" group="max" />
+        <column table="kod_klass" column="abbr_num" as="klass_name" title="Принадлежность к важн. объектам, программам" group="max" />
+      </select>
+      <from>
+        <query name="ipr_fin_body_united" as="a">
+          <link name="kod_ipr" as="ipr_ipr_data">
+            <link name="kod_titul_ip">
+              <link name="kod_direct" />
+              <link name="kod_subject" />
+            </link>
+            <link name="kod_main_titul">
+              <link name="kod_razdel" />
+            </link>
+            <link name="kod_kriteria" />
+            <link name="kod_priority_insert_ip" />
+            <link name="kod_klass" />
+          </link>
+          <extendwhere>
+            <call function="and">
+              <call function="true" />
+              <call function="in" optional="1">
+                <column table="kod_titul_ip" column="pr_ofz" />
+                <useparam name="kod_ofz" />
+              </call>
+            </call>
+          </extendwhere>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="ipr_ipr_data" column="kod_doc_osn" />
+            <useparam name="kod_doc" />
+          </call>
+          <call function="=">
+            <column table="ipr_ipr_data" column="pr_last" />
+            <const>1</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

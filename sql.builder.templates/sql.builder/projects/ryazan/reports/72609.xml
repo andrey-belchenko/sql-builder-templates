@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="72609" title="Раскрытие по ТСО до 10 числа" timestamp="07.02.2025 15:26:14">
+      <usefield field="asuse_dep_single" name="p_dep" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym" mandatory="1" title="Период" />
+      <field field="cmn_list" name="p_kodp_pwrcompany" type="number" title="ТСО для расчета услуги" controlType="UICombo">
+        <listquery>
+          <query name="64455_1_pwrcompany" />
+        </listquery>
+      </field>
+    </form>
+  </forms>
+  <reports>
+    <report name="72609" form="72609" title="50. Раскрытие по ТСО до 10 числа" nogrid="1" timestamp="07.02.2025 15:24:49">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param type="number" name="p_dep" />
+        <param type="number" name="p_ym" />
+        <param name="p_kodp_pwrcompany" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="72609.xlsx" print-proc="2" print-xlsx="1" title="Раскрытие по ТСО до 10 числа" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[ DECLARE
+   s_data_id     rr_temp.skod%type;
+  
+ BEGIN
+  s_data_id    :='{3d8b60b1-7260-916a-ac16-8c99c9d294fb}';         
+  
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  INSERT INTO rr_temp (skod, -- kod report
+                       n1,   -- kodp для ТСО
+                       s1,   -- наименование ТСО
+                       n2,   -- номер группы потребителей ( 1 - прочие или 2 - население)      
+                       s2,   -- наименование группы потребителей
+                       n3,   -- фактический УН
+                       s3,   -- наименование фактического УН
+                       n4,   -- натуральные показатели мощности: ПО КВтч
+                       n5    -- натуральные показатели э/э: ПО КВт
+                       ) 
+  WITH
+  pre_pr as (  -- Услуги по передаче (по состовляющей = 2) по группе потребителей
+    SELECT -- nk_adress.kf_get_sf(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END) as kod_region
+           --          , nk_adress.kp_get_region_name(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END) as kod_region_name
+           --          ,
+                tco.kodp as tco_pwr_kodp
+              , tco.name as tco_pwr_kodp_name
+            -- Decode(nvl(a.tarif,0), 0, 0, kg_tarif.f_byt_cached(a.tarif)) as pr_byt    -- категория потребителя (население или прочие: признак быт (0- не население, 1 - население))
+              , 1 as gr_num
+              , 'Прочие потребители, в т.ч. по уровням напряжения:' as gr_name  
+              , COALESCE(HG_CONTROLPOINT_R.get_factVoltage_byNumObj(a.kod_numobj,a.ym), a.voltage) as voltage_fact
+              , CASE WHEN s.edizm = 4 THEN COALESCE(b.cust,0) ELSE 0 END as cust_kvth
+              , CASE WHEN s.edizm = 3 AND a.vid_t = -272 THEN a.cust ELSE 0 END as cust_kvt
+      FROM nr_account a
+         LEFT JOIN (select kod_account, max(tip_tarif_sost) as tip_tarif_sost, SUM(cust) as cust
+                      from nr_account_sost
+                     where tip_tarif_sost = 2 
+                     group by kod_account
+                    ) b ON a.kod_account = b.kod_account
+         INNER JOIN hr_reglament_pp p ON a.kod_reglament=p.kod_reglament
+         INNER JOIN hr_calc_variant v ON v.kod_variant=p.kod_variant 
+         INNER JOIN sk_nachisl s ON a.vid_t=s.vid_t
+         INNER JOIN kr_dogovor d ON a.kod_dog = d.kod_dog
+         INNER JOIN kr_dogovor dp ON d.kod_dog_fin = dp.kod_dog
+         INNER JOIN ks_vdog vd ON dp.kod_vdog = vd.kod_vdog
+         LEFT JOIN kr_numobj kr_n ON a.kod_numobj = kr_n.kod_numobj
+         LEFT JOIN kr_object ob ON kr_n.kod_obj = ob.kod_obj
+      --   LEFT JOIN kr_payer p ON dp.kodp = p.kodp   -- потребитель
+         LEFT JOIN  TABLE (HG_SALEPOINT_R.PL_getSLPOrgs (kod_numobj_   => a.kod_numobj,
+                                                             ym_       => a.ym)) pc    ON (a.kod_numobj = pc.kod_numobj)
+         LEFT JOIN kr_payer tco ON (pc.kodp_pwrcompany = tco.kodp)
+      WHERE 1=1 { AND dp.dep IN :p_dep} 
+           { AND tco.kodp IN :p_kodp_pwrcompany }
+           { AND a.ym = :p_ym}
+           AND v.kod_typevariant = 1 /*покупка*/
+           AND (b.tip_tarif_sost = 2  OR a.vid_t = -272 )
+           AND a.vid_t <> -222
+           AND s.edizm in (3,4)
+           AND a.price IS not null
+           AND a.rym is null
+           AND dp.pr_active in (0,2)
+           AND vd.kod_vdoc=1 and vd.kod_tipdog=0
+          )
+  , pre_byt as ( -- население 
+    SELECT -- nk_adress.kf_get_sf(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END) as kod_region
+           -- , nk_adress.kp_get_region_name(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END) as kod_region_name
+           --, 
+           tco.kodp as tco_pwr_kodp
+           , tco.name as tco_pwr_kodp_name
+           , 2 as gr_num 
+           , 'Население' as gr_name
+           , COALESCE(HG_CONTROLPOINT_R.get_factVoltage_byNumObj(a.kod_numobj,a.ym), a.voltage) as voltage_fact
+           , CASE WHEN s.edizm = 4 THEN COALESCE(a.cust,0) ELSE 0 END as cust_kvth
+           , CASE WHEN s.edizm = 3 AND a.vid_t = -272 THEN a.cust ELSE 0 END as cust_kvt   -- нужно проработать вопрос с заказчиком и доработать если нужно
+       FROM nr_account a
+          INNER JOIN hr_reglament_pp p ON a.kod_reglament=p.kod_reglament
+          INNER JOIN hr_calc_variant v ON v.kod_variant=p.kod_variant 
+          INNER JOIN sk_nachisl s ON a.vid_t=s.vid_t
+          INNER JOIN kr_dogovor d ON a.kod_dog = d.kod_dog
+          INNER JOIN kr_dogovor dp ON d.kod_dog_fin = dp.kod_dog
+          LEFT JOIN kr_numobj kr_n ON a.kod_numobj = kr_n.kod_numobj
+          LEFT JOIN kr_object ob ON kr_n.kod_obj = ob.kod_obj
+         -- LEFT JOIN kr_payer p ON dp.kodp = p.kodp   -- потребитель
+          LEFT JOIN  TABLE (HG_SALEPOINT_R.PL_getSLPOrgs (kod_numobj_   => a.kod_numobj,
+                                                              ym_       => a.ym)) pc    ON (a.kod_numobj = pc.kod_numobj)
+          LEFT JOIN kr_payer tco ON (pc.kodp_pwrcompany = tco.kodp)
+      WHERE 1=1 { AND dp.dep IN :p_dep}       
+          { AND tco.kodp IN :p_kodp_pwrcompany }
+          { AND a.ym = :p_ym}
+          AND v.kod_typevariant = 1 /*покупка*/
+          AND s.edizm in (3,4)
+          AND a.price IS not null
+          AND a.rym is null
+          AND dp.pr_active in (0,2)
+          AND Decode(nvl(a.tarif,0), 0, 0, kg_tarif.f_byt_cached(a.tarif)) <> 0   -- население определяем по тарифу byt
+            )
+                 
+     SELECT  s_data_id  
+           , tco_pwr_kodp as tco_pwr_kodp
+           , MAX(tco_pwr_kodp_name) as tco_pwr_name
+           , gr_num as gr_num
+           , MAX(gr_name) as gr_name              
+           , CASE WHEN nvl(voltage_fact,0) in (-1,6,7) THEN 3 ELSE nvl(voltage_fact,0) END as voltage_fact
+           , MAX(CASE WHEN nvl(voltage_fact,0) in (-1,6,7) THEN 'ВН' ELSE COALESCE(vol.abbr,'-') END) as voltage_fact_abbr
+           , SUM(cust_kvth) as cust_kvth   -- натуральные показатели     
+           , SUM(cust_kvt) as cust_kvt   -- натуральные показатели     
+        FROM pre_pr -- группа Прочие
+          LEFT JOIN hk_voltage vol ON pre_pr.voltage_fact = vol.voltage
+        GROUP BY tco_pwr_kodp, gr_num, nvl(voltage_fact,0)
+      UNION ALL
+        SELECT  s_data_id 
+             , tco_pwr_kodp as tco_pwr_kodp
+             , MAX(tco_pwr_kodp_name) as tco_pwr_name
+             , gr_num as gr_num
+             , MAX(gr_name) as gr_name    
+             , CASE WHEN nvl(voltage_fact,0) in (-1,6,7) THEN 3 ELSE nvl(voltage_fact,0) END as voltage_fact
+             , MAX(CASE WHEN nvl(voltage_fact,0) in (-1,6,7) THEN 'ВН' ELSE COALESCE(vol.abbr,'-') END) as voltage_fact_abbr
+             , SUM(cust_kvth) as cust_kvth   -- натуральные показатели     
+             , SUM(cust_kvt) as cust_kvt   -- натуральные показатели      
+        FROM pre_byt  -- население
+          LEFT JOIN hk_voltage vol ON pre_byt.voltage_fact = vol.voltage
+        GROUP BY  tco_pwr_kodp, gr_num, nvl(voltage_fact,0)
+        ;
+  END;]]></procedure>
+      <queries>
+        <query name="72609_data" as="d" title="Основной запрос для отчета № 50" />
+        <query name="title_info" as="title">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_ym" />
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="72609_data" timestamp="07.02.2025 14:22:51">
+      <select>
+        <column table="rr_temp" column="n1" as="tco_pwr_kodp" type="number" />
+        <column group="max" table="rr_temp" column="s1" as="tco_pwr_name" title="наименование ТСО" type="string" />
+        <column table="rr_temp" column="n2" title="номер группы потребителей ( 1 - прочие или 2 - население)      " as="gr_num" type="number" />
+        <column table="rr_temp" column="s2" group="max" as="gr_name" title="наименование группы потребителей" type="string" />
+        <call function="row_number" as="volt_rwn" title="Номер строки УН">
+          <call function="partition by">
+            <column table="this" column="tco_pwr_kodp" />
+            <column table="this" column="gr_num" />
+          </call>
+          <call function="order by simple">
+            <column table="this" column="voltage_fact_abbr" />
+          </call>
+        </call>
+        <column table="rr_temp" column="n3" title="фактический УН" as="voltage_fact" type="number" />
+        <column table="rr_temp" column="s3" type="string" as="voltage_fact_abbr" group="max" />
+        <column table="rr_temp" column="n4" as="cust_kvth" title="натуральные показатели мощности: ПО КВтч" type="number" group="sum" mp="-3" />
+        <column group="sum" table="rr_temp" column="n5" type="number" title="натуральные показатели э/э: ПО КВт" as="cust_kvt" mp="-3" />
+      </select>
+      <from>
+        <query name="rr_temp" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=">
+            <column table="rr_temp" column="skod" />
+            <const>'{3d8b60b1-7260-916a-ac16-8c99c9d294fb}'</const>
+          </call>
+          <call function="or">
+            <call function="!=">
+              <column table="this" column="cust_kvth" />
+              <const type="number">0</const>
+            </call>
+            <call function="!=">
+              <column table="this" column="cust_kvt" />
+              <const type="number">0</const>
+            </call>
+          </call>
+        </call>
+      </where>
+      <grouping>
+        <grset as="itog">
+          <grset order="tco_pwr_name" as="tco">
+            <group>
+              <column table="this" column="tco_pwr_kodp" type="number" />
+            </group>
+            <grset order="gr_num" as="gr">
+              <group>
+                <column table="this" column="gr_num" type="number" />
+              </group>
+              <grset order="voltage_fact_abbr" as="volt">
+                <group>
+                  <column table="this" column="voltage_fact" type="number" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>

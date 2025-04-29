@@ -1,0 +1,70 @@
+<root>
+  <parts>
+    <part id="gm to ym">
+      <params>
+        <param name="tbl">
+        </param>
+      </params>
+      <call function="+" as="ym">
+        <column table=":tbl" column="god" />
+        <call function="/">
+          <column table=":tbl" column="mes" />
+          <const>100</const>
+        </call>
+      </call>
+    </part>
+  </parts>
+  <queries>
+    <query name="n_calc">
+      <select>
+        <column table="a" column="ym" type="number" />
+        <call function="ym to char" as="name" title="Период">
+          <column table="a" column="ym">
+          </column>
+        </call>
+      </select>
+      <from>
+        <table name="n_calc" as="a" view="1">
+        </table>
+      </from>
+    </query>
+    <query name="n_calc_dist" order="1 desc">
+      <select>
+        <column table="a" column="ym" group="1">
+        </column>
+        <column table="a" column="name" group="max">
+        </column>
+      </select>
+      <from>
+        <query name="n_calc" as="a">
+        </query>
+      </from>
+    </query>
+    <query name="n_calc_max">
+      <select>
+        <column table="a" column="ym" group="max">
+        </column>
+      </select>
+      <from>
+        <query name="n_calc" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="ls">
+          <column table="a" column="ym">
+          </column>
+          <call function="date to ym">
+            <const>sysdate</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="n_calc">
+      select to_number(to_char(v,'YYYY.MM')) ym from (
+      select sysdate+60-level as v from dual connect by level&lt;1000
+      ) group  by to_number(to_char(v,'YYYY.MM'))
+    </view>
+  </views>
+</root>

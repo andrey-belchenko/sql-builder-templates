@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="ur_sogl" class="1" title="Доп. документ (арбитраж)" timestamp="18.06.2016 04:42:46">
+      <select>
+        <column table="a" column="kod_sogl" type="number" key-dimension="kod_sogl" />
+        <column table="a" column="kod_folders" type="number" />
+        <column table="a" column="kod_subject" type="number" column-mandatory="1" />
+        <column table="a" column="num_reg" type="string" title="Номер доп. документа" />
+        <column table="a" column="dat_do" type="date" title="Оплатить до" column-mandatory="1" new-val="dat_do_new_val" />
+        <column table="a" column="dat_doc" type="date" title="Дата доп. документа" column-mandatory="1" column-default="today" />
+        <column table="a" column="dat_finish" type="date" title="Дата закрытия документа" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="prim" type="string" title="Примечание" />
+        <column table="a" column="kod_tipdoc" type="number" column-mandatory="1">
+          <listquery>
+            <query name="kk_tipdoc_ur_1" />
+          </listquery>
+        </column>
+        <column table="a" column="count_mes" type="number" title="Количество месяцев" format="F0" new-val="count_mes_new_val" />
+        <column table="a" column="status" type="number" title="" comment="состояние 0-не подписан,1-подписан" />
+        <column table="a" column="kodp" type="number" title="" />
+        <column table="a" column="proc" type="number" title="Проценты за пользование чужими денежными средствами" comment="проценты за польз ден. средствами, вводимые юристами ( ст. 395 гк рф)" />
+        <column table="a" column="ogr" type="number" title="Расходы за введение ограничения режима энергопотребления" comment="расходы за введение ограничения режима электропотребления" fact="ur_sogl_ogr" agg="sum" />
+        <column table="a" column="tep_el" type="number" title="" comment="1-электр,2-тепло" />
+        <column table="a" column="type_potr" type="number" title="" comment="1-юр,2-физ" />
+        <column table="a" column="vvod" type="number" title="" comment="0-из бд,1-вручную ввод суммы" />
+        <column table="a" column="kod_emp" type="number" comment="код сотрудника" />
+        <column table="a" column="kod_vi" type="number" comment="1- исходящие, 2- входящие" />
+        <column table="a" column="dep" type="number" title="" comment="код подразделения" />
+        <column table="a" column="dat_finish_f" type="date" title="" />
+        <column table="a" column="opl_proc" type="number" title="Оплачено: проценты за пользование чужими денежными средствами" comment="вручную: оплата процентов за пользование чужими ден. средствами" />
+        <column table="a" column="opl_ogr" type="number" title="Оплачено: расходы за введение ограничения режима энергопотребления" comment="вручную: оплата расходов за ограничение электропотребления" fact="ur_sogl_opl_ogr" agg="sum" />
+      </select>
+      <from>
+        <table name="ur_sogl" as="a" />
+        <query as="kod_tipdoc" join="left outer" name="kk_tipdoc">
+          <call function="=">
+            <column table="a" column="kod_tipdoc" />
+            <column table="kod_tipdoc" column="kod_tipdoc" />
+          </call>
+        </query>
+        <query name="us_subject" as="kod_subject" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_subject" />
+            <column table="kod_subject" column="kod_subject" />
+          </call>
+        </query>
+        <query name="ur_folders" as="kod_folders" join="left outer" dimension="kod_folders">
+          <call function="=">
+            <column table="a" column="kod_folders" />
+            <column table="kod_folders" column="kod_folders" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

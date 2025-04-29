@@ -1,0 +1,2666 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="ur_graf_crt" title="График погашения задолженности" timestamp="28.12.2023 14:55:50" with-behavior="0" form-size="561;138" file="sql.builder.templates\sql.builder\projects\asuse2\forms\Арбитраж\ur_folders_graf.xml" elid="269" ord="269" leaf="0" lvl="2" pelid="">
+    <field table="ur_graf" name="kod_folders" title="Папка" controlType="UICombo" rows-limit="100" id="47405902" />
+    <field table="ur_graf" name="kod_graf" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="19195220" />
+    <field table="ur_graf" name="ur_prizn" title="Тип документа" controlType="UICombo" rows-limit="100" id="30955671" />
+    <field table="ur_graf" name="kod_isp" title="Исполнительный лист" controlType="UICombo" rows-limit="100" id="13257121" />
+    <field table="ur_graf" name="kod_hist_mat" title="Решение" controlType="UICombo" rows-limit="100" id="60943155" />
+    <field table="ur_graf" name="kod_sogl" title="Доп. документ (арбитраж)" controlType="UICombo" rows-limit="100" id="61720732" />
+    <field table="ur_graf" name="kod_tipdoc" title="Тип документа" controlType="UICombo" rows-limit="100" id="31340520" />
+    <field table="ur_graf" name="doc_date" title="Дата документа" width="131" controlType="UIDate" rows-limit="100" id="4718088" />
+    <field table="ur_graf" name="dat_opl_beg" title="Начало учета фактической оплаты" controlType="UIDate" rows-limit="100" id="32663774" />
+    <empty-item id="14726536" />
+    <uicommand action-type="custom" title="Создать график" id="28040286">
+      <useaction action-type="save" id="42308942" />
+      <useaction action-type="execute-add" call="ur_dp_graf_insert_all" id="63129106">
+        <useparam name="cur_kod_graf" id="27781419" />
+      </useaction>
+      <useaction action-type="close" id="57508286" />
+    </uicommand>
+  </form>
+  <params>
+    <param name="kod_graf" type="number" />
+    <param type="number" name="kod_folders" />
+  </params>
+  <dataset>
+    <params>
+      <param name="kod_graf" type="number" />
+      <param type="number" name="kod_folders" />
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="ur_graf_has_changes" parname="ur_graf_has_changes" />
+    </fields>
+    <table name="ur_graf" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="ur_graf" key="kod_graf" is-ms-upd="1" is-top="1" key-dimension="kod_graf">
+      <select-text>
+--
+select ur_graf.kod_folders as kod_folders, /*number*/
+ur_graf.kod_graf as kod_graf, /*number*//*key*/
+ur_graf.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ur_graf.kod_isp as kod_isp, /*number*/
+ur_graf.kod_hist_mat as kod_hist_mat, /*Решение*//*number*/
+ur_graf.kod_sogl as kod_sogl, /*number*/
+ur_graf.kod_tipdoc as kod_tipdoc, /*number*/
+ur_graf.doc_date as doc_date, /*Дата документа*//*date*/
+ur_graf.dat_opl_beg as dat_opl_beg, /*Начало учета фактической оплаты*//*date*/
+kod_folders_x_n.dat_create as kod_folders_x_n, /*Папка*//*date*/
+ur_prizn_x_n.name as ur_prizn_x_n, /*Тип документа*//*string*/
+kod_isp_x_n.full_name as kod_isp_x_n, /*Исполнительный лист*//*string*/
+kod_hist_mat_x_n.name as kod_hist_mat_x_n, /*Решение*//*string*/
+kod_sogl_x_n.full_name as kod_sogl_x_n, /*Доп. документ (арбитраж)*//*string*/
+kod_tipdoc_x_n.name as kod_tipdoc_x_n, /*Тип документа*//*string*/
+ur_graf.is_isp as is_isp, /*number*/
+ur_graf.is_mat as is_mat, /*number*/
+ur_graf.is_dop as is_dop, /*number*/
+ur_graf.kod_tipdoc_new_val as kod_tipdoc_new_val, /*number*/
+ur_graf.is_new as is_new, /*number*/
+ur_graf.is_not_new as is_not_new/*number*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_hist_mat as kod_hist_mat, /*Решение*//*number*/
+a.kod_sogl as kod_sogl, /*number*/
+a.kod_isp as kod_isp, /*number*/
+a.kod_folders as kod_folders, /*number*/
+a.kod_tipdoc as kod_tipdoc, /*number*/
+a.dat_opl_beg as dat_opl_beg, /*Начало учета фактической оплаты*//*date*/
+kod_tipdoc.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ coalesce( kod_sogl.dat_doc , kod_hist_mat2.dat_post , kod_isp.dat_doc )  as doc_date, /*Дата документа*//*date*/
+ case  when (kod_tipdoc.ur_prizn = 3)  then 1 else 0 end  as is_isp, /*number*/
+ case  when (kod_tipdoc.ur_prizn = 2)  then 1 else 0 end  as is_mat, /*number*/
+ case  when (kod_tipdoc.ur_prizn = 1)  then 1 else 0 end  as is_dop, /*number*/
+ case  when (ur_prizn.kod = 1)  then kod_sogl.kod_tipdoc else ur_prizn.kod_tipdoc end  as kod_tipdoc_new_val, /*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from ur_graf
+a
+--\ur_graf
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.dat_post as dat_post/*Дата прин. суд. акта*//*date*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+kod_hist_mat2 on a.kod_hist_mat = kod_hist_mat2.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.dat_doc as dat_doc, /*Дата доп. документа*//*date*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата выдачи исп. листа*//*date*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp on a.kod_isp = kod_isp.kod_isp--\ur_isp
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+(
+--
+select td.kod_tipdoc as kod_tipdoc/*number*//*key*/
+
+from (
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+td
+--\kk_tipdoc
+where
+(a.kod &gt; 1)  and (td.ur_prizn = a.kod) )
+--\
+ as kod_tipdoc/*number*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn on ur_prizn.kod = kod_tipdoc.ur_prizn--\kk_tipdoc_ur_prizn
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.name as name/*Тип документа*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc_x_n on ur_graf.kod_tipdoc = kod_tipdoc_x_n.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+kod_tipdoc.abbr || ' ' || a.num_reg || ' от  ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Аббревиатура*//*string*/
+
+from ur_sogl
+a
+--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+kod_sogl_x_n on ur_graf.kod_sogl = kod_sogl_x_n.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+kod_doc.abbr || ' от ' || ( to_char( kod_mat.dat_doc ,'DD.MM.YYYY') )  || '  ' || kod_mat.num_delo || '  ' || kod_result.name as name/*Решение*//*string*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_doc as kod_doc/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat1 on a.kod_mat = kod_mat1.kod_mat--\ur_mat
+left outer join
+(
+--us_doc
+select a.kod_doc as kod_doc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from us_doc
+a
+--\us_doc
+)
+kod_doc on kod_mat1.kod_doc = kod_doc.kod_doc--\us_doc
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.num_delo as num_delo, /*Номер дела*//*string*/
+a.dat_doc as dat_doc/*Дата подачи в суд*//*date*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat on a.kod_mat = kod_mat.kod_mat--\ur_mat
+left outer join
+(
+--us_result
+select a.kod_result as kod_result, /*number*//*key*/
+a.name as name/*Результат рассмотрения*//*string*/
+
+from us_result
+a
+--\us_result
+)
+kod_result on a.kod_result = kod_result.kod_result--\us_result
+)
+kod_hist_mat_x_n on ur_graf.kod_hist_mat = kod_hist_mat_x_n.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.num_reg || ' от ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Исполнительный лист*//*string*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp_x_n on ur_graf.kod_isp = kod_isp_x_n.kod_isp--\ur_isp
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn_x_n on ur_prizn_x_n.kod = ur_graf.ur_prizn--\kk_tipdoc_ur_prizn
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.dat_create as dat_create/*Дата создания папки*//*date*/
+
+from ur_folders
+a
+--\ur_folders
+)
+kod_folders_x_n on ur_graf.kod_folders = kod_folders_x_n.kod_folders--\ur_folders
+where
+ur_graf.kod_graf = :kod_graf --\
+</select-text>
+      <columns>
+        <column name="kod_folders" table="ur_graf" type="number" title="Папка" ColumnVisible="0" ClientDefault="kod_folders" is-updateable="1" is-updateable-ext="1" update-target="kod_folders" temp-col-name="n7">
+          <dep-refresh-cmd>
+            <root table="ur_graf">
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_folders_x_n.dat_create as kod_folders_x_n, /*Папка*//*date*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_folders as kod_folders/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_folders as kod_folders  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n7 as kod_folders  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_folders as kod_folders  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n7 as kod_folders  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.dat_create as dat_create/*Дата создания папки*//*date*/
+
+from ur_folders
+a
+--\ur_folders
+)
+kod_folders_x_n on ur_graf.kod_folders = kod_folders_x_n.kod_folders--\ur_folders
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_folders_x_n" table="ur_graf" />
+          </dependants>
+        </column>
+        <column name="kod_graf" table="ur_graf" type="number" title="" parname="cur_kod_graf" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_graf" temp-col-name="n1" />
+        <column name="ur_prizn" table="ur_graf" type="number" title="Тип документа" ColumnEditable="1" is-user-editable="1" ColumnMandatory="1" is-updateable-ext="1" is-refreshed="1" update-target="ur_prizn" temp-col-name="n11">
+          <sel-list-compiled>
+            <root>
+              <query class="1" title="Тип доп. документа" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kk_tipdoc.xml" elid="2257" ord="2257" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod" as="kod" title="" key="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod" into="n1">a.kod as kod, /**//*number*//*key*/
+</column><column table="a" column="name" as="name" title="" key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="name" into="s1">a.name as name/**//*string*/
+</column></select>
+                <from>
+from <query name="kk_tipdoc_ur_prizn" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--kk_tipdoc_ur_prizn
+select <column table="a" column="kod" type="number" as="kod" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod" used="1">a.kod as kod, /*number*//*key*/
+</column><column table="a" column="name" type="string" vid="1" as="name" key="0" sourcetable="./a/a" sourcecolumn="name" used="1">a.name as name/*string*/
+</column></select><from>
+from <table name="kk_tipdoc_prizn" view="1" as="a" used="1"><text>(
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )</text>a
+--\kk_tipdoc_prizn
+</table></from>)
+a
+--\kk_tipdoc_ur_prizn
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod" as="kod" title="" key="1" thissrc="kod">a.kod</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod" as="kod" title="" key="1" thissrc="kod">a.kod</column><text txtype="func"> ) like lower( </text><const><text>:kod_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" as="name" title="" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" title="Тип доп. документа" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kk_tipdoc.xml" elid="2257" ord="2257" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" title="Тип доп. документа" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\kk_tipdoc.xml" elid="2257" ord="2257" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod" as="kod" title="" key="1" />
+                    <column table="a" column="name" as="name" title="" />
+                  </select>
+                  <from>
+                    <query name="kk_tipdoc_ur_prizn" as="a" title="Тип доп. документа" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod" />
+                        <useparam name="kod_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_filter" type="string">
+                  <const>:kod_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Тип документа*//*number*/
+
+from (select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+ur_graf
+--\ur_graf
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+          <dep-refresh-cmd>
+            <root table="ur_graf">
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ur_prizn_x_n.name as ur_prizn_x_n, /*Тип документа*//*string*/
+ur_graf.is_isp as is_isp, /*number*/
+ur_graf.is_mat as is_mat, /*number*/
+ur_graf.is_dop as is_dop, /*number*/
+ur_graf.kod_tipdoc_new_val as kod_tipdoc_new_val, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ case  when (a.ur_prizn = 3)  then 1 else 0 end  as is_isp, /*number*/
+ case  when (a.ur_prizn = 2)  then 1 else 0 end  as is_mat, /*number*/
+ case  when (a.ur_prizn = 1)  then 1 else 0 end  as is_dop, /*number*/
+ case  when (ur_prizn.kod = 1)  then kod_sogl.kod_tipdoc else ur_prizn.kod_tipdoc end  as kod_tipdoc_new_val/*number*/
+
+from (select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+(
+--
+select td.kod_tipdoc as kod_tipdoc/*number*//*key*/
+
+from (
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+td
+--\kk_tipdoc
+where
+(a.kod &gt; 1)  and (td.ur_prizn = a.kod) )
+--\
+ as kod_tipdoc/*number*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn on ur_prizn.kod = a.ur_prizn--\kk_tipdoc_ur_prizn
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn_x_n on ur_prizn_x_n.kod = ur_graf.ur_prizn--\kk_tipdoc_ur_prizn
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="ur_prizn" table="ur_graf" />
+            <dependant name="ur_prizn_x_n" table="ur_graf" />
+            <dependant name="is_isp" table="ur_graf" />
+            <dependant name="is_mat" table="ur_graf" />
+            <dependant name="is_dop" table="ur_graf" />
+            <dependant name="kod_tipdoc_new_val" table="ur_graf" />
+          </dependants>
+        </column>
+        <column name="kod_isp" table="ur_graf" type="number" title="Исполнительный лист" Exists="is_isp" is-user-editable="1" Mandatory="is_isp" is-updateable="1" is-updateable-ext="1" update-target="kod_isp" temp-col-name="n3">
+          <sel-list-compiled>
+            <root>
+              <query class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_isp.xml" elid="2598" ord="2598" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_isp" as="kod_isp" key="1" fixed="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod_isp" into="n1">a.kod_isp as kod_isp, /*number*//*key*/
+</column><column table="a" column="full_name" as="full_name" key="0" used="1" type="string" title="Исполнительный лист" agg="max" into="s1">a.full_name as full_name/*Исполнительный лист*//*string*/
+</column></select>
+                <from>
+from <query name="ur_isp" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--ur_isp
+select <column table="a" column="kod_isp" type="number" key-dimension="kod_isp" as="kod_isp" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod_isp" used="1">a.kod_isp as kod_isp, /*number*//*key*/
+</column><column table="a" column="kod_folders" type="number" as="kod_folders" reference="ur_folders" refcol="kod_folders" key="0" sourcetable="./a/a" sourcecolumn="kod_folders" used="1">a.kod_folders as kod_folders, /*number*/
+</column><call function="||" as="full_name" title="Исполнительный лист" key="0" pth="" type="string" used="1" agg="max"><column table="a" column="num_reg" type="string" title="Номер исп. листа" column-mandatory="1" as="num_reg" key="0" thissrc="num_reg">a.num_reg</column><text txtype="func"> || </text><const><text>' от '</text></const><text txtype="func"> || </text><call function="date to char" pth="" type="string">(<text txtype="func"> to_char( </text><column table="a" column="dat_doc" type="date" title="Дата выдачи исп. листа" fact="ur_isp_dat_doc" agg="max" dimension="dat_ur" as="dat_doc" key="0" thissrc="dat_doc">a.dat_doc</column><text txtype="func"> ,'DD.MM.YYYY') </text>) </call> as full_name/*Исполнительный лист*//*string*/
+</call></select><from>
+from <table name="ur_isp" as="a" title="Исполнительный лист" used="1">ur_isp
+a
+--\ur_isp
+</table></from>)
+a
+--\ur_isp
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> and </text><call function="and" pth="" type="bool">(<call function="true" pth="" type="bool">(<text txtype="func"> 1=1 </text>) </call><text txtype="func"> and </text><call function="=" pth="" type="bool">(<column table="a" column="kod_folders">a.kod_folders</column><text txtype="func"> = </text><const><text>:kod_folders </text></const>) </call>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_isp" as="kod_isp" key="1" fixed="1" thissrc="kod_isp">a.kod_isp</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_isp" as="kod_isp" key="1" fixed="1" thissrc="kod_isp">a.kod_isp</column><text txtype="func"> ) like lower( </text><const><text>:kod_isp_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="full_name" as="full_name" key="0" thissrc="full_name">a.full_name</column><text txtype="func"> ) like lower( </text><const><text>:full_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_isp.xml" elid="2598" ord="2598" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_isp.xml" elid="2598" ord="2598" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param type="number" name="kod_folders" column="kod_folders" />
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_isp_filter" type="string" />
+                    <param name="full_name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_isp" as="kod_isp" key="1" fixed="1" />
+                    <column table="a" column="full_name" as="full_name" key="0" />
+                  </select>
+                  <from>
+                    <query name="ur_isp" as="a" title="Исполнительный лист" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="and">
+                        <call function="true" />
+                        <call function="=">
+                          <column table="a" column="kod_folders" />
+                          <useparam name="kod_folders" />
+                        </call>
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_isp" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_isp" />
+                        <useparam name="kod_isp_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="full_name" />
+                        <useparam name="full_name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="kod_folders" />
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_isp_filter" />
+                    <useparam name="full_name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param type="number" name="kod_folders" column="kod_folders">
+                  <const>:kod_folders </const>
+                </param>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_isp_filter" type="string">
+                  <const>:kod_isp_filter </const>
+                </param>
+                <param name="full_name_filter" type="string">
+                  <const>:full_name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params>
+              <param type="number" name="kod_folders" column="kod_folders" />
+            </params>
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="ur_graf">
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.doc_date as doc_date, /*Дата документа*//*date*/
+kod_isp_x_n.full_name as kod_isp_x_n, /*Исполнительный лист*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_isp as kod_isp, /*number*/
+ coalesce( kod_sogl.dat_doc , kod_hist_mat2.dat_post , kod_isp.dat_doc )  as doc_date/*Дата документа*//*date*/
+
+from (select a.kod_graf as kod_graf,a.kod_isp as kod_isp,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n3 as kod_isp,t.n4 as kod_hist_mat,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_isp as kod_isp,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n3 as kod_isp,t.n4 as kod_hist_mat,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.dat_post as dat_post/*Дата прин. суд. акта*//*date*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+kod_hist_mat2 on a.kod_hist_mat = kod_hist_mat2.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата доп. документа*//*date*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата выдачи исп. листа*//*date*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp on a.kod_isp = kod_isp.kod_isp--\ur_isp
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.num_reg || ' от ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Исполнительный лист*//*string*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp_x_n on ur_graf.kod_isp = kod_isp_x_n.kod_isp--\ur_isp
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="doc_date" table="ur_graf" />
+            <dependant name="kod_isp_x_n" table="ur_graf" />
+          </dependants>
+        </column>
+        <column name="kod_hist_mat" table="ur_graf" type="number" title="Решение" Exists="is_mat" is-user-editable="1" Mandatory="is_mat" is-updateable="1" is-updateable-ext="1" update-target="kod_hist_mat" temp-col-name="n4">
+          <sel-list-compiled>
+            <root>
+              <query class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_hist_mat.xml" elid="2581" ord="2581" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_hist_mat" as="kod_hist_mat" key="1" fixed="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod_hist_mat" into="n1">a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+</column><column table="a" column="name" as="name" key="0" used="1" type="string" title="Решение" agg="max" sourcetable="./a/a/kod_doc" sourcecolumn="abbr" into="s1">a.name as name/*Решение*//*string*/
+</column></select>
+                <from>
+from <query name="ur_hist_mat_dec" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--ur_hist_mat_dec
+select <column table="a" column="kod_hist_mat" type="number" key-dimension="kod_hist_mat" column-mandatory="1" as="kod_hist_mat" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod_hist_mat" used="1">a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+</column><column table="a" column="kod_mat" type="number" column-mandatory="1" as="kod_mat" reference="ur_mat" refcol="kod_mat" key="0" sourcetable="./a/a" sourcecolumn="kod_mat" used="1">a.kod_mat as kod_mat, /*number*/
+</column><column table="a" column="kod_result" type="number" valid="qube.kod_result_vld" rows-limit="0" column-mandatory="1" as="kod_result" reference="us_result" refcol="kod_result" key="0" sourcetable="./a/a" sourcecolumn="kod_result" used="1">a.kod_result as kod_result, /*number*/
+</column><call function="||" as="name" title="Решение" key="0" pth="" type="string" used="1" agg="max" sourcetable="./a/a/kod_doc" sourcecolumn="abbr"><column table="kod_doc" column="abbr">kod_doc.abbr</column><text txtype="func"> || </text><const><text>' от '</text></const><text txtype="func"> || </text><call function="date to char" pth="" type="string">(<text txtype="func"> to_char( </text><column table="kod_mat" column="dat_doc">kod_mat.dat_doc</column><text txtype="func"> ,'DD.MM.YYYY') </text>) </call><text txtype="func"> || </text><const><text>'  '</text></const><text txtype="func"> || </text><column table="kod_mat" column="num_delo">kod_mat.num_delo</column><text txtype="func"> || </text><const><text>'  '</text></const><text txtype="func"> || </text><column table="kod_result" column="name">kod_result.name</column> as name, /*Решение*//*string*/
+</call><column table="a" column="kod_hist_mat" type="number" key-dimension="kod_hist_mat" column-mandatory="1" as="kod_hist_mat_desc" key="1" fixed="1" thissrc="kod_hist_mat" sourcetable="./a/a" sourcecolumn="kod_hist_mat" used="1">a.kod_hist_mat as kod_hist_mat_desc/*number*//*key*/
+</column></select><from>
+from <table name="ur_hist_mat" as="a" title="История рассмотрения" used="1">ur_hist_mat
+a
+--\ur_hist_mat
+</table><query name="ur_mat" as="kod_mat1" join="left outer" path="./a/a/kod_mat1" haskeys="1" used="1">left outer join
+(
+<select>--ur_mat
+select <column table="a" column="kod_mat" type="number" key-dimension="kod_mat" fact="ur_mat_kod_mat" agg="max" as="kod_mat" key="1" fixed="1" sourcetable="./a/a/kod_mat1" sourcecolumn="kod_mat" used="1">a.kod_mat as kod_mat, /*number*//*key*/
+</column><column table="a" column="kod_doc" type="number" column-mandatory="1" as="kod_doc" reference="us_doc" refcol="kod_doc" key="0" sourcetable="./a/a/kod_mat1" sourcecolumn="kod_doc" used="1">a.kod_doc as kod_doc/*number*/
+</column></select><from>
+from <table name="ur_mat" as="a" title="Материалы переданные в суд" used="1">ur_mat
+a
+--\ur_mat
+</table></from><call function="=" type="bool">)
+kod_mat1 on <column table="a" column="kod_mat">a.kod_mat</column><text txtype="func"> = </text><column table="kod_mat1" column="kod_mat">kod_mat1.kod_mat</column></call>--\ur_mat
+</query><query name="us_doc" as="kod_doc" join="left outer" path="./a/a/kod_doc" haskeys="1" used="1">left outer join
+(
+<select>--us_doc
+select <column table="a" column="kod_doc" type="number" as="kod_doc" key="1" fixed="1" sourcetable="./a/a/kod_doc" sourcecolumn="kod_doc" used="1">a.kod_doc as kod_doc, /*number*//*key*/
+</column><column table="a" column="abbr" type="string" title="Аббревиатура" vid="1" as="abbr" key="0" sourcetable="./a/a/kod_doc" sourcecolumn="abbr" used="1">a.abbr as abbr/*Аббревиатура*//*string*/
+</column></select><from>
+from <table name="us_doc" as="a" title="Документ" used="1">us_doc
+a
+--\us_doc
+</table></from><call function="=" type="bool">)
+kod_doc on <column table="kod_mat1" column="kod_doc">kod_mat1.kod_doc</column><text txtype="func"> = </text><column table="kod_doc" column="kod_doc">kod_doc.kod_doc</column></call>--\us_doc
+</query><query name="ur_mat" dimension="kod_mat" as="kod_mat" join="left outer" path="./a/a/kod_mat" haskeys="1" used="1">left outer join
+(
+<select>--ur_mat
+select <column table="a" column="kod_mat" type="number" key-dimension="kod_mat" fact="ur_mat_kod_mat" agg="max" as="kod_mat" key="1" fixed="1" sourcetable="./a/a/kod_mat" sourcecolumn="kod_mat" used="1">a.kod_mat as kod_mat, /*number*//*key*/
+</column><column table="a" column="num_delo" type="string" title="Номер дела" fact="ur_mat_num_delo" agg="stragg" mandatory="qube.ur_hist_mat_count" as="num_delo" key="0" sourcetable="./a/a/kod_mat" sourcecolumn="num_delo" used="1">a.num_delo as num_delo, /*Номер дела*//*string*/
+</column><column table="a" column="dat_doc" type="date" title="Дата подачи в суд" mandatory="dat_otz" fact="ur_mat_dat_doc_max" agg="max" as="dat_doc" key="0" sourcetable="./a/a/kod_mat" sourcecolumn="dat_doc" used="1">a.dat_doc as dat_doc/*Дата подачи в суд*//*date*/
+</column></select><from>
+from <table name="ur_mat" as="a" title="Материалы переданные в суд" dimension="kod_mat" used="1">ur_mat
+a
+--\ur_mat
+</table></from><call function="=" type="bool">)
+kod_mat on <column table="a" column="kod_mat">a.kod_mat</column><text txtype="func"> = </text><column table="kod_mat" column="kod_mat">kod_mat.kod_mat</column></call>--\ur_mat
+</query><query name="us_result" as="kod_result" join="left outer" path="./a/a/kod_result" haskeys="1" used="1">left outer join
+(
+<select>--us_result
+select <column table="a" column="kod_result" type="number" as="kod_result" key="1" fixed="1" sourcetable="./a/a/kod_result" sourcecolumn="kod_result" used="1">a.kod_result as kod_result, /*number*//*key*/
+</column><column table="a" column="name" type="string" title="Результат рассмотрения" vid="1" as="name" key="0" sourcetable="./a/a/kod_result" sourcecolumn="name" used="1">a.name as name, /*Результат рассмотрения*//*string*/
+</column><column table="a" column="decision" type="number" title="" comment="1- является окончательным решением" as="decision" key="0" sourcetable="./a/a/kod_result" sourcecolumn="decision" used="1">a.decision as decision/**//*number*/
+</column></select><from>
+from <table name="us_result" as="a" used="1">us_result
+a
+--\us_result
+</table></from><call function="=" type="bool">)
+kod_result on <column table="a" column="kod_result">a.kod_result</column><text txtype="func"> = </text><column table="kod_result" column="kod_result">kod_result.kod_result</column></call>--\us_result
+</query></from><where>where
+<call function="=" pth="" type="bool"><column table="kod_result" column="decision">kod_result.decision</column><text txtype="func"> = </text><const><text>1</text></const></call></where>)
+a
+--\ur_hist_mat_dec
+</query><query name="ur_mat" as="kod_mat" join="left outer" path="./a/kod_mat" haskeys="1" used="1">left outer join
+(
+<select>--ur_mat
+select <column table="a" column="kod_mat" type="number" key-dimension="kod_mat" fact="ur_mat_kod_mat" agg="max" as="kod_mat" key="1" fixed="1" sourcetable="./a/kod_mat" sourcecolumn="kod_mat" used="1">a.kod_mat as kod_mat, /*number*//*key*/
+</column><column table="a" column="kod_folders" type="number" as="kod_folders" reference="ur_folders" refcol="kod_folders" key="0" sourcetable="./a/kod_mat" sourcecolumn="kod_folders" used="1">a.kod_folders as kod_folders/*number*/
+</column></select><from>
+from <table name="ur_mat" as="a" title="Материалы переданные в суд" used="1">ur_mat
+a
+--\ur_mat
+</table></from><call function="=" type="bool">)
+kod_mat on <column table="a" column="kod_mat">a.kod_mat</column><text txtype="func"> = </text><column table="kod_mat" column="kod_mat">kod_mat.kod_mat</column></call>--\ur_mat
+</query><query name="us_result" as="kod_result" join="left outer" path="./a/kod_result" haskeys="1" used="1">left outer join
+(
+<select>--us_result
+select <column table="a" column="kod_result" type="number" as="kod_result" key="1" fixed="1" sourcetable="./a/kod_result" sourcecolumn="kod_result" used="1">a.kod_result as kod_result, /*number*//*key*/
+</column><column table="a" column="kod_not_edit" type="number" as="kod_not_edit" reference="uk_not_edit" refcol="kod_not_edit" key="0" sourcetable="./a/kod_result" sourcecolumn="kod_not_edit" used="1">a.kod_not_edit as kod_not_edit/*number*/
+</column></select><from>
+from <table name="us_result" as="a" used="1">us_result
+a
+--\us_result
+</table></from><call function="=" type="bool">)
+kod_result on <column table="a" column="kod_result">a.kod_result</column><text txtype="func"> = </text><column table="kod_result" column="kod_result">kod_result.kod_result</column></call>--\us_result
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> and </text><call function="and" pth="" type="bool">(<call function="true" pth="" type="bool">(<text txtype="func"> 1=1 </text>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="=" pth="" optional="1" type="bool">(<column table="kod_mat" column="kod_folders">kod_mat.kod_folders</column><text txtype="func"> = </text><const><text>:kod_folders </text></const>) </call><text txtype="func"> } </text><text txtype="func"> and </text><call function="=" pth="" type="bool">(<column table="kod_result" column="kod_not_edit">kod_result.kod_not_edit</column><text txtype="func"> = </text><const><text>3</text></const>) </call>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_hist_mat" as="kod_hist_mat" key="1" fixed="1" thissrc="kod_hist_mat">a.kod_hist_mat</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_hist_mat" as="kod_hist_mat" key="1" fixed="1" thissrc="kod_hist_mat">a.kod_hist_mat</column><text txtype="func"> ) like lower( </text><const><text>:kod_hist_mat_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" as="name" key="0" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_hist_mat.xml" elid="2581" ord="2581" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_hist_mat.xml" elid="2581" ord="2581" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="kod_folders" type="number" column="kod_folders" />
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_hist_mat_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_hist_mat" as="kod_hist_mat" key="1" fixed="1" />
+                    <column table="a" column="name" as="name" key="0" />
+                  </select>
+                  <from>
+                    <query name="ur_hist_mat_dec" as="a" title="Решение по делу">
+                      <link name="kod_result" as="kod_result" table="us_result" child="ur_hist_mat_dec" field="kod_result" parent="us_result" back="ur_hist_mat_dec" />
+                      <link name="kod_mat" as="kod_mat" table="ur_mat" child="ur_hist_mat_dec" field="kod_mat" parent="ur_mat" back="ur_hist_mat_dec" title="Материалы переданные в суд" />
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="and">
+                        <call function="true" />
+                        <call function="=" optional="1">
+                          <column table="kod_mat" column="kod_folders" />
+                          <useparam name="kod_folders" />
+                        </call>
+                        <call function="=">
+                          <column table="kod_result" column="kod_not_edit" />
+                          <const>3</const>
+                        </call>
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_hist_mat" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_hist_mat" />
+                        <useparam name="kod_hist_mat_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="kod_folders" />
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_hist_mat_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="kod_folders" type="number" column="kod_folders">
+                  <const>:kod_folders </const>
+                </param>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_hist_mat_filter" type="string">
+                  <const>:kod_hist_mat_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params>
+              <param name="kod_folders" type="number" column="kod_folders" />
+            </params>
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="ur_graf">
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.doc_date as doc_date, /*Дата документа*//*date*/
+kod_hist_mat_x_n.name as kod_hist_mat_x_n, /*Решение*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_hist_mat as kod_hist_mat, /*Решение*//*number*/
+ coalesce( kod_sogl.dat_doc , kod_hist_mat2.dat_post , kod_isp.dat_doc )  as doc_date/*Дата документа*//*date*/
+
+from (select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl,a.kod_isp as kod_isp  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat,t.n2 as kod_sogl,t.n3 as kod_isp  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl,a.kod_isp as kod_isp  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat,t.n2 as kod_sogl,t.n3 as kod_isp  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.dat_post as dat_post/*Дата прин. суд. акта*//*date*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+kod_hist_mat2 on a.kod_hist_mat = kod_hist_mat2.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата доп. документа*//*date*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата выдачи исп. листа*//*date*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp on a.kod_isp = kod_isp.kod_isp--\ur_isp
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+kod_doc.abbr || ' от ' || ( to_char( kod_mat.dat_doc ,'DD.MM.YYYY') )  || '  ' || kod_mat.num_delo || '  ' || kod_result.name as name/*Решение*//*string*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_doc as kod_doc/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat1 on a.kod_mat = kod_mat1.kod_mat--\ur_mat
+left outer join
+(
+--us_doc
+select a.kod_doc as kod_doc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from us_doc
+a
+--\us_doc
+)
+kod_doc on kod_mat1.kod_doc = kod_doc.kod_doc--\us_doc
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.num_delo as num_delo, /*Номер дела*//*string*/
+a.dat_doc as dat_doc/*Дата подачи в суд*//*date*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat on a.kod_mat = kod_mat.kod_mat--\ur_mat
+left outer join
+(
+--us_result
+select a.kod_result as kod_result, /*number*//*key*/
+a.name as name/*Результат рассмотрения*//*string*/
+
+from us_result
+a
+--\us_result
+)
+kod_result on a.kod_result = kod_result.kod_result--\us_result
+)
+kod_hist_mat_x_n on ur_graf.kod_hist_mat = kod_hist_mat_x_n.kod_hist_mat--\ur_hist_mat
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="doc_date" table="ur_graf" />
+            <dependant name="kod_hist_mat_x_n" table="ur_graf" />
+          </dependants>
+        </column>
+        <column name="kod_sogl" table="ur_graf" type="number" title="Доп. документ (арбитраж)" Exists="is_dop" is-user-editable="1" Mandatory="is_dop" is-updateable="1" is-updateable-ext="1" update-target="kod_sogl" temp-col-name="n2">
+          <sel-list-compiled>
+            <root>
+              <query class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_sogl.xml" elid="2624" ord="2624" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_sogl" as="kod_sogl" key="1" fixed="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod_sogl" into="n1">a.kod_sogl as kod_sogl, /*number*//*key*/
+</column><column table="a" column="full_name" as="full_name" key="0" used="1" type="string" title="Аббревиатура" sourcetable="./a/a/kod_tipdoc" sourcecolumn="abbr" into="s1">a.full_name as full_name/*Аббревиатура*//*string*/
+</column></select>
+                <from>
+from <query name="ur_sogl" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--ur_sogl
+select <column table="a" column="kod_sogl" type="number" key-dimension="kod_sogl" as="kod_sogl" key="1" fixed="1" sourcetable="./a/a" sourcecolumn="kod_sogl" used="1">a.kod_sogl as kod_sogl, /*number*//*key*/
+</column><column table="a" column="kod_folders" type="number" as="kod_folders" reference="ur_folders" refcol="kod_folders" key="0" sourcetable="./a/a" sourcecolumn="kod_folders" used="1">a.kod_folders as kod_folders, /*number*/
+</column><call function="||" as="full_name" key="0" pth="" type="string" used="1" title="Аббревиатура" sourcetable="./a/a/kod_tipdoc" sourcecolumn="abbr"><column table="kod_tipdoc" column="abbr">kod_tipdoc.abbr</column><text txtype="func"> || </text><const><text>' '</text></const><text txtype="func"> || </text><column table="a" column="num_reg">a.num_reg</column><text txtype="func"> || </text><const><text>' от  '</text></const><text txtype="func"> || </text><call function="date to char" pth="" type="string">(<text txtype="func"> to_char( </text><column table="a" column="dat_doc">a.dat_doc</column><text txtype="func"> ,'DD.MM.YYYY') </text>) </call> as full_name/*Аббревиатура*//*string*/
+</call></select><from>
+from <table name="ur_sogl" as="a" title="Доп. документ (арбитраж)" used="1">ur_sogl
+a
+--\ur_sogl
+</table><query name="kk_tipdoc" as="kod_tipdoc" join="left outer" path="./a/a/kod_tipdoc" haskeys="1" used="1">left outer join
+(
+<select>--kk_tipdoc
+select <column table="a" column="kod_tipdoc" type="number" as="kod_tipdoc" key="1" fixed="1" sourcetable="./a/a/kod_tipdoc" sourcecolumn="kod_tipdoc" used="1">a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+</column><column table="a" column="abbr" type="string" title="Аббревиатура" as="abbr" key="0" sourcetable="./a/a/kod_tipdoc" sourcecolumn="abbr" used="1">a.abbr as abbr/*Аббревиатура*//*string*/
+</column></select><from>
+from <table name="kk_tipdoc" as="a" title="Тип документа" used="1">kk_tipdoc
+a
+--\kk_tipdoc
+</table></from><call function="=" type="bool">)
+kod_tipdoc on <column table="a" column="kod_tipdoc">a.kod_tipdoc</column><text txtype="func"> = </text><column table="kod_tipdoc" column="kod_tipdoc">kod_tipdoc.kod_tipdoc</column></call>--\kk_tipdoc
+</query></from>)
+a
+--\ur_sogl
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> and </text><call function="and" pth="" type="bool">(<call function="true" pth="" type="bool">(<text txtype="func"> 1=1 </text>) </call><text txtype="func"> and </text><call function="=" pth="" type="bool">(<column table="a" column="kod_folders">a.kod_folders</column><text txtype="func"> = </text><const><text>:kod_folders </text></const>) </call>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_sogl" as="kod_sogl" key="1" fixed="1" thissrc="kod_sogl">a.kod_sogl</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_sogl" as="kod_sogl" key="1" fixed="1" thissrc="kod_sogl">a.kod_sogl</column><text txtype="func"> ) like lower( </text><const><text>:kod_sogl_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="full_name" as="full_name" key="0" thissrc="full_name">a.full_name</column><text txtype="func"> ) like lower( </text><const><text>:full_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_sogl.xml" elid="2624" ord="2624" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" file="sql.builder.templates\sql.builder\projects\asuse2_scheme\scheme\extension\ur_sogl.xml" elid="2624" ord="2624" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param type="number" name="kod_folders" column="kod_folders" />
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_sogl_filter" type="string" />
+                    <param name="full_name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_sogl" as="kod_sogl" key="1" fixed="1" />
+                    <column table="a" column="full_name" as="full_name" key="0" />
+                  </select>
+                  <from>
+                    <query name="ur_sogl" as="a" title="Доп. документ (арбитраж)" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="and">
+                        <call function="true" />
+                        <call function="=">
+                          <column table="a" column="kod_folders" />
+                          <useparam name="kod_folders" />
+                        </call>
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_sogl" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_sogl" />
+                        <useparam name="kod_sogl_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="full_name" />
+                        <useparam name="full_name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="kod_folders" />
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_sogl_filter" />
+                    <useparam name="full_name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param type="number" name="kod_folders" column="kod_folders">
+                  <const>:kod_folders </const>
+                </param>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_sogl_filter" type="string">
+                  <const>:kod_sogl_filter </const>
+                </param>
+                <param name="full_name_filter" type="string">
+                  <const>:full_name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params>
+              <param type="number" name="kod_folders" column="kod_folders" />
+            </params>
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="ur_graf">
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.doc_date as doc_date, /*Дата документа*//*date*/
+kod_sogl_x_n.full_name as kod_sogl_x_n, /*Доп. документ (арбитраж)*//*string*/
+ur_graf.kod_tipdoc_new_val as kod_tipdoc_new_val, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_sogl as kod_sogl, /*number*/
+ coalesce( kod_sogl.dat_doc , kod_hist_mat2.dat_post , kod_isp.dat_doc )  as doc_date, /*Дата документа*//*date*/
+ case  when (ur_prizn.kod = 1)  then kod_sogl.kod_tipdoc else ur_prizn.kod_tipdoc end  as kod_tipdoc_new_val/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_sogl as kod_sogl,a.kod_tipdoc as kod_tipdoc,a.kod_hist_mat as kod_hist_mat,a.kod_isp as kod_isp,null as ur_prizn  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n2 as kod_sogl,t.n10 as kod_tipdoc,t.n4 as kod_hist_mat,t.n3 as kod_isp,t.n11 as ur_prizn  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_sogl as kod_sogl,a.kod_tipdoc as kod_tipdoc,a.kod_hist_mat as kod_hist_mat,a.kod_isp as kod_isp,null as ur_prizn  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n2 as kod_sogl,t.n10 as kod_tipdoc,t.n4 as kod_hist_mat,t.n3 as kod_isp,t.n11 as ur_prizn  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.dat_post as dat_post/*Дата прин. суд. акта*//*date*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+kod_hist_mat2 on a.kod_hist_mat = kod_hist_mat2.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.dat_doc as dat_doc, /*Дата доп. документа*//*date*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата выдачи исп. листа*//*date*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp on a.kod_isp = kod_isp.kod_isp--\ur_isp
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+(
+--
+select td.kod_tipdoc as kod_tipdoc/*number*//*key*/
+
+from (
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+td
+--\kk_tipdoc
+where
+(a.kod &gt; 1)  and (td.ur_prizn = a.kod) )
+--\
+ as kod_tipdoc/*number*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn on ur_prizn.kod = a.ur_prizn--\kk_tipdoc_ur_prizn
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+kod_tipdoc.abbr || ' ' || a.num_reg || ' от  ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Аббревиатура*//*string*/
+
+from ur_sogl
+a
+--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+kod_sogl_x_n on ur_graf.kod_sogl = kod_sogl_x_n.kod_sogl--\ur_sogl
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="doc_date" table="ur_graf" />
+            <dependant name="kod_sogl_x_n" table="ur_graf" />
+            <dependant name="kod_tipdoc_new_val" table="ur_graf" />
+          </dependants>
+        </column>
+        <column name="kod_tipdoc" table="ur_graf" type="number" title="Тип документа" ColumnVisible="0" NewVal="kod_tipdoc_new_val" is-updateable="1" is-updateable-ext="1" update-target="kod_tipdoc" temp-col-name="n10">
+          <dep-refresh-cmd>
+            <root table="ur_graf">
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ur_prizn_x_n.name as ur_prizn_x_n, /*Тип документа*//*string*/
+kod_tipdoc_x_n.name as kod_tipdoc_x_n, /*Тип документа*//*string*/
+ur_graf.is_isp as is_isp, /*number*/
+ur_graf.is_mat as is_mat, /*number*/
+ur_graf.is_dop as is_dop, /*number*/
+ur_graf.kod_tipdoc_new_val as kod_tipdoc_new_val, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_tipdoc as kod_tipdoc, /*number*/
+a.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ case  when (a.ur_prizn = 3)  then 1 else 0 end  as is_isp, /*number*/
+ case  when (a.ur_prizn = 2)  then 1 else 0 end  as is_mat, /*number*/
+ case  when (a.ur_prizn = 1)  then 1 else 0 end  as is_dop, /*number*/
+ case  when (ur_prizn.kod = 1)  then kod_sogl.kod_tipdoc else ur_prizn.kod_tipdoc end  as kod_tipdoc_new_val/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_tipdoc as kod_tipdoc,null as ur_prizn,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n10 as kod_tipdoc,t.n11 as ur_prizn,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_tipdoc as kod_tipdoc,null as ur_prizn,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n10 as kod_tipdoc,t.n11 as ur_prizn,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+(
+--
+select td.kod_tipdoc as kod_tipdoc/*number*//*key*/
+
+from (
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+td
+--\kk_tipdoc
+where
+(a.kod &gt; 1)  and (td.ur_prizn = a.kod) )
+--\
+ as kod_tipdoc/*number*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn on ur_prizn.kod = a.ur_prizn--\kk_tipdoc_ur_prizn
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.name as name/*Тип документа*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc_x_n on ur_graf.kod_tipdoc = kod_tipdoc_x_n.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn_x_n on ur_prizn_x_n.kod = ur_graf.ur_prizn--\kk_tipdoc_ur_prizn
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="ur_prizn" table="ur_graf" />
+            <dependant name="ur_prizn_x_n" table="ur_graf" />
+            <dependant name="kod_tipdoc_x_n" table="ur_graf" />
+            <dependant name="is_isp" table="ur_graf" />
+            <dependant name="is_mat" table="ur_graf" />
+            <dependant name="is_dop" table="ur_graf" />
+            <dependant name="kod_tipdoc_new_val" table="ur_graf" />
+          </dependants>
+        </column>
+        <column name="doc_date" table="ur_graf" type="date" title="Дата документа" parname="doc_date" ClientVisible="0" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.doc_date as doc_date, /*Дата документа*//*date*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+ coalesce( kod_sogl.dat_doc , kod_hist_mat2.dat_post , kod_isp.dat_doc )  as doc_date/*Дата документа*//*date*/
+
+from (select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl,a.kod_isp as kod_isp  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat,t.n2 as kod_sogl,t.n3 as kod_isp  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl,a.kod_isp as kod_isp  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat,t.n2 as kod_sogl,t.n3 as kod_isp  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.dat_post as dat_post/*Дата прин. суд. акта*//*date*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+kod_hist_mat2 on a.kod_hist_mat = kod_hist_mat2.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата доп. документа*//*date*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата выдачи исп. листа*//*date*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp on a.kod_isp = kod_isp.kod_isp--\ur_isp
+)
+ur_graf
+--\ur_graf
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="dat_opl_beg" table="ur_graf" type="date" title="Начало учета фактической оплаты" ClientVisible="0" is-user-editable="1" ClientNewVal="doc_date" is-updateable="1" is-updateable-ext="1" update-target="dat_opl_beg" temp-col-name="d1" />
+        <column name="kod_folders_x_n" table="ur_graf.kod_folders" type="date" title="Папка" text-source-for="kod_folders" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_folders_x_n.dat_create as kod_folders_x_n, /*Папка*//*date*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_folders as kod_folders/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_folders as kod_folders  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n7 as kod_folders  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_folders as kod_folders  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n7 as kod_folders  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.dat_create as dat_create/*Дата создания папки*//*date*/
+
+from ur_folders
+a
+--\ur_folders
+)
+kod_folders_x_n on ur_graf.kod_folders = kod_folders_x_n.kod_folders--\ur_folders
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="ur_prizn_x_n" table="ur_graf.ur_prizn" type="string" title="Тип документа" text-source-for="ur_prizn" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_prizn_x_n.name as ur_prizn_x_n, /*Тип документа*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Тип документа*//*number*/
+
+from (select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn_x_n on ur_prizn_x_n.kod = ur_graf.ur_prizn--\kk_tipdoc_ur_prizn
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_isp_x_n" table="ur_graf.kod_isp" type="string" title="Исполнительный лист" text-source-for="kod_isp" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_isp_x_n.full_name as kod_isp_x_n, /*Исполнительный лист*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_isp as kod_isp/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_isp as kod_isp  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n3 as kod_isp  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_isp as kod_isp  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n3 as kod_isp  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.num_reg || ' от ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Исполнительный лист*//*string*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp_x_n on ur_graf.kod_isp = kod_isp_x_n.kod_isp--\ur_isp
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_hist_mat_x_n" table="ur_graf.kod_hist_mat" type="string" title="Решение" text-source-for="kod_hist_mat" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_hist_mat_x_n.name as kod_hist_mat_x_n, /*Решение*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_hist_mat as kod_hist_mat/*Решение*//*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+kod_doc.abbr || ' от ' || ( to_char( kod_mat.dat_doc ,'DD.MM.YYYY') )  || '  ' || kod_mat.num_delo || '  ' || kod_result.name as name/*Решение*//*string*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_doc as kod_doc/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat1 on a.kod_mat = kod_mat1.kod_mat--\ur_mat
+left outer join
+(
+--us_doc
+select a.kod_doc as kod_doc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from us_doc
+a
+--\us_doc
+)
+kod_doc on kod_mat1.kod_doc = kod_doc.kod_doc--\us_doc
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.num_delo as num_delo, /*Номер дела*//*string*/
+a.dat_doc as dat_doc/*Дата подачи в суд*//*date*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat on a.kod_mat = kod_mat.kod_mat--\ur_mat
+left outer join
+(
+--us_result
+select a.kod_result as kod_result, /*number*//*key*/
+a.name as name/*Результат рассмотрения*//*string*/
+
+from us_result
+a
+--\us_result
+)
+kod_result on a.kod_result = kod_result.kod_result--\us_result
+)
+kod_hist_mat_x_n on ur_graf.kod_hist_mat = kod_hist_mat_x_n.kod_hist_mat--\ur_hist_mat
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_sogl_x_n" table="ur_graf.kod_sogl" type="string" title="Доп. документ (арбитраж)" text-source-for="kod_sogl" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_sogl_x_n.full_name as kod_sogl_x_n, /*Доп. документ (арбитраж)*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_sogl as kod_sogl/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_sogl as kod_sogl  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n2 as kod_sogl  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+kod_tipdoc.abbr || ' ' || a.num_reg || ' от  ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Аббревиатура*//*string*/
+
+from ur_sogl
+a
+--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+kod_sogl_x_n on ur_graf.kod_sogl = kod_sogl_x_n.kod_sogl--\ur_sogl
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_tipdoc_x_n" table="ur_graf.kod_tipdoc" type="string" title="Тип документа" text-source-for="kod_tipdoc" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_tipdoc_x_n.name as kod_tipdoc_x_n, /*Тип документа*//*string*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.name as name/*Тип документа*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc_x_n on ur_graf.kod_tipdoc = kod_tipdoc_x_n.kod_tipdoc--\kk_tipdoc
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_isp" table="ur_graf" type="number" title="Тип документа" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.is_isp as is_isp, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+ case  when (a.ur_prizn = 3)  then 1 else 0 end  as is_isp/*number*/
+
+from (select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+ur_graf
+--\ur_graf
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_mat" table="ur_graf" type="number" title="Тип документа" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.is_mat as is_mat, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+ case  when (a.ur_prizn = 2)  then 1 else 0 end  as is_mat/*number*/
+
+from (select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+ur_graf
+--\ur_graf
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_dop" table="ur_graf" type="number" title="Тип документа" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.is_dop as is_dop, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+ case  when (a.ur_prizn = 1)  then 1 else 0 end  as is_dop/*number*/
+
+from (select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,null as ur_prizn,a.kod_tipdoc as kod_tipdoc  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n11 as ur_prizn,t.n10 as kod_tipdoc  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+ur_graf
+--\ur_graf
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_tipdoc_new_val" table="ur_graf" type="number" title="" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_graf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_graf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select ur_graf.kod_tipdoc_new_val as kod_tipdoc_new_val, /*number*/
+ur_graf.kod_graf as kod_graf/*number*//*key*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+ case  when (ur_prizn.kod = 1)  then kod_sogl.kod_tipdoc else ur_prizn.kod_tipdoc end  as kod_tipdoc_new_val/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_tipdoc as kod_tipdoc,a.kod_sogl as kod_sogl,null as ur_prizn  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n10 as kod_tipdoc,t.n2 as kod_sogl,t.n11 as ur_prizn  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_tipdoc as kod_tipdoc,a.kod_sogl as kod_sogl,null as ur_prizn  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n10 as kod_tipdoc,t.n2 as kod_sogl,t.n11 as ur_prizn  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+(
+--
+select td.kod_tipdoc as kod_tipdoc/*number*//*key*/
+
+from (
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+td
+--\kk_tipdoc
+where
+(a.kod &gt; 1)  and (td.ur_prizn = a.kod) )
+--\
+ as kod_tipdoc/*number*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn on ur_prizn.kod = a.ur_prizn--\kk_tipdoc_ur_prizn
+)
+ur_graf
+--\ur_graf
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="ur_graf" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="ur_graf" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_folders as kod_folders 
+,:kod_graf as kod_graf 
+,:kod_isp as kod_isp 
+,:kod_hist_mat as kod_hist_mat 
+,:kod_sogl as kod_sogl 
+,:kod_tipdoc as kod_tipdoc 
+,:dat_opl_beg as dat_opl_beg 
+ 
+from dual ) 
+ 
+loop 
+insert into ur_graf 
+(kod_folders 
+,kod_graf 
+,kod_isp 
+,kod_hist_mat 
+,kod_sogl 
+,kod_tipdoc 
+,dat_opl_beg 
+) 
+ values  
+(r.kod_folders 
+,r.kod_graf 
+,r.kod_isp 
+,r.kod_hist_mat 
+,r.kod_sogl 
+,r.kod_tipdoc 
+,r.dat_opl_beg 
+) 
+ returning  
+kod_graf into :kod_graf; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from ur_graf where kod_graf=:kod_graf</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='ur_graf' 
+and 
+names=:form_id 
+and 
+f2=:kod_graf; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_folders as kod_folders 
+,:kod_graf as kod_graf 
+,:ur_prizn as ur_prizn 
+,:kod_isp as kod_isp 
+,:kod_hist_mat as kod_hist_mat 
+,:kod_sogl as kod_sogl 
+,:kod_tipdoc as kod_tipdoc 
+,:dat_opl_beg as dat_opl_beg 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n7 
+,n1 
+,n11 
+,n3 
+,n4 
+,n2 
+,n10 
+,d1 
+) 
+ values  
+('ur_graf' 
+,:form_id 
+,:kod_graf 
+,:row_state_id 
+,r.kod_folders 
+,r.kod_graf 
+,r.ur_prizn 
+,r.kod_isp 
+,r.kod_hist_mat 
+,r.kod_sogl 
+,r.kod_tipdoc 
+,r.dat_opl_beg 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_folders as kod_folders 
+,:kod_graf as kod_graf 
+,:ur_prizn as ur_prizn 
+,:kod_isp as kod_isp 
+,:kod_hist_mat as kod_hist_mat 
+,:kod_sogl as kod_sogl 
+,:kod_tipdoc as kod_tipdoc 
+,:dat_opl_beg as dat_opl_beg 
+,a.status 
+,a.u_m 
+,a.d_m 
+,a.kodp 
+,a.kod_graf_status 
+,a.dat_finish 
+,a.prim 
+,a.proc_opl_potr 
+ 
+from ur_graf a  where kod_graf=:kod_graf) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n7 
+,n1 
+,n11 
+,n3 
+,n4 
+,n2 
+,n10 
+,d1 
+,n8 
+,s2 
+,d3 
+,n9 
+,n5 
+,d2 
+,s1 
+,n6 
+) 
+ values  
+('ur_graf' 
+,:form_id 
+,:kod_graf 
+,:row_state_id 
+,r.kod_folders 
+,r.kod_graf 
+,r.ur_prizn 
+,r.kod_isp 
+,r.kod_hist_mat 
+,r.kod_sogl 
+,r.kod_tipdoc 
+,r.dat_opl_beg 
+,r.status 
+,r.u_m 
+,r.d_m 
+,r.kodp 
+,r.kod_graf_status 
+,r.dat_finish 
+,r.prim 
+,r.proc_opl_potr 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='ur_graf' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update ur_graf set  
+(kod_folders 
+,kod_graf 
+,kod_isp 
+,kod_hist_mat 
+,kod_sogl 
+,kod_tipdoc 
+,dat_opl_beg 
+) 
+= 
+ ( select  
+:kod_folders as kod_folders 
+,:kod_graf as kod_graf 
+,:kod_isp as kod_isp 
+,:kod_hist_mat as kod_hist_mat 
+,:kod_sogl as kod_sogl 
+,:kod_tipdoc as kod_tipdoc 
+,:dat_opl_beg as dat_opl_beg 
+ 
+from dual ) 
+ 
+where 
+kod_graf=:kod_graf 
+;
+end;
+</update-text>
+      <events>
+        <useaction event-name="object-save" name="ur_save.p_graf_sync_bzad">
+          <column table="this" column="kod_hist_mat" />
+          <column table="this" column="kod_sogl" />
+          <column table="this" column="kod_isp" />
+        </useaction>
+      </events>
+      <scheme>
+        <table name="ur_graf" as="ur_graf">
+          <columns>
+            <column name="kod_folders" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_graf" type="number" title="" visible="0" />
+            <column name="ur_prizn" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_isp" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_hist_mat" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_sogl" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_tipdoc" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="doc_date" type="date" title="Дата документа" />
+            <column name="dat_opl_beg" type="date" title="Начало учета фактической оплаты" />
+            <column name="kod_folders_x_n" type="date" title="Папка" visible="0" />
+            <column name="ur_prizn_x_n" type="string" title="Тип документа" />
+            <column name="kod_isp_x_n" type="string" title="Исполнительный лист" />
+            <column name="kod_hist_mat_x_n" type="string" title="Решение" />
+            <column name="kod_sogl_x_n" type="string" title="Доп. документ (арбитраж)" />
+            <column name="kod_tipdoc_x_n" type="string" title="Тип документа" visible="0" />
+            <column name="is_isp" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_mat" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_dop" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_tipdoc_new_val" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns />
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_graf_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_graf_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select ur_graf.kod_folders as kod_folders, /*number*/
+ur_graf.kod_graf as kod_graf, /*number*//*key*/
+ur_graf.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ur_graf.kod_isp as kod_isp, /*number*/
+ur_graf.kod_hist_mat as kod_hist_mat, /*Решение*//*number*/
+ur_graf.kod_sogl as kod_sogl, /*number*/
+ur_graf.kod_tipdoc as kod_tipdoc, /*number*/
+ur_graf.doc_date as doc_date, /*Дата документа*//*date*/
+ur_graf.dat_opl_beg as dat_opl_beg, /*Начало учета фактической оплаты*//*date*/
+kod_folders_x_n.dat_create as kod_folders_x_n, /*Папка*//*date*/
+ur_prizn_x_n.name as ur_prizn_x_n, /*Тип документа*//*string*/
+kod_isp_x_n.full_name as kod_isp_x_n, /*Исполнительный лист*//*string*/
+kod_hist_mat_x_n.name as kod_hist_mat_x_n, /*Решение*//*string*/
+kod_sogl_x_n.full_name as kod_sogl_x_n, /*Доп. документ (арбитраж)*//*string*/
+kod_tipdoc_x_n.name as kod_tipdoc_x_n, /*Тип документа*//*string*/
+ur_graf.is_isp as is_isp, /*number*/
+ur_graf.is_mat as is_mat, /*number*/
+ur_graf.is_dop as is_dop, /*number*/
+ur_graf.kod_tipdoc_new_val as kod_tipdoc_new_val, /*number*/
+ur_graf.is_new as is_new, /*number*/
+ur_graf.is_not_new as is_not_new/*number*/
+
+from (
+--ur_graf
+select a.kod_graf as kod_graf, /*number*//*key*/
+a.kod_hist_mat as kod_hist_mat, /*Решение*//*number*/
+a.kod_sogl as kod_sogl, /*number*/
+a.kod_isp as kod_isp, /*number*/
+a.kod_folders as kod_folders, /*number*/
+a.kod_tipdoc as kod_tipdoc, /*number*/
+a.dat_opl_beg as dat_opl_beg, /*Начало учета фактической оплаты*//*date*/
+a.ur_prizn as ur_prizn, /*Тип документа*//*number*/
+ coalesce( kod_sogl.dat_doc , kod_hist_mat2.dat_post , kod_isp.dat_doc )  as doc_date, /*Дата документа*//*date*/
+ case  when (a.ur_prizn = 3)  then 1 else 0 end  as is_isp, /*number*/
+ case  when (a.ur_prizn = 2)  then 1 else 0 end  as is_mat, /*number*/
+ case  when (a.ur_prizn = 1)  then 1 else 0 end  as is_dop, /*number*/
+ case  when (ur_prizn.kod = 1)  then kod_sogl.kod_tipdoc else ur_prizn.kod_tipdoc end  as kod_tipdoc_new_val, /*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl,a.kod_isp as kod_isp,a.kod_folders as kod_folders,a.kod_tipdoc as kod_tipdoc,a.dat_opl_beg as dat_opl_beg,null as ur_prizn,0 as is_new,1 as is_not_new  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat,t.n2 as kod_sogl,t.n3 as kod_isp,t.n7 as kod_folders,t.n10 as kod_tipdoc,t.d1 as dat_opl_beg,t.n11 as ur_prizn,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+a
+--\(select a.kod_graf as kod_graf,a.kod_hist_mat as kod_hist_mat,a.kod_sogl as kod_sogl,a.kod_isp as kod_isp,a.kod_folders as kod_folders,a.kod_tipdoc as kod_tipdoc,a.dat_opl_beg as dat_opl_beg,null as ur_prizn,0 as is_new,1 as is_not_new  from ur_graf a where not exists (select * from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and a.kod_graf=t.f2 ) and   a.kod_graf in :kod_graf_prm   union all  select t.n1 as kod_graf,t.n4 as kod_hist_mat,t.n2 as kod_sogl,t.n3 as kod_isp,t.n7 as kod_folders,t.n10 as kod_tipdoc,t.d1 as dat_opl_beg,t.n11 as ur_prizn,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='ur_graf' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_graf_prm )
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.dat_post as dat_post/*Дата прин. суд. акта*//*date*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+kod_hist_mat2 on a.kod_hist_mat = kod_hist_mat2.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+a.dat_doc as dat_doc, /*Дата доп. документа*//*date*/
+a.kod_tipdoc as kod_tipdoc/*number*/
+
+from ur_sogl
+a
+--\ur_sogl
+)
+kod_sogl on a.kod_sogl = kod_sogl.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.dat_doc as dat_doc/*Дата выдачи исп. листа*//*date*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp on a.kod_isp = kod_isp.kod_isp--\ur_isp
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+(
+--
+select td.kod_tipdoc as kod_tipdoc/*number*//*key*/
+
+from (
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.ur_prizn as ur_prizn/*Вид док-та*//*number*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+td
+--\kk_tipdoc
+where
+(a.kod &gt; 1)  and (td.ur_prizn = a.kod) )
+--\
+ as kod_tipdoc/*number*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn on ur_prizn.kod = a.ur_prizn--\kk_tipdoc_ur_prizn
+)
+ur_graf
+--\ur_graf
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.name as name/*Тип документа*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc_x_n on ur_graf.kod_tipdoc = kod_tipdoc_x_n.kod_tipdoc--\kk_tipdoc
+left outer join
+(
+--ur_sogl
+select a.kod_sogl as kod_sogl, /*number*//*key*/
+kod_tipdoc.abbr || ' ' || a.num_reg || ' от  ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Аббревиатура*//*string*/
+
+from ur_sogl
+a
+--\ur_sogl
+left outer join
+(
+--kk_tipdoc
+select a.kod_tipdoc as kod_tipdoc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from kk_tipdoc
+a
+--\kk_tipdoc
+)
+kod_tipdoc on a.kod_tipdoc = kod_tipdoc.kod_tipdoc--\kk_tipdoc
+)
+kod_sogl_x_n on ur_graf.kod_sogl = kod_sogl_x_n.kod_sogl--\ur_sogl
+left outer join
+(
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+kod_doc.abbr || ' от ' || ( to_char( kod_mat.dat_doc ,'DD.MM.YYYY') )  || '  ' || kod_mat.num_delo || '  ' || kod_result.name as name/*Решение*//*string*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.kod_doc as kod_doc/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat1 on a.kod_mat = kod_mat1.kod_mat--\ur_mat
+left outer join
+(
+--us_doc
+select a.kod_doc as kod_doc, /*number*//*key*/
+a.abbr as abbr/*Аббревиатура*//*string*/
+
+from us_doc
+a
+--\us_doc
+)
+kod_doc on kod_mat1.kod_doc = kod_doc.kod_doc--\us_doc
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.num_delo as num_delo, /*Номер дела*//*string*/
+a.dat_doc as dat_doc/*Дата подачи в суд*//*date*/
+
+from ur_mat
+a
+--\ur_mat
+)
+kod_mat on a.kod_mat = kod_mat.kod_mat--\ur_mat
+left outer join
+(
+--us_result
+select a.kod_result as kod_result, /*number*//*key*/
+a.name as name/*Результат рассмотрения*//*string*/
+
+from us_result
+a
+--\us_result
+)
+kod_result on a.kod_result = kod_result.kod_result--\us_result
+)
+kod_hist_mat_x_n on ur_graf.kod_hist_mat = kod_hist_mat_x_n.kod_hist_mat--\ur_hist_mat
+left outer join
+(
+--ur_isp
+select a.kod_isp as kod_isp, /*number*//*key*/
+a.num_reg || ' от ' || ( to_char( a.dat_doc ,'DD.MM.YYYY') )  as full_name/*Исполнительный лист*//*string*/
+
+from ur_isp
+a
+--\ur_isp
+)
+kod_isp_x_n on ur_graf.kod_isp = kod_isp_x_n.kod_isp--\ur_isp
+left outer join
+(
+--kk_tipdoc_ur_prizn
+select a.kod as kod, /*number*//*key*/
+a.name as name/*string*/
+
+from (
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    )a
+--\kk_tipdoc_prizn
+)
+ur_prizn_x_n on ur_prizn_x_n.kod = ur_graf.ur_prizn--\kk_tipdoc_ur_prizn
+left outer join
+(
+--ur_folders
+select a.kod_folders as kod_folders, /*number*//*key*/
+a.dat_create as dat_create/*Дата создания папки*//*date*/
+
+from ur_folders
+a
+--\ur_folders
+)
+kod_folders_x_n on ur_graf.kod_folders = kod_folders_x_n.kod_folders--\ur_folders
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

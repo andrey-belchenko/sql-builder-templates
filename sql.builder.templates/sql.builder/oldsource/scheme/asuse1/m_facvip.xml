@@ -1,0 +1,213 @@
+<root>
+  <queries>
+    <query name="m_facvip">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_sf" type="number">
+        </column>
+        <column table="a" column="kod_deb" type="number">
+        </column>
+        <column table="a" column="vid_real" type="number">
+        </column>
+        <column table="a" column="kodp" type="string">
+        </column>
+        <column table="a" column="num_sf" type="string">
+        </column>
+        <column table="a" column="dat_sf" type="date">
+        </column>
+        <call function="||" as="name">
+          <const>'№ '</const>
+          <column table="a" column="num_sf" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_sf" />
+          </call>
+        </call>
+        <column table="a" column="dat_bzad" type="date">
+        </column>
+        <call function="+" as="ym" type="number">
+          <column table="a" column="god" />
+          <call function="/">
+            <column table="a" column="mes" />
+            <const>100</const>
+          </call>
+        </call>
+        <call function="nvl" as="dat_bzad_nvl" type="date">
+          <column table="a" column="dat_bzad">
+          </column>
+          <column table="a" column="dat_sf">
+          </column>
+        </call>
+
+        <call function="date add days" as="dat_bzad_uved" >
+          <call function="nvl">
+            <column table="deb" column="dat_deb">
+            </column>
+            <column table="a" column="dat_sf">
+            </column>
+          
+          </call>
+          <const>1</const>
+        </call>
+        
+        <column table="ras" column="codeabon">
+        </column>
+        <column table="akt" column="kod_bu_akt">
+        </column>
+        <column table="akt" column="num" as="num_akt">
+        </column>
+        <column table="akt" column="dat" as="dat_akt">
+        </column>
+        <call function="||" as="akt_name">
+          <const>'№ '</const>
+          <column table="akt" column="num">
+          </column>
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="akt" column="dat">
+            </column>
+          </call>
+        </call>
+        <call function="-nvl" as="dolg" type="number">
+          <column table="ras" column="summa">
+          </column>
+          <column table="opl" column="oplf">
+          </column>
+        </call>
+        <column table="opl" column="oplf">
+        </column>
+        <call function="nvl" as="deb_dolg" type="number">
+          <column table="deb" column="dolg">
+          </column>
+          <column table="this" column="dolg">
+          </column>
+        </call>
+      </select>
+      <from>
+        <table name="m_facvip" as="a">
+        </table>
+        <query name="m_facvip.m_facras" as="ras" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="ras" column="kod_sf">
+            </column>
+          </call>
+        </query>
+        <query name="bu_akt_facvip" as="akt" join="left outer" materialize="1">
+          <withparams>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="akt" column="kod_sf">
+            </column>
+          </call>
+        </query>
+        <query name="m_facvip.m_opl" as="opl" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="opl" column="kod_sf">
+            </column>
+          </call>
+        </query>
+        <query name="m_debet" as="deb" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_deb">
+            </column>
+            <column table="deb" column="kod_deb">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true"/>
+          <usepart part="ext-cond">
+            <const>a</const>
+            <useparam name="kodp_cond">
+            </useparam>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="m_facvip.m_facras">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_sf" group="1">
+        </column>
+        <column table="a" column="codeabon" group="max">
+        </column>
+        <column table="a" column="summa" group="sum" />
+      </select>
+      <from>
+        <query name="m_facras" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="m_debet.m_facvip">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <param name="date">
+        <const>sysdate</const>
+      </param>
+      <select>
+        <column table="a" column="kod_deb" group="1">
+        </column>
+        <column table="a" column="dolg" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="m_facvip" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

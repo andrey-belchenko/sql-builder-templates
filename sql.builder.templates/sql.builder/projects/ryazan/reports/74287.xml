@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="74287" nogrid="1" title="16. Структура потребления электрической энергии" form="74287" timestamp="26.01.2025 21:21:01">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" />
+        <param name="p_ym" type="number" />
+        <param name="p_kod_m_srf" type="array" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="74287.xlsx" title="Структура полезного отпуска" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <procedure>
+    <![CDATA[ DECLARE
+         s_data_id     rr_temp.skod%type;
+ BEGIN 
+  s_data_id    := 'D250859F-7428-7FAE-9EB6-78FD1AA8728F';
+-- подготавливаем данные по полезному отпуску
+  delete vr_number_array;
+  INSERT INTO vr_number_array (array_id,val) values ('p_dep', :p_dep);
+  INSERT INTO vr_number_array (array_id,val)  
+       SELECT 'p_kod_adr_m', kod_m  FROM adr_m  WHERE 1=0 {OR kod_m in :p_kod_m_srf};
+  -- заполняем rr_rep_po данными по полезному отпуску
+  ng_rep_other.po_per_region_add_regl(:p_ym, :p_ym,  1,  1); 
+  
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  INSERT INTO rr_temp (skod, n4 -- id
+                       , n1  -- gr - группа
+                       , n2  -- subgr - подгруппа
+                       , s1  -- okved_name
+                       , s2  -- okved_name
+                       , s3  -- kod_okved_str
+                       , n3  -- cust (кВтч)
+                      )
+      SELECT s_data_id, r.id as n4,
+             r.gr, r.subgr, max(r.okved_name) as okved_name, max(r.kod_okved_str) as kod_okved_str, max(r.kod_str) as kod_str, 
+             SUM(CASE WHEN pr_byt = 0 AND po.pr_opt = 1 AND po.edizm = 4 THEN po.cust ELSE 0 END) as cust_kvth
+      FROM (-- справочник ОКВЭД-ов для отчета № 16
+               select 1 as id, 1 as gr, null as subgr, 'Сельское хозяйство, лесное хозяйство, охота, рыболовство и рыбоводство' as okved_name, 'Раздел А  01, 02, 03' as kod_okved_str, '10100' as kod_str FROM dual
+     UNION ALL select null,  1, null, 'в том числе:', null, null  FROM dual
+     UNION ALL select 2,     1, 1,    'Рыболовство и рыбоводство', '03', '10150'  FROM dual
+     UNION ALL SELECT 3,     2, null, 'Добыча полезных ископаемых', 'Раздел В  05 - 09', '10200' FROM dual
+     UNION ALL select null,  2, null, '   в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 4,     3, null, 'Обрабатывающие производства', 'Раздел С  10 - 33 ', '10300' FROM dual
+     UNION ALL select null,  3, null, 'в том числе:', null, null  FROM dual
+     UNION ALL SELECT 5,     3, 1,    'Обработка древесины и производство изделий из дерева и пробки, кроме мебели, производство изделий из соломки и материалов для плетения', '16', ' - ' FROM dual
+     UNION ALL SELECT 6,     3, 2,    'Производство бумаги и бумажных изделий', '17' , '103001' FROM dual
+     UNION ALL select null,  3, 2,    '   в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual    
+     UNION ALL SELECT 7,     3, 3,    'Производство кокса и нефтепродуктов', '19' , '10302' FROM dual
+     UNION ALL select null,  3, 3,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 8,     3, 4,    'Производство химических веществ и химических продуктов', '20' , '10303' FROM dual
+     UNION ALL select null,  3, 4,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 9,     3, 5,    'Производство металлургическое', '24' , '10304' FROM dual
+     UNION ALL select null,  3, 5,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 10,    3, 6,    'Производство компьютеров, электронных и оптических изделий', '26' , '-' FROM dual
+     UNION ALL SELECT 11,    3, 7,    'Производство электрического оборудования', '27' , '-' FROM dual
+     UNION ALL select null,  3, 7,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 12,    3, 8,    'Производство машин и оборудования, не включенных в другие группировки', '28', '10307' FROM dual
+     UNION ALL select null,  3, 8,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 13,    3, 9,    'Производство автотранспортных средств, прицепов и полуприцепов', '29' , '10308' FROM dual
+     UNION ALL SELECT 14,    3, 10,   'Производство прочих транспортных средств и оборудования', '30' , '-' FROM dual
+     UNION ALL select null,  3, 10,   '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 15,    4, null, 'Обеспечение электрической энергией, газом и паром, кондиционирование воздуха', 'Раздел D  35', '10400' FROM dual
+     UNION ALL SELECT 16,    5, null, 'Водоснабжение; водоотведение, организация сбора и утилизации отходов, деятельность по ликвидации загрязнений', 'Раздел E  36 – 39 ' , '10440' FROM dual
+     UNION ALL SELECT 17,    6, null, 'Строительство', 'Раздел F  41 - 43', '10500' FROM dual
+     UNION ALL select null,  6, null, '   в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual  
+     UNION ALL SELECT 18,    7, null, 'Транспортировка и хранение', 'Раздел H  49 – 53' , '10610' FROM dual
+     UNION ALL SELECT 19,    8, null, 'Деятельность в области информации и связи', 'Раздел J  58 - 63 ' , '10620' FROM dual
+     UNION ALL select null,  8, null, 'в том числе:', null, null  FROM dual
+     UNION ALL SELECT 20,    8, 1,    'Деятельность железнодорожного транспорта', '49.1, 49.2, 49.31.1' , '10601' FROM dual
+     UNION ALL select null,  8, 1,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 21,    8, 2,    'Деятельность городского электрического транспорта', '49.31.22, 49.31.23, 49.31.24, 49.31.25', '10602' FROM dual
+     UNION ALL select null,  8, 2,    '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 22,    8, 3,    'Деятельность трубопроводного транспорта', '49.5' , '10604' FROM dual
+     UNION ALL select null,  8, 3, '    в том числе потребители с потреблением электроэнергии 120 млн кВт·ч в год и выше:', null, null  FROM dual
+     UNION ALL SELECT 23, 9,  null, 'Торговля оптовая и розничная; ремонт автотранспортных средств и мотоциклов', 'Раздел G  45, 46, 47', '10510' FROM dual
+     UNION ALL SELECT 24, 10, null, 'Прочие виды экономической деятельности, не вошедшие в вышеперечисленные группировки', '-', '10700' from dual
+  --   UNION ALL SELECT 25, 11, null, 'Население и приравненные к нему группы потребителей', '-', '10800' from dual
+            ) r
+     LEFT JOIN ( -- связь строк из ref_rep (справочка для отчета) с ОКВЭД-ами из общего справочника
+              SELECT  1 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1847   -- Раздел А  
+    UNION ALL SELECT  2 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2018   -- 03
+    UNION ALL SELECT  3 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1848   -- Раздел В
+    UNION ALL SELECT  4 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1849   -- Раздел С
+    UNION ALL SELECT  5 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2902   -- 16
+    UNION ALL SELECT  6 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2935   -- 17
+    UNION ALL SELECT  7 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2958   -- 19
+    UNION ALL SELECT  8 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2974   -- 20
+    UNION ALL SELECT  9 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2446   -- 24
+    UNION ALL SELECT 10 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2707   -- 26
+    UNION ALL SELECT 11 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2786   -- 27
+    UNION ALL SELECT 12 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2491   -- 28
+    UNION ALL SELECT 13 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 2628   -- 29
+    UNION ALL SELECT 14 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_2 = 3081   -- 30
+    UNION ALL SELECT 15 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1850   -- Раздел D
+    UNION ALL SELECT 16 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1851   -- Раздел E
+    UNION ALL SELECT 17 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1852   -- Раздел F
+    UNION ALL SELECT 18 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1854   -- Раздел H
+    UNION ALL SELECT 19 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1856   -- Раздел J
+    UNION ALL SELECT 20 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_3 in (3845, 3851)   -- 49.1, 49.2
+    UNION ALL SELECT 20 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_5 = 3857   -- 49.31.1
+    UNION ALL SELECT 21 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_6 in (3862, 3863, 3864, 3862) -- 49.31.22, 49.31.23, 49.31.24, 49.31.25
+    UNION ALL SELECT 22 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_3 = 3886 -- 49.5
+    UNION ALL SELECT 23 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE kod_okved_level_1 = 1853   -- Раздел G
+    UNION ALL SELECT 24 as id , kod_okved as kod_okved  FROM kv_okved_level  WHERE okved_level_2 in (55, 56)  or okved_level_2 > 63    -- 
+  --  UNION ALL SELECT 25 as id , 990800 as kod_okved  FROM dual   -- население
+          ) rr  ON r.id = rr.id
+     LEFT JOIN  rr_rep_po po ON rr.kod_okved = po.kod_okved
+  GROUP BY r.id, r.gr, r.subgr
+  UNION ALL  SELECT s_data_id, 25 as id,
+            11 as gr, null as subgr, 'Население и приравненные к нему группы потребителей' as okved_name, '-' as kod_okved_str, '10800' as kod_str,
+            SUM(CASE WHEN po.pr_byt = 1 AND po.pr_opt = 1 AND po.edizm = 4 THEN po.cust ELSE 0 END) as cust_kvth
+      FROM rr_rep_po po;
+ END;
+]]></procedure>
+      <queries>
+        <query name="74287_data_gr" as="a">
+          <query name="74287_data_sub_gr" as="b">
+            <call function="=">
+              <column table="a" column="gr" />
+              <column table="b" column="gr" />
+            </call>
+            <query name="74287_data_sub_gr_add" as="d">
+              <call function="and">
+                <call function="=">
+                  <column table="b" column="gr" />
+                  <column table="d" column="gr" />
+                </call>
+                <call function="=">
+                  <column table="b" column="sub_gr" />
+                  <column table="d" column="sub_gr" />
+                </call>
+              </call>
+            </query>
+          </query>
+          <query name="74287_data_gr_add" as="c">
+            <call function="=">
+              <column table="a" column="gr" />
+              <column table="c" column="gr" />
+            </call>
+          </query>
+        </query>
+        <query name="title_info" as="t">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_ym" />
+            <useparam name="p_dep" />
+            <useparam name="p_kod_m_srf" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms>
+    <form name="74287" title="Структура полезного отпуска" timestamp="21.01.2025 12:07:54">
+      <usefield field="asuse_dep_single" type="number" name="p_dep" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym" mandatory="1" title="Период" type="number" />
+      <usefield field="asuse_adr_m_obj_dep" name="p_kod_m_srf" />
+    </form>
+  </forms>
+  <queries>
+    <query name="74287_data_gr" title="Данные по группам" order="gr" timestamp="22.01.2025 17:44:10">
+      <select>
+        <column table="r" column="n1" as="gr" type="number" key="1" />
+        <column table="r" column="s1" type="string" as="okved_name" />
+        <column table="r" column="s2" type="string" as="kod_okved_str" />
+        <column table="r" column="s3" type="string" as="kod_str" />
+        <column table="r" column="n3" type="number" as="cust_kvth" mp="-3" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="r" column="n4" />
+          </call>
+          <call function="is null">
+            <column table="r" column="n2" />
+          </call>
+          <call function="=">
+            <column table="r" column="skod" />
+            <const type="string">'D250859F-7428-7FAE-9EB6-78FD1AA8728F'</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="74287_data_sub_gr" order="gr,sub_gr" title="Данные по подгруппам" timestamp="22.01.2025 17:44:39">
+      <select>
+        <column table="r" column="n1" as="gr" type="number" key="1" />
+        <column table="r" column="n2" type="number" as="sub_gr" key="1" />
+        <column table="r" column="s1" type="string" as="okved_name" />
+        <column table="r" column="s2" type="string" as="kod_okved_str" />
+        <column table="r" column="s3" type="string" as="kod_str" />
+        <column table="r" column="n3" type="number" as="cust_kvth" mp="-3" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="r" column="n4" />
+          </call>
+          <call function="is not null">
+            <column table="r" column="n2" />
+          </call>
+          <call function="=">
+            <column table="r" column="skod" />
+            <const type="string">'D250859F-7428-7FAE-9EB6-78FD1AA8728F'</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="74287_data_gr_add" order="gr" title="Строки &quot;в том числе&quot; после некоторых разделов." timestamp="22.01.2025 18:15:18">
+      <select>
+        <column table="r" column="n1" as="gr" type="number" key="1" />
+        <column table="r" column="s1" type="string" as="okved_name" />
+        <column table="r" column="s2" type="string" as="kod_okved_str" />
+        <column table="r" column="s3" type="string" as="kod_str" />
+        <column table="r" column="n3" type="number" as="cust_kvth" mp="-3" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="r" column="n4" />
+          </call>
+          <call function="is not null">
+            <column table="r" column="n1" />
+          </call>
+          <call function="is null">
+            <column table="r" column="n2" />
+          </call>
+          <call function="=">
+            <column table="r" column="skod" />
+            <const type="string">'D250859F-7428-7FAE-9EB6-78FD1AA8728F'</const>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="74287_data_sub_gr_add" order="gr" title="Строки &quot;в том числе потребители с потреблением ....&quot; после некоторых ПОДразделов." timestamp="22.01.2025 19:05:06">
+      <select>
+        <column table="r" column="n1" as="gr" type="number" key="1" />
+        <column table="r" column="n2" as="sub_gr" type="number" key="1" />
+        <column table="r" column="s1" type="string" as="okved_name" />
+        <column table="r" column="s2" type="string" as="kod_okved_str" />
+        <column table="r" column="s3" type="string" as="kod_str" />
+        <column table="r" column="n3" type="number" as="cust_kvth" mp="-3" />
+      </select>
+      <from>
+        <query name="rr_temp" as="r" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is null">
+            <column table="r" column="n4" />
+          </call>
+          <call function="is not null">
+            <column table="r" column="n1" />
+          </call>
+          <call function="is not null">
+            <column table="r" column="n2" />
+          </call>
+          <call function="=">
+            <column table="r" column="skod" />
+            <const type="string">'D250859F-7428-7FAE-9EB6-78FD1AA8728F'</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

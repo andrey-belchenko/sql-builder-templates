@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="sverh_dolg" timestamp="16.06.2016 20:59:02">
+      <params>
+        <param name="p_kod_dog_array_id" type="string" />
+        <param type="number" name="p_ym" />
+      </params>
+      <select>
+        <column table="kod_dog" column="kod_dog" group="1" />
+        <fact column="fin_ul_sverh_dolg" group="sum">
+          <withparams>
+            <call function="ym begin time">
+              <call function="ym add month">
+                <useparam name="p_ym" />
+                <const>1</const>
+              </call>
+            </call>
+          </withparams>
+        </fact>
+        <call function="if" group="sum" title="Сверхнормативная задолженность 1-3 месяца" as="sv_dlg_3m" type="number" colset="по группам месяцев">
+          <call function="between">
+            <column table="ym_vozn" column="val" as="ym_vozn" />
+            <call function="ym add month">
+              <useparam name="p_ym" />
+              <const>-2</const>
+            </call>
+            <call function="ym add month">
+              <useparam name="p_ym" />
+              <const>1</const>
+            </call>
+          </call>
+          <fact column="fin_ul_sverh_dolg">
+            <withparams>
+              <call function="ym begin time">
+                <call function="ym add month">
+                  <useparam name="p_ym" />
+                  <const>1</const>
+                </call>
+              </call>
+            </withparams>
+          </fact>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_vdog" />
+            <link name="dep" />
+          </link>
+          <link name="ym_vozn" />
+          <where>
+            <call function="and">
+              <call function="!=" exclude="1">
+                <column table="kod_vdog" column="kod_tipdog" />
+                <const>6</const>
+              </call>
+              <call function="!=" exclude="1">
+                <column table="kod_dog" column="pr_active" />
+                <const>1</const>
+              </call>
+              <call function="in" optional="1" exclude="1">
+                <column table="dep" column="kodp" />
+                <const>102276621</const>
+                <useparam name="dep" exclude="1" />
+              </call>
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <query>
+                  <select>
+                    <column table="a" column="val" />
+                  </select>
+                  <from>
+                    <query name="vr_number_array" as="a" />
+                  </from>
+                  <where>
+                    <call function="=">
+                      <column table="a" column="array_id" />
+                      <useparam name="p_kod_dog_array_id" />
+                    </call>
+                  </where>
+                </query>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="deb_dolg_pr_on_dat" timestamp="24.01.2018 17:01:38" comment="по заявке 37479">
+      <params>
+        <param type="date" name="p_dat">
+          <const>to_date('18.01.2018','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_dog_fin" column="kod_dog" />
+        <fact column="fin_ul_ob" as="dolg" />
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_dog_fin">
+              <link name="dep" />
+            </link>
+          </link>
+          <link name="vid_real" only-for-cond="1" />
+          <link name="dat_dolg" />
+          <where>
+            <call function="in">
+              <column table="vid_real" column="vid_real" />
+              <const>(2,3)</const>
+            </call>
+            <call function="lt">
+              <column table="dat_dolg" column="val" />
+              <useparam name="p_dat" />
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="period_dolg_t" timestamp="08.11.2017 17:09:37" comment="33286(6)" is-report="1" save-compiled="1" use-temp="1">
+      <params>
+        <param name="p_kod_dog_array_id" type="string">
+          <const>'dogovor1'</const>
+        </param>
+        <param type="date" name="p_date">
+          <const>to_date('01.09.2016','DD.MM.YYYY')</const>
+        </param>
+      </params>
+      <select>
+        <column table="kod_dog" column="kod_dog" group="1" />
+        <column table="kod_sf" column="kod_sf" group="1" exclude="1" />
+        <fact column="fin_ul_ob" group="sum" as="dolg" />
+        <call function="vg_period.ym_enum_str_to_ym_rng_str_uv " as="period">
+          <column table="kod_sf" column="ym" group="stragg" />
+        </call>
+        <column table="kod_sf" column="ym" group="stragg" exclude="1" />
+        <call function="if" group="sum" type="number" as="dolg_pros" exclude="1">
+          <call function="le">
+            <column table="kod_sf" column="dat_bzad" />
+            <useparam name="p_date" />
+          </call>
+          <fact column="fin_ul_ob" as="dolg" />
+        </call>
+        <call function="vg_period.ym_enum_str_to_ym_rng_str_uv " as="period_pros" exclude="1">
+          <call function="if" group="stragg">
+            <call function="le">
+              <column table="kod_sf" column="dat_bzad" />
+              <useparam name="p_date" />
+            </call>
+            <column table="kod_sf" column="ym" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_sf" />
+          <link name="kod_dog" />
+          <link name="dat" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="kod_sf" column="vid_real" />
+                <array>2,4,7</array>
+              </call>
+              <call function="gt">
+                <call function="nvl">
+                  <column table="kod_sf" column="dat_ezad" />
+                  <call function="doomsday" />
+                </call>
+                <useparam name="p_date" />
+              </call>
+              <call function="in" exclude="1">
+                <column table="kod_dog" column="kod_dog" />
+                <const>6268</const>
+              </call>
+              <call function="in">
+                <column table="kod_dog" column="kod_dog" />
+                <call function="vr_number_array.get">
+                  <useparam name="p_kod_dog_array_id" />
+                </call>
+                <query exclude="1">
+                  <select>
+                    <column table="a" column="val" />
+                  </select>
+                  <from>
+                    <query name="vr_number_array" as="a" />
+                  </from>
+                  <where>
+                    <call function="=">
+                      <column table="a" column="array_id" />
+                      <useparam name="p_kod_dog_array_id" />
+                    </call>
+                  </where>
+                </query>
+              </call>
+              <call function="le">
+                <column table="dat" column="val" />
+                <useparam name="p_date" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <where>
+        <call function="!=0">
+          <fact column="fin_ul_ob_os_av_uav" />
+        </call>
+      </where>
+      <having>
+        <call function="!=0">
+          <column table="this" column="dolg" />
+        </call>
+      </having>
+    </query>
+  </queries>
+</root>

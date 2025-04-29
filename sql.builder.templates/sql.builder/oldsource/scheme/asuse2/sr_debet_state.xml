@@ -1,0 +1,76 @@
+<root>
+  <queries>
+    <query name="sr_debet_state">
+      <select>
+        <column table="a" column="rowid" as="id" type="string">
+        </column>
+        <column table="a" column="kod_state" type="number">
+        </column>
+        <column table="a" column="kod_deb" type="number">
+        </column>
+        <column table="a" column="dat_ust" type="date">
+        </column>
+        <call function="date to ym" as="ym">
+          <column table="a" column="dat_ust" />
+        </call>
+        <column table="st" column="fname" as="state_fname">
+        </column>
+      </select>
+      <from>
+        <table name="sr_debet_state" as="a">
+        </table>
+        <query name="ss_state" as="st" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_state">
+            </column>
+            <column table="st" column="kod_state">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <!-- последнее состояние по платежке в расчетном периоде-->
+    <query name="sr_debet_state_ym1">
+      <select>
+        <column table="a" column="kod_deb" group="1" />
+        <column table="a" column="ym" group="1" />
+        <call function="keep last" as="id">
+          <call function="max">
+            <column table="a" column="id">
+            </column>
+          </call>
+          <column table="a" column="dat_ust" />
+        </call>
+      </select>
+      <from>
+        <query name="sr_debet_state" as="a">
+        </query>
+      </from>
+    </query>
+    <query name="sr_debet_state_ym">
+      <select>
+        <column table="a" column="id" />
+        <column table="a" column="ym">
+        </column>
+        <column table="a" column="kod_deb" type="number">
+        </column>
+        <column table="ds" column="kod_state">
+        </column>
+        <column table="ds" column="state_fname">
+        </column>
+      </select>
+      <from>
+        <query name="sr_debet_state_ym1" as="a">
+        </query>
+        <query name="sr_debet_state" as="ds" join="left outer">
+          <call function="=">
+            <column table="a" column="id">
+            </column>
+            <column table="ds" column="id">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

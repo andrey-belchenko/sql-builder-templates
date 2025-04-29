@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="sqlbuilder">
+  <queries>
+    <query name="kk_tipdoc_ext" class="1" extend="kk_tipdoc" timestamp="23.02.2016 02:42:59">
+      <from>
+        <query name="kk_tipdoc_ur_prizn" as="ur_prizn" join="left outer">
+          <call function="=">
+            <column table="ur_prizn" column="kod" />
+            <column table="a" column="ur_prizn" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="kk_tipdoc_ur" order="prioritet">
+      <select>
+        <column table="a" column="kod_tipdoc" type="number"></column>
+        <column table="a" column="name" type="string" title="Наименование"></column>
+        <column table="a" column="abbr" type="string" title="Аббревиатура"></column>
+        <column table="a" column="srok" type="number" title="Срок действия мес." editor="spin"></column>
+        <column table="a" column="ur_prizn" type="number" title="Вид док-та" editor="combo"></column>
+        <column table="a" column="prioritet" type="number" title="Приоритет" editor="spin"></column>
+      </select>
+      <from>
+        <query name="kk_tipdoc" as="a" />
+        <query name="kk_tipdoc_ur_prizn" as="ur_prizn" join="left outer">
+          <call function="=">
+            <column table="ur_prizn" column="kod" />
+            <column table="a" column="ur_prizn" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="gt">
+          <column table="a" column="ur_prizn" />
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+    <query name="kk_tipdoc_ur_1" inherit="kk_tipdoc" class="1">
+      <where>
+        <call function="=">
+          <column table="a" column="ur_prizn" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="kk_tipdoc_ur_prizn" class="1" title="Тип доп. документа">
+      <select>
+        <column table="a" column="kod" type="number" />
+        <column table="a" column="name" type="string" vid="1" />
+        <query as="kod_tipdoc" type="number">
+          <select>
+            <column table="td" column="kod_tipdoc" />
+          </select>
+          <from>
+            <query name="kk_tipdoc" as="td" group="max" />
+          </from>
+          <where>
+            <call function="and">
+              <call function="gt">
+                <column table="a" column="kod" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="td" column="ur_prizn" />
+                <column table="a" column="kod" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </select>
+      <from>
+        <table name="kk_tipdoc_prizn" view="1" as="a" />
+        <!--<query name="kk_tipdoc" as="kod_tipdoc" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_tipdoc" />
+            <column table="kod_tipdoc" column="kod_tipdoc" />
+          </call>
+        </query>-->
+      </from>
+    </query>
+    <query name="kk_tipdoc_dog_list" order="name">
+      <select>
+        <column table="a" column="kod_tipdoc"/> 
+        <column table="a" column="name"/> 
+        <column table="a" column="abbr"/> 
+      </select>
+      <from>
+        <query name="kk_tipdoc" as="a"/>
+      </from>
+      <where>
+        <call function="in">
+          <call function="nvl">
+            <column table="a" column="prizn_ur"/>
+            <const>0</const>
+          </call>
+          <array>
+            <const>0</const>
+            <const>2</const>
+          </array>
+        </call>
+      </where>
+    </query>
+  </queries>
+  <views>
+    <view name="kk_tipdoc_prizn">
+      select 1 as kod,'Прочие' as name from dual union
+      select 2,'Мировое соглашение (судебное)' from dual union
+      select 3,'Исполнительный лист' from dual 
+    </view>
+  </views>
+</root>

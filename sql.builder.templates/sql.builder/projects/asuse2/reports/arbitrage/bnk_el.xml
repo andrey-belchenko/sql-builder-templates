@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="ur_folders_bnk_list_el" is-report="1" folder="ur_reports" security-id="asuse_ur_pir" with-behavior="0" title="Банкротство" timestamp="19.04.2025 02:56:03">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <content>
+        <fieldgroup title="Условия поиска">
+          <usefield field="asuse_kod_abon_type" column-editable="0" />
+          <usefield field="asuse_dep" column-editable="kr_dep_is_multi" />
+          <usefield field="asuse_prizn_arch_folder">
+            <defaultquery>
+              <query name="prizn_arch_folder_act" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_string" name="kodp" title="Код абонента" hint="LIKE" />
+        </fieldgroup>
+        <grid table="a" show-toolbar="1">
+          <toolbar>
+            <uicommand object="a" name="create_form_bnk_main_el" button-type="custom-add-form" title="Создать карточку" />
+            <uicommand button-type="grid-copy" column-visible="0" />
+            <uicommand button-type="grid-add" column-visible="0" />
+          </toolbar>
+          <columns>
+            <column table="kod_podr" column="sname" title="Отделение" />
+            <column table="a" column="kod_emp" column-mandatory="0" exclude="1" />
+            <column table="kodp" column="nump" exclude="1" />
+            <fact table="kod_dog" column="kr_dog_name" title="Номер договора" column-width="120" exclude="1" />
+            <fact table="a" column="ur_folders_dog_name_ext" title="Номер договора" column-width="120" />
+            <column table="kodp" column="name" column-width="227" title="Наименование потребителя" />
+            <fact table="a" column="cube_ur_folders_payer_ob" title="Текущая задолженность" as="dolg" column-width="99" exclude="1" />
+            <fact table="ur_stage_bk" column="ur_stage_bk_num_dela" />
+            <fact table="ur_stage_bk" title="Дата принятия заявл." column="ur_stage_bk_dat_zayav_bankrot" />
+            <fact table="ur_stage_bk_rn_1" column="ur_stage_bk_rn_1_stage_name" title="Процедура банкротства" />
+            <fact table="ur_stage_bk_rn_1" column="ur_stage_bk_rn_1_dat_create" column-width="81" title="Дата введения процедуры" />
+            <fact table="ur_stage_bk_rn_1" column="ur_stage_bk_rn_1_dat_srok_proc" column-width="81" />
+            <fact table="ur_stage_bk_rn_1" column="ur_stage_bk_rn_1_dat_finish" column-width="81" title="Дата завершения/ прекращения дела о банкротстве" />
+            <band title="Остаток мораторной задолженности">
+              <fact table="ur_hist_mat" column="ur_bnk_list_ost_all" title="Всего" nullif="0" column-width="81" exclude="1" />
+              <fact table="ur_hist_mat" column="ur_bnk_list_ost_all_ba" title="Всего" nullif="0" column-width="81" />
+              <fact table="ur_hist_mat" column="ur_bnk_list_ost_osnreal" title="Основная реализация" nullif="0" column-width="81" />
+              <fact table="ur_hist_mat" column="ur_bnk_list_ost_peni" title="Проценты (Пени)" nullif="0" column-width="81" />
+              <fact table="ur_hist_mat" column="ur_bnk_list_ost_gp" title="ГП" nullif="0" column-width="81" />
+              <fact table="ur_hist_mat" column="ur_hist_mat_ba_ost_ogr" title="Расх. за введ. огран. реж. энерг." nullif="0" column-width="81" />
+            </band>
+            <column table="a" column="dat_create" />
+            <column table="a" column="dat_finish" column-editable="1" as="dat_finish" column-width="92" />
+            <column table="a" column="is_active" as="is_active" invisible-in-column-chooser="1" />
+            <column table="a" column="kod_folders" parname="kod_folders" column-visible="false" />
+            <column table="a" column="vvod" invisible-in-column-chooser="1" />
+          </columns>
+          <menu>
+            <uicommand object="a" name="form_ur_foldres_simple" title="Открыть (пертензии)" control="pretenz" exclude="1" />
+            <uicommand object="a" name="form_ur_folders_bnk_main_el" title="Открыть карточку" />
+            <uicommand title="Карточка абонента" exclude="1" />
+          </menu>
+          <events>
+            <useaction object="a" name="form_ur_folders_bnk_main_el" event-name="double-click" />
+          </events>
+        </grid>
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders" as="a" column-editable="0">
+          <link name="kodp" />
+          <link name="kod_podr" />
+          <dlink name="un-dogplat" as="un" prime="1" exclude="1" />
+          <dlink name="ur_mat">
+            <link name="kod_dog" />
+          </dlink>
+          <dlink name="ur_stage_bk" />
+          <dlink name="ur_stage_bk_rn_1" />
+          <link name="kod_folders_ba">
+            <dlink name="ur_mat_ba">
+              <dlink name="ur_hist_mat_ba" as="ur_hist_mat" />
+            </dlink>
+          </link>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="=">
+                <column table="a" column="kod_sdp" />
+                <const>9</const>
+              </call>
+              <call function="=">
+                <column table="a" column="kod_vi" />
+                <const>1</const>
+              </call>
+              <call function="in" optional="1">
+                <column table="a" column="is_active" />
+                <useparam name="prizn_arch_folder" />
+              </call>
+              <call optional="1" function="like">
+                <column table="kodp" column="nump" />
+                <useparam name="kodp" />
+              </call>
+              <call optional="1" function="in">
+                <column table="a" column="kod_podr" />
+                <useparam name="dep" />
+              </call>
+              <call optional="1" function="in">
+                <column table="kodp" column="kod_abon_type" />
+                <useparam name="kod_abon_type" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="ur_folders_bnk_main_el" title="Карточка по банкротству [:ur_folders.kodp]" security-id="asuse_ur_pir" with-behavior="0" timestamp="24.09.2023 02:16:54">
+      <customers>
+        <customer id="10" />
+      </customers>
+      <params>
+        <param name="kod_folders" type="number">
+          <const exclude="1">2000008056</const>
+        </param>
+      </params>
+      <content>
+        <column table="ur_folders" column="kodp" title="" parname="kodp">
+          <listquery val-field-name="kodp">
+            <query name="kr_dogovor_list(dep_sng)">
+              <withparams>
+                <useparam name="dep" />
+              </withparams>
+            </query>
+          </listquery>
+        </column>
+        <uicommand name="open_form_finance" width-fixed="1" editable="kodp">
+          <useparam name="dep" />
+          <useparam name="kodp" />
+        </uicommand>
+        <tabcontainer>
+          <fieldgroup title="Папка" show-toolbar="1">
+            <toolbar>
+              <uicommand button-type="custom-refresh" editable="ur_folders_is_not_new" action-type="refresh-form" />
+              <uicommand button-type="custom-commit" editable="ur_folders_has_changes" action-type="save" />
+            </toolbar>
+            <column table="ur_folders" column="kod_folders" exclude="1" />
+            <column table="ur_folders" column="kod_podr" as="kod_podr" parname="dep" />
+            <column table="ur_folders" column="kodp_new" exclude="1" />
+            <column table="ur_folders" column="kod_emp" />
+            <column table="ur_folders" column="dat_create" />
+            <column table="ur_folders" column="dat_finish" as="dat_finish" />
+            <column table="ur_folders" column="num_doc" />
+            <column table="ur_folders" column="kod_category" column-visible="rs_esys_is_1" parname="kod_category" />
+            <column table="ur_folders" column="is_new" parname="ur_folders_is_active" exclude="1" />
+            <column table="ur_folders" column="is_not_new" parname="ur_folders_is_not_new" as="is_not_new" column-visible="0" />
+            <call function="if" as="test1" table="ur_folders" type="number" title="bbbb" parname="new_pret_vis" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="ur_folders" column="is_not_new" />
+                </call>
+                <call function="=">
+                  <fact column="rs_esys_kod_esys" table="ur_folders" />
+                  <const>23</const>
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="if" as="test3" table="ur_folders" type="number" title="bbbb2" parname="kod_esys10_pret_vis" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="ur_folders" column="is_not_new" />
+                </call>
+                <call function="=">
+                  <fact column="rs_esys_kod_esys" table="ur_folders" />
+                  <const>1</const>
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="if" as="test2" table="ur_folders" type="number" title="bbbb1" parname="old_pret_vis" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="ur_folders" column="is_not_new" />
+                </call>
+                <call function="not in">
+                  <fact column="rs_esys_kod_esys" table="ur_folders" />
+                  <array>23</array>
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <column table="ur_folders" column="vvod" parname="is_vvod" editable="ur_folders_is_new" />
+            <column table="ur_folders" column="kod_dog" title="" visible="is_vvod" mandatory="is_vvod" exists="is_vvod">
+              <listquery>
+                <query name="kr_dogovor(kodp)">
+                  <withparams>
+                    <useparam name="kodp" />
+                  </withparams>
+                </query>
+              </listquery>
+            </column>
+            <call function="if" as="show_vvod_tabs" table="ur_folders" type="number" parname="show_vvod_tabs" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="ur_folders" column="is_not_new" />
+                </call>
+                <call function="=1">
+                  <column table="ur_folders" column="vvod" />
+                </call>
+                <call function="!=">
+                  <call function="user_rights_kod_menu">
+                    <const>189006</const>
+                  </call>
+                  <const>2</const>
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <call function="if" as="show_doc_tabs" table="ur_folders" type="number" parname="show_doc_tabs" column-visible="0">
+              <call function="and">
+                <call function="=1">
+                  <column table="ur_folders" column="is_not_new" />
+                </call>
+                <call function="=0">
+                  <column table="ur_folders" column="vvod" />
+                </call>
+              </call>
+              <const>1</const>
+              <const>0</const>
+            </call>
+            <column table="ur_folders" column="is_new" parname="ur_folders_is_new" as="is_new" column-visible="0" />
+          </fieldgroup>
+          <fieldgroup as="mat" visible="show_doc_tabs" title="Включение в реестр треб. кредиторов" comment="По документам">
+            <useform object="ur_folders" name="form_ur_folders_bnk_el" />
+          </fieldgroup>
+          <fieldgroup as="mat" visible="show_vvod_tabs" title="Включение в реестр треб. кредиторов" comment="Ручной ввод">
+            <useform object="ur_folders" name="form_ur_folders_bnk_el_vvod" />
+          </fieldgroup>
+          <fieldgroup visible="ur_folders_is_not_new" title="Процедуры банкротства" as="stage_bk">
+            <useform object="ur_folders" name="form_ur_folders_stage_bk_el" />
+          </fieldgroup>
+          <fieldgroup as="reestr_cred_req" title="Реестр требований кредиторов" visible="ur_folders_is_not_new">
+            <useform object="ur_folders" name="form_ur_folders_creditors_claim_register" />
+          </fieldgroup>
+          <fieldgroup title="Сведения об имуществе" visible="ur_folders_is_not_new" as="property_inf">
+            <useform object="ur_folders" name="form_ur_folders_property_info" />
+          </fieldgroup>
+          <fieldgroup as="cred_meeting" visible="ur_folders_is_not_new" title="Собрание/комитет кредиторов">
+            <useform object="ur_folders" name="form_ur_folders_cred_meeting" />
+          </fieldgroup>
+          <fieldgroup visible="ur_folders_is_not_new" title="Контроль обязанностей арб. управляющего" as="man_control">
+            <useform object="ur_folders" name="form_ur_folders_au_duty_control" />
+          </fieldgroup>
+          <fieldgroup as="inf_control" title="Контроль сведений, подл. опубл. в ЕФРСБ" visible="ur_folders_is_not_new">
+            <useform object="ur_folders" name="form_ur_folders_efrsb_info_publ" />
+          </fieldgroup>
+        </tabcontainer>
+        <column table="ur_folders" column="kod_vi" column-default="uk_vi_ish_kod" column-visible="0" />
+        <column table="ur_folders" column="kod_sdp" column-default="uk_sdp_bnk_kod" column-visible="0" />
+        <column table="ur_folders" column="tep_el" column-default="rs_esys_tepel" column-visible="0" />
+      </content>
+      <from star-scheme="1">
+        <query name="ur_folders">
+          <link name="kodp" auto-refresh="1" />
+          <where>
+            <call function="=">
+              <column table="ur_folders" column="kod_folders" />
+              <useparam name="kod_folders" />
+            </call>
+          </where>
+        </query>
+      </from>
+      <events>
+        <useaction name="ur_ins_templates.run_together" event-name="save">
+          <useparam name="kod_folders" />
+        </useaction>
+        <useaction name="ur_ins_templates.run_together" event-name="form-loaded">
+          <useparam name="kod_folders" />
+        </useaction>
+      </events>
+    </form>
+  </forms>
+</root>

@@ -1,0 +1,639 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="ur_folders_bnk_list" title="Банкротство" security-id="asuse_ur_pir" with-behavior="0" timestamp="11.09.2023 22:08:18" file="sql.builder.templates\sql.builder\projects\asuse2\reports\arbitrage\bnk.xml" elid="219" ord="219" leaf="0" lvl="2" pelid="">
+    <field table="a" name="is_el" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="63489725">
+      <call function="if" as="is_el" table="a" type="number" parname="is_el" column-visible="0" id="35780083">
+        <call function="=" id="14292591">
+          <field table="a" name="kod_esys" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="43309723" />
+          <const id="57636654">1</const>
+        </call>
+        <const id="49125331">1</const>
+        <const id="872684">0</const>
+      </call>
+    </field>
+    <fieldgroup is-layout-block="1" fill-height="1" uncollapsible="1" noborder="1" visible="is_el" id="16834539">
+      <useform action-type="dynamic-form" call="ur_folders_bnk_list_el" fill-height="1" id="16778614" />
+    </fieldgroup>
+    <fieldgroup is-layout-block="1" fill-height="1" uncollapsible="1" noborder="1" visible="is_el" visible-invert="1" id="8166594">
+      <useform action-type="dynamic-form" call="ur_folders_bnk_list_tep" fill-height="1" id="46029628" />
+    </fieldgroup>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="rs_esys" column-editable="0" key="kod_esys" is-ms-upd="1" is-top="1" key-dimension="kod_esys">
+      <select-text>
+--
+select  case  when (a.kod_esys = 1)  then 1 else 0 end  as is_el, /*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_esys as kod_esys/*number*//*key*/
+
+from (
+--rs_esys
+select a.kod_esys as kod_esys, /*number*//*key*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from rs_esys
+a
+--\rs_esys
+)
+a
+--\rs_esys
+--\
+</select-text>
+      <columns>
+        <column name="is_el" table="a" type="number" title="" parname="is_el" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_esys_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_esys_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select  case  when (a.kod_esys = 1)  then 1 else 0 end  as is_el, /*number*/
+a.kod_esys as kod_esys/*number*//*key*/
+
+from (
+--rs_esys
+select a.kod_esys as kod_esys/*number*//*key*/
+
+from (select a.kod_esys as kod_esys  from rs_esys a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_esys=t.f2 ) and   a.kod_esys in :kod_esys_prm   union all  select t.n1 as kod_esys  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_esys_prm )
+a
+--\(select a.kod_esys as kod_esys  from rs_esys a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_esys=t.f2 ) and   a.kod_esys in :kod_esys_prm   union all  select t.n1 as kod_esys  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_esys_prm )
+)
+a
+--\rs_esys
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="kod_esys" table="a" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_esys" temp-col-name="n1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_esys as kod_esys 
+ 
+from dual ) 
+ 
+loop 
+insert into rs_esys 
+(kod_esys 
+) 
+ values  
+(r.kod_esys 
+) 
+ returning  
+kod_esys into :kod_esys; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from rs_esys where kod_esys=:kod_esys</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_esys; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_esys as kod_esys 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_esys 
+,:row_state_id 
+,r.kod_esys 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_esys as kod_esys 
+,a.kod_m 
+,a.kodp 
+,a.name 
+,a.sname 
+,a.version 
+,a.pk_basis 
+,a.db_level 
+,a.spim 
+,a.teplo 
+,a.electro 
+,a.username 
+,a.kodd 
+,a.kod_m_reg 
+,a.tarif_power 
+,a.avg_months 
+,a.tnv 
+,a.kodp_uch 
+,a.replication 
+,a.tarif_byt 
+,a.pr_avans_umen 
+,a.pr_poteri 
+,a.kod_def_dat 
+,a.build 
+,a.tarif28 
+,a.out_precision 
+,a.tarif_precision 
+,a.poteri_react 
+,a.sklad_pu 
+,a.pr_tarif_react 
+,a.pr_pl_name 
+,a.pr_pl_filial 
+,a.tarif_byt_teplo 
+,a.dop_s 
+,a.pred_norm 
+,a.teplo_var 
+,a.teplo_pasport 
+,a.pr_dog_power_askue 
+,a.kod_region_gol 
+,a.kod_region_klim 
+,a.vid_kniga 
+,a.sp_askue 
+,a.byt_varlg 
+,a.kod_loss 
+,a.sost_rate 
+,a.pr_use_dummyfider 
+,a.no_rasch_prib_tep 
+,a.kod_dat_dog 
+,a.pr_pogash 
+,a.reason_recalc 
+,a.poteri_peretok 
+,a.pr_so 
+,a.precision_free_price 
+,a.tarif18 
+,a.kod_esys_ext 
+,a.kod_bzad 
+,a.kod_fs 
+,a.kod_min 
+,a.kod_otrasl 
+,a.kod_okved 
+,a.kod_ist 
+,a.var_uved 
+,a.precision_power_free 
+,a.otk_pacx_energi 
+,a.pr_sk 
+,a.use_pr_uc 
+,a.loss_ver 
+,a.eseti 
+,a.date_eo_schema_collect 
+,a.gen_point 
+,a.sum_gpz 
+,a.pr_23 
+,a.pr_point_power 
+,a.eru 
+,a.npr_npot 
+,a.isname 
+,a.tarif_pres_teplo 
+,a.algoritm_hh 
+,a.pr_map_losses 
+,a.esch_ext 
+,a.kf_address_arg 
+,a.gen_tarif 
+,a.ip_gis 
+,a.use_ibank 
+,a.all_free 
+,a.ist_otkl 
+,a.module_lk 
+,a.use_pr33_opt 
+,a.outer_population 
+,a.pr_jrep_etl_ov_tx 
+,a.tarif_ctp 
+,a.pr_poteri_vl 
+,a.pr_korr_sf 
+,a.s_plomba 
+,a.pr_nagruz_class 
+,a.section_version 
+,a.period_kniga 
+,a.load_to_ar_point 
+,a.ul_fl 
+,a.pr_nagruz_byt 
+,a.empsetting 
+,a.kniga_collapse 
+,a.use_pvalue_pril 
+,a.pr_hide_pmax 
+,a.out_precision_odn 
+,a.power_divers 
+,a.poteri_in 
+,a.pmax_kva 
+,a.use_netlimit 
+,a.show_dop_doc_sk 
+,a.use_koeff_kva 
+,a.pmax_dopdoc 
+,a.use_group_cust 
+,a.askue_nr_askue 
+,a.use_russian_tel 
+,a.rounding_priem 
+,a.showplacetransmit 
+,a.calc_precision 
+,a.adr_base_type 
+,a.mode_props 
+,a.con_kind_dnum_eo 
+,a.pr_asvip 
+,a.poteri_prikaz 
+,a.rounding_counter 
+,a.rounding_pu_values 
+,a.pmax_on_point_useallhars 
+,a.load_to_ar_point_srcmode 
+,a.pmax_use_attpointname 
+,a.addr_ext_use_checkmode 
+,a.list_adres 
+,a.jgen_rows_limit 
+,a.docpoints_enable 
+,a.account_source 
+,a.fl_control_checked 
+,a.load_to_ar_point_consborder 
+,a.fl_advance_false 
+ 
+from rs_esys a  where kod_esys=:kod_esys) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+,s1 
+,s2 
+,s3 
+,n4 
+,n5 
+,n6 
+,n7 
+,n8 
+,s4 
+,n9 
+,n10 
+,n11 
+,n12 
+,n13 
+,n14 
+,n15 
+,n16 
+,n17 
+,n18 
+,n19 
+,n20 
+,n21 
+,n22 
+,n23 
+,n24 
+,n25 
+,n26 
+,n27 
+,n28 
+,n29 
+,n30 
+,n31 
+,n32 
+,n33 
+,n34 
+,n35 
+,n36 
+,n37 
+,n38 
+,n39 
+,n40 
+,n41 
+,n42 
+,n43 
+,n44 
+,n45 
+,n46 
+,n47 
+,n48 
+,n49 
+,n50 
+,n51 
+,n52 
+,n53 
+,n54 
+,n55 
+,n56 
+,n57 
+,n58 
+,n59 
+,n60 
+,n61 
+,n62 
+,n63 
+,n64 
+,d1 
+,n65 
+,n66 
+,n67 
+,n68 
+,n69 
+,n70 
+,s5 
+,n71 
+,n72 
+,n73 
+,n74 
+,n75 
+,n76 
+,s6 
+,n77 
+,n78 
+,n79 
+,n80 
+,n81 
+,n82 
+,n83 
+,n84 
+,n85 
+,n86 
+,n87 
+,n88 
+,n89 
+,n90 
+,n91 
+,n92 
+,n93 
+,n94 
+,n95 
+,n96 
+,n97 
+,n98 
+,n99 
+,n100 
+,n101 
+,n102 
+,n103 
+,n104 
+,n105 
+,n106 
+,n107 
+,n108 
+,n109 
+,n110 
+,n111 
+,n112 
+, 1 
+,n113 
+,n114 
+,n115 
+,n116 
+,n117 
+,n118 
+,n119 
+,n120 
+,n121 
+,n122 
+,n123 
+,n124 
+,n125 
+,n126 
+,n127 
+,n128 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_esys 
+,:row_state_id 
+,r.kod_esys 
+,r.kod_m 
+,r.kodp 
+,r.name 
+,r.sname 
+,r.version 
+,r.pk_basis 
+,r.db_level 
+,r.spim 
+,r.teplo 
+,r.electro 
+,r.username 
+,r.kodd 
+,r.kod_m_reg 
+,r.tarif_power 
+,r.avg_months 
+,r.tnv 
+,r.kodp_uch 
+,r.replication 
+,r.tarif_byt 
+,r.pr_avans_umen 
+,r.pr_poteri 
+,r.kod_def_dat 
+,r.build 
+,r.tarif28 
+,r.out_precision 
+,r.tarif_precision 
+,r.poteri_react 
+,r.sklad_pu 
+,r.pr_tarif_react 
+,r.pr_pl_name 
+,r.pr_pl_filial 
+,r.tarif_byt_teplo 
+,r.dop_s 
+,r.pred_norm 
+,r.teplo_var 
+,r.teplo_pasport 
+,r.pr_dog_power_askue 
+,r.kod_region_gol 
+,r.kod_region_klim 
+,r.vid_kniga 
+,r.sp_askue 
+,r.byt_varlg 
+,r.kod_loss 
+,r.sost_rate 
+,r.pr_use_dummyfider 
+,r.no_rasch_prib_tep 
+,r.kod_dat_dog 
+,r.pr_pogash 
+,r.reason_recalc 
+,r.poteri_peretok 
+,r.pr_so 
+,r.precision_free_price 
+,r.tarif18 
+,r.kod_esys_ext 
+,r.kod_bzad 
+,r.kod_fs 
+,r.kod_min 
+,r.kod_otrasl 
+,r.kod_okved 
+,r.kod_ist 
+,r.var_uved 
+,r.precision_power_free 
+,r.otk_pacx_energi 
+,r.pr_sk 
+,r.use_pr_uc 
+,r.loss_ver 
+,r.eseti 
+,r.date_eo_schema_collect 
+,r.gen_point 
+,r.sum_gpz 
+,r.pr_23 
+,r.pr_point_power 
+,r.eru 
+,r.npr_npot 
+,r.isname 
+,r.tarif_pres_teplo 
+,r.algoritm_hh 
+,r.pr_map_losses 
+,r.esch_ext 
+,r.kf_address_arg 
+,r.gen_tarif 
+,r.ip_gis 
+,r.use_ibank 
+,r.all_free 
+,r.ist_otkl 
+,r.module_lk 
+,r.use_pr33_opt 
+,r.outer_population 
+,r.pr_jrep_etl_ov_tx 
+,r.tarif_ctp 
+,r.pr_poteri_vl 
+,r.pr_korr_sf 
+,r.s_plomba 
+,r.pr_nagruz_class 
+,r.section_version 
+,r.period_kniga 
+,r.load_to_ar_point 
+,r.ul_fl 
+,r.pr_nagruz_byt 
+,r.empsetting 
+,r.kniga_collapse 
+,r.use_pvalue_pril 
+,r.pr_hide_pmax 
+,r.out_precision_odn 
+,r.power_divers 
+,r.poteri_in 
+,r.pmax_kva 
+,r.use_netlimit 
+,r.show_dop_doc_sk 
+,r.use_koeff_kva 
+,r.pmax_dopdoc 
+,r.use_group_cust 
+,r.askue_nr_askue 
+,r.use_russian_tel 
+,r.rounding_priem 
+,r.showplacetransmit 
+,r.calc_precision 
+,r.adr_base_type 
+,r.mode_props 
+,r.con_kind_dnum_eo 
+,r.pr_asvip 
+,r.poteri_prikaz 
+,r.rounding_counter 
+,r.rounding_pu_values 
+,r.pmax_on_point_useallhars 
+,r.load_to_ar_point_srcmode 
+,r.pmax_use_attpointname 
+,r.addr_ext_use_checkmode 
+,r.list_adres 
+,r.jgen_rows_limit 
+,r.docpoints_enable 
+,r.account_source 
+,r.fl_control_checked 
+,r.load_to_ar_point_consborder 
+,r.fl_advance_false 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update rs_esys set  
+(kod_esys 
+) 
+= 
+ ( select  
+:kod_esys as kod_esys 
+ 
+from dual ) 
+ 
+where 
+kod_esys=:kod_esys 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="rs_esys" as="a">
+          <columns>
+            <column name="is_el" type="number" title="" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_esys" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns />
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_esys_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_esys_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select  case  when (a.kod_esys = 1)  then 1 else 0 end  as is_el, /*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new, /*number*/
+a.kod_esys as kod_esys/*number*//*key*/
+
+from (
+--rs_esys
+select a.kod_esys as kod_esys, /*number*//*key*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_esys as kod_esys,0 as is_new,1 as is_not_new  from rs_esys a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_esys=t.f2 ) and   a.kod_esys in :kod_esys_prm   union all  select t.n1 as kod_esys,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_esys_prm )
+a
+--\(select a.kod_esys as kod_esys,0 as is_new,1 as is_not_new  from rs_esys a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_esys=t.f2 ) and   a.kod_esys in :kod_esys_prm   union all  select t.n1 as kod_esys,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_esys_prm )
+)
+a
+--\rs_esys
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

@@ -1,0 +1,562 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vb_spr_smet_calc" timestamp="05.07.2019 14:05:59" title="Статьи затрат для калькуляции" file="sql.builder.templates\sql.builder\projects\mped\forms\vb_spr_smet_calc.xml" elid="701" ord="701" leaf="0" lvl="2" pelid="">
+    <grid table="sc" auto-filter="1" show-toolbar="1" id="23415601">
+      <columns id="22397891">
+        <field table="sc" name="smet_calc_name" title="Статья затрат для калькуляции" width="272" controlType="UIText" rows-limit="100" id="12644192" />
+        <field table="sc" name="schet_no_mb3" title="Код счета при отсутствии МВЗ" width="195" controlType="UICombo" format="N0" edit-mask="N0" rows-limit="100" id="62921378" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="sc_has_changes" parname="sc_has_changes" />
+    </fields>
+    <table name="sc" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="vb_spr_smet_calc" key="kod_spr_smet_calc" is-ms-upd="1" is-top="1" key-dimension="vb_spr_smet_calc">
+      <select-text>
+--
+select sc.smet_calc_name as smet_calc_name, /*Статья затрат для калькуляции*//*string*/
+sc.schet_no_mb3 as schet_no_mb3, /*Код счета при отсутствии МВЗ*//*number*/
+schet_no_mb3_x_n.schet_name as schet_no_mb3_x_n, /*Код счета при отсутствии МВЗ*//*string*/
+sc.is_new as is_new, /*number*/
+sc.is_not_new as is_not_new, /*number*/
+sc.kod_spr_smet_calc as kod_spr_smet_calc/*number*//*key*/
+
+from (
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.smet_calc_name as smet_calc_name, /**//*string*/
+a.schet_no_mb3 as schet_no_mb3, /**//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from vb_spr_smet_calc
+a
+--\vb_spr_smet_calc
+)
+sc
+--\vb_spr_smet_calc
+left outer join
+(
+--vb_spr_schet_calc_group
+select a.kod_schet as id, /*number*//*key*/
+max(kod_spr_schet_list.schet_name)  as schet_name/*Наименование счета*//*string*/
+
+from (
+--vb_spr_schet_calc
+select a.kod_spr_schet as kod_spr_schet, /*number*//*key*/
+a.kod_schet as kod_schet, /*number*/
+a.kod_spr_schet_list as kod_spr_schet_list/*number*/
+
+from vb_spr_schet_calc
+a
+--\vb_spr_schet_calc
+)
+a
+--\vb_spr_schet_calc
+left outer join
+(
+--vb_spr_schet_list
+select a.kod_spr_schet_list as kod_spr_schet_list, /*number*//*key*/
+a.schet_name as schet_name/**//*string*/
+
+from vb_spr_schet_list
+a
+--\vb_spr_schet_list
+)
+kod_spr_schet_list on a.kod_spr_schet_list = kod_spr_schet_list.kod_spr_schet_list--\vb_spr_schet_list
+ group by
+a.kod_schet/*number*//*key*/
+)
+schet_no_mb3_x_n on sc.schet_no_mb3 = schet_no_mb3_x_n.id--\vb_spr_schet_calc_group
+
+order by kod_spr_smet_calc--\
+</select-text>
+      <columns>
+        <column name="smet_calc_name" table="sc" type="string" title="Статья затрат для калькуляции" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="smet_calc_name" temp-col-name="s1" />
+        <column name="schet_no_mb3" table="sc" type="number" title="Код счета при отсутствии МВЗ" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="schet_no_mb3" temp-col-name="n1">
+          <sel-list-compiled>
+            <root>
+              <query class="1" timestamp="16.08.2019 17:35:11" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_schet_calc.xml" elid="647" ord="647" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="id" as="id" title="" key="1" used="1" type="number" sourcetable="./a/a/a" sourcecolumn="kod_schet" into="n1">a.id as id, /**//*number*//*key*/
+</column><column table="a" column="kod_schet" as="kod_schet" title="Код счета" key="0" used="1" type="number" format="F0" halign="center" sourcetable="./a/a/a" sourcecolumn="kod_schet" into="n2">a.kod_schet as kod_schet, /*Код счета*//*number*/
+</column><column table="a" column="schet_name" as="schet_name" title="Наименование счета" key="0" used="1" type="string" sourcetable="./a/a/kod_spr_schet_list" sourcecolumn="schet_name" into="s1">a.schet_name as schet_name/*Наименование счета*//*string*/
+</column></select>
+                <from>
+from <query name="vb_spr_schet_calc_group" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--vb_spr_schet_calc_group
+select <column table="a" column="kod_schet" type="number" group="1" key="1" as="id" used="1" sourcetable="./a/a/a" sourcecolumn="kod_schet">a.kod_schet as id, /*number*//*key*/
+</column><column table="a" column="kod_schet" type="number" vid="1" title="Код счета" format="F0" halign="center" as="kod_schet" key="0" used="1" sourcetable="./a/a/a" sourcecolumn="kod_schet">a.kod_schet as kod_schet, /*Код счета*//*number*/
+</column><column table="kod_spr_schet_list" column="schet_name" type="string" data-size="300" title="Наименование счета" is-name="1" vid="1" group="max" as="schet_name" key="0" used="1" sourcetable="./a/a/kod_spr_schet_list" sourcecolumn="schet_name">max(kod_spr_schet_list.schet_name)  as schet_name/*Наименование счета*//*string*/
+</column></select><from>
+from <query name="vb_spr_schet_calc" as="a" path="./a/a/a" haskeys="1" used="1">(
+<select>--vb_spr_schet_calc
+select <column table="a" column="kod_spr_schet" type="number" column-mandatory="1" as="kod_spr_schet" key="1" fixed="1" sourcetable="./a/a/a" sourcecolumn="kod_spr_schet" used="1">a.kod_spr_schet as kod_spr_schet, /*number*//*key*/
+</column><column table="a" column="kod_schet" type="number" as="kod_schet" key="0" sourcetable="./a/a/a" sourcecolumn="kod_schet" used="1">a.kod_schet as kod_schet, /*number*/
+</column><column table="a" column="kod_spr_schet_list" type="number" as="kod_spr_schet_list" key="0" sourcetable="./a/a/a" sourcecolumn="kod_spr_schet_list" used="1">a.kod_spr_schet_list as kod_spr_schet_list/*number*/
+</column></select><from>
+from <table name="vb_spr_schet_calc" as="a" used="1">vb_spr_schet_calc
+a
+--\vb_spr_schet_calc
+</table></from>)
+a
+--\vb_spr_schet_calc
+</query><query name="vb_spr_schet_list" as="kod_spr_schet_list" join="left outer" path="./a/a/kod_spr_schet_list" haskeys="1" used="1">left outer join
+(
+<select>--vb_spr_schet_list
+select <column table="a" column="kod_spr_schet_list" type="number" column-mandatory="1" key="1" as="kod_spr_schet_list" sourcetable="./a/a/kod_spr_schet_list" sourcecolumn="kod_spr_schet_list" used="1">a.kod_spr_schet_list as kod_spr_schet_list, /*number*//*key*/
+</column><column table="a" column="schet_name" type="string" data-size="300" title="" comment="Наименование счета" is-name="1" vid="1" as="schet_name" key="0" sourcetable="./a/a/kod_spr_schet_list" sourcecolumn="schet_name" used="1">a.schet_name as schet_name/**//*string*/
+</column></select><from>
+from <table name="vb_spr_schet_list" as="a" used="1">vb_spr_schet_list
+a
+--\vb_spr_schet_list
+</table></from><call function="=" type="bool">)
+kod_spr_schet_list on <column table="a" column="kod_spr_schet_list">a.kod_spr_schet_list</column><text txtype="func"> = </text><column table="kod_spr_schet_list" column="kod_spr_schet_list">kod_spr_schet_list.kod_spr_schet_list</column></call>--\vb_spr_schet_list
+</query></from><group> group by
+<column table="a" column="kod_schet" type="number" group="1" key="1" as="id" used="1" sourcetable="./a/a/a" sourcecolumn="kod_schet">a.kod_schet/*number*//*key*/
+</column></group>)
+a
+--\vb_spr_schet_calc_group
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="id" as="id" title="" key="1" thissrc="id">a.id</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="id" as="id" title="" key="1" thissrc="id">a.id</column><text txtype="func"> ) like lower( </text><const><text>:id_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_schet" as="kod_schet" title="Код счета" thissrc="kod_schet">a.kod_schet</column><text txtype="func"> ) like lower( </text><const><text>:kod_schet_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="schet_name" as="schet_name" title="Наименование счета" thissrc="schet_name">a.schet_name</column><text txtype="func"> ) like lower( </text><const><text>:schet_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" timestamp="16.08.2019 17:35:11" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_schet_calc.xml" elid="647" ord="647" leaf="0" lvl="2" pelid="" haskeys="1" as="a">
+              <queries>
+                <query class="1" timestamp="16.08.2019 17:35:11" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_schet_calc.xml" elid="647" ord="647" leaf="0" lvl="2" pelid="" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="id_filter" type="string" />
+                    <param name="kod_schet_filter" type="string" />
+                    <param name="schet_name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="id" as="id" title="" key="1" />
+                    <column table="a" column="kod_schet" as="kod_schet" title="Код счета" />
+                    <column table="a" column="schet_name" as="schet_name" title="Наименование счета" />
+                  </select>
+                  <from>
+                    <query name="vb_spr_schet_calc_group" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="id" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="id" />
+                        <useparam name="id_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_schet" />
+                        <useparam name="kod_schet_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="schet_name" />
+                        <useparam name="schet_name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="id_filter" />
+                    <useparam name="kod_schet_filter" />
+                    <useparam name="schet_name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="id_filter" type="string">
+                  <const>:id_filter </const>
+                </param>
+                <param name="kod_schet_filter" type="string">
+                  <const>:kod_schet_filter </const>
+                </param>
+                <param name="schet_name_filter" type="string">
+                  <const>:schet_name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="sc">
+              <params>
+                <param name="kod_spr_smet_calc_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_calc_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select schet_no_mb3_x_n.schet_name as schet_no_mb3_x_n, /*Код счета при отсутствии МВЗ*//*string*/
+sc.kod_spr_smet_calc as kod_spr_smet_calc/*number*//*key*/
+
+from (
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.schet_no_mb3 as schet_no_mb3/**//*number*/
+
+from (select a.kod_spr_smet_calc as kod_spr_smet_calc,a.schet_no_mb3 as schet_no_mb3  from vb_spr_smet_calc a where not exists (select * from rr_temp t where t.skod ='sc' and t.names=:form_id  and a.kod_spr_smet_calc=t.f2 ) and   a.kod_spr_smet_calc in :kod_spr_smet_calc_prm   union all  select t.n2 as kod_spr_smet_calc,t.n1 as schet_no_mb3  from rr_temp t where t.skod ='sc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_calc_prm )
+a
+--\(select a.kod_spr_smet_calc as kod_spr_smet_calc,a.schet_no_mb3 as schet_no_mb3  from vb_spr_smet_calc a where not exists (select * from rr_temp t where t.skod ='sc' and t.names=:form_id  and a.kod_spr_smet_calc=t.f2 ) and   a.kod_spr_smet_calc in :kod_spr_smet_calc_prm   union all  select t.n2 as kod_spr_smet_calc,t.n1 as schet_no_mb3  from rr_temp t where t.skod ='sc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_calc_prm )
+)
+sc
+--\vb_spr_smet_calc
+left outer join
+(
+--vb_spr_schet_calc_group
+select a.kod_schet as id, /*number*//*key*/
+max(kod_spr_schet_list.schet_name)  as schet_name/*Наименование счета*//*string*/
+
+from (
+--vb_spr_schet_calc
+select a.kod_spr_schet as kod_spr_schet, /*number*//*key*/
+a.kod_schet as kod_schet, /*number*/
+a.kod_spr_schet_list as kod_spr_schet_list/*number*/
+
+from vb_spr_schet_calc
+a
+--\vb_spr_schet_calc
+)
+a
+--\vb_spr_schet_calc
+left outer join
+(
+--vb_spr_schet_list
+select a.kod_spr_schet_list as kod_spr_schet_list, /*number*//*key*/
+a.schet_name as schet_name/**//*string*/
+
+from vb_spr_schet_list
+a
+--\vb_spr_schet_list
+)
+kod_spr_schet_list on a.kod_spr_schet_list = kod_spr_schet_list.kod_spr_schet_list--\vb_spr_schet_list
+ group by
+a.kod_schet/*number*//*key*/
+)
+schet_no_mb3_x_n on sc.schet_no_mb3 = schet_no_mb3_x_n.id--\vb_spr_schet_calc_group
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="schet_no_mb3_x_n" table="sc" />
+          </dependants>
+        </column>
+        <column name="schet_no_mb3_x_n" table="sc.schet_no_mb3" type="string" title="Код счета при отсутствии МВЗ" text-source-for="schet_no_mb3" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_spr_smet_calc_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_spr_smet_calc_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select schet_no_mb3_x_n.schet_name as schet_no_mb3_x_n, /*Код счета при отсутствии МВЗ*//*string*/
+sc.kod_spr_smet_calc as kod_spr_smet_calc/*number*//*key*/
+
+from (
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.schet_no_mb3 as schet_no_mb3/**//*number*/
+
+from (select a.kod_spr_smet_calc as kod_spr_smet_calc,a.schet_no_mb3 as schet_no_mb3  from vb_spr_smet_calc a where not exists (select * from rr_temp t where t.skod ='sc' and t.names=:form_id  and a.kod_spr_smet_calc=t.f2 ) and   a.kod_spr_smet_calc in :kod_spr_smet_calc_prm   union all  select t.n2 as kod_spr_smet_calc,t.n1 as schet_no_mb3  from rr_temp t where t.skod ='sc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_calc_prm )
+a
+--\(select a.kod_spr_smet_calc as kod_spr_smet_calc,a.schet_no_mb3 as schet_no_mb3  from vb_spr_smet_calc a where not exists (select * from rr_temp t where t.skod ='sc' and t.names=:form_id  and a.kod_spr_smet_calc=t.f2 ) and   a.kod_spr_smet_calc in :kod_spr_smet_calc_prm   union all  select t.n2 as kod_spr_smet_calc,t.n1 as schet_no_mb3  from rr_temp t where t.skod ='sc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_calc_prm )
+)
+sc
+--\vb_spr_smet_calc
+left outer join
+(
+--vb_spr_schet_calc_group
+select a.kod_schet as id, /*number*//*key*/
+max(kod_spr_schet_list.schet_name)  as schet_name/*Наименование счета*//*string*/
+
+from (
+--vb_spr_schet_calc
+select a.kod_spr_schet as kod_spr_schet, /*number*//*key*/
+a.kod_schet as kod_schet, /*number*/
+a.kod_spr_schet_list as kod_spr_schet_list/*number*/
+
+from vb_spr_schet_calc
+a
+--\vb_spr_schet_calc
+)
+a
+--\vb_spr_schet_calc
+left outer join
+(
+--vb_spr_schet_list
+select a.kod_spr_schet_list as kod_spr_schet_list, /*number*//*key*/
+a.schet_name as schet_name/**//*string*/
+
+from vb_spr_schet_list
+a
+--\vb_spr_schet_list
+)
+kod_spr_schet_list on a.kod_spr_schet_list = kod_spr_schet_list.kod_spr_schet_list--\vb_spr_schet_list
+ group by
+a.kod_schet/*number*//*key*/
+)
+schet_no_mb3_x_n on sc.schet_no_mb3 = schet_no_mb3_x_n.id--\vb_spr_schet_calc_group
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="sc" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="sc" type="number" title="" is-user-editable="1" />
+        <column name="kod_spr_smet_calc" table="sc" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_spr_smet_calc" temp-col-name="n2" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:smet_calc_name as smet_calc_name 
+,:schet_no_mb3 as schet_no_mb3 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+ 
+from dual ) 
+ 
+loop 
+insert into vb_spr_smet_calc 
+(smet_calc_name 
+,schet_no_mb3 
+,kod_spr_smet_calc 
+) 
+ values  
+(r.smet_calc_name 
+,r.schet_no_mb3 
+,r.kod_spr_smet_calc 
+) 
+ returning  
+kod_spr_smet_calc into :kod_spr_smet_calc; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from vb_spr_smet_calc where kod_spr_smet_calc=:kod_spr_smet_calc</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='sc' 
+and 
+names=:form_id 
+and 
+f2=:kod_spr_smet_calc; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:smet_calc_name as smet_calc_name 
+,:schet_no_mb3 as schet_no_mb3 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n1 
+,n2 
+) 
+ values  
+('sc' 
+,:form_id 
+,:kod_spr_smet_calc 
+,:row_state_id 
+,r.smet_calc_name 
+,r.schet_no_mb3 
+,r.kod_spr_smet_calc 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:smet_calc_name as smet_calc_name 
+,:schet_no_mb3 as schet_no_mb3 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+ 
+from vb_spr_smet_calc a  where kod_spr_smet_calc=:kod_spr_smet_calc) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n1 
+,n2 
+) 
+ values  
+('sc' 
+,:form_id 
+,:kod_spr_smet_calc 
+,:row_state_id 
+,r.smet_calc_name 
+,r.schet_no_mb3 
+,r.kod_spr_smet_calc 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='sc' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update vb_spr_smet_calc set  
+(smet_calc_name 
+,schet_no_mb3 
+,kod_spr_smet_calc 
+) 
+= 
+ ( select  
+:smet_calc_name as smet_calc_name 
+,:schet_no_mb3 as schet_no_mb3 
+,:kod_spr_smet_calc as kod_spr_smet_calc 
+ 
+from dual ) 
+ 
+where 
+kod_spr_smet_calc=:kod_spr_smet_calc 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="vb_spr_smet_calc" as="sc">
+          <columns>
+            <column name="smet_calc_name" type="string" title="Статья затрат для калькуляции" />
+            <column name="schet_no_mb3" type="number" format="N0" edit-mask="N0" halign="center" invisible-in-column-chooser="1" visible="0" />
+            <column name="schet_no_mb3_x_n" type="string" title="Код счета при отсутствии МВЗ" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_spr_smet_calc" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="smet_calc_name" type="string" title="Статья затрат для калькуляции" />
+            <column name="schet_no_mb3_x_n" type="string" title="Код счета при отсутствии МВЗ" />
+            <column name="schet_no_mb3" type="number" format="N0" edit-mask="N0" halign="center" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_spr_smet_calc" type="number" invisible-in-column-chooser="1" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_spr_smet_calc_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_spr_smet_calc_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select sc.smet_calc_name as smet_calc_name, /*Статья затрат для калькуляции*//*string*/
+sc.schet_no_mb3 as schet_no_mb3, /*Код счета при отсутствии МВЗ*//*number*/
+schet_no_mb3_x_n.schet_name as schet_no_mb3_x_n, /*Код счета при отсутствии МВЗ*//*string*/
+sc.is_new as is_new, /*number*/
+sc.is_not_new as is_not_new, /*number*/
+sc.kod_spr_smet_calc as kod_spr_smet_calc/*number*//*key*/
+
+from (
+--vb_spr_smet_calc
+select a.kod_spr_smet_calc as kod_spr_smet_calc, /*number*//*key*/
+a.smet_calc_name as smet_calc_name, /**//*string*/
+a.schet_no_mb3 as schet_no_mb3, /**//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_spr_smet_calc as kod_spr_smet_calc,a.smet_calc_name as smet_calc_name,a.schet_no_mb3 as schet_no_mb3,0 as is_new,1 as is_not_new  from vb_spr_smet_calc a where not exists (select * from rr_temp t where t.skod ='sc' and t.names=:form_id  and a.kod_spr_smet_calc=t.f2 ) and   a.kod_spr_smet_calc in :kod_spr_smet_calc_prm   union all  select t.n2 as kod_spr_smet_calc,t.s1 as smet_calc_name,t.n1 as schet_no_mb3,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_calc_prm )
+a
+--\(select a.kod_spr_smet_calc as kod_spr_smet_calc,a.smet_calc_name as smet_calc_name,a.schet_no_mb3 as schet_no_mb3,0 as is_new,1 as is_not_new  from vb_spr_smet_calc a where not exists (select * from rr_temp t where t.skod ='sc' and t.names=:form_id  and a.kod_spr_smet_calc=t.f2 ) and   a.kod_spr_smet_calc in :kod_spr_smet_calc_prm   union all  select t.n2 as kod_spr_smet_calc,t.s1 as smet_calc_name,t.n1 as schet_no_mb3,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sc' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_spr_smet_calc_prm )
+)
+sc
+--\vb_spr_smet_calc
+left outer join
+(
+--vb_spr_schet_calc_group
+select a.kod_schet as id, /*number*//*key*/
+max(kod_spr_schet_list.schet_name)  as schet_name/*Наименование счета*//*string*/
+
+from (
+--vb_spr_schet_calc
+select a.kod_spr_schet as kod_spr_schet, /*number*//*key*/
+a.kod_schet as kod_schet, /*number*/
+a.kod_spr_schet_list as kod_spr_schet_list/*number*/
+
+from vb_spr_schet_calc
+a
+--\vb_spr_schet_calc
+)
+a
+--\vb_spr_schet_calc
+left outer join
+(
+--vb_spr_schet_list
+select a.kod_spr_schet_list as kod_spr_schet_list, /*number*//*key*/
+a.schet_name as schet_name/**//*string*/
+
+from vb_spr_schet_list
+a
+--\vb_spr_schet_list
+)
+kod_spr_schet_list on a.kod_spr_schet_list = kod_spr_schet_list.kod_spr_schet_list--\vb_spr_schet_list
+ group by
+a.kod_schet/*number*//*key*/
+)
+schet_no_mb3_x_n on sc.schet_no_mb3 = schet_no_mb3_x_n.id--\vb_spr_schet_calc_group
+
+order by kod_spr_smet_calc--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

@@ -1,0 +1,640 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="64455_1_total" timestamp="26.06.2024 15:01:23">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <content>
+        <usefield field="asuse_dep_single" name="p_dep" type="number" title="Филиал" mandatory="1" />
+        <usefield field="asuse_ym_tek" name="p_ym" type="number" title="Отчетный период" mandatory="1" />
+        <usefield field="cmn_list" name="p_kodp_pwrcompany" type="number" title="ТСО для расчета услуги">
+          <listquery>
+            <query name="64455_1_pwrcompany" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_combo_num" name="p_tarif_type" type="number" title="Тип тарифа" mandatory="1">
+          <listquery>
+            <query name="64455_1_tarif_type" />
+          </listquery>
+          <defaultquery>
+            <query name="zero" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="p_kod_dog" type="number" title="Договоры" name-field-name="payer_name">
+          <listquery>
+            <query name="64455_1_dogovor_list" />
+          </listquery>
+        </usefield>
+        <usefield field="cmn_check" name="p_hide_dog" type="number" checked="0" title="Без клиентов" />
+      </content>
+    </form>
+  </forms>
+  <reports>
+    <report name="64455_1_total" form="64455_1_total" nogrid="1" title="Сводная ведомость по передаче электроэнергии и мощности для клиентов заказчика" auto-merge="1" timestamp="03.12.2024 22:56:39">
+      <customers>
+        <customer id="29" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" />
+        <param name="p_ym" type="number" />
+        <param name="p_tarif_type" type="number" />
+        <param name="p_kodp_pwrcompany" type="array" />
+        <param name="p_kod_dog" type="array" />
+        <param name="p_hide_dog" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="64455_1_total.xml" print-proc="2" title="Сводная ведомость по передаче электроэнергии и мощности для клиентов заказчика" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[        DECLARE
+          p_dep         kr_dogovor.dep%type;
+          p_ym          nv_account_sost.ym%type;
+          p_tarif_type  NUMBER(1, 0);
+          s_data_id     rr_temp.skod%type;
+        BEGIN
+          p_dep        := :p_dep;
+          p_ym         := :p_ym;
+          p_tarif_type := :p_tarif_type;
+          s_data_id    := '{D250859F-7466-4FAE-9EB6-78FD1AA8728F}';
+          --
+          DELETE FROM rr_temp WHERE skod = s_data_id;
+          INSERT INTO rr_temp (skod, n1, n2, n3, s1, n4, n5, n14, n6, n7, n8, n9, n10, n11, n12, n13)
+            SELECT s_data_id, NVL(v.kodp_pwrcompany, -10), v.kodp, v.kod_dog, v.ndog, v.tarif_group,
+                   NVL(SUM(v.cust), 0) as cust,
+				   NVL(SUM(v.cust_7), 0) as cust_7,  -- n14 (ГН-СН2)
+                   NVL(SUM(v.cust_6), 0) as cust_6,
+                   NVL(SUM(v.cust_3), 0) as cust_3,
+                   NVL(SUM(v.cust_4), 0) as cust_4,
+                   NVL(SUM(v.cust_2), 0) as cust_2,
+                   NVL(SUM(v.cust_1), 0) as cust_1,
+                   NVL(SUM(v.money), 0) as money,
+                   NVL(SUM(v.nds), 0) as nds,
+                   NVL(SUM(v.money_with_nds), 0) as money_with_nds
+            FROM  (SELECT d.kod_dog, d.kodp, d.ndog,
+                          CASE WHEN a.vid_t = -222 THEN 1
+                               ELSE kg_tarif.is_2rate(kg_tarif.subtarif_voltage(a.tarif, a.voltage, a.dat_priem - 1E-5), a.dat_priem - 1E-5) END as is_2rate,
+                          CASE WHEN a.vid_t = -222 THEN 3
+		    ELSE CASE WHEN Decode(nvl(a.tarif_group,0), 0, 0, kg_tarif.f_byt_cached(a.tarif_group)) <> 0 THEN 4 -- население
+		    ELSE CASE WHEN kg_tarif.is_2rate(kg_tarif.subtarif_voltage(a.tarif, a.voltage, a.dat_priem - 1E-5), a.dat_priem - 1E-5) = 1 THEN 2
+                                     ELSE 1 END
+		 END 		   
+	        END  as tarif_group,
+                          CASE WHEN pr.kod_point IS NOT NULL
+                               THEN (SELECT attp.kodp_pwrcompany
+                                     FROM   hr_point pt JOIN hr_attpoint attp ON attp.kod_attpoint = pt.kod_attpoint
+                                     WHERE  pt.kod_point = pr.kod_point)
+                               ELSE (SELECT MAX(attp.kodp_pwrcompany)
+                                     FROM   kr_numobj no JOIN hr_nugruzpotreb nug ON nug.kod_obj = no.kod_obj
+                                                         JOIN hr_attpoint attp ON attp.kodnagruzpotreb = nug.kodnagruzpotreb
+                                     WHERE  no.kod_numobj = a.kod_numobj) END as kodp_pwrcompany,
+                          a.cust,
+						  CASE WHEN a.voltage = 7 THEN a.cust ELSE NULL END as cust_7,
+                          CASE WHEN a.voltage = 6 THEN a.cust ELSE NULL END as cust_6,
+                          CASE WHEN a.voltage = 3 THEN a.cust ELSE NULL END as cust_3,
+                          CASE WHEN a.voltage = 4 THEN a.cust ELSE NULL END as cust_4,
+                          CASE WHEN a.voltage = 2 THEN a.cust ELSE NULL END as cust_2,
+                          CASE WHEN a.voltage = 1 THEN a.cust ELSE NULL END as cust_1,
+                          a.money,
+                          ROUND(a.money * 0.20, 2) as nds,
+                          ROUND(a.money * 1.20, 2) as money_with_nds
+                   FROM   kr_dogovor d JOIN nv_account_sost a ON a.kod_dog = d.kod_dog
+                                       JOIN hr_reglament_pp p ON p.kod_reglament = a.kod_reglament
+                                       JOIN hr_calc_variant v ON v.kod_variant = p.kod_variant
+                                       LEFT OUTER JOIN nr_account_priem ac_pr ON ac_pr.kod_account_priem = a.kod_account_priem
+                                       LEFT OUTER JOIN nv_priem pr ON pr.kod_priem = ac_pr.kod_priem
+                   WHERE  d.dep = p_dep { AND d.kod_dog IN :p_kod_dog }
+                      AND a.ym = p_ym
+                      AND v.kod_typevariant = 1
+                      AND v.pr_notransit = 1
+                      AND a.price IS NOT NULL
+                      AND (a.tip_tarif_sost = 2 OR a.vid_t = -222)) v
+            WHERE  (p_tarif_type = 0 OR v.is_2rate = p_tarif_type - 1) { AND v.kodp_pwrcompany IN :p_kodp_pwrcompany }
+            GROUP BY v.kodp_pwrcompany, v.kodp, v.kod_dog, v.ndog, v.tarif_group;
+        END;]]></procedure>
+      <queries>
+        <query name="64455_1_total_grandtotal" as="gt" />
+        <query name="64455_1_total_grandtotal_by_tarif" as="gt_tarif" />
+        <query name="64455_1_total_total_by_tco" as="t_tco">
+          <query name="64455_1_total_total_by_tco_tarif" as="t_tco_tarif">
+            <call function="=">
+              <column table="t_tco_tarif" column="kodp_pwrcompany" />
+              <column table="t_tco" column="kodp_pwrcompany" />
+            </call>
+          </query>
+          <query name="64455_1_total_total_by_tco_dog" as="t_tco_dog">
+            <call function="and">
+              <call function="!=" optional="1">
+                <useparam name="p_hide_dog" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="t_tco_dog" column="kodp_pwrcompany" />
+                <column table="t_tco" column="kodp_pwrcompany" />
+              </call>
+            </call>
+            <query name="64455_1_total" as="data">
+              <call function="and">
+                <call function="=">
+                  <column table="data" column="kodp_pwrcompany" />
+                  <column table="t_tco_dog" column="kodp_pwrcompany" />
+                </call>
+                <call function="=">
+                  <column table="data" column="kod_dog" />
+                  <column table="t_tco_dog" column="kod_dog" />
+                </call>
+              </call>
+            </query>
+          </query>
+        </query>
+        <query name="64455_1_total_params" as="params">
+          <withparams>
+            <useparam name="p_dep" />
+            <useparam name="p_ym" />
+            <useparam name="p_tarif_type" />
+            <useparam name="p_kodp_pwrcompany" />
+            <useparam name="p_kod_dog" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="64455_1_total_params" title="Параметры отчёта 64455_1" timestamp="03.12.2024 23:04:18">
+      <params>
+        <param name="p_dep" type="number">
+          <const exclude="1" comment="Оренбургский филиал">20488</const>
+        </param>
+        <param name="p_ym" type="number">
+          <const exclude="1">2022.09</const>
+        </param>
+        <param name="p_tarif_type" type="number">
+          <const exclude="1">2</const>
+        </param>
+        <param name="p_kodp_pwrcompany" type="array">
+          <array exclude="1">22370,22379</array>
+        </param>
+        <param name="p_kod_dog" type="array">
+          <array exclude="1">
+            <const comment="1017056 ООО «Агроторг»">8395</const>
+            <const comment="8100456 ООО «Оренбург Водоканал»">7794</const>
+          </array>
+        </param>
+      </params>
+      <select>
+        <call function="||" type="string" as="period">
+          <const>'за '</const>
+          <call function="to_char">
+            <useparam name="p_ym" />
+            <const>'FM9990D00'</const>
+          </call>
+        </call>
+        <column table="dep" column="name" as="filial" />
+        <call function="nvl" type="string" as="tco">
+          <call function="()">
+            <query>
+              <select>
+                <column table="org" column="name" group="stragg" />
+              </select>
+              <from>
+                <query name="kr_org" as="org" />
+              </from>
+              <where>
+                <call function="or">
+                  <call function="false" />
+                  <call function="in" optional="1">
+                    <column table="org" column="kodp" />
+                    <useparam name="p_kodp_pwrcompany" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+          <const>'все'</const>
+        </call>
+        <call function="nvl" type="string" as="dogovor_list">
+          <call function="()">
+            <query>
+              <select>
+                <call function="||" group="stragg">
+                  <column table="d" column="ndog" />
+                  <const>' '</const>
+                  <column table="p" column="name" />
+                </call>
+              </select>
+              <from>
+                <query name="kr_dogovor" as="d" />
+                <query name="kr_payer" as="p" join="inner">
+                  <call function="=">
+                    <column table="p" column="kodp" />
+                    <column table="d" column="kodp" />
+                  </call>
+                </query>
+              </from>
+              <where>
+                <call function="or">
+                  <call function="false" />
+                  <call function="in" optional="1">
+                    <column table="d" column="kod_dog" />
+                    <useparam name="p_kod_dog" />
+                  </call>
+                </call>
+              </where>
+            </query>
+          </call>
+          <const>'все'</const>
+        </call>
+        <call function="decode" type="string" as="tarif_type">
+          <useparam name="p_tarif_type" />
+          <const>0</const>
+          <const>'все'</const>
+          <const>1</const>
+          <const>'одноставочный'</const>
+          <const>2</const>
+          <const>'двуставочный'</const>
+          <const>''</const>
+        </call>
+        <column column="name" as="esys_name" type="string" table="e" />
+      </select>
+      <from>
+        <query name="kr_org" as="dep" />
+        <query name="rs_esys" as="e" join="cross" />
+        <query name="kr_payer" join="inner" as="p">
+          <call function="=">
+            <column table="e" column="kodp" />
+            <column table="p" column="kodp" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="dep" column="kodp" />
+          <useparam name="p_dep" />
+        </call>
+      </where>
+    </query>
+    <query name="64455_1_total_data" timestamp="03.12.2024 23:00:43">
+      <select>
+        <column table="v" column="n1" type="number" as="kodp_pwrcompany" />
+        <column table="v" column="n2" type="number" as="kodp" />
+        <column table="v" column="n3" type="number" as="kod_dog" />
+        <column table="v" column="s1" type="string" as="ndog" />
+        <column table="v" column="n4" type="number" as="tarif_group" />
+        <column table="v" column="n5" type="number" as="cust" />
+        <column table="v" column="n14" type="number" as="cust_7" />
+        <column table="v" column="n6" type="number" as="cust_6" />
+        <column table="v" column="n7" type="number" as="cust_3" />
+        <column table="v" column="n8" type="number" as="cust_4" />
+        <column table="v" column="n9" type="number" as="cust_2" />
+        <column table="v" column="n10" type="number" as="cust_1" />
+        <column table="v" column="n11" type="number" as="money" />
+        <column table="v" column="n12" type="number" as="nds" />
+        <column table="v" column="n13" type="number" as="money_with_nds" />
+        <call function="case" type="string" as="group_name">
+          <call function="when">
+            <call function="=">
+              <column table="v" column="n4" />
+              <const>1</const>
+            </call>
+            <const>'электроэнергия одноставочный'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="v" column="n4" />
+              <const>2</const>
+            </call>
+            <const>'электроэнергия двуставочный'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="v" column="n4" />
+              <const>3</const>
+            </call>
+            <const>'мощность двуставочный'</const>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="v" column="n4" />
+              <const>4</const>
+            </call>
+            <const>'Электроэнергия НАСЕЛЕНИЕ'</const>
+          </call>
+          <call function="else">
+            <const>''</const>
+          </call>
+        </call>
+        <call function="if" type="string" as="ed_izm">
+          <call function="!=">
+            <column table="v" column="n4" />
+            <const>3</const>
+          </call>
+          <const>'кВтч'</const>
+          <const>'кВт'</const>
+        </call>
+      </select>
+      <from>
+        <table name="rr_temp" as="v" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="v" column="skod" />
+          <const>'{D250859F-7466-4FAE-9EB6-78FD1AA8728F}'</const>
+        </call>
+      </where>
+    </query>
+    <query name="64455_1_total" title="Основной запрос отчёта 64455_1_total" order="kodp_pwrcompany, kod_dog, tarif_group" timestamp="03.12.2024 23:12:18">
+      <select>
+        <column table="v" column="kodp_pwrcompany" key="1" />
+        <column table="v" column="kod_dog" key="1" />
+        <column table="v" column="tarif_group" key="1" />
+        <column table="v" column="group_name" />
+        <column table="v" column="ed_izm" />
+        <column table="v" column="cust" />
+        <column table="v" column="cust_7" title="ГН-СН2" />
+        <column table="v" column="cust_6" title="ГН" />
+        <column table="v" column="cust_3" title="ВН" />
+        <column table="v" column="cust_4" title="СН1" />
+        <column table="v" column="cust_2" title="СН2" />
+        <column table="v" column="cust_1" title="НН" />
+        <column table="v" column="money" />
+        <column table="v" column="nds" />
+        <column table="v" column="money_with_nds" />
+      </select>
+      <from>
+        <query name="64455_1_total_data" as="v" />
+      </from>
+    </query>
+    <query name="64455_1_total_grandtotal" title="Общий итог отчёта 64455_1_total" timestamp="16.11.2022 12:01:00">
+      <select>
+        <call function="sum" type="number" as="money">
+          <column table="v" column="money" />
+        </call>
+        <call function="sum" type="number" as="nds">
+          <column table="v" column="nds" />
+        </call>
+        <call function="sum" type="number" as="money_with_nds">
+          <column table="v" column="money_with_nds" />
+        </call>
+      </select>
+      <from>
+        <query name="64455_1_total_data" as="v" />
+      </from>
+    </query>
+    <query name="64455_1_total_grandtotal_by_tarif" order="tarif_group" title="Итог по тарифной группе отчёта 64455_1_total" timestamp="03.12.2024 23:02:25">
+      <select>
+        <column table="v" column="tarif_group" key="1" />
+        <column table="v" column="group_name" />
+        <column table="v" column="ed_izm" />
+        <call function="sum" type="number" as="cust">
+          <column table="v" column="cust" />
+        </call>
+        <call function="sum" type="number" as="cust_7" title="ГН-СН2">
+          <column table="v" column="cust_7" />
+        </call>
+        <call function="sum" type="number" as="cust_6" title="ГН">
+          <column table="v" column="cust_6" />
+        </call>
+        <call function="sum" type="number" as="cust_3" title="ВН">
+          <column table="v" column="cust_3" />
+        </call>
+        <call function="sum" type="number" as="cust_4" title="СН1">
+          <column table="v" column="cust_4" />
+        </call>
+        <call function="sum" type="number" as="cust_2" title="СН2">
+          <column table="v" column="cust_2" />
+        </call>
+        <call function="sum" type="number" as="cust_1" title="НН">
+          <column table="v" column="cust_1" />
+        </call>
+        <call function="sum" type="number" as="money">
+          <column table="v" column="money" />
+        </call>
+        <call function="sum" type="number" as="nds">
+          <column table="v" column="nds" />
+        </call>
+        <call function="sum" type="number" as="money_with_nds">
+          <column table="v" column="money_with_nds" />
+        </call>
+      </select>
+      <from>
+        <query name="64455_1_total_data" as="v" />
+      </from>
+      <group>
+        <column table="v" column="tarif_group" />
+        <column table="v" column="group_name" />
+        <column table="v" column="ed_izm" />
+      </group>
+    </query>
+    <query name="64455_1_total_total_by_tco" order="tco" title="Итоги по ТСО отчёта 64455_1_total" timestamp="16.11.2022 14:20:00">
+      <select>
+        <column table="v" column="kodp_pwrcompany" key="1" />
+        <call function="if" as="tco" title="ТСО">
+          <call function="=">
+            <column table="v" column="kodp_pwrcompany" />
+            <const>-10</const>
+          </call>
+          <const>'—'</const>
+          <column table="tco" column="name" />
+        </call>
+        <call function="sum" type="number" as="money">
+          <column table="v" column="money" />
+        </call>
+        <call function="sum" type="number" as="nds">
+          <column table="v" column="nds" />
+        </call>
+        <call function="sum" type="number" as="money_with_nds">
+          <column table="v" column="money_with_nds" />
+        </call>
+      </select>
+      <from>
+        <query name="64455_1_total_data" as="v" />
+        <query name="kr_org" as="tco" join="left outer">
+          <call function="=">
+            <column table="tco" column="kodp" />
+            <column table="v" column="kodp_pwrcompany" />
+          </call>
+        </query>
+      </from>
+      <group>
+        <column table="v" column="kodp_pwrcompany" />
+        <column table="tco" column="name" />
+      </group>
+    </query>
+    <query name="64455_1_total_total_by_tco_tarif" order="tarif_group" title="Итоги по ТСО и тарифной группе отчёта 64455_1_total" timestamp="03.12.2024 23:11:25">
+      <select>
+        <column table="v" column="kodp_pwrcompany" key="1" />
+        <column table="v" column="tarif_group" key="1" />
+        <column table="v" column="group_name" intern="1" />
+        <column table="v" column="ed_izm" intern="1" />
+        <call function="sum" type="number" as="cust">
+          <column table="v" column="cust" />
+        </call>
+        <call function="sum" type="number" as="cust_7" title="ГН-СН2">
+          <column table="v" column="cust_7" />
+        </call>
+        <call function="sum" type="number" as="cust_6" title="ГН">
+          <column table="v" column="cust_6" />
+        </call>
+        <call function="sum" type="number" as="cust_3" title="ВН">
+          <column table="v" column="cust_3" />
+        </call>
+        <call function="sum" type="number" as="cust_4" title="СН1">
+          <column table="v" column="cust_4" />
+        </call>
+        <call function="sum" type="number" as="cust_2" title="СН2">
+          <column table="v" column="cust_2" />
+        </call>
+        <call function="sum" type="number" as="cust_1" title="НН">
+          <column table="v" column="cust_1" />
+        </call>
+        <call function="sum" type="number" as="money">
+          <column table="v" column="money" />
+        </call>
+        <call function="sum" type="number" as="nds">
+          <column table="v" column="nds" />
+        </call>
+        <call function="sum" type="number" as="money_with_nds">
+          <column table="v" column="money_with_nds" />
+        </call>
+      </select>
+      <from>
+        <query name="64455_1_total_data" as="v" />
+      </from>
+      <group>
+        <column table="v" column="kodp_pwrcompany" />
+        <column table="v" column="tarif_group" />
+        <column table="v" column="group_name" />
+        <column table="v" column="ed_izm" />
+      </group>
+    </query>
+    <query name="64455_1_total_total_by_tco_dog" order="kodp_pwrcompany, ndog" title="Итоги по ТСО и договору отчёта 64455_1_total" timestamp="16.11.2022 12:15:00">
+      <select>
+        <column table="v" column="kodp_pwrcompany" key="1" />
+        <column table="v" column="kod_dog" key="1" />
+        <column table="v" column="ndog" />
+        <column table="p" column="name" as="payer_name" />
+        <call function="sum" type="number" as="money">
+          <column table="v" column="money" />
+        </call>
+        <call function="sum" type="number" as="nds">
+          <column table="v" column="nds" />
+        </call>
+        <call function="sum" type="number" as="money_with_nds">
+          <column table="v" column="money_with_nds" />
+        </call>
+      </select>
+      <from>
+        <query name="64455_1_total_data" as="v" />
+        <query name="kr_payer" as="p" join="inner">
+          <call function="=">
+            <column table="p" column="kodp" />
+            <column table="v" column="kodp" />
+          </call>
+        </query>
+      </from>
+      <group>
+        <column table="v" column="kodp_pwrcompany" />
+        <column table="v" column="kod_dog" />
+        <column table="v" column="ndog" />
+        <column table="p" column="name" />
+      </group>
+    </query>
+    <query name="64455_1_tarif_type" title="Тип тарифа" timestamp="21.10.2022 12:20:00">
+      <select>
+        <column table="a" column="id" type="number" key="1" />
+        <column table="a" column="name" type="string" />
+      </select>
+      <from>
+        <usepart part="table-from-dual" as="a">
+          <rows>
+            <row>
+              <const as="id" type="number">0</const>
+              <const as="name" type="string">'все'</const>
+            </row>
+            <row>
+              <const as="id">1</const>
+              <const as="name">'одноставочный'</const>
+            </row>
+            <row>
+              <const as="id">2</const>
+              <const as="name">'двуставочный'</const>
+            </row>
+          </rows>
+        </usepart>
+      </from>
+      <order>
+        <column column="id" />
+      </order>
+    </query>
+    <query name="64455_1_pwrcompany" order="name" title="Список ТСО" timestamp="13.11.2023 13:40:00">
+      <select>
+        <column table="o" column="kodp" as="kodp_pwrcompany" type="number" key="1" />
+        <column table="o" column="name" title="Наименование" is-name="1" />
+        <column table="o" column="inn" title="ИНН" />
+        <column table="o" column="kpp" title="КПП" />
+      </select>
+      <from>
+        <query name="hv_org" as="o" />
+        <query name="kr_org_group" as="og" join="inner">
+          <call function="=">
+            <column table="og" column="kod_org" />
+            <column table="o" column="kodp" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="o" column="pr_active" />
+            <const>0</const>
+          </call>
+          <call function="!=">
+            <column table="o" column="kodp" />
+            <const>-10</const>
+          </call>
+          <call function="=">
+            <column table="og" column="pr_last" />
+            <const>1</const>
+          </call>
+          <call function="in">
+            <column table="og" column="kod_org_group" />
+            <array>
+              <const>-10</const>
+              <const>-11</const>
+            </array>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="64455_1_dogovor_list" timestamp="16.11.2022 17:00:00">
+      <params>
+        <param name="p_dep" type="number" />
+      </params>
+      <select>
+        <column table="d" column="kod_dog" as="kod_dog" key="1" />
+        <column table="d" column="ndog" as="ndog" />
+        <column table="p" column="nump" as="nump" />
+        <column table="p" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="d" />
+        <query name="kr_payer" as="p" join="inner">
+          <call function="=">
+            <column table="p" column="kodp" />
+            <column table="d" column="kodp" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="d" column="dep" />
+          <call function="nvlu">
+            <useparam name="p_dep" />
+            <const>NULL</const>
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

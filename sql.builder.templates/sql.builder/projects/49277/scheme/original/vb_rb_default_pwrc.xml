@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="vb_rb_default_pwrc" class="1" timestamp="04.10.2022 11:47:13">
+      <select>
+        <column table="a" column="kod_id" type="number" column-mandatory="1" comment="Код записи таблицы" />
+        <column table="a" column="kod_fl" type="number" comment="Код филиала" />
+        <column table="a" column="pwrc_id" type="number" title="" comment="Код подстанции" />
+        <column table="a" column="u_m" type="string" data-size="4000" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="stage1" type="number" title="" comment="Период 1го этапа (YYYY.MM)" />
+        <column table="a" column="stage2" type="number" title="" comment="Период 2го этапа (YYYY.MM)" />
+        <column table="a" column="ym_start_analyz" type="number" title="" comment="Период, с которого по ПС проводятся работы по устранению небалансов" />
+        <call function="to_char" as="tm_start_an_str">
+          <column table="this" column="ym_start_analyz" />
+        </call>
+      </select>
+      <from>
+        <table name="vb_rb_default_pwrc" as="a" />
+        <query name="jv_rep_cons_d_fl" as="kod_fl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_fl" />
+            <column table="kod_fl" column="kod_fl" />
+          </call>
+        </query>
+        <query join="left outer" name="vr_rb_pwrc" as="pwrc_id">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="pwrc_id" />
+              <column table="pwrc_id" column="pwrc_id" />
+            </call>
+            <call function="=">
+              <column table="a" column="kod_fl" />
+              <column table="pwrc_id" column="bal_id" />
+            </call>
+          </call>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

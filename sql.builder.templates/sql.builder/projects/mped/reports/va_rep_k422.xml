@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="va_rep_k422" timestamp="06.02.2018 18:44:42" title="K422. Утвержденные Советом директоров (по Бизнес-плану)" is-report="1" can-use-simple-params="1" order="item_ord" nogrid="1" mode="excel" use-repository="1" comment="K422. Утвержденные Советом директоров (по Бизнес-плану)">
+      <content>
+        <fieldgroup noborder="1" part-id="va_rep_k422-content" title="-">
+          <usefield field="va_god" column-mandatory="1" />
+          <fieldgroup title="Месяц">
+            <usefield field="va_mes1" name="p_mes1" title="C" column-mandatory="1" />
+            <usefield field="va_mes12" name="p_mes2" title="По" column-mandatory="1" />
+          </fieldgroup>
+        </fieldgroup>
+      </content>
+      <print-templates>
+        <excel>
+          <template name="mpedK422.xlsx" title="K422" print-proc="2" print-xlsx="1" format-source="41050-format.xlsx" />
+        </excel>
+      </print-templates>
+      <usepart part="va_cons01-expressions" />
+      <select>
+        <column table="item" column="kod" as="item_kod" title="Статья" />
+        <column table="item" column="name" as="item_name" title="Статья" />
+        <column table="item" column="ei_name" title="Статья" />
+        <column table="item" column="ord" as="item_ord" title="Статья" />
+        <call function="case" as="p_val" type="number" title="План">
+          <call function="when">
+            <call function="=">
+              <column table="item" column="kod" />
+              <const>1</const>
+            </call>
+            <fact column="i_fact005" table="a" mp="-3" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="item" column="kod" />
+              <const>4</const>
+            </call>
+            <fact column="i_exp001" table="a" />
+          </call>
+        </call>
+        <call function="case" as="f_val" type="number" title="Факт">
+          <call function="when">
+            <call function="=">
+              <column table="item" column="kod" />
+              <const>1</const>
+            </call>
+            <fact column="i_fact006" table="a" mp="-3" />
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="item" column="kod" />
+              <const>4</const>
+            </call>
+            <fact column="i_exp002" table="a" />
+          </call>
+        </call>
+        <call function="-nvl" as="o_val" title="Отклонение">
+          <column table="this" column="f_val" />
+          <column table="this" column="p_val" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1" single-way="1">
+          <link name="va_dr_i_x" only-for-cond="1" part-id="va_rep_k422-cube" />
+          <dimset as="a" part-id="va_rep_k422-cube">
+            <link name="va_god" only-for-cond="1" />
+            <link name="va_mes" only-for-cond="1" />
+            <where>
+              <call function="=">
+                <column table="va_god" column="val" />
+                <useparam name="p_god" />
+              </call>
+              <call function="ge">
+                <column table="va_mes" column="val" />
+                <useparam name="p_mes1" />
+              </call>
+              <call function="le">
+                <column table="va_mes" column="val" />
+                <useparam name="p_mes2" />
+              </call>
+            </where>
+          </dimset>
+          <where part-id="va_rep_k422-cube">
+            <call function="=">
+              <column table="va_dr_i_x" column="kod_direct" />
+              <const>0</const>
+            </call>
+          </where>
+        </qube>
+        <query name="va_acc_k422_item" join="left outer" as="item">
+          <call function="true" />
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

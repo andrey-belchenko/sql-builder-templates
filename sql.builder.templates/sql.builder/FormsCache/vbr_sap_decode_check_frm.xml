@@ -1,0 +1,1638 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vbr_sap_decode_check_frm" title="Данные SAP в разрезе статей (Доходы и расходы)" timestamp="23.07.2019 16:19:21" file="sql.builder.templates\sql.builder\projects\mped\forms\vbr_sap_decode_check.xml" elid="696" ord="696" leaf="0" lvl="2" pelid="">
+    <field id="11548617" name="p_kod_direct" controlType="UICombo" title="Подразделение" expand-all="1" type="number" parent-field-name="parent_id" comment="Подразделение (единичный выбор)" elid="710" ord="710" leaf="0" lvl="2" pelid="" show-checkbox="0">
+      <listquery>
+        <query name="is_spr_direct_for_mped" />
+      </listquery>
+      <defaultquery>
+        <query name="va_dr_fq_root_val" />
+      </defaultquery>
+    </field>
+    <field id="24645664" controlType="UICombo" type="number" elid="397" ord="397" leaf="1" lvl="2" pelid="" title="Период" name="p_period" show-checkbox="0">
+      <listquery>
+        <query name="vb_spr_time_utv_ym_by_dir" />
+      </listquery>
+    </field>
+    <field id="39474339" controlType="UIList" elid="383" ord="383" leaf="1" lvl="2" pelid="" name="p_dir_arr" type="number" column-visible="0">
+      <listquery exclude="1">
+        <query name="is_spr_dr_tree_start_kod_dr" />
+      </listquery>
+      <defaultquery>
+        <query name="is_spr_dr_tree_start_kod_dr" />
+      </defaultquery>
+    </field>
+    <field id="51264416" controlType="UINumber" edit-mask="d" type="number" elid="391" ord="391" leaf="1" lvl="2" pelid="" name="p_fact_utv" show-checkbox="0" title="Утверждено" column-visible="0">
+      <defaultquery>
+        <query name="vb_spr_time_utv_ym_by_dir_bool" />
+      </defaultquery>
+    </field>
+    <grid table="a" show-toolbar="1" parent-field-name="kod_parent" id="64735115">
+      <toolbar id="17269958">
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="361" ord="361" leaf="1" lvl="2" pelid="" title="" id="17735234" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="365" ord="365" leaf="1" lvl="2" pelid="" title="" id="52223908" />
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="363" ord="363" leaf="1" lvl="2" pelid="" title="" id="53236405" />
+        <uicommand action-type="custom" title="Загрузить в старый МПЭП (недоступно до 2019.01 и для закрытых периодов)" editable="p_fact_utv" prompt="Продолжить загрузку данных в старый МПЭП по выбранным параметрам?" button-type="custom-add-form" name="custom-add-form" icon="AddForm_24" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="374" ord="374" leaf="1" lvl="2" pelid="" id="27673051">
+          <useaction name="vb_refs.load_data_to_mpep" action-type="call-plsql" id="15257944">
+            <useparam name="p_kod_direct" id="23589935" />
+            <useparam name="p_period" id="412376" />
+          </useaction>
+        </uicommand>
+      </toolbar>
+      <columns id="45279671">
+        <field table="a" name="kod_spr_smet" title="" controlType="UICombo" rows-limit="100" id="35008700" />
+        <field table="a" name="full_name" title="Наименование" width="403" controlType="UIText" rows-limit="100" id="15865385" />
+        <field table="a" name="kod_parent" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="31975270" />
+        <field table="a" name="ord" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="66628601" />
+        <field table="a" name="dr_ee" title="Э/Э" width="111" controlType="UIText" edit-mask="N2" rows-limit="100" id="14699525" />
+        <field table="a" name="dr_te" title="Т/Э" width="111" controlType="UIText" edit-mask="N2" rows-limit="100" id="2234922" />
+        <field table="a" name="dr_od" title="ОД Итого" width="111" controlType="UIText" edit-mask="N2" rows-limit="100" id="59987084" />
+        <field table="a" name="dr_nd" title="НД" width="90" controlType="UIText" edit-mask="N2" rows-limit="100" id="55434244" />
+        <field table="a" name="vb_spr_smet_to_sap_sap_code" title="SAP коды статей" width="596" controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="8822302" />
+      </columns>
+    </grid>
+    <field table="a" name="sum_seb" title="СЕБЕСТОИМОСТЬ" controlType="UIText" edit-mask="N2" rows-limit="100" id="46389026" />
+  </form>
+  <dataset>
+    <fields>
+      <field type="number" name="p_kod_direct" parname="p_kod_direct" title="Подразделение" />
+      <field type="number" name="p_period" parname="p_period" title="Период" />
+      <field type="number" name="p_dir_arr" parname="p_dir_arr" title="" ColumnVisible="0" />
+      <field type="number" name="p_fact_utv" parname="p_fact_utv" title="Утверждено" ColumnVisible="0" />
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="vbr_sap_decode_check_rep" key="kod_spr_smet" is-ms-upd="0" is-top="1">
+      <select-text>
+--
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.full_name as full_name, /*Наименование*//*string*/
+a.kod_parent as kod_parent, /*number*/
+a.ord as ord, /*number*/
+a.dr_ee as dr_ee, /*Э/Э*//*number*/
+a.dr_te as dr_te, /*Т/Э*//*number*/
+a.dr_od as dr_od, /*ОД Итого*//*number*/
+a.dr_nd as dr_nd, /*НД*//*number*/
+a.vb_spr_smet_to_sap_sap_code as vb_spr_smet_to_sap_sap_code, /*SAP коды статей*//*string*/
+a.sum_seb as sum_seb/*СЕБЕСТОИМОСТЬ*//*number*/
+
+from (
+--vbr_sap_decode_check_rep
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.full_name as full_name, /*Наименование*//*string*/
+a.kod_parent as kod_parent, /*number*/
+a.ord as ord, /*number*/
+nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_ee ) /*Доходы и расходы (ЭЭ)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0)  as dr_ee, /*Э/Э*//*number*/
+nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_te ) /*Доходы и расходы (Тепло)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0)  as dr_te, /*Т/Э*//*number*/
+nullif( nvl( (nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_ee ) /*Доходы и расходы (ЭЭ)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0) )  ,0)  +nvl( (nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_te ) /*Доходы и расходы (Тепло)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0) )  ,0) ,0)  as dr_od, /*ОД Итого*//*number*/
+nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_nd ) /*Доходы и расходы (НД)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0)  as dr_nd, /*НД*//*number*/
+qube.vb_spr_smet_to_sap_sap_code1 as vb_spr_smet_to_sap_sap_code, /*SAP коды статей*//*string*/
+ sum( ( case  when (a.kod_spr_smet = 60)  then (nullif( nvl( (nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_ee ) /*Доходы и расходы (ЭЭ)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0) )  ,0)  +nvl( (nullif((
+--
+select  sum( b.va_sp_calc_rep_dr_te ) /*Доходы и расходы (Тепло)*//*aggregate*/
+
+from (
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_spr_smet,
+s1 as full_name,
+n2 as kod_parent,
+n3 as ord,
+n4 as included,
+n5 as va_sp_calc_rep_dr_ee,
+n6 as va_sp_calc_rep_dr_te,
+n7 as va_sp_calc_rep_dr_nd
+from rr_temp where skod = 'vbr_sap_decode_check_pre'
+)
+b
+--\vbr_sap_decode_check_pre
+where
+( nvl( b.included ,0)=0 )  or (a.kod_spr_smet not in (
+--
+select inc.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet_parent_list_for_included
+select a.kod_parent as kod_parent/*number*//*key*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included/*В том числе*//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+a.kod_parent is not null connect by nocycle
+prior a.kod_parent = a.kod_spr_smet
+start with a.included = 1 group by
+a.kod_parent/*number*//*key*/
+)
+inc
+--\is_spr_smet_parent_list_for_included
+)
+--\
+) connect by nocycle
+(prior b.kod_spr_smet = b.kod_parent) 
+start with b.kod_spr_smet = a.kod_spr_smet)
+--\
+,0) )  ,0) ,0) )  else 0 end )  )  over(  partition by 1 )  as sum_seb/*СЕБЕСТОИМОСТЬ*//*number*/
+
+from (
+--
+select qube.is_spr_smet as is_spr_smet, /*number*//*key*/
+stragg(qube.vb_spr_smet_to_sap_sap_code1)  as vb_spr_smet_to_sap_sap_code1/*SAP коды статей*//*string*/
+
+from (
+--
+select qube.is_spr_smet as is_spr_smet, /*number*//*key*/
+qube.vb_spr_smet_to_sap_sap_code1 as vb_spr_smet_to_sap_sap_code1/*string*/
+
+from (
+(
+(
+--
+select qube.is_spr_smet as is_spr_smet, /*number*//*key*/
+qube.vb_spr_smet_to_sap_sap_code1 as vb_spr_smet_to_sap_sap_code1/*string*/
+
+from (
+--
+select un.is_spr_smet as is_spr_smet, /*number*//*key*/
+stragg(un.vb_spr_smet_to_sap_sap_code1)  as vb_spr_smet_to_sap_sap_code1/*string*/
+
+from (
+(
+(
+--
+select a.kod_spr_smet as is_spr_smet, /*number*//*key*/
+null as vb_spr_smet_to_sap_sap_code1/*string*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.dat_finish as dat_finish/**//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+where
+((:p_period  * 100)  &lt;= ( nvl( a.dat_finish , ( to_number(to_char( ( sysdate )  ,'YYYYMM')) )  ) ) )  and (a.kod_spr_smet is not null ) )
+--\
+union all
+(
+--
+select vb_spr_smet_to_sap_a_d.kod_spr_smet as is_spr_smet, /*number*//*key*/
+vb_spr_smet_to_sap_a_d.sap_code as vb_spr_smet_to_sap_sap_code1/*string*/
+
+from (
+--vb_spr_smet_to_sap
+select a.kod_spr_smet_to_sap as kod_spr_smet_to_sap, /*number*//*key*/
+a.kod_spr_smet as kod_spr_smet, /*number*/
+a.sap_code as sap_code/*string*/
+
+from vb_spr_smet_to_sap
+a
+--\vb_spr_smet_to_sap
+where
+a.period_po is null 
+order by kod_spr_smet)
+vb_spr_smet_to_sap_a_d
+--\vb_spr_smet_to_sap
+inner join
+(
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.dat_finish as dat_finish/**//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a on vb_spr_smet_to_sap_a_d.kod_spr_smet = a.kod_spr_smet--\is_spr_smet
+where
+((:p_period  * 100)  &lt;= ( nvl( a.dat_finish , ( to_number(to_char( ( sysdate )  ,'YYYYMM')) )  ) ) )  and (a.kod_spr_smet is not null ) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.is_spr_smet/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.is_spr_smet/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+ cut_num( ( decode( a.kod_smet , 'I.' , '1' , 'II.' , '2' , 'III.' , '3' , 'IV.' , '4' , a.kod_smet ) )  )  as ord, /*number*/
+a.kod_parent as kod_parent, /*number*/
+(is_spr_smet_tree.root_kod_smet || a.kod_smet)  || ' ' || a.name as full_name/*Наименование*//*string*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+left outer join
+(
+--is_spr_smet_tree
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+ case  when (a.kod_parent is not null )  then a.root_kod_smet end  as root_kod_smet/*string*/
+
+from (
+--is_spr_smet_tree_pre
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+ connect_by_root a.kod_smet as root_kod_smet, /*string*/
+a.kod_parent as kod_parent/*number*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_smet as kod_smet, /*string*/
+a.kod_parent as kod_parent/*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+connect by nocycle
+(a.kod_parent = prior a.kod_spr_smet) 
+start with a.kod_parent is null )
+a
+--\is_spr_smet_tree_pre
+)
+is_spr_smet_tree on a.kod_spr_smet = is_spr_smet_tree.kod_spr_smet--\is_spr_smet_tree
+)
+a on a.kod_spr_smet = qube.is_spr_smet--\is_spr_smet
+)
+a
+--\vbr_sap_decode_check_rep
+
+order by ord--\
+</select-text>
+      <proc-text>begin
+
+delete from rr_temp where skod = 'is_spr_direct_mask';
+insert into rr_temp
+(
+skod, --skod
+sid, --sid
+rn, --rn
+n1, --kod_direct
+s1--mb3_code
+)
+--is_spr_direct_mask
+--is_spr_direct_mask
+select 'is_spr_direct_mask' as skod,
+'is_spr_direct_mask|#'||mtr.kod_direct as sid,
+row_number() over (order by 1) as rn,
+mtr.*
+from
+(
+select a.kod_direct as kod_direct, /*number*//*key*/
+ replace( a.mb3_code , 'X' , '_' )  as mb3_code/*string*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_parent as kod_parent, /*number*/
+a.mvp_code as mvp_code, /*string*/
+a.mb3_code as mb3_code/*string*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+)
+a
+--\is_spr_direct
+where
+(a.mb3_code is not null )  and (a.mb3_code != (a.mvp_code || 'XXXXXX') ) connect by nocycle
+prior a.kod_direct = a.kod_parent
+start with a.mb3_code = (a.mvp_code || 'XXXXXX') ) mtr
+;
+--\is_spr_direct_mask
+
+delete from rr_temp where skod = 'vbr_sap_decode_check_pre';
+insert into rr_temp
+(
+skod, --skod
+sid, --sid
+rn, --rn
+n1, --kod_spr_smet
+s1, --full_name
+n2, --kod_parent
+n3, --ord
+n4, --included
+n5, --va_sp_calc_rep_dr_ee
+n6, --va_sp_calc_rep_dr_te
+n7--va_sp_calc_rep_dr_nd
+)
+--vbr_sap_decode_check_pre
+--vbr_sap_decode_check_pre
+select 'vbr_sap_decode_check_pre' as skod,
+'vbr_sap_decode_check_pre|#'||mtr.kod_spr_smet as sid,
+row_number() over (order by 1) as rn,
+mtr.*
+from
+(
+select s.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+s.full_name as full_name, /*Наименование*//*string*/
+s.kod_parent as kod_parent, /*number*/
+s.ord as ord, /*number*/
+s.included as included, /*В том числе*//*number*/
+qube.va_sp_calc_rep_dr_ee1 as va_sp_calc_rep_dr_ee, /*Доходы и расходы (ЭЭ)*//*number*/
+qube.va_sp_calc_rep_dr_te1 as va_sp_calc_rep_dr_te, /*Доходы и расходы (Тепло)*//*number*/
+qube.va_sp_calc_rep_dr_nd1 as va_sp_calc_rep_dr_nd/*Доходы и расходы (НД)*//*number*/
+
+from (
+--
+select qube.is_spr_smet as is_spr_smet, /*number*//*key*/
+sum(qube.va_sp_calc_rep_dr_ee1)  as va_sp_calc_rep_dr_ee1, /*Доходы и расходы (ЭЭ)*//*number*/
+sum(qube.va_sp_calc_rep_dr_te1)  as va_sp_calc_rep_dr_te1, /*Доходы и расходы (Тепло)*//*number*/
+sum(qube.va_sp_calc_rep_dr_nd1)  as va_sp_calc_rep_dr_nd1/*Доходы и расходы (НД)*//*number*/
+
+from (
+--
+select qube.is_spr_smet as is_spr_smet, /*number*//*key*/
+qube.va_sp_calc_rep_dr_ee1 as va_sp_calc_rep_dr_ee1, /*Доходы и расходы (ЭЭ)*//*number*/
+qube.va_sp_calc_rep_dr_nd1 as va_sp_calc_rep_dr_nd1, /*Доходы и расходы (НД)*//*number*/
+qube.va_sp_calc_rep_dr_te1 as va_sp_calc_rep_dr_te1/*Доходы и расходы (Тепло)*//*number*/
+
+from (
+(
+(
+--
+select qube.is_spr_smet as is_spr_smet, /*number*//*key*/
+qube.va_sp_calc_rep_dr_ee1 as va_sp_calc_rep_dr_ee1, /*Доходы и расходы (ЭЭ)*//*number*/
+qube.va_sp_calc_rep_dr_nd1 as va_sp_calc_rep_dr_nd1, /*Доходы и расходы (НД)*//*number*/
+qube.va_sp_calc_rep_dr_te1 as va_sp_calc_rep_dr_te1/*Доходы и расходы (Тепло)*//*number*/
+
+from (
+--
+select un.is_spr_smet as is_spr_smet, /*number*//*key*/
+sum(un.va_sp_calc_rep_dr_ee1)  as va_sp_calc_rep_dr_ee1, /*Доходы и расходы (ЭЭ)*//*number*/
+sum(un.va_sp_calc_rep_dr_nd1)  as va_sp_calc_rep_dr_nd1, /*Доходы и расходы (НД)*//*number*/
+sum(un.va_sp_calc_rep_dr_te1)  as va_sp_calc_rep_dr_te1/*Доходы и расходы (Тепло)*//*number*/
+
+from (
+(
+(
+--
+select is_spr_smet.kod_spr_smet as is_spr_smet, /*number*//*key*/
+va_sp_calc_rep_a_d.dr_ee as va_sp_calc_rep_dr_ee1, /*Доходы и расходы (ЭЭ)*//*number*/
+va_sp_calc_rep_a_d.dr_nd as va_sp_calc_rep_dr_nd1, /*Доходы и расходы (НД)*//*number*/
+va_sp_calc_rep_a_d.dr_te as va_sp_calc_rep_dr_te1/*Доходы и расходы (Тепло)*//*number*/
+
+from (
+--va_sp_calc_rep
+select a.vid_dey_kod as vid_dey_kod, /**//*number*/
+a.el_zatr_kod as el_zatr_kod, /**//*number*/
+ case  when (vb_spr_vid_dey.kod_spr_vid_energ = 2)  then ( case  when ((( upper( a.tip_bud_name ) )  = 'ФАКТ')  and ( nvl( ( nvl( a.zatr ,0) )  ,0)!=0 ) )  then a.zatr end )  end  as dr_ee, /*Доходы и расходы (ЭЭ)*//*number*/
+ case  when (vb_spr_vid_dey.kod_spr_vid_energ = 3)  then ( case  when ((( upper( a.tip_bud_name ) )  = 'ФАКТ')  and ( nvl( ( nvl( a.zatr ,0) )  ,0)!=0 ) )  then a.zatr end )  end  as dr_te, /*Доходы и расходы (Тепло)*//*number*/
+ case  when (vb_spr_vid_dey.kod_spr_vid_energ = 1)  then ( case  when ((( upper( a.tip_bud_name ) )  = 'ФАКТ')  and ( nvl( ( nvl( a.zatr ,0) )  ,0)!=0 ) )  then a.zatr end )  end  as dr_nd, /*Доходы и расходы (НД)*//*number*/
+ mod( a.period , 1)*100  as mes, /*number*/
+ trunc( a.period )  as god, /*number*/
+ coalesce( mb3.kod_direct , mvp1.kod_direct , mvp2.kod_direct )  as kod_direct/*number*/
+
+from (
+--va_sp_calc
+select a.kod_sp_calc as kod_sp_calc, /*number*//*key*/
+a.vid_dey_kod as vid_dey_kod, /**//*number*/
+a.period as period, /**//*number*/
+a.mb3_kod as mb3_kod, /**//*string*/
+a.el_zatr_kod as el_zatr_kod, /**//*number*/
+a.mvp_kod as mvp_kod, /**//*string*/
+a.zatr as zatr, /**//*number*/
+a.tip_bud_name as tip_bud_name/*string*/
+
+from va_sp_calc
+a
+--\va_sp_calc
+)
+a
+--\va_sp_calc
+left outer join
+(
+--vb_spr_vid_dey
+select a.vid_dey_sap_code as vid_dey_sap_code, /*Код вида деятельности*//*string*/
+a.kod_spr_vid_energ as kod_spr_vid_energ/*number*/
+
+from vb_spr_vid_dey
+a
+--\vb_spr_vid_dey
+)
+vb_spr_vid_dey on a.vid_dey_kod = vb_spr_vid_dey.vid_dey_sap_code--\vb_spr_vid_dey
+left outer join
+(
+select /*+ dynamic_sampling(rr_temp 10)*/
+sid,
+sparentid,
+rn,
+n1 as kod_direct,
+s1 as mb3_code
+from rr_temp where skod = 'is_spr_direct_mask'
+)
+mb3 on a.mb3_kod like mb3.mb3_code--\is_spr_direct_mask
+left outer join
+(
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.mvp_code as mvp_code/*string*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+)
+mvp1 on ( SUBSTR( a.mb3_kod , 1 , 4 ) )  = mvp1.mvp_code--\is_spr_direct
+left outer join
+(
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.mvp_code as mvp_code/*string*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+)
+mvp2 on a.mvp_kod = mvp2.mvp_code--\is_spr_direct
+)
+va_sp_calc_rep_a_d
+--\va_sp_calc_rep
+left outer join
+(
+--vb_spr_smet_to_sap
+select a.kod_spr_smet_to_sap as kod_spr_smet_to_sap, /*number*//*key*/
+a.kod_spr_smet as kod_spr_smet, /*number*/
+a.sap_code as sap_code/*string*/
+
+from vb_spr_smet_to_sap
+a
+--\vb_spr_smet_to_sap
+where
+a.period_po is null )
+vb_spr_smet_to_sap_a_d1 on (( to_char( va_sp_calc_rep_a_d.el_zatr_kod ) )  = vb_spr_smet_to_sap_a_d1.sap_code) --\vb_spr_smet_to_sap
+inner join
+(
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.prizn as prizn/**//*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+is_spr_smet on vb_spr_smet_to_sap_a_d1.kod_spr_smet = is_spr_smet.kod_spr_smet--\is_spr_smet
+left outer join
+(
+--va_direct
+select a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct/*number*//*key*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+)
+a
+--\is_spr_direct
+)
+va_direct on va_sp_calc_rep_a_d.kod_direct = va_direct.kod_direct--\va_direct
+left outer join
+(
+--vb_spr_vid_dey
+select a.vid_dey_sap_code as vid_dey_sap_code, /*Код вида деятельности*//*string*/
+kod_spr_vid_energ.kod_spr_od_nd as prizn/*number*/
+
+from vb_spr_vid_dey
+a
+--\vb_spr_vid_dey
+left outer join
+(
+--vb_spr_vid_energ
+select a.kod_spr_vid_energ as kod_spr_vid_energ, /*number*//*key*/
+a.kod_spr_od_nd as kod_spr_od_nd/*number*/
+
+from vb_spr_vid_energ
+a
+--\vb_spr_vid_energ
+)
+kod_spr_vid_energ on a.kod_spr_vid_energ = kod_spr_vid_energ.kod_spr_vid_energ--\vb_spr_vid_energ
+)
+vb_spr_vid_dey on va_sp_calc_rep_a_d.vid_dey_kod = vb_spr_vid_dey.vid_dey_sap_code--\vb_spr_vid_dey
+where
+(va_direct.kod_direct in  :p_dir_arr )  and ((va_sp_calc_rep_a_d.god = ( trunc(  :p_period  ) ) )  and (va_sp_calc_rep_a_d.mes &gt;= ( mod(  :p_period  , 1)*100 ) )  and (va_sp_calc_rep_a_d.mes &lt;= ( mod(  :p_period  , 1)*100 ) ) )  and (is_spr_smet.prizn = vb_spr_vid_dey.prizn) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.is_spr_smet/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.is_spr_smet/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet/*number*//*key*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+is_spr_smet on is_spr_smet.kod_spr_smet = qube.is_spr_smet--\is_spr_smet
+right outer join
+(
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+ cut_num( ( decode( a.kod_smet , 'I.' , '1' , 'II.' , '2' , 'III.' , '3' , 'IV.' , '4' , a.kod_smet ) )  )  as ord, /*number*/
+a.kod_parent as kod_parent, /*number*/
+a.included as included, /*В том числе*//*number*/
+(is_spr_smet_tree.root_kod_smet || a.kod_smet)  || ' ' || a.name as full_name/*Наименование*//*string*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+left outer join
+(
+--is_spr_smet_tree
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+ case  when (a.kod_parent is not null )  then a.root_kod_smet end  as root_kod_smet/*string*/
+
+from (
+--is_spr_smet_tree_pre
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+ connect_by_root a.kod_smet as root_kod_smet, /*string*/
+a.kod_parent as kod_parent/*number*/
+
+from (
+--is_spr_smet
+select a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+a.kod_smet as kod_smet, /*string*/
+a.kod_parent as kod_parent/*number*/
+
+from is_spr_smet
+a
+--\is_spr_smet
+)
+a
+--\is_spr_smet
+connect by nocycle
+(a.kod_parent = prior a.kod_spr_smet) 
+start with a.kod_parent is null )
+a
+--\is_spr_smet_tree_pre
+)
+is_spr_smet_tree on a.kod_spr_smet = is_spr_smet_tree.kod_spr_smet--\is_spr_smet_tree
+)
+s on s.kod_spr_smet = is_spr_smet.kod_spr_smet--\is_spr_smet
+) mtr
+;
+--\vbr_sap_decode_check_pre
+
+end;
+</proc-text>
+      <columns>
+        <column name="kod_spr_smet" table="a" type="number" title="" is-user-editable="1" is-refreshed="1">
+          <sel-list-compiled>
+            <root>
+              <query class="1" timestamp="12.08.2019 15:34:39" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\is_spr_smet.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a" sourcecolumn="kod_spr_smet" used="1" into="n1">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" used="1" into="s1">a.kod_smet as kod_smet, /*string*/
+</column><call function="||" as="full_kod_smet" key="0" pth="" type="string" used="1" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_smet" into="s2"><column table="is_spr_smet_tree" column="root_kod_smet">is_spr_smet_tree.root_kod_smet</column><text txtype="func"> || </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column> as full_kod_smet, /*string*/
+</call><call function="cut_num" as="ord" key="0" pth="" type="number" used="1" sourcetable="./a" sourcecolumn="kod_smet" into="n2"><text txtype="func"> cut_num( </text><call function="decode" pth="">(<text txtype="func"> decode( </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column><text txtype="func"> , </text><const><text>'I.'</text></const><text txtype="func"> , </text><const><text>'1'</text></const><text txtype="func"> , </text><const><text>'II.'</text></const><text txtype="func"> , </text><const><text>'2'</text></const><text txtype="func"> , </text><const><text>'III.'</text></const><text txtype="func"> , </text><const><text>'3'</text></const><text txtype="func"> , </text><const><text>'IV.'</text></const><text txtype="func"> , </text><const><text>'4'</text></const><text txtype="func"> , </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column><text txtype="func"> ) </text>) </call><text txtype="func"> ) </text> as ord, /*number*/
+</call><call as="kod_dir_sruct_apply" type="number" function="decode" key="0" pth="" used="1" into="n3"><text txtype="func"> decode( </text><column table="a" column="prizn" type="number" title="" comment="основная -0, неосновная деятельность - 1" as="prizn" key="0" sourcetable="./a" sourcecolumn="prizn" thissrc="prizn">a.prizn</column><text txtype="func"> , </text><const><text>1</text></const><text txtype="func"> , </text><const><text>5</text></const><text txtype="func"> , </text><const><text>4</text></const><text txtype="func"> ) </text> as kod_dir_sruct_apply, /*number*/
+</call><column table="a" column="name" type="string" title="Наименование" as="name" key="0" sourcetable="./a" sourcecolumn="name" used="1" into="s3">a.name as name, /*Наименование*//*string*/
+</column><column table="a" column="soderg" type="string" title="" as="soderg" key="0" sourcetable="./a" sourcecolumn="soderg" used="1" into="s4">a.soderg as soderg, /**//*string*/
+</column><column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" sourcetable="./a" sourcecolumn="dat_start" used="1" into="n4">a.dat_start as dat_start, /**//*number*/
+</column><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a" sourcecolumn="dat_finish" used="1" into="n5">a.dat_finish as dat_finish, /**//*number*/
+</column><column table="a" column="dpk" type="date" title="" as="dpk" key="0" sourcetable="./a" sourcecolumn="dpk" used="1" into="d1">a.dpk as dpk, /**//*date*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a" sourcecolumn="kod_parent" used="1" into="n6">a.kod_parent as kod_parent, /*number*/
+</column><column table="a" column="polzov" type="string" title="" as="polzov" key="0" sourcetable="./a" sourcecolumn="polzov" used="1" into="s5">a.polzov as polzov, /**//*string*/
+</column><column table="a" column="prizn" type="number" title="" comment="основная -0, неосновная деятельность - 1" as="prizn" key="0" sourcetable="./a" sourcecolumn="prizn" used="1" into="n7">a.prizn as prizn, /**//*number*/
+</column><column table="a" column="kod_direct" type="number" as="kod_direct" reference="is_spr_direct" refcol="kod_direct" key="0" sourcetable="./a" sourcecolumn="kod_direct" used="1" into="n8">a.kod_direct as kod_direct, /*number*/
+</column><column table="a" column="repl_code" type="number" title="" as="repl_code" key="0" sourcetable="./a" sourcecolumn="repl_code" used="1" into="n9">a.repl_code as repl_code, /**//*number*/
+</column><column table="a" column="pr_post" type="number" title="" comment="для МПЭП: признак постоянных расходов" as="pr_post" key="0" sourcetable="./a" sourcecolumn="pr_post" used="1" into="n10">a.pr_post as pr_post, /**//*number*/
+</column><column table="a" column="pr_cons" type="number" title="" comment="для МПЭП: признак главн.статей для формир.с/с" as="pr_cons" key="0" sourcetable="./a" sourcecolumn="pr_cons" used="1" into="n11">a.pr_cons as pr_cons, /**//*number*/
+</column><column table="a" column="prib" type="number" title="" comment="1-из прибыли" as="prib" key="0" sourcetable="./a" sourcecolumn="prib" used="1" into="n12">a.prib as prib, /**//*number*/
+</column><column table="a" column="proch" type="number" title="" comment="1-прочие" as="proch" key="0" sourcetable="./a" sourcecolumn="proch" used="1" into="n13">a.proch as proch, /**//*number*/
+</column><column table="a" column="not_show" type="number" title="" comment="1 - не показывать для отч форм" as="not_show" key="0" sourcetable="./a" sourcecolumn="not_show" used="1" into="n14">a.not_show as not_show, /**//*number*/
+</column><column table="a" column="dr" type="number" title="" comment="0 - доход, 1 - расход" as="dr" key="0" sourcetable="./a" sourcecolumn="dr" used="1" into="n15">a.dr as dr, /**//*number*/
+</column><column table="a" column="included" type="number" comment="1 - статья включена в родительскую, 0 - нет" title="В том числе" controlType="UICheck" as="included" key="0" sourcetable="./a" sourcecolumn="included" used="1" into="n16">a.included as included, /*В том числе*//*number*/
+</column><call function="||" as="full_name" key="0" pth="" type="string" used="1" title="Наименование" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_smet" into="s6"><call function="||" as="full_kod_smet" key="0" pth="" type="string" thissrc="full_kod_smet">(<column table="is_spr_smet_tree" column="root_kod_smet">is_spr_smet_tree.root_kod_smet</column><text txtype="func"> || </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column>) </call><text txtype="func"> || </text><const><text>' '</text></const><text txtype="func"> || </text><column table="a" column="name" type="string" title="Наименование" as="name" key="0" sourcetable="./a" sourcecolumn="name" thissrc="name">a.name</column> as full_name, /*Наименование*//*string*/
+</call><call function="nvl" type="number" as="ym_fin" key="0" pth="" used="1" sourcetable="./a" sourcecolumn="dat_finish" into="n17"><text txtype="func"> nvl( </text><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a" sourcecolumn="dat_finish" thissrc="dat_finish">a.dat_finish</column><text txtype="func"> , </text><call function="doomsday_ym2" pth="0" type="number"><text txtype="func"> 899912 </text></call><text txtype="func"> ) </text> as ym_fin, /*number*/
+</call><column table="a" column="dat_start" type="number" title="" as="ym_start" key="0" sourcetable="./a" sourcecolumn="dat_start" thissrc="dat_start" used="1" into="n18">a.dat_start as ym_start, /**//*number*/
+</column><call as="y_s" function="ym2 god" title="Год с" key="0" pth="" type="number" used="1" sourcetable="./a" sourcecolumn="dat_start" into="n19"><text txtype="func"> trunc( </text><column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" sourcetable="./a" sourcecolumn="dat_start" thissrc="dat_start">a.dat_start</column><text txtype="func"> /100 </text><text txtype="func"> ) </text> as y_s, /*Год с*//*number*/
+</call><call as="m_s" function="ym2 mes" title="Месяц с" key="0" pth="" type="number" used="1" sourcetable="./a" sourcecolumn="dat_start" into="n20"><text txtype="func"> mod( </text><column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" sourcetable="./a" sourcecolumn="dat_start" thissrc="dat_start">a.dat_start</column><text txtype="func"> /100 </text><text txtype="func"> , 1)*100 </text> as m_s, /*Месяц с*//*number*/
+</call><call as="y_po" function="ym2 god" title="Год по" key="0" pth="" type="number" used="1" sourcetable="./a" sourcecolumn="dat_finish" into="n21"><text txtype="func"> trunc( </text><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a" sourcecolumn="dat_finish" thissrc="dat_finish">a.dat_finish</column><text txtype="func"> /100 </text><text txtype="func"> ) </text> as y_po, /*Год по*//*number*/
+</call><call function="ym2 mes" as="m_po" title="Месяц по" key="0" pth="" type="number" used="1" sourcetable="./a" sourcecolumn="dat_finish" into="n22"><text txtype="func"> mod( </text><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a" sourcecolumn="dat_finish" thissrc="dat_finish">a.dat_finish</column><text txtype="func"> /100 </text><text txtype="func"> , 1)*100 </text> as m_po, /*Месяц по*//*number*/
+</call><call as="is_last_desc_all" function="true if 0" type="number" key="0" pth="" used="1" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_spr_smet" reference="is_spr_smet" refcol="kod_spr_smet" into="n23"><text txtype="func"> decode ( </text><call function="nvl0" pth="" type="number">(<text txtype="func"> nvl( </text><query as="is_last_desc_all" path="./a/is_last_desc_all" used="1">(
+<select>--
+select <call function="max" pth="0" type="aggregate" key="0" fixed="1" used="1" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_spr_smet"><text txtype="func"> max( </text><call function="true if not null" pth="" type="number">(<text txtype="func"> decode ( </text><column table="sm" column="kod_spr_smet">sm.kod_spr_smet</column><text txtype="func"> ,null,0,1) </text>) </call><text txtype="func"> ) </text>/*aggregate*/
+</call></select><from>
+from <query name="is_spr_smet" as="sm" path="./a/is_last_desc_all/sm" haskeys="1" used="1">(
+<select>--is_spr_smet
+select <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_spr_smet" used="1">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_parent" used="1">a.kod_parent as kod_parent/*number*/
+</column></select><from>
+from <table name="is_spr_smet" as="a" used="1">is_spr_smet
+a
+--\is_spr_smet
+</table></from>)
+sm
+--\is_spr_smet
+</query></from><where>where
+<call function="=" pth="" type="bool"><column table="sm" column="kod_parent">sm.kod_parent</column><text txtype="func"> = </text><column table="a" column="kod_spr_smet">a.kod_spr_smet</column></call></where>)
+--\
+</query><text txtype="func"> ,0) </text>) </call><text txtype="func"> ,0,1,0) </text> as is_last_desc_all, /*number*/
+</call><call as="is_last_desc_cur" function="true if 0" type="number" key="0" pth="" used="1" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_spr_smet" reference="is_spr_smet" refcol="kod_spr_smet" into="n24"><text txtype="func"> decode ( </text><call function="nvl0" pth="" type="number">(<text txtype="func"> nvl( </text><query as="is_last_desc_cur" path="./a/is_last_desc_cur" used="1">(
+<select>--
+select <call function="max" pth="0" type="aggregate" key="0" fixed="1" used="1" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_spr_smet"><text txtype="func"> max( </text><call function="true if not null" pth="" type="number">(<text txtype="func"> decode ( </text><column table="sm" column="kod_spr_smet">sm.kod_spr_smet</column><text txtype="func"> ,null,0,1) </text>) </call><text txtype="func"> ) </text>/*aggregate*/
+</call></select><from>
+from <query name="is_spr_smet" as="sm" path="./a/is_last_desc_cur/sm" haskeys="1" used="1">(
+<select>--is_spr_smet
+select <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_spr_smet" used="1">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="dat_start" used="1">a.dat_start as dat_start, /**//*number*/
+</column><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="dat_finish" used="1">a.dat_finish as dat_finish, /**//*number*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_parent" used="1">a.kod_parent as kod_parent/*number*/
+</column></select><from>
+from <table name="is_spr_smet" as="a" used="1">is_spr_smet
+a
+--\is_spr_smet
+</table></from>)
+sm
+--\is_spr_smet
+</query></from><where>where
+<call function="and" pth="" type="bool"><call function="=" pth="" type="bool">(<column table="sm" column="kod_parent">sm.kod_parent</column><text txtype="func"> = </text><column table="a" column="kod_spr_smet">a.kod_spr_smet</column>) </call><text txtype="func"> and </text><call function="between" pth="" type="bool">(<call function="date to ym2" pth="" type="number">(<text txtype="func"> to_number(to_char( </text><call function="sysdate" pth="" type="date">(<text txtype="func"> sysdate </text>) </call><text txtype="func"> ,'YYYYMM')) </text>) </call><text txtype="func"> between </text><column table="sm" column="dat_start">sm.dat_start</column><text txtype="func"> and </text><call function="nvl" pth="">(<text txtype="func"> nvl( </text><column table="sm" column="dat_finish">sm.dat_finish</column><text txtype="func"> , </text><call function="doomsday_ym2" pth="0" type="number"><text txtype="func"> 899912 </text></call><text txtype="func"> ) </text>) </call>) </call></call></where>)
+--\
+</query><text txtype="func"> ,0) </text>) </call><text txtype="func"> ,0,1,0) </text> as is_last_desc_cur, /*number*/
+</call><call as="is_last_desc" function="if" type="number" key="0" pth="" used="1" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_spr_smet" reference="is_spr_smet" refcol="kod_spr_smet" into="n25"><text txtype="func"> case </text><text txtype="func"> when </text><call function="and" pth="" type="bool">(<call function="true" pth="" type="bool">(<text txtype="func"> 1=1 </text>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="=" pth="" optional="1" type="bool">(<const><text>:pr </text></const><text txtype="func"> = </text><const><text>1</text></const>) </call><text txtype="func"> } </text>) </call><text txtype="func"> then </text><call as="is_last_desc_cur" function="true if 0" type="number" key="0" pth="" thissrc="is_last_desc_cur">(<text txtype="func"> decode ( </text><call function="nvl0" pth="" type="number">(<text txtype="func"> nvl( </text><query as="is_last_desc_cur" path="./a/is_last_desc_cur" used="1">(
+<select>--
+select <call function="max" pth="0" type="aggregate" key="0" fixed="1" used="1" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_spr_smet"><text txtype="func"> max( </text><call function="true if not null" pth="" type="number">(<text txtype="func"> decode ( </text><column table="sm" column="kod_spr_smet">sm.kod_spr_smet</column><text txtype="func"> ,null,0,1) </text>) </call><text txtype="func"> ) </text>/*aggregate*/
+</call></select><from>
+from <query name="is_spr_smet" as="sm" path="./a/is_last_desc_cur/sm" haskeys="1" used="1">(
+<select>--is_spr_smet
+select <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_spr_smet" used="1">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="dat_start" used="1">a.dat_start as dat_start, /**//*number*/
+</column><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="dat_finish" used="1">a.dat_finish as dat_finish, /**//*number*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a/is_last_desc_cur/sm" sourcecolumn="kod_parent" used="1">a.kod_parent as kod_parent/*number*/
+</column></select><from>
+from <table name="is_spr_smet" as="a" used="1">is_spr_smet
+a
+--\is_spr_smet
+</table></from>)
+sm
+--\is_spr_smet
+</query></from><where>where
+<call function="and" pth="" type="bool"><call function="=" pth="" type="bool">(<column table="sm" column="kod_parent">sm.kod_parent</column><text txtype="func"> = </text><column table="a" column="kod_spr_smet">a.kod_spr_smet</column>) </call><text txtype="func"> and </text><call function="between" pth="" type="bool">(<call function="date to ym2" pth="" type="number">(<text txtype="func"> to_number(to_char( </text><call function="sysdate" pth="" type="date">(<text txtype="func"> sysdate </text>) </call><text txtype="func"> ,'YYYYMM')) </text>) </call><text txtype="func"> between </text><column table="sm" column="dat_start">sm.dat_start</column><text txtype="func"> and </text><call function="nvl" pth="">(<text txtype="func"> nvl( </text><column table="sm" column="dat_finish">sm.dat_finish</column><text txtype="func"> , </text><call function="doomsday_ym2" pth="0" type="number"><text txtype="func"> 899912 </text></call><text txtype="func"> ) </text>) </call>) </call></call></where>)
+--\
+</query><text txtype="func"> ,0) </text>) </call><text txtype="func"> ,0,1,0) </text>) </call><text txtype="func"> else </text><call as="is_last_desc_all" function="true if 0" type="number" key="0" pth="" thissrc="is_last_desc_all">(<text txtype="func"> decode ( </text><call function="nvl0" pth="" type="number">(<text txtype="func"> nvl( </text><query as="is_last_desc_all" path="./a/is_last_desc_all" used="1">(
+<select>--
+select <call function="max" pth="0" type="aggregate" key="0" fixed="1" used="1" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_spr_smet"><text txtype="func"> max( </text><call function="true if not null" pth="" type="number">(<text txtype="func"> decode ( </text><column table="sm" column="kod_spr_smet">sm.kod_spr_smet</column><text txtype="func"> ,null,0,1) </text>) </call><text txtype="func"> ) </text>/*aggregate*/
+</call></select><from>
+from <query name="is_spr_smet" as="sm" path="./a/is_last_desc_all/sm" haskeys="1" used="1">(
+<select>--is_spr_smet
+select <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_spr_smet" used="1">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a/is_last_desc_all/sm" sourcecolumn="kod_parent" used="1">a.kod_parent as kod_parent/*number*/
+</column></select><from>
+from <table name="is_spr_smet" as="a" used="1">is_spr_smet
+a
+--\is_spr_smet
+</table></from>)
+sm
+--\is_spr_smet
+</query></from><where>where
+<call function="=" pth="" type="bool"><column table="sm" column="kod_parent">sm.kod_parent</column><text txtype="func"> = </text><column table="a" column="kod_spr_smet">a.kod_spr_smet</column></call></where>)
+--\
+</query><text txtype="func"> ,0) </text>) </call><text txtype="func"> ,0,1,0) </text>) </call><text txtype="func"> end </text> as is_last_desc, /*number*/
+</call><call as="vb_spr_smet_to_sap_sap_code" type="string" function="()" key="0" pth="" used="1" agg="stragg" format="F0" halign="left" sourcetable="./a/vb_spr_smet_to_sap_sap_code/sap" sourcecolumn="sap_code" reference="vbd_sap_st" refcol="sap_code" into="s7"><query as="vb_spr_smet_to_sap_sap_code" path="./a/vb_spr_smet_to_sap_sap_code" used="1">(
+<select>--
+select <call function="stragg_dist" pth="0" type="aggregate" key="0" fixed="1" used="1" agg="stragg" format="F0" halign="left" sourcetable="./a/vb_spr_smet_to_sap_sap_code/sap" sourcecolumn="sap_code" reference="vbd_sap_st" refcol="sap_code"><text txtype="func"> stragg_dist( </text><column table="sap" column="sap_code" halign="left">sap.sap_code</column><text txtype="func"> ) </text>/*aggregate*/
+</call></select><from>
+from <query name="vb_spr_smet_to_sap" as="sap" path="./a/vb_spr_smet_to_sap_sap_code/sap" order="kod_spr_smet" haskeys="1" used="1">(
+<order notext="1"><column column="kod_spr_smet">kod_spr_smet</column></order><select>--vb_spr_smet_to_sap
+select <column table="a" column="kod_spr_smet_to_sap" type="number" as="kod_spr_smet_to_sap" key="1" fixed="1" sourcetable="./a/vb_spr_smet_to_sap_sap_code/sap" sourcecolumn="kod_spr_smet_to_sap" used="1">a.kod_spr_smet_to_sap as kod_spr_smet_to_sap, /*number*//*key*/
+</column><column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a/vb_spr_smet_to_sap_sap_code/sap" sourcecolumn="kod_spr_smet" used="1">a.kod_spr_smet as kod_spr_smet, /*number*/
+</column><column table="a" column="sap_code" type="string" data-size="300" index="1" is-fact="1" agg="stragg" format="F0" halign="left" as="sap_code" reference="vbd_sap_st" refcol="sap_code" fact="vb_spr_smet_to_sap_sap_code" key="0" sourcetable="./a/vb_spr_smet_to_sap_sap_code/sap" sourcecolumn="sap_code" used="1">a.sap_code as sap_code/*string*/
+</column></select><from>
+from <table name="vb_spr_smet_to_sap" as="a" used="1">vb_spr_smet_to_sap
+a
+--\vb_spr_smet_to_sap
+</table></from><where>where
+<call function="is null" pth="" type="bool"><column table="a" column="period_po" type="number" as="period_po" key="0" thissrc="period_po">a.period_po</column><text txtype="func"> is null </text></call></where><order>
+order by kod_spr_smet</order>)
+sap
+--\vb_spr_smet_to_sap
+</query></from><where>where
+<call function="=" pth="" type="bool"><column table="a" column="kod_spr_smet">a.kod_spr_smet</column><text txtype="func"> = </text><column table="sap" column="kod_spr_smet">sap.kod_spr_smet</column></call></where>)
+--\
+</query> as vb_spr_smet_to_sap_sap_code, /*string*/
+</call><column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" sourcetable="./a" sourcecolumn="is_new" used="1" into="n26">0 as is_new, /*number*/
+</column><column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" sourcetable="./a" sourcecolumn="is_not_new" used="1" into="n27">1 as is_not_new, /*number*/
+</column><call function="||" as="sp_col_name" title="" key="0" pth="" type="string" used="1" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_smet" into="s8"><call function="||" as="full_kod_smet" pth="" type="string">(<column table="is_spr_smet_tree" column="root_kod_smet">is_spr_smet_tree.root_kod_smet</column><text txtype="func"> || </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column>) </call><text txtype="func"> || </text><const><text>' '</text></const><text txtype="func"> || </text><call function="||" as="full_name" pth="" type="string">(<call function="||" as="full_kod_smet" key="0" pth="" type="string" thissrc="full_kod_smet">(<column table="is_spr_smet_tree" column="root_kod_smet">is_spr_smet_tree.root_kod_smet</column><text txtype="func"> || </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column>) </call><text txtype="func"> || </text><const><text>' '</text></const><text txtype="func"> || </text><column table="a" column="name" type="string" title="Наименование" as="name" key="0" sourcetable="./a" sourcecolumn="name" thissrc="name">a.name</column>) </call> as sp_col_name/**//*string*/
+</call></select>
+                <from>
+from <table name="is_spr_smet" as="a" used="1">is_spr_smet
+a
+--\is_spr_smet
+</table><query name="is_spr_smet_tree" as="is_spr_smet_tree" join="left outer" path="./a/is_spr_smet_tree" haskeys="1" used="1">left outer join
+(
+<select>--is_spr_smet_tree
+select <column table="a" column="kod_spr_smet" key="1" as="kod_spr_smet" used="1" type="number" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_spr_smet">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><call function="if" type="string" as="root_kod_smet" pth="" key="0" used="1" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_smet"><text txtype="func"> case </text><text txtype="func"> when </text><call function="is not null" pth="" type="bool">(<column table="a" column="kod_parent">a.kod_parent</column><text txtype="func"> is not null </text>) </call><text txtype="func"> then </text><column table="a" column="root_kod_smet">a.root_kod_smet</column><text txtype="func"> end </text> as root_kod_smet/*string*/
+</call></select><from>
+from <query name="is_spr_smet_tree_pre" as="a" path="./a/is_spr_smet_tree/a" haskeys="1" used="1">(
+<select>--is_spr_smet_tree_pre
+select <column table="a" column="kod_spr_smet" key="1" as="kod_spr_smet" used="1" type="number" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_spr_smet">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><call function="connect_by_root" as="root_kod_smet" pth="" key="0" used="1" type="string" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_smet"><text txtype="func"> connect_by_root </text><column table="a" column="kod_smet">a.kod_smet</column> as root_kod_smet, /*string*/
+</call><column table="a" column="kod_parent" as="kod_parent" key="0" used="1" type="number" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet">a.kod_parent as kod_parent/*number*/
+</column></select><from>
+from <query name="is_spr_smet" as="a" path="./a/is_spr_smet_tree/a/a" haskeys="1" used="1">(
+<select>--is_spr_smet
+select <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_spr_smet" used="1">a.kod_spr_smet as kod_spr_smet, /*number*//*key*/
+</column><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_smet" used="1">a.kod_smet as kod_smet, /*string*/
+</column><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a/is_spr_smet_tree/a/a" sourcecolumn="kod_parent" used="1">a.kod_parent as kod_parent/*number*/
+</column></select><from>
+from <table name="is_spr_smet" as="a" used="1">is_spr_smet
+a
+--\is_spr_smet
+</table></from>)
+a
+--\is_spr_smet
+</query></from><connect>connect by nocycle
+<call function="and" pth="" type="bool"><call function="=" pth="" type="bool">(<column table="a" column="kod_parent">a.kod_parent</column><text txtype="func"> = </text><column table="a" column="kod_spr_smet" prior="1">prior a.kod_spr_smet</column>) </call></call></connect><start>
+start with <call function="is null" pth="" type="bool"><column table="a" column="kod_parent">a.kod_parent</column><text txtype="func"> is null </text></call></start>)
+a
+--\is_spr_smet_tree_pre
+</query></from><call function="=" type="bool">)
+is_spr_smet_tree on <column table="a" column="kod_spr_smet">a.kod_spr_smet</column><text txtype="func"> = </text><column table="is_spr_smet_tree" column="kod_spr_smet">is_spr_smet_tree.kod_spr_smet</column></call>--\is_spr_smet_tree
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a" sourcecolumn="kod_spr_smet" thissrc="kod_spr_smet">a.kod_spr_smet</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<call function="||" as="full_kod_smet" key="0" pth="" type="string" thissrc="full_kod_smet">(<column table="is_spr_smet_tree" column="root_kod_smet">is_spr_smet_tree.root_kod_smet</column><text txtype="func"> || </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column>) </call><text txtype="func"> in </text><const><text>:obj_name </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" sourcetable="./a" sourcecolumn="kod_spr_smet" thissrc="kod_spr_smet">a.kod_spr_smet</column><text txtype="func"> ) like lower( </text><const><text>:kod_spr_smet_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_smet" type="string" as="kod_smet" key="0" sourcetable="./a" sourcecolumn="kod_smet" thissrc="kod_smet">a.kod_smet</column><text txtype="func"> ) like lower( </text><const><text>:kod_smet_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="name" type="string" title="Наименование" as="name" key="0" sourcetable="./a" sourcecolumn="name" thissrc="name">a.name</column><text txtype="func"> ) like lower( </text><const><text>:name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="soderg" type="string" title="" as="soderg" key="0" sourcetable="./a" sourcecolumn="soderg" thissrc="soderg">a.soderg</column><text txtype="func"> ) like lower( </text><const><text>:soderg_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" sourcetable="./a" sourcecolumn="dat_start" thissrc="dat_start">a.dat_start</column><text txtype="func"> ) like lower( </text><const><text>:dat_start_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" sourcetable="./a" sourcecolumn="dat_finish" thissrc="dat_finish">a.dat_finish</column><text txtype="func"> ) like lower( </text><const><text>:dat_finish_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dpk" type="date" title="" as="dpk" key="0" sourcetable="./a" sourcecolumn="dpk" thissrc="dpk">a.dpk</column><text txtype="func"> ) like lower( </text><const><text>:dpk_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" sourcetable="./a" sourcecolumn="kod_parent" thissrc="kod_parent">a.kod_parent</column><text txtype="func"> ) like lower( </text><const><text>:kod_parent_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="polzov" type="string" title="" as="polzov" key="0" sourcetable="./a" sourcecolumn="polzov" thissrc="polzov">a.polzov</column><text txtype="func"> ) like lower( </text><const><text>:polzov_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="prizn" type="number" title="" comment="основная -0, неосновная деятельность - 1" as="prizn" key="0" sourcetable="./a" sourcecolumn="prizn" thissrc="prizn">a.prizn</column><text txtype="func"> ) like lower( </text><const><text>:prizn_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_direct" type="number" as="kod_direct" reference="is_spr_direct" refcol="kod_direct" key="0" sourcetable="./a" sourcecolumn="kod_direct" thissrc="kod_direct">a.kod_direct</column><text txtype="func"> ) like lower( </text><const><text>:kod_direct_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="repl_code" type="number" title="" as="repl_code" key="0" sourcetable="./a" sourcecolumn="repl_code" thissrc="repl_code">a.repl_code</column><text txtype="func"> ) like lower( </text><const><text>:repl_code_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="pr_post" type="number" title="" comment="для МПЭП: признак постоянных расходов" as="pr_post" key="0" sourcetable="./a" sourcecolumn="pr_post" thissrc="pr_post">a.pr_post</column><text txtype="func"> ) like lower( </text><const><text>:pr_post_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="pr_cons" type="number" title="" comment="для МПЭП: признак главн.статей для формир.с/с" as="pr_cons" key="0" sourcetable="./a" sourcecolumn="pr_cons" thissrc="pr_cons">a.pr_cons</column><text txtype="func"> ) like lower( </text><const><text>:pr_cons_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="prib" type="number" title="" comment="1-из прибыли" as="prib" key="0" sourcetable="./a" sourcecolumn="prib" thissrc="prib">a.prib</column><text txtype="func"> ) like lower( </text><const><text>:prib_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="proch" type="number" title="" comment="1-прочие" as="proch" key="0" sourcetable="./a" sourcecolumn="proch" thissrc="proch">a.proch</column><text txtype="func"> ) like lower( </text><const><text>:proch_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="not_show" type="number" title="" comment="1 - не показывать для отч форм" as="not_show" key="0" sourcetable="./a" sourcecolumn="not_show" thissrc="not_show">a.not_show</column><text txtype="func"> ) like lower( </text><const><text>:not_show_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dr" type="number" title="" comment="0 - доход, 1 - расход" as="dr" key="0" sourcetable="./a" sourcecolumn="dr" thissrc="dr">a.dr</column><text txtype="func"> ) like lower( </text><const><text>:dr_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="included" type="number" comment="1 - статья включена в родительскую, 0 - нет" title="В том числе" controlType="UICheck" as="included" key="0" sourcetable="./a" sourcecolumn="included" thissrc="included">a.included</column><text txtype="func"> ) like lower( </text><const><text>:included_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="dat_start" type="number" title="" as="ym_start" key="0" sourcetable="./a" sourcecolumn="dat_start" thissrc="ym_start">a.dat_start</column><text txtype="func"> ) like lower( </text><const><text>:ym_start_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" sourcetable="./a" sourcecolumn="is_new" thissrc="is_new">0</column><text txtype="func"> ) like lower( </text><const><text>:is_new_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" sourcetable="./a" sourcecolumn="is_not_new" thissrc="is_not_new">1</column><text txtype="func"> ) like lower( </text><const><text>:is_not_new_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" timestamp="12.08.2019 15:34:39" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\is_spr_smet.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" timestamp="12.08.2019 15:34:39" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\is_spr_smet.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pr" type="number" />
+                    <param name="pk_prm" type="array" />
+                    <param name="obj_name" type="array" />
+                    <param name="kod_spr_smet_filter" type="string" />
+                    <param name="kod_smet_filter" type="string" />
+                    <param name="name_filter" type="string" />
+                    <param name="soderg_filter" type="string" />
+                    <param name="dat_start_filter" type="string" />
+                    <param name="dat_finish_filter" type="string" />
+                    <param name="dpk_filter" type="string" />
+                    <param name="kod_parent_filter" type="string" />
+                    <param name="polzov_filter" type="string" />
+                    <param name="prizn_filter" type="string" />
+                    <param name="kod_direct_filter" type="string" />
+                    <param name="repl_code_filter" type="string" />
+                    <param name="pr_post_filter" type="string" />
+                    <param name="pr_cons_filter" type="string" />
+                    <param name="prib_filter" type="string" />
+                    <param name="proch_filter" type="string" />
+                    <param name="not_show_filter" type="string" />
+                    <param name="dr_filter" type="string" />
+                    <param name="included_filter" type="string" />
+                    <param name="ym_start_filter" type="string" />
+                    <param name="is_new_filter" type="string" />
+                    <param name="is_not_new_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_spr_smet" type="number" as="kod_spr_smet" key="1" fixed="1" />
+                    <column table="a" column="kod_smet" type="string" as="kod_smet" key="0" />
+                    <call function="||" as="full_kod_smet" is-name="1" vid="1" key="0">
+                      <column table="is_spr_smet_tree" column="root_kod_smet" />
+                      <column table="this" column="kod_smet" />
+                    </call>
+                    <call function="cut_num" as="ord" key="0">
+                      <call function="decode">
+                        <column table="this" column="kod_smet" />
+                        <const>'I.'</const>
+                        <const>'1'</const>
+                        <const>'II.'</const>
+                        <const>'2'</const>
+                        <const>'III.'</const>
+                        <const>'3'</const>
+                        <const>'IV.'</const>
+                        <const>'4'</const>
+                        <column table="this" column="kod_smet" />
+                      </call>
+                    </call>
+                    <call as="kod_dir_sruct_apply" type="number" function="decode" key="0">
+                      <column table="this" column="prizn" />
+                      <const>1</const>
+                      <const>5</const>
+                      <const>4</const>
+                    </call>
+                    <column table="a" column="name" type="string" title="Наименование" as="name" key="0" />
+                    <column table="a" column="soderg" type="string" title="" as="soderg" key="0" />
+                    <column table="a" column="dat_start" type="number" title="" as="dat_start" key="0" />
+                    <column table="a" column="dat_finish" type="number" title="" as="dat_finish" key="0" />
+                    <column table="a" column="dpk" type="date" title="" as="dpk" key="0" />
+                    <column table="a" column="kod_parent" type="number" as="kod_parent" reference="is_spr_smet" refcol="kod_spr_smet" key="0" />
+                    <column table="a" column="polzov" type="string" title="" as="polzov" key="0" />
+                    <column table="a" column="prizn" type="number" title="" comment="основная -0, неосновная деятельность - 1" as="prizn" key="0" />
+                    <column table="a" column="kod_direct" type="number" as="kod_direct" reference="is_spr_direct" refcol="kod_direct" key="0" />
+                    <column table="a" column="repl_code" type="number" title="" as="repl_code" key="0" />
+                    <column table="a" column="pr_post" type="number" title="" comment="для МПЭП: признак постоянных расходов" as="pr_post" key="0" />
+                    <column table="a" column="pr_cons" type="number" title="" comment="для МПЭП: признак главн.статей для формир.с/с" as="pr_cons" key="0" />
+                    <column table="a" column="prib" type="number" title="" comment="1-из прибыли" as="prib" key="0" />
+                    <column table="a" column="proch" type="number" title="" comment="1-прочие" as="proch" key="0" />
+                    <column table="a" column="not_show" type="number" title="" comment="1 - не показывать для отч форм" as="not_show" key="0" />
+                    <column table="a" column="dr" type="number" title="" comment="0 - доход, 1 - расход" as="dr" key="0" />
+                    <column table="a" column="included" type="number" comment="1 - статья включена в родительскую, 0 - нет" title="В том числе" controlType="UICheck" as="included" key="0" />
+                    <call function="||" as="full_name" is-name="1" vid="1" key="0">
+                      <column table="this" column="full_kod_smet" />
+                      <const>' '</const>
+                      <column table="this" column="name" />
+                    </call>
+                    <call function="nvl" type="number" as="ym_fin" key="0">
+                      <column table="this" column="dat_finish" />
+                      <call function="doomsday_ym2" />
+                    </call>
+                    <column table="this" column="dat_start" as="ym_start" key="0" />
+                    <call as="y_s" function="ym2 god" title="Год с" key="0">
+                      <column table="this" column="dat_start" />
+                    </call>
+                    <call as="m_s" function="ym2 mes" title="Месяц с" key="0">
+                      <column table="this" column="dat_start" />
+                    </call>
+                    <call as="y_po" function="ym2 god" title="Год по" key="0">
+                      <column table="this" column="dat_finish" />
+                    </call>
+                    <call function="ym2 mes" as="m_po" title="Месяц по" key="0">
+                      <column table="this" column="dat_finish" />
+                    </call>
+                    <call as="is_last_desc_all" function="true if 0" type="number" key="0">
+                      <call function="nvl0">
+                        <query>
+                          <select>
+                            <call function="max">
+                              <call function="true if not null">
+                                <column table="sm" column="kod_spr_smet" />
+                              </call>
+                            </call>
+                          </select>
+                          <from>
+                            <query name="is_spr_smet" as="sm" />
+                          </from>
+                          <where>
+                            <call function="=">
+                              <column table="sm" column="kod_parent" />
+                              <column table="a" column="kod_spr_smet" />
+                            </call>
+                          </where>
+                        </query>
+                      </call>
+                    </call>
+                    <call as="is_last_desc_cur" function="true if 0" type="number" key="0">
+                      <call function="nvl0">
+                        <query>
+                          <select>
+                            <call function="max">
+                              <call function="true if not null">
+                                <column table="sm" column="kod_spr_smet" />
+                              </call>
+                            </call>
+                          </select>
+                          <from>
+                            <query name="is_spr_smet" as="sm" />
+                          </from>
+                          <where>
+                            <call function="and">
+                              <call function="=">
+                                <column table="sm" column="kod_parent" />
+                                <column table="a" column="kod_spr_smet" />
+                              </call>
+                              <call function="between">
+                                <call function="date to ym2">
+                                  <call function="sysdate" />
+                                </call>
+                                <column table="sm" column="dat_start" />
+                                <call function="nvl">
+                                  <column table="sm" column="dat_finish" />
+                                  <call function="doomsday_ym2" />
+                                </call>
+                              </call>
+                            </call>
+                          </where>
+                        </query>
+                      </call>
+                    </call>
+                    <call as="is_last_desc" function="if" type="number" key="0">
+                      <call function="and">
+                        <call function="true" />
+                        <call function="=" optional="1">
+                          <useparam name="pr" />
+                          <const>1</const>
+                        </call>
+                      </call>
+                      <column table="this" column="is_last_desc_cur" />
+                      <column table="this" column="is_last_desc_all" />
+                    </call>
+                    <call as="vb_spr_smet_to_sap_sap_code" type="string" function="()" key="0">
+                      <query>
+                        <select>
+                          <call function="stragg_dist">
+                            <column table="sap" column="sap_code" halign="left" />
+                          </call>
+                        </select>
+                        <from>
+                          <query name="vb_spr_smet_to_sap" as="sap" />
+                        </from>
+                        <where>
+                          <call function="=">
+                            <column table="a" column="kod_spr_smet" />
+                            <column table="sap" column="kod_spr_smet" />
+                          </call>
+                        </where>
+                      </query>
+                    </call>
+                    <column table="a" column="is_new" type="number" sys="1" as="is_new" key="0" />
+                    <column table="a" column="is_not_new" type="number" sys="1" as="is_not_new" key="0" />
+                    <call function="||" as="sp_col_name" title="" key="0">
+                      <call function="||" as="full_kod_smet" is-name="1" vid="1">
+                        <column table="is_spr_smet_tree" column="root_kod_smet" />
+                        <column table="this" column="kod_smet" />
+                      </call>
+                      <const>' '</const>
+                      <call function="||" as="full_name" is-name="1" vid="1">
+                        <column table="this" column="full_kod_smet" />
+                        <const>' '</const>
+                        <column table="this" column="name" />
+                      </call>
+                    </call>
+                  </select>
+                  <from>
+                    <table name="is_spr_smet" as="a" />
+                    <query name="is_spr_direct" as="kod_direct" join="left outer" dname="is_spr_smet">
+                      <call function="=">
+                        <column table="a" column="kod_direct" />
+                        <column table="kod_direct" column="kod_direct" />
+                      </call>
+                    </query>
+                    <query name="is_spr_smet" as="kod_spr_smet" join="left outer" dname="is_spr_smet">
+                      <call function="=">
+                        <column table="a" column="kod_parent" />
+                        <column table="kod_spr_smet" column="kod_spr_smet" />
+                      </call>
+                    </query>
+                    <query name="is_spr_smet_tree" join="left outer" as="is_spr_smet_tree" dname="is_spr_smet">
+                      <call function="=">
+                        <column table="a" column="kod_spr_smet" />
+                        <column table="is_spr_smet_tree" column="kod_spr_smet" />
+                      </call>
+                    </query>
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_spr_smet" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="full_kod_smet" />
+                        <useparam name="obj_name" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_spr_smet" />
+                        <useparam name="kod_spr_smet_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_smet" />
+                        <useparam name="kod_smet_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="name" />
+                        <useparam name="name_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="soderg" />
+                        <useparam name="soderg_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_start" />
+                        <useparam name="dat_start_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dat_finish" />
+                        <useparam name="dat_finish_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dpk" />
+                        <useparam name="dpk_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_parent" />
+                        <useparam name="kod_parent_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="polzov" />
+                        <useparam name="polzov_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="prizn" />
+                        <useparam name="prizn_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_direct" />
+                        <useparam name="kod_direct_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="repl_code" />
+                        <useparam name="repl_code_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="pr_post" />
+                        <useparam name="pr_post_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="pr_cons" />
+                        <useparam name="pr_cons_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="prib" />
+                        <useparam name="prib_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="proch" />
+                        <useparam name="proch_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="not_show" />
+                        <useparam name="not_show_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="dr" />
+                        <useparam name="dr_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="included" />
+                        <useparam name="included_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="ym_start" />
+                        <useparam name="ym_start_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_new" />
+                        <useparam name="is_new_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="is_not_new" />
+                        <useparam name="is_not_new_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="pr" />
+                    <useparam name="pk_prm" />
+                    <useparam name="obj_name" />
+                    <useparam name="kod_spr_smet_filter" />
+                    <useparam name="kod_smet_filter" />
+                    <useparam name="name_filter" />
+                    <useparam name="soderg_filter" />
+                    <useparam name="dat_start_filter" />
+                    <useparam name="dat_finish_filter" />
+                    <useparam name="dpk_filter" />
+                    <useparam name="kod_parent_filter" />
+                    <useparam name="polzov_filter" />
+                    <useparam name="prizn_filter" />
+                    <useparam name="kod_direct_filter" />
+                    <useparam name="repl_code_filter" />
+                    <useparam name="pr_post_filter" />
+                    <useparam name="pr_cons_filter" />
+                    <useparam name="prib_filter" />
+                    <useparam name="proch_filter" />
+                    <useparam name="not_show_filter" />
+                    <useparam name="dr_filter" />
+                    <useparam name="included_filter" />
+                    <useparam name="ym_start_filter" />
+                    <useparam name="is_new_filter" />
+                    <useparam name="is_not_new_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pr" type="number">
+                  <const>:pr </const>
+                </param>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="obj_name" type="array">
+                  <const>:obj_name </const>
+                </param>
+                <param name="kod_spr_smet_filter" type="string">
+                  <const>:kod_spr_smet_filter </const>
+                </param>
+                <param name="kod_smet_filter" type="string">
+                  <const>:kod_smet_filter </const>
+                </param>
+                <param name="name_filter" type="string">
+                  <const>:name_filter </const>
+                </param>
+                <param name="soderg_filter" type="string">
+                  <const>:soderg_filter </const>
+                </param>
+                <param name="dat_start_filter" type="string">
+                  <const>:dat_start_filter </const>
+                </param>
+                <param name="dat_finish_filter" type="string">
+                  <const>:dat_finish_filter </const>
+                </param>
+                <param name="dpk_filter" type="string">
+                  <const>:dpk_filter </const>
+                </param>
+                <param name="kod_parent_filter" type="string">
+                  <const>:kod_parent_filter </const>
+                </param>
+                <param name="polzov_filter" type="string">
+                  <const>:polzov_filter </const>
+                </param>
+                <param name="prizn_filter" type="string">
+                  <const>:prizn_filter </const>
+                </param>
+                <param name="kod_direct_filter" type="string">
+                  <const>:kod_direct_filter </const>
+                </param>
+                <param name="repl_code_filter" type="string">
+                  <const>:repl_code_filter </const>
+                </param>
+                <param name="pr_post_filter" type="string">
+                  <const>:pr_post_filter </const>
+                </param>
+                <param name="pr_cons_filter" type="string">
+                  <const>:pr_cons_filter </const>
+                </param>
+                <param name="prib_filter" type="string">
+                  <const>:prib_filter </const>
+                </param>
+                <param name="proch_filter" type="string">
+                  <const>:proch_filter </const>
+                </param>
+                <param name="not_show_filter" type="string">
+                  <const>:not_show_filter </const>
+                </param>
+                <param name="dr_filter" type="string">
+                  <const>:dr_filter </const>
+                </param>
+                <param name="included_filter" type="string">
+                  <const>:included_filter </const>
+                </param>
+                <param name="ym_start_filter" type="string">
+                  <const>:ym_start_filter </const>
+                </param>
+                <param name="is_new_filter" type="string">
+                  <const>:is_new_filter </const>
+                </param>
+                <param name="is_not_new_filter" type="string">
+                  <const>:is_not_new_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params>
+              <param name="pr" type="number" />
+            </params>
+          </sel-list-pars>
+        </column>
+        <column name="full_name" table="a" type="string" title="Наименование" is-user-editable="1" is-refreshed="1" />
+        <column name="kod_parent" table="a" type="number" title="" ColumnVisible="0" is-refreshed="1" />
+        <column name="ord" table="a" type="number" title="" ColumnVisible="0" is-refreshed="1" />
+        <column name="dr_ee" table="a" type="number" title="Э/Э" is-user-editable="1" is-refreshed="1" />
+        <column name="dr_te" table="a" type="number" title="Т/Э" is-user-editable="1" is-refreshed="1" />
+        <column name="dr_od" table="a" type="number" title="ОД Итого" is-user-editable="1" is-refreshed="1" />
+        <column name="dr_nd" table="a" type="number" title="НД" is-user-editable="1" is-refreshed="1" />
+        <column name="vb_spr_smet_to_sap_sap_code" table="a" type="string" title="SAP коды статей" is-user-editable="1" is-refreshed="1" />
+        <column name="sum_seb" table="a" type="number" title="СЕБЕСТОИМОСТЬ" ColumnEditable="0" is-refreshed="1" />
+      </columns>
+      <scheme>
+        <table name="vbr_sap_decode_check_rep" as="a">
+          <columns>
+            <column name="kod_spr_smet" type="number" title="" />
+            <column name="full_name" type="string" title="Наименование" />
+            <column name="kod_parent" type="number" title="" visible="0" />
+            <column name="ord" type="number" title="" visible="0" />
+            <column name="dr_ee" type="number" title="Э/Э" />
+            <column name="dr_te" type="number" title="Т/Э" />
+            <column name="dr_od" type="number" title="ОД Итого" />
+            <column name="dr_nd" type="number" title="НД" />
+            <column name="vb_spr_smet_to_sap_sap_code" type="string" format="F0" edit-mask="F0" halign="left" title="SAP коды статей" />
+            <column name="sum_seb" type="number" title="СЕБЕСТОИМОСТЬ" />
+          </columns>
+          <viewcolumns>
+            <column name="kod_spr_smet" type="number" title="" />
+            <column name="full_name" type="string" title="Наименование" />
+            <column name="kod_parent" type="number" title="" visible="0" />
+            <column name="ord" type="number" title="" visible="0" />
+            <column name="dr_ee" type="number" title="Э/Э" />
+            <column name="dr_te" type="number" title="Т/Э" />
+            <column name="dr_od" type="number" title="ОД Итого" />
+            <column name="dr_nd" type="number" title="НД" />
+            <column name="vb_spr_smet_to_sap_sap_code" type="string" format="F0" edit-mask="F0" halign="left" title="SAP коды статей" />
+          </viewcolumns>
+        </table>
+      </scheme>
+    </table>
+  </dataset>
+</root>

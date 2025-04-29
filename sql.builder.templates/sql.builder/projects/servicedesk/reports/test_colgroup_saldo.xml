@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <reports>
+    <report name="test_colgroup_saldo" title="Тест группировки в колонках (сальдо)" visible="0" datareader1="1" use-temp1="1" timestamp="12.01.2017 16:06:05">
+      <customers>
+        <customer id="99" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_colgroup_saldo.xlsx" title="Тест группировки в колонках" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_colgroup_saldo_gr" as="a">
+          <dimquery table="ym1" dimension="ym" />
+          <dimquery table="ym1" dimension="ymtit" />
+          <dimquery table="ym1" dimension="ymfc" />
+          <dimquery table="ym1" dimension="ym1" />
+        </query>
+        <query name="test_colgroup_saldo_ym" as="ym1" />
+      </queries>
+    </report>
+    <report name="test_colgroup_saldo_simple" title="Тест группировки в колонках (сальдо) упрощенный" visible="0" datareader1="1" use-temp1="1" timestamp="12.01.2017 16:06:05">
+      <customers>
+        <customer id="99" />
+      </customers>
+      <print-templates>
+        <excel>
+          <template name="test_colgroup_saldo_simple.xlsx" title="Тест группировки в колонках" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="test_colgroup_saldo_gr_simple" as="a"></query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="test_colgroup_saldo_gr_simple">
+      <select>
+        <column table="a" column="tit" />
+        <call function="+nvl" as="ttt" title="Тест" client-calc="1">
+          <!--<call function="coalesce">
+            <column table="this" column="ttt" row-selector="prev-row"/>
+            <column table="this" column="ttt" row-selector="parent"/>
+          </call>-->
+          <column table="this" column="ttt" row-selector="prev-row" />
+          <const>1</const>
+        </call>
+        <column table="a" column="dog" />
+        <!--<column table="a" column="ym" />-->
+        <column table="a" column="ob" type="number" />
+      </select>
+      <from>
+        <query name="test_colgroup_saldo_2" as="a">
+          <grsets>
+            <on-rows>
+              <!--<grset level="6" as="itog" title="Итог">
+                <grset level="2" as="tit" title="Титул">
+                  <grset level="3" as="dog" title="Договор" />
+                </grset>
+              </grset>-->
+              <grset level="2" as="tit" title="Титул">
+                <grset level="3" as="dog" title="Договор" />
+              </grset>
+            </on-rows>
+            <!--<on-columns>
+              <grset level="1" as="ym1" title="Период" order="ym">
+                
+              </grset>
+
+            </on-columns>-->
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="test_colgroup_saldo_gr">
+      <select>
+        <!--<call function="()" as="sld_tit_fc" type="number" title="Сальдо по титулу для расчета" client-calc="1" row-selector="isgrset(dog)">
+          <column table="this" column="sld_tit" row-selector="parent" />
+        </call>-->
+        <call as="deb_dog" function="if" title="Дебет (договор)" client-calc="1" row-selector="isgrset(dog)">
+          <call function="lt">
+            <column table="this" column="sld_tit" row-selector="parent" />
+            <const>0</const>
+          </call>
+          <call function="0-">
+            <column table="this" column="sld" />
+          </call>
+        </call>
+        <call as="kred_dog" function="if" title="Кредит (договор)" client-calc="1" row-selector="isgrset(dog)">
+          <call function="gt">
+            <column table="this" column="sld_tit" row-selector="parent" />
+            <const>0</const>
+          </call>
+          <column table="this" column="sld" />
+        </call>
+        <!--<column table="a" column="sld_tit_fc" title="Сальдо для расчета" />-->
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="test_colgroup_saldo_2" as="a">
+          <grsets>
+            <on-rows>
+              <grset level="6" as="itog" title="Итог">
+                <grset level="2" as="tit" title="Титул">
+                  <grset level="3" as="dog" title="Договор" />
+                </grset>
+              </grset>
+            </on-rows>
+            <on-columns>
+              <grset level="1" as="ym1" title="Период" order="ym">
+                <facts>
+                  <column column="ob" />
+                  <column column="sld_keep" />
+                </facts>
+              </grset>
+              <grset level="1,4" as="ym" title="Период" order="ym" intervals="1" for-rows="dog">
+                <facts>
+                  <column column="sld" />
+                  <!--<column column="sld_tit_fc" />-->
+                  <column column="kred_dog" />
+                  <column column="deb_dog" />
+                </facts>
+              </grset>
+              <grset level="1,5" as="ymtit" title="Период Тит" order="ym" intervals="1" for-rows="itog,tit">
+                <facts>
+                  <column column="sld_tit" />
+                  <column column="kred_tit" />
+                  <column column="deb_tit" />
+                </facts>
+                <where>
+                  <call function="=1">
+                    <column table="a" column="rn_tit" />
+                  </call>
+                </where>
+              </grset>
+            </on-columns>
+          </grsets>
+        </query>
+      </from>
+    </query>
+    <query name="test_colgroup_saldo" timestamp="27.01.2017 03:38:07">
+      <select>
+        <column table="a" column="ym" title="Период" />
+        <column table="a" column="tit" title="Титул" />
+        <column table="a" column="dog" title="Договор" />
+        <column table="a" column="ob" />
+        <column table="a" column="gor_obl" />
+        <call function="over" as="sld" type="number" title="Сальдо">
+          <call function="sum">
+            <column table="a" column="ob" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="dog" />
+            <column table="a" column="gor_obl" />
+            <column table="a" column="tit" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="ym_nxt1" type="number">
+          <call function="lead">
+            <column table="a" column="ym" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="dog" />
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="over" as="sld_tit" type="number" title="Сальдо(титул)">
+          <call function="sum">
+            <column table="a" column="ob" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+          </call>
+          <call function="order by 2">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call function="row_number" as="rn_tit" type="number">
+          <call function="partition by">
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+            <column table="this" column="ym" />
+          </call>
+          <call function="order by 2">
+            <const>null</const>
+          </call>
+        </call>
+        <call function="over" as="ym_nxt1_tit" type="number">
+          <call function="first_value">
+            <column table="a" column="ym" />
+          </call>
+          <call function="partition by">
+            <column table="a" column="tit" />
+            <column table="a" column="gor_obl" />
+          </call>
+          <call function="order by range 1 *">
+            <column table="this" column="ym" />
+          </call>
+        </call>
+        <call as="kred_tit" function="if" title="Кредит (титул)">
+          <call function="gt">
+            <column table="this" column="sld_tit" />
+            <const>0</const>
+          </call>
+          <column table="this" column="sld_tit" />
+        </call>
+        <call as="deb_tit" function="if" title="Дебет (титул)">
+          <call function="lt">
+            <column table="this" column="sld_tit" />
+            <const>0</const>
+          </call>
+          <call function="0-">
+            <column table="this" column="sld_tit" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="bav_test3" as="a" />
+      </from>
+    </query>
+    <query name="test_colgroup_saldo_ym" timestamp="11.01.2017 17:04:24" grouplevel="no">
+      <select>
+        <column table="a" column="ym" title="Период" />
+      </select>
+      <from>
+        <query name="bav_test4" as="a" />
+      </from>
+    </query>
+    <query name="test_colgroup_saldo_2" timestamp="27.01.2017 02:33:18" grouplevel="no">
+      <select>
+        <column table="a" column="ym" group="1" />
+        <column table="a" column="tit" group="2" />
+        <column table="a" column="dog" group="3" />
+        <column table="a" column="gor_obl" group="6" title="Город/Область" />
+        <column table="a" column="ob" group="sum" title="Оборот" />
+        <column table="a" column="sld" group="sum" />
+        <column table="a" column="sld_tit" group="sum" />
+        <!--<column table="a" column="sld_tit_fc" group="sum" />-->
+        <column table="a" column="ym_nxt1" group="4" title="След период" />
+        <column table="a" column="ym_nxt1_tit" group="5" title="След период (титул)" />
+        <column table="a" column="kred_tit" group="sum" />
+        <column table="a" column="deb_tit" group="sum" />
+        <column table="a" column="rn_tit" />
+        <call as="sld_keep" function="keep last" group="outer" title="Сальдо keep">
+          <column table="this" column="sld" group="sum" />
+          <column table="this" column="ym" />
+        </call>
+      </select>
+      <from>
+        <query name="test_colgroup_saldo" as="a" />
+      </from>
+    </query>
+  </queries>
+</root>

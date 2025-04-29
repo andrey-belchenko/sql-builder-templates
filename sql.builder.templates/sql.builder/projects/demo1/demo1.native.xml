@@ -1,0 +1,2505 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T01:40:58.4232987+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="test_qube1" timestamp="26.01.2018 20:51:05" order="dep_name,vid_real_name nulls first,vidopl_abbr  nulls first" file="sql.builder.templates\sql.builder\projects\demo1\cube\query.xml">
+      <params>
+        <param name="p_kod_dep" type="array" />
+        <param name="p_ym" type="number" />
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" />
+        <column table="sk_vid_real" column="vid_real" />
+        <column table="kr_dep" column="kod_dep" />
+        <column table="kr_dep" column="name" as="dep_name" title="Отделение" />
+        <column table="sk_vid_real" column="name" as="vid_real_name" title="Вид реализации" />
+        <fact column="sr_facras_nachisl" as="nach" group="sum" />
+        <column table="ss_vidopl" column="abbr" as="vidopl_abbr" title="Вид оплаты" />
+        <fact column="sr_opl_deb_opl" table="opl" as="opl" title="Оплата" group="sum" />
+      </select>
+      <from>
+        <qube>
+          <link name="kr_dogovor" />
+          <link name="kr_dep" />
+          <link name="sk_vid_real" />
+          <link name="dat" />
+          <dimset as="opl">
+            <link name="ss_vidopl" />
+          </dimset>
+          <where>
+            <call function="and">
+              <call function="=">
+                <call function="date to ym">
+                  <column table="dat" column="val" />
+                </call>
+                <useparam name="p_ym" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kr_dep" column="kod_dep" />
+                <useparam name="p_kod_dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset title="Итого" as="i">
+          <grset title="По отделениям" as="p">
+            <group>
+              <sourcelink table="kr_dep" />
+            </group>
+            <grset title="По видам реализации" as="r">
+              <group>
+                <sourcelink table="sk_vid_real" />
+              </group>
+              <grset title="По оплатам" as="o">
+                <group>
+                  <sourcelink table="ss_vidopl" />
+                </group>
+                <where>
+                  <call function="is not null">
+                    <column table="this" column="vidopl_abbr" />
+                  </call>
+                </where>
+              </grset>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="test_qube1_detail" timestamp="26.01.2018 21:00:35" order="dep_name,ndog,vid_real_name nulls first,vidopl_abbr  nulls first" is-report="1" title="Начисления и оплаты (детализация)" file="sql.builder.templates\sql.builder\projects\demo1\cube\query.xml">
+      <params>
+        <param name="p_kod_dep" type="array" />
+        <param name="p_ym" type="number" />
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" />
+        <column table="sk_vid_real" column="vid_real" />
+        <column table="kr_dep" column="kod_dep" />
+        <column table="kr_dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kr_dogovor" column="ndog" as="ndog" title="Договор" />
+        <column table="sk_vid_real" column="name" as="vid_real_name" title="Вид реализации" />
+        <fact column="sr_facras_nachisl" as="nach" />
+        <column table="ss_vidopl" column="abbr" as="vidopl_abbr" title="Вид оплаты" />
+        <fact column="sr_opl_deb_opl" table="opl" as="opl" title="Оплата" />
+      </select>
+      <from>
+        <qube>
+          <link name="kr_dogovor" />
+          <link name="kr_dep" />
+          <link name="sk_vid_real" />
+          <link name="dat" />
+          <dimset as="opl">
+            <link name="ss_vidopl" />
+          </dimset>
+          <where>
+            <call function="and">
+              <call function="=">
+                <call function="date to ym">
+                  <column table="dat" column="val" />
+                </call>
+                <useparam name="p_ym" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kr_dep" column="kod_dep" />
+                <useparam name="p_kod_dep" />
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="report_demo2" timestamp="29.01.2018 22:06:40" folder="ur_journals" is-report="1" allow-save="1" params-customization="1" edit-columns="1" auto-filter="1" can-use-simple-params="1" dx-export="1" title="Сводный отчет" file="sql.builder.templates\sql.builder\projects\demo1\reports\generator.xml">
+      <content>
+        <usefield field="cmn_date_cur" name="p_dat" title="На дату" column-mandatory="1" />
+        <fieldgroup title="Период">
+          <usefield field="demo_ym" name="p_ym1" title="С" />
+          <usefield field="demo_ym" name="p_ym2" title="По" />
+        </fieldgroup>
+      </content>
+      <columnspreset />
+      <select>
+        <call function="rownum" as="rrr" />
+        <column table="kr_dep" column="name" as="dep_name" />
+        <band title="Абонент">
+          <column table="kr_payer" column="nump" title="Номер" />
+          <column table="kr_payer" column="name" title="Наименование" as="payer_name" />
+        </band>
+        <band title="Договор">
+          <column table="kr_dogovor" column="ndog" title="Номер" />
+          <column table="kr_dogovor" column="dat_dog" />
+          <column table="kr_dogovor" column="dat_fin" />
+        </band>
+        <band title="Вид реализации">
+          <column table="sk_vid_real" column="name" as="vid_real_name" />
+          <column table="sk_vid_real" column="abbr" as="vid_real_abbr" />
+        </band>
+        <band title="Документ начисления">
+          <column table="sr_facvip" column="num_sf" title="Номер" />
+          <column table="sr_facvip" column="dat_sf" title="Дата" />
+        </band>
+        <band title="Вид оплаты">
+          <column table="ss_vidopl" column="abbr" as="ss_vidopl_abbr" />
+          <column table="ss_vidopl" column="name" as="ss_vidopl_name" />
+        </band>
+        <band title="Начислено">
+          <fact column="sr_facras_nachisl" title="Всего" auto-filter="1" table="oborot" />
+          <fact column="expr_nach_osn" title="Осн. реал." auto-filter="1" table="oborot" />
+          <fact column="expr_nach_peni" title="Пени" auto-filter="1" table="oborot" />
+          <fact column="expr_nach_gp" title="Гос. пошлина" auto-filter="1" table="oborot" />
+          <fact column="expr_nach_av" title="Авансы" auto-filter="1" table="oborot" />
+        </band>
+        <band title="Оплачено">
+          <fact column="sr_opl_deb_opl" title="Всего" table="oborot" />
+          <fact column="expr_opl_deb_osn" title="Осн. реал." table="oborot" />
+          <fact column="expr_opl_deb_peni" title="Пени" table="oborot" />
+          <fact column="expr_opl_deb_gp" title="Гос. пошлина" table="oborot" />
+          <fact column="expr_opl_deb_av" title="Авансы" table="oborot" />
+        </band>
+        <band title="Задолженность">
+          <fact column="expr_deb_ob" title="Всего" />
+          <fact column="expr_deb_ob_osn" title="Осн. реал." />
+          <fact column="expr_deb_ob_peni" title="Пени" />
+          <fact column="expr_deb_ob_gp" title="Гос. пошлина" />
+          <fact column="expr_deb_ob_av" title="Авансы" />
+        </band>
+      </select>
+      <from>
+        <qube>
+          <where>
+            <call function="le">
+              <column table="dat" column="val" />
+              <useparam name="p_dat" />
+            </call>
+          </where>
+          <link name="dat" />
+          <link name="kr_dogovor" />
+          <link name="kr_payer" />
+          <link name="kr_dep" auto-filter="1" />
+          <link name="sk_vid_real" auto-filter="1" />
+          <link name="sr_facvip" />
+          <dimset as="oborot">
+            <where>
+              <call function="and">
+                <call function="true" />
+                <call function="le">
+                  <column table="dat" column="val" />
+                  <useparam name="p_dat" />
+                </call>
+                <call function="ge" optional="1">
+                  <call function="date to ym">
+                    <column table="dat" column="val" />
+                  </call>
+                  <useparam name="p_ym1" />
+                </call>
+                <call function="le" optional="1">
+                  <call function="date to ym">
+                    <column table="dat" column="val" />
+                  </call>
+                  <useparam name="p_ym2" />
+                </call>
+              </call>
+            </where>
+          </dimset>
+          <dimset as="opl">
+            <link name="ss_vidopl" auto-filter="1" />
+          </dimset>
+        </qube>
+      </from>
+    </query>
+    <query name="demo_dog" timestamp="29.01.2018 21:05:50" file="sql.builder.templates\sql.builder\projects\demo1\reports\reports.xml">
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="b" column="nump" />
+        <column table="b" column="name" />
+        <column table="a" column="ndog" />
+        <column table="a" column="dat_dog" />
+      </select>
+      <from>
+        <query as="a" name="kr_dogovor">
+          <link name="kodp" as="b" />
+        </query>
+      </from>
+    </query>
+    <query name="demo_obj" timestamp="29.01.2018 21:18:00" file="sql.builder.templates\sql.builder\projects\demo1\reports\reports.xml">
+      <select>
+        <column table="a" column="kod_numobj" />
+        <column table="a" column="kod_dog" />
+        <column table="a" column="num_obj" title="Номер" format="F0" />
+        <column table="a" column="name" />
+      </select>
+      <from>
+        <query name="kr_numobj" as="a" />
+      </from>
+    </query>
+    <query name="sr_opl_deb" timestamp="26.01.2018 18:19:10" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\extension\sr_opl.xml">
+      <select>
+        <column table="a" column="kod_opl" />
+        <column table="a" column="kod_vidopl" dimension="ss_vidopl" />
+        <column table="a" column="kod_sf" dimension="sr_facvip" />
+        <column table="a" column="dat_uch" dimension="dat" />
+        <column table="a" column="opl" is-fact="1" agg="sum" title="Оплата начислений" />
+      </select>
+      <from>
+        <query name="sr_opl" as="a" />
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_type_opl" />
+          <array>0,2,3,4</array>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_kred" timestamp="26.01.2018 18:19:10" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\extension\sr_opl.xml">
+      <select>
+        <column table="a" column="kod_opl" />
+        <column table="a" dimension="kr_dogovor" column="kod_dog" />
+        <column table="a" column="kod_vidopl" dimension="ss_vidopl" />
+        <column table="a" dimension="sk_vid_real" column="vid_real" />
+        <column table="a" column="dat_uch" dimension="dat" />
+        <column table="a" column="opl" is-fact="1" agg="sum" title="Оплата авансов" />
+      </select>
+      <from>
+        <query name="sr_opl" as="a" />
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_type_opl" />
+          <array>1,2</array>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl_stor" timestamp="26.01.2018 18:22:27" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\extension\sr_opl.xml">
+      <select>
+        <column table="a" column="kod_opl" />
+        <column table="a" dimension="sr_opl_kred" column="kod_parent" />
+        <column table="a" column="dat_uch" dimension="dat" />
+        <column table="a" column="oplf" is-fact="1" agg="sum" title="Сторно авансов" as="opl" />
+      </select>
+      <from>
+        <query name="sr_opl" as="a" />
+      </from>
+      <where>
+        <call function="in">
+          <column table="a" column="kod_type_opl" />
+          <array>5,6</array>
+        </call>
+      </where>
+    </query>
+    <query name="kk_active" class="1" title="Статус" timestamp="26.01.2018 03:45:17" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kk_active.xml">
+      <select>
+        <column table="a" column="pr_active" type="number" column-mandatory="1" title="" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" />
+      </select>
+      <from>
+        <table name="kk_active" as="a" />
+      </from>
+    </query>
+    <query name="kk_letter_mem" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kk_letter_mem.xml">
+      <select>
+        <column table="a" column="kod_letter_mem" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" comment="Наименование" />
+      </select>
+      <from>
+        <table name="kk_letter_mem" as="a" />
+      </from>
+    </query>
+    <query name="kk_tep_el" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kk_tep_el.xml">
+      <select>
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="sname" type="string" title="" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" />
+        <column table="a" column="visible" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <table name="kk_tep_el" as="a" />
+      </from>
+    </query>
+    <query name="kk_tipdoc" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kk_tipdoc.xml">
+      <select>
+        <column table="a" column="kod_tipdoc" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" />
+        <column table="a" column="srok" type="number" title="" comment="срок действия док-та в месяцах" />
+        <column table="a" column="prioritet" type="number" title="" comment="Приоритет юр.док-та" />
+        <column table="a" column="ur_prizn" type="number" title="" comment="0-все,1-юридические" />
+        <column table="a" column="doc_one" type="number" title="" comment="0- много док на дог,1-только один" />
+        <column table="a" column="template" type="string" title="" comment="путь и имя шаблона документа" />
+        <column table="a" column="pr_val" type="number" title="" comment="Признак привязки расчета [ тепло2 ]" />
+        <column table="a" column="prizn_ur" type="number" title="" comment="1 - Документ относится только к ЮЛ&#xA;2 - Документ относится к договору&#xA;0,null - Годится для всего" />
+      </select>
+      <from>
+        <table name="kk_tipdoc" as="a" />
+      </from>
+    </query>
+    <query name="kk_zak_avans" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kk_zak_avans.xml">
+      <select>
+        <column table="a" column="kod_zak_avans" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+      </select>
+      <from>
+        <table name="kk_zak_avans" as="a" />
+      </from>
+    </query>
+    <query name="kr_dep" class="1" timestamp="29.01.2018 15:35:03" title="Отделение" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_dep.xml">
+      <select>
+        <column table="a" column="kod_dep" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" title="Отделение" />
+        <column table="a" column="sname" type="string" title="" />
+      </select>
+      <from>
+        <table name="kr_dep" as="a" />
+      </from>
+    </query>
+    <query name="kr_dogovor" class="1" title="Договор" timestamp="30.01.2018 20:58:00" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_dogovor.xml">
+      <select>
+        <column table="a" column="kod_dog" type="number" column-mandatory="1" />
+        <call function="-" as="srok" title="Период действия в днях" format="F0">
+          <column table="this" column="dat_fin" />
+          <column table="this" column="dat_dog" />
+        </call>
+        <call as="is_archive" function="if" type="number">
+          <call function="=">
+            <column table="this" column="pr_active" />
+            <const>1</const>
+          </call>
+          <const>1</const>
+          <const>0</const>
+        </call>
+        <call as="date_validation" function="if" type="string">
+          <call function="gt">
+            <column table="this" column="dat_dog" />
+            <column table="this" column="dat_fin" />
+          </call>
+          <const>'Дата прекращения должна быть больше даты начала'</const>
+        </call>
+        <column table="a" column="kodbpol" type="number" title="" />
+        <column table="a" column="kod_vdog" type="number" column-mandatory="1" comment="Код вида договора" />
+        <column table="a" column="podr" type="number" column-mandatory="1" title="" comment="Код подразделения" />
+        <column table="a" column="pr_active" type="number" column-mandatory="1" title="" comment="состояние договора&#xA;0 - действующий&#xA;1- удаленный&#xA;2-новый" />
+        <column table="a" column="kodp" type="number" column-mandatory="1" title="" comment="код абонента (для договоров услуг - Сторона1 - кому платят )" dimension="kr_payer" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" comment="признак&#xA;0 -единый&#xA;1- электричество&#xA;2-тепло" />
+        <column table="a" column="kodbpl" type="number" title="" comment="код банка плательщика" />
+        <column table="a" column="vid_pl" type="number" title="" comment="код вида основного плат.документа" />
+        <column table="a" column="ndog" type="string" column-mandatory="1" title="Номер договора" comment="номер договора" />
+        <column table="a" column="dat_fin" type="date" title="Дата прекращения" comment="дата прекращения договора" visible="is_archive" valid="date_validation" />
+        <column table="a" column="rassh1" type="string" title="" comment="расчетный счет" />
+        <column table="a" column="dat_dog" type="date" column-mandatory="1" title="Дата начала действия" comment="дата начала договора" editable="is_archive" editable-invert="1" />
+        <column table="a" column="u_m" type="string" title="" comment="последняя корректировка - пользователь" />
+        <column table="a" column="d_m" type="date" title="" comment="последняя корректировка - дата" />
+        <column table="a" column="kod_parent_dog" type="number" comment="код договора , на который переоформили данный договор" />
+        <column table="a" column="dat_srok" type="date" title="" comment="планируемый срок окончания действия договора" />
+        <column table="a" column="dat_prolong" type="date" title="" comment="дата пролонгации" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="kod_ist" type="number" />
+        <column table="a" column="dat_sign" type="date" title="" />
+        <column table="a" column="prn_elved" type="number" title="" comment="признак наличия вед электропотр." />
+        <column table="a" column="kod_bzad" type="number" />
+        <column table="a" column="pref_fac" type="number" title="" comment="Префикс счета фактуры. Формируется автоматически из №№ отделения ЭСБ, отдела и сектора ЭСБ, ведущих договор." />
+        <column table="a" column="kod_state" type="number" />
+        <column table="a" column="dep" type="number" column-mandatory="1" title="" dimension="kr_dep" />
+        <column table="a" column="kod_kazn" type="number" />
+        <column table="a" column="lic_kazn" type="string" title="" comment="лицевой счет в казначействе" />
+        <column table="a" column="kodp_plat" type="number" title="" />
+        <column table="a" column="pr_sh" type="number" title="" comment="признак начисления электрических штрафов:&#xA;0- по уровням напр в объекте, 1-по договору, 2-в целом по объекту" />
+        <column table="a" column="dat_numdog" type="date" title="" />
+        <column table="a" column="kod_bez_prich" type="number" />
+        <column table="a" column="kod_spos_opl" type="number" />
+        <column table="a" column="kol_kom" type="number" title="" />
+        <column table="a" column="kol_chel" type="number" title="" comment="Кол. комнат(быт)" />
+        <column table="a" column="kod_emp" type="number" />
+        <column table="a" column="kodp_uch" type="number" title="" comment="указывается 1 из участков , отвечающих за договор.&#xA;для юр. лиц - NULL , если участков нет." />
+        <column table="a" column="pr_avans_umen" type="number" title="" />
+        <column table="a" column="day_pokaz" type="number" title="" />
+        <column table="a" column="tep_el_byt" type="number" title="" />
+        <column table="a" column="pr_sf_schet" type="number" title="" />
+        <column table="a" column="kodp_gruz" type="number" title="" />
+        <column table="a" column="byt_period_obh" type="number" title="" comment="Периодичность обходов" />
+        <column table="a" column="byt_ocher_obh" type="number" title="" comment="признак печати СФ как счета" />
+        <column table="a" column="rast_dog" type="string" title="" comment="Причина расторжения дог-ра" />
+        <column table="a" column="kod_dog_fin" type="number" comment="код дог-ра для финансов" />
+        <column table="a" column="kodp2" type="number" title="" comment="для договоров услуг - Сторона 2 (кто платит за услуги)" />
+        <column table="a" column="kodp_sbyt" type="number" title="" comment="сбытовая компания" />
+        <column table="a" column="kod_tipdoc" type="number" comment="Тип документа (Акты)" />
+        <column table="a" column="deliv_izv" type="number" title="" comment="Способ доставки квитанций" />
+        <column table="a" column="kod_letter_mem" type="number" comment="признак необх-ти печати напомин.по авансам" />
+        <column table="a" column="kodbpol_ds" type="number" title="" comment="код банка получателя (для договора услуг ЛенЭнерго)" />
+        <column table="a" column="rassh2" type="string" title="" comment="расчётный счёт получателя (для договора услуг ЛенЭнерго)" />
+        <column table="a" column="kod_zak_avans" type="number" comment="постановления по авансам" />
+        <column table="a" column="vid_tn" type="number" title="" comment="вид теплоносителя  2 - вода; 3- пар; 5 - вода+пар" />
+        <column table="a" column="kod_way_delivery" type="number" comment="Cпособ доставки платежных документов абоненту" />
+        <column table="a" column="dat_postavka" type="date" title="" comment="Дата начала поставки э/э" />
+        <column table="a" column="id_gk" type="string" title="" comment="Идентификатор государственного контракта" />
+        <column table="a" column="kod_prop1" type="number" title="" />
+      </select>
+      <from>
+        <table name="kr_dogovor" as="a" />
+        <query name="vr_prop1" as="kod_prop1" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_prop1" />
+            <column table="kod_prop1" column="kod_prop1" />
+          </call>
+        </query>
+        <query name="ks_way_delivery" as="kod_way_delivery" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_way_delivery" />
+            <column table="kod_way_delivery" column="kod_way_delivery" />
+          </call>
+        </query>
+        <query name="kr_org" as="kodp_sbyt" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp_sbyt" />
+            <column table="kodp_sbyt" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_zak_avans" as="kod_zak_avans" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_zak_avans" />
+            <column table="kod_zak_avans" column="kod_zak_avans" />
+          </call>
+        </query>
+        <query name="ks_bank" as="kodbpol_ds" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpol_ds" />
+            <column table="kodbpol_ds" column="kodb" />
+          </call>
+        </query>
+        <query name="tk_delivery" as="deliv_izv" join="left outer">
+          <call function="=">
+            <column table="a" column="deliv_izv" />
+            <column table="deliv_izv" column="id" />
+          </call>
+        </query>
+        <query name="kk_tipdoc" as="kod_tipdoc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_tipdoc" />
+            <column table="kod_tipdoc" column="kod_tipdoc" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog_fin" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog_fin" />
+            <column table="kod_dog_fin" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp_gruz" join="left outer" dname="kr_dogovor_gruz">
+          <call function="=">
+            <column table="a" column="kodp_gruz" />
+            <column table="kodp_gruz" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer" dname="kr_dogovor">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="ss_zadol_day" as="kod_bzad" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bzad" />
+            <column table="kod_bzad" column="kod_bzad" />
+          </call>
+        </query>
+        <query name="sk_vid_pl" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl" />
+            <column table="vid_pl" column="vid_pl" />
+          </call>
+        </query>
+        <query name="ks_vdog" as="kod_vdog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vdog" />
+            <column table="kod_vdog" column="kod_vdog" />
+          </call>
+        </query>
+        <query name="ks_spos_opl" as="kod_spos_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_spos_opl" />
+            <column table="kod_spos_opl" column="kod_spos_opl" />
+          </call>
+        </query>
+        <query name="ks_kazn" as="kod_kazn" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_kazn" />
+            <column table="kod_kazn" column="kod_kazn" />
+          </call>
+        </query>
+        <query name="ks_istfin" as="kod_ist" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ist" />
+            <column table="kod_ist" column="kod_ist" />
+          </call>
+        </query>
+        <query name="ks_bezakcept_prich" as="kod_bez_prich" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bez_prich" />
+            <column table="kod_bez_prich" column="kod_bez_prich" />
+          </call>
+        </query>
+        <query name="ks_bank" as="kodbpl" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpl" />
+            <column table="kodbpl" column="kodb" />
+          </call>
+        </query>
+        <query name="ks_bankpol" as="kodbpol" join="left outer">
+          <call function="=">
+            <column table="a" column="kodbpol" />
+            <column table="kodbpol" column="kodbpol" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp_plat" join="left outer" dname="kr_dogovor_plat">
+          <call function="=">
+            <column table="a" column="kodp_plat" />
+            <column table="kodp_plat" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_org" as="kodp_uch" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp_uch" />
+            <column table="kodp_uch" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_org" as="dep" join="left outer">
+          <call function="=">
+            <column table="a" column="dep" />
+            <column table="dep" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_org" as="podr" join="left outer">
+          <call function="=">
+            <column table="a" column="podr" />
+            <column table="podr" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_employee" as="kod_emp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_emp" />
+            <column table="kod_emp" column="kod_emp" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_parent_dog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent_dog" />
+            <column table="kod_parent_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el_byt" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el_byt" />
+            <column table="tep_el_byt" column="tep_el" />
+          </call>
+        </query>
+        <query name="kk_active" as="pr_active" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_active" />
+            <column table="pr_active" column="pr_active" />
+          </call>
+        </query>
+        <query name="kk_letter_mem" as="kod_letter_mem" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_letter_mem" />
+            <column table="kod_letter_mem" column="kod_letter_mem" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="kr_employee" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_employee.xml">
+      <select>
+        <column table="a" column="kod_emp" type="number" column-mandatory="1" comment="Код сотрудника" />
+        <column table="a" column="kodp" type="number" column-mandatory="1" title="" comment="Код Абонента (Организации)" />
+        <column table="a" column="kod_numobj" type="number" comment="Код объекта договора" />
+        <column table="a" column="kod_dolzhfun" type="number" comment="Код должностной функции" />
+        <column table="a" column="kod_namedolzh" type="number" comment="Код должности" />
+        <column table="a" column="fio" type="string" title="" comment="фио" />
+        <column table="a" column="fax" type="string" title="" comment="Номер факса" />
+        <column table="a" column="tel" type="string" title="" comment="Телефон" />
+        <column table="a" column="place" type="string" title="" comment="Место расположения факса" />
+        <column table="a" column="remark" type="string" title="" comment="примечание" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="serial" type="string" title="" comment="Серия паспорта (для хозяев ЧП)" />
+        <column table="a" column="nomer" type="string" title="" comment="Номер паспорта  (для хозяев ЧП)" />
+        <column table="a" column="kem" type="string" title="" comment="Кем выдан паспорт  (для хозяев ЧП)" />
+        <column table="a" column="num_dover" type="string" title="" comment="№ доверенности . заполн.для руководителя&#xA;исп при печати договора" />
+        <column table="a" column="fio_r" type="string" title="" />
+        <column table="a" column="e_mail" type="string" title="" />
+        <column table="a" column="tab_nomer" type="string" title="" comment="табельный номер" />
+        <column table="a" column="fio_f" type="string" title="" />
+        <column table="a" column="fio_i" type="string" title="" />
+        <column table="a" column="fio_o" type="string" title="" />
+        <column table="a" column="d_pasp" type="date" title="" />
+        <column table="a" column="d_birth" type="date" title="" />
+        <column table="a" column="pref" type="number" title="" />
+        <column table="a" column="pr_active" type="number" title="" />
+        <column table="a" column="fio_d" type="string" title="" />
+        <column table="a" column="namedolzh" type="string" title="" comment="Наименование должности" />
+        <column table="a" column="namedolzh_r" type="string" title="" comment="Префикс для документов, выпущенных данным сотрудником" />
+        <column table="a" column="pr_ctrl" type="number" title="" comment="Для быта. Признак разрешения съема контрольных показаний.&#xA;1 - разрешено&#xA;0 - запрещено" />
+        <column table="a" column="m_birth" type="string" title="" comment="Место рождения (для хозяев ЧП)" />
+        <column table="a" column="adres_p" type="string" title="" comment="Почтовый адрес" />
+        <column table="a" column="inn" type="string" title="" comment="ИНН должностного лица" />
+        <column table="a" column="namedolzh_d" type="string" title="" comment="наименование должности в дательном падеже" />
+        <column table="a" column="rel_ship" type="string" title="" comment="степень родства" />
+        <column table="a" column="dat_beg_reg" type="date" title="" comment="дата регистрации:" />
+        <column table="a" column="dat_end_reg" type="date" title="" comment="дата выписки" />
+        <column table="a" column="russian_tel" type="number" column-mandatory="1" title="" comment="Флаг: должны ли номера долж. лиц соответствовать шаблону российского номера" />
+        <column table="a" column="e_copy" type="blob" title="" comment="Факсимиле" />
+        <column table="a" column="num_upd" type="number" column-mandatory="1" title="" comment="Признак наличия факсимиле" />
+        <column table="a" column="name_file" type="string" title="" comment="Имя файла факсимиле" />
+        <column table="a" column="pr_cont_pers" type="number" column-mandatory="1" title="" comment="пр. Контактное лицо" />
+        <column table="a" column="p_tel" type="string" title="" comment="ПРочие телефоны" />
+        <column table="a" column="m_tel" type="string" title="" comment="Мобильный телефон" />
+        <column table="a" column="pr_mail" type="number" title="" comment="1 - признак согласия потребителя на рассылку уведомлений о наличии задолженности" />
+        <column table="a" column="sex" type="number" title="" comment="Пол сотрудника" />
+        <column table="a" column="pr_dog_podp" type="number" title="" comment="1 - признак права подписания договора" />
+        <column table="a" column="snils" type="string" title="" comment="СНИЛС" />
+        <column table="a" column="inostran" type="number" column-mandatory="1" title="" comment="Иностранный гражданин" />
+      </select>
+      <from>
+        <table name="kr_employee" as="a" />
+        <query name="ks_namedolzh" as="kod_namedolzh" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_namedolzh" />
+            <column table="kod_namedolzh" column="kod_namedolzh" />
+          </call>
+        </query>
+        <query name="kr_org" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_numobj" as="kod_numobj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_numobj" />
+            <column table="kod_numobj" column="kod_numobj" />
+          </call>
+        </query>
+        <query name="kk_dolzhfun" as="kod_dolzhfun" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dolzhfun" />
+            <column table="kod_dolzhfun" column="kod_dolzhfun" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="kr_numobj" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_numobj.xml">
+      <select>
+        <column table="a" column="kod_numobj" type="number" column-mandatory="1" comment="Код объекта в договоре" />
+        <column table="a" column="kod_obj" type="number" column-mandatory="1" />
+        <column table="a" column="kod_f23" type="number" />
+        <column table="a" column="pr_active" type="number" column-mandatory="1" title="" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" comment="объект тепловой ,электрический или единый" />
+        <column table="a" column="tarif" type="number" title="" comment="Код тарифа" />
+        <column table="a" column="kod_dog" type="number" column-mandatory="1" comment="код договора" />
+        <column table="a" column="kod_parent_sa" type="number" comment="код объекта договора которому принадлежит субабонет (если он not null, значит объект договора - субабонент )" />
+        <column table="a" column="kodagent" type="number" title="" comment="Код субъекта деятельности" />
+        <column table="a" column="num_obj" type="number" column-mandatory="1" title="" comment="Номер объекта в списке объектов договора" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" comment="Наименование объекта в текущем договоре" />
+        <column table="a" column="dat_create" type="date" column-mandatory="1" title="" comment="дата  создания объекта в списке" />
+        <column table="a" column="dat_fin" type="date" title="" comment="дата перевода объекта в архив в текущем договоре" />
+        <column table="a" column="prizn_prn" type="number" title="" comment="Признак печати (определяет вид приложения)" />
+        <column table="a" column="kod_parent_obj" type="number" comment="код родительского объекта договора (от него наследуется система учета, схема энергоснабжения и т.д.)" />
+        <column table="a" column="prim" type="string" title="" comment="Примечание" />
+        <column table="a" column="u_m" type="string" title="" comment="корректировал пользователь" />
+        <column table="a" column="d_m" type="date" title="" comment="дата корректировки" />
+        <column table="a" column="dat_replace" type="date" title="" comment="дата замены объекта (изменение принадлежности к договору)" />
+        <column table="a" column="tel_ruk" type="string" title="" />
+        <column table="a" column="tel_glen" type="string" title="" />
+        <column table="a" column="tel_deghen" type="string" title="" />
+        <column table="a" column="tel_degh" type="string" title="" />
+        <column table="a" column="p" type="number" title="" comment="Разрешенная к использованию нагрузка ( для субабонентов)" />
+        <column table="a" column="kod_obj_fs" type="number" />
+        <column table="a" column="kod_uslotkl" type="number" />
+        <column table="a" column="algp" type="number" title="" comment="Алгоритм расчета мощности ( 1 - 1-ставочный, 2 - двуставочный, 0 или null - по тарифу)" />
+        <column table="a" column="tlg_och" type="number" title="" comment="очередь откл. для ТФ" />
+        <column table="a" column="kod_dopdoc" type="number" comment="код доп.док-та по принадл.эл.обор." />
+        <column table="a" column="kodnaznhouse" type="number" title="" comment="назначение сооружения суба" />
+        <column table="a" column="vkl530" type="number" column-mandatory="1" title="" comment="Эл. вкл. в перечень по огр. по пост.530" />
+        <column table="a" column="bezdog" type="number" column-mandatory="1" title="" comment="бездоговорное использование" />
+        <column table="a" column="pr_sv_price" type="number" column-mandatory="1" title="" comment="признак расчета по свободным ценам" />
+        <column table="a" column="fio_ruk" type="string" title="" />
+        <column table="a" column="fio_deghen" type="string" title="" />
+        <column table="a" column="fio_degh" type="string" title="" />
+        <column table="a" column="fio_glen" type="string" title="" />
+        <column table="a" column="dat_plan_fin" type="date" title="" comment="планирумая дата окончания объекта" />
+        <column table="a" column="point_sale" type="string" title="" comment="Описание точки поставки" />
+        <column table="a" column="divergence_percent" type="number" title="" comment="Отклонение факт. расхода %" />
+        <column table="a" column="pr_avans" type="number" column-mandatory="1" title="" comment="Участие в авансах" />
+        <column table="a" column="gr_point" type="number" column-mandatory="1" title="" comment="0 - субабонент, 1 - группа точек, 2- одновременно и то и другое" />
+        <column table="a" column="inn_sa" type="string" title="" comment="ИНН субабонента" />
+        <column table="a" column="russian_tel" type="number" column-mandatory="1" title="" comment="Флаг: должны ли номера долж. лиц по объекту соответствовать шаблону российского номера" />
+        <column table="a" column="kodp_holder" type="number" title="" comment="код потребителя-держателя объекта" />
+        <column table="a" column="pr_place" type="number" column-mandatory="1" title="" comment="1 - признак &quot;Встроенное помещение&quot;" />
+        <column table="a" column="dat_postav_obj" type="date" title="" comment="Дата начала поставки э/э" />
+      </select>
+      <from>
+        <table name="kr_numobj" as="a" />
+        <query name="hs_naznhouse" as="kodnaznhouse" join="left outer">
+          <call function="=">
+            <column table="a" column="kodnaznhouse" />
+            <column table="kodnaznhouse" column="kodnaznhouse" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ks_uslotkl" as="kod_uslotkl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_uslotkl" />
+            <column table="kod_uslotkl" column="kod_uslotkl" />
+          </call>
+        </query>
+        <query name="ks_tarif" as="tarif" join="left outer">
+          <call function="=">
+            <column table="a" column="tarif" />
+            <column table="tarif" column="tarif" />
+          </call>
+        </query>
+        <query name="ks_obj_fs" as="kod_obj_fs" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_obj_fs" />
+            <column table="kod_obj_fs" column="kod_obj_fs" />
+          </call>
+        </query>
+        <query name="kr_numobj" as="kod_parent_sa" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent_sa" />
+            <column table="kod_parent_sa" column="kod_numobj" />
+          </call>
+        </query>
+        <query name="kr_numobj" as="kod_parent_obj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent_obj" />
+            <column table="kod_parent_obj" column="kod_numobj" />
+          </call>
+        </query>
+        <query name="kr_dopdoc" as="kod_dopdoc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dopdoc" />
+            <column table="kod_dopdoc" column="kod_dopdoc" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+        <query name="kk_active" as="pr_active" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_active" />
+            <column table="pr_active" column="pr_active" />
+          </call>
+        </query>
+        <query name="hs_23" as="kod_f23" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_f23" />
+            <column table="kod_f23" column="kod_f23" />
+          </call>
+        </query>
+        <query name="hk_agent" as="kodagent" join="left outer">
+          <call function="=">
+            <column table="a" column="kodagent" />
+            <column table="kodagent" column="kodagent" />
+          </call>
+        </query>
+        <query name="kk_priznak_obj" as="pr_place" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_place" />
+            <column table="pr_place" column="pr_place" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp_holder" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp_holder" />
+            <column table="kodp_holder" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_object" as="kod_obj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_obj" />
+            <column table="kod_obj" column="kod_obj" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="kr_object" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_object.xml">
+      <select>
+        <column table="a" column="kod_obj" type="number" column-mandatory="1" comment="код потребителя" />
+        <column table="a" column="kodd" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kodnaznhouse" type="number" title="" />
+        <column table="a" column="askue" type="number" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="kodnaznteplo" type="number" title="" />
+        <column table="a" column="volume" type="number" title="" />
+        <column table="a" column="god_zd" type="number" title="" comment="1- до 1958 года; 0 - после 1958 года" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="tvr" type="number" title="" />
+        <column table="a" column="kod_tipprn" type="number" />
+        <column table="a" column="kod_tipprnsw" type="number" />
+        <column table="a" column="square" type="number" title="" comment="Общая площадь кв.м." />
+        <column table="a" column="askute" type="number" title="" />
+        <column table="a" column="kod_buil" type="number" comment="для КОМИ" />
+        <column table="a" column="id_adres" type="string" title="" comment="быт : идентификатор адреса" />
+        <column table="a" column="tep_el" type="number" title="" comment="признак&#xA;0 -единый&#xA;1- электричество&#xA;2-тепло" />
+        <column table="a" column="dep" type="number" title="" />
+        <column table="a" column="tep_el_byt" type="number" title="" comment="признак для быта&#xA;0 -единый&#xA;1- электричество&#xA;2-тепло" />
+        <column table="a" column="kod_tjil" type="number" />
+        <column table="a" column="kod_stobj" type="number" />
+        <column table="a" column="kol_kom" type="number" title="" />
+        <column table="a" column="square_corn" type="number" title="" />
+        <column table="a" column="kod_tzone" type="number" column-mandatory="1" comment="Код зоны температур. Зоной является район СФ или город районного значения. Информация получена из справочника &quot;Населенных пунктов&quot;" />
+        <column table="a" column="pref_nump" type="string" title="" comment="Для Казани - код РПУ, для остальных код отделения" />
+        <column table="a" column="kodp_seti" type="number" title="" comment="ФИЛИАЛ СК" />
+        <column table="a" column="square_odn" type="number" title="" comment="Площадь ОДН кв.м." />
+        <column table="a" column="square_gil" type="number" title="" comment="Жилая площадь кв.м." />
+        <column table="a" column="square_ngl" type="number" title="" comment="Нежилая площадь кв.м." />
+        <column table="a" column="num_book" type="string" title="" comment="№ книги" />
+        <column table="a" column="square_oi" type="number" title="" comment="Площадь общего имущества кв.м." />
+        <column table="a" column="kodd_house" type="number" column-mandatory="1" title="" comment="Содержит ключ &quot;дома&quot; из таблицы K_HOUSE. В Столбце KODD может быть как ключ дома, так и ключ помещения, подъезда, квартиры." />
+        <column table="a" column="k_norm" type="number" title="" comment="Повышающий коэффициент для норматива" />
+        <column table="a" column="apartment" type="number" title="" comment="Количество квартир в жилом доме" />
+        <column table="a" column="guid" type="string" title="" comment="код ФИАС в формате GUID" />
+        <column table="a" column="gis" type="number" title="" comment="Признак выгрузки в ГИС ЖКХ. 1 - Объект для выгрузки. 0 - Не выгружается" />
+      </select>
+      <from>
+        <table name="kr_object" as="a" />
+        <query name="k_house" as="kodd_house" join="left outer">
+          <call function="=">
+            <column table="a" column="kodd_house" />
+            <column table="kodd_house" column="kodd" />
+          </call>
+        </query>
+        <query name="kr_org" as="kodp_seti" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp_seti" />
+            <column table="kodp_seti" column="kodp" />
+          </call>
+        </query>
+        <query name="adr_m" as="kod_tzone" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_tzone" />
+            <column table="kod_tzone" column="kod_m" />
+          </call>
+        </query>
+        <query name="kr_buil" as="kod_buil" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_buil" />
+            <column table="kod_buil" column="kod_buil" />
+          </call>
+        </query>
+        <query name="tk_stobj" as="kod_stobj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_stobj" />
+            <column table="kod_stobj" column="kod_stobj" />
+          </call>
+        </query>
+        <query name="hs_naznhouse" as="kodnaznhouse" join="left outer">
+          <call function="=">
+            <column table="a" column="kodnaznhouse" />
+            <column table="kodnaznhouse" column="kodnaznhouse" />
+          </call>
+        </query>
+        <query name="kr_org" as="dep" join="left outer">
+          <call function="=">
+            <column table="a" column="dep" />
+            <column table="dep" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el_byt" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el_byt" />
+            <column table="tep_el_byt" column="tep_el" />
+          </call>
+        </query>
+        <query name="k_house" as="kodd" join="left outer">
+          <call function="=">
+            <column table="a" column="kodd" />
+            <column table="kodd" column="kodd" />
+          </call>
+        </query>
+        <query name="ds_tipprn" as="kod_tipprnsw" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_tipprnsw" />
+            <column table="kod_tipprnsw" column="kod_tipprn" />
+          </call>
+        </query>
+        <query name="ds_tipprn" as="kod_tipprn" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_tipprn" />
+            <column table="kod_tipprn" column="kod_tipprn" />
+          </call>
+        </query>
+        <query name="ds_naznhouse" as="kodnaznteplo" join="left outer">
+          <call function="=">
+            <column table="a" column="kodnaznteplo" />
+            <column table="kodnaznteplo" column="kodnaznteplo" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="kr_org" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_org.xml">
+      <select>
+        <column table="a" column="kodp" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="sname" type="string" column-mandatory="1" title="" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="kod_separator" type="number" column-mandatory="1" />
+        <column table="a" column="kod_ecls" type="number" column-mandatory="1" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="gruppa" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pref_fac" type="number" title="" comment="Префикс № счета фактуры для данного&#xA;Префикс № счета фактуры для данного подразделения ЭСБ" />
+        <column table="a" column="pref_doc" type="string" title="" comment="Префикс к № док-тов для подразд" />
+        <column table="a" column="tel" type="string" title="" />
+        <column table="a" column="fax" type="string" title="" />
+        <column table="a" column="email" type="string" title="" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="place" type="string" title="" />
+        <column table="a" column="kod_org" type="number" comment="Код подразделения" />
+        <column table="a" column="site" type="string" title="" comment="имя сайта" />
+        <column table="a" column="info" type="string" title="" comment="Информация для вывода в подвале извещения для бытовиков" />
+        <column table="a" column="dog_service" type="number" column-mandatory="1" title="" comment="Может ли ЮЛ участвовать в договоре услуг: 1- да, 0 -нет" />
+        <column table="a" column="dat_s" type="date" column-mandatory="1" title="" />
+        <column table="a" column="dat_po" type="date" title="" />
+        <column table="a" column="pr_active" type="number" column-mandatory="1" title="" />
+        <column table="a" column="rosseti_branchid" type="string" title="" comment="Код (ID) подразделения по классификации Россети" />
+        <column table="a" column="address_nation_lang" type="string" title="" comment="Адрес на национальном языке" />
+      </select>
+      <from>
+        <table name="kr_org" as="a" />
+        <query name="kk_active" as="pr_active" join="left outer">
+          <call function="=">
+            <column table="a" column="pr_active" />
+            <column table="pr_active" column="pr_active" />
+          </call>
+        </query>
+        <query name="kr_org" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_orgseparator" as="kod_separator" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_separator" />
+            <column table="kod_separator" column="kod_separator" />
+          </call>
+        </query>
+        <query name="kk_cls" as="kod_ecls" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ecls" />
+            <column table="kod_ecls" column="kod_ecls" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="kr_payer" class="1" timestamp="26.01.2018 03:44:49" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\kr_payer.xml">
+      <select>
+        <column table="a" column="kodp" type="number" column-mandatory="1" title="" comment="уник. код абонента" />
+        <column table="a" column="nump" type="string" column-mandatory="1" title="Номер абонента" comment="номер абонента" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование абонента" comment="наименование" />
+        <column table="a" column="inn" type="string" title="" comment="ИНН" />
+        <column table="a" column="kod_d" type="number" column-mandatory="1" comment="код дома адреса физического" />
+        <column table="a" column="kod_d_ur" type="number" column-mandatory="1" comment="код дома адреса юридического" />
+        <column table="a" column="kod_fs" type="number" column-mandatory="1" comment="форма собственности" />
+        <column table="a" column="kod_m" type="number" column-mandatory="1" comment="министерство" />
+        <column table="a" column="kod_otrasl" type="number" column-mandatory="1" comment="отрасль" />
+        <column table="a" column="kod_ecls" type="number" column-mandatory="1" comment="классификатор организация-энергосистема" />
+        <column table="a" column="dat_udal" type="date" title="" comment="дата сброса в архив" />
+        <column table="a" column="remark" type="string" title="" comment="Примечание" />
+        <column table="a" column="u_m" type="string" title="" comment="юзер, сделавший посл. корректировку" />
+        <column table="a" column="d_m" type="date" title="" comment="дата последней корректировки" />
+        <column table="a" column="allname" type="string" column-mandatory="1" title="" comment="полное наименование" />
+        <column table="a" column="prizn_activ" type="number" column-mandatory="1" title="" comment="0-действующий,1-удален,2-преддоговорной" />
+        <column table="a" column="kod_okved" type="number" comment="ОКВД" />
+        <column table="a" column="kod_reg" type="number" comment="код района адреса юридического" />
+        <column table="a" column="tarif" type="number" title="" comment="Тариф за транспорт эл энергии" />
+        <column table="a" column="kod_busin" type="number" comment="Основание для прекращ.деятельности" />
+        <column table="a" column="pref_nump" type="string" title="" comment="Для Казани - код РПУ, для остальных код отделения" />
+        <column table="a" column="okpo" type="string" title="" comment="ОКПО" />
+        <column table="a" column="ogrn" type="string" title="" comment="ОГРН" />
+        <column table="a" column="kod_d_p" type="number" column-mandatory="1" comment="Код адреса для переписки платежных документов" />
+        <column table="a" column="adres_pd" type="string" title="" comment="текстом адрес для печати в плат.док-тах" />
+        <column table="a" column="pr_adres_pd" type="number" title="" comment="1 - адрес по коду, 0 -адрес, указанный в настройках ПД" />
+        <column table="a" column="tmp_kpp" type="string" title="" comment="не используется" />
+        <column table="a" column="kpp" type="string" title="" comment="КПП" />
+        <column table="a" column="portal" type="number" title="" comment="Личный кабинет" />
+        <column table="a" column="uin" type="number" title="" comment="Для Барнаула: UIN (индивидуальный идентификационный номер) бытового абонента, равен kodp, дополненному слева контрольной цифрой" />
+        <column table="a" column="pr_rezident_rf" type="number" column-mandatory="1" title="" comment="1 - резидент РФ, 0 - нерезидент РФ" />
+        <column table="a" column="egrul_cert_num" type="string" title="" comment="Свидетельство о регистрации в ЕГРЮЛ" />
+        <column table="a" column="egrul_cert_date" type="date" title="" comment="Дата выдачи св-ва о регистрации в ЕГРЮЛ" />
+        <column table="a" column="egrul_organ" type="string" title="" comment="Наимен. органа, выдавшего свид-во ЕГРЮЛ" />
+        <column table="a" column="check_inn" type="number" title="" comment="Рез-т проверки ИНН на сайте ФНС: 0- Не проводилась, 1- Успешно, 2- Ошибка" />
+        <column table="a" column="dat_check_inn" type="date" title="" comment="Дата проверки ИНН на сайте ФНС" />
+      </select>
+      <from>
+        <table name="kr_payer" as="a" />
+        <query name="us_busin" as="kod_busin" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_busin" />
+            <column table="kod_busin" column="kod_busin" />
+          </call>
+        </query>
+        <query name="k_house" as="kod_d_ur" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_d_ur" />
+            <column table="kod_d_ur" column="kodd" />
+          </call>
+        </query>
+        <query name="ks_otrasl" as="kod_otrasl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_otrasl" />
+            <column table="kod_otrasl" column="kod_otrasl" />
+          </call>
+        </query>
+        <query name="ks_ministry" as="kod_m" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_m" />
+            <column table="kod_m" column="kod_m" />
+          </call>
+        </query>
+        <query name="kr_org" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="k_house" as="kod_d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_d" />
+            <column table="kod_d" column="kodd" />
+          </call>
+        </query>
+        <query name="k_house" as="kod_d_p" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_d_p" />
+            <column table="kod_d_p" column="kodd" />
+          </call>
+        </query>
+        <query name="kv_region" as="kod_reg" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_reg" />
+            <column table="kod_reg" column="kod_m" />
+          </call>
+        </query>
+        <query name="ks_fs" as="kod_fs" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_fs" />
+            <column table="kod_fs" column="kod_fs" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_bank" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_bank.xml">
+      <select>
+        <column table="a" column="kodb" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="filial" type="string" title="" />
+        <column table="a" column="bic" type="string" title="" />
+        <column table="a" column="adr" type="string" title="" comment="адрес текстовый (старое поле адреса)" />
+        <column table="a" column="ks" type="string" title="" />
+        <column table="a" column="p_ind" type="string" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="town" type="string" title="" comment="Город банка. для печати в платежное требование" />
+        <column table="a" column="pr_active" type="number" title="" comment="0-Активный,1-удаленный" />
+        <column table="a" column="npp" type="number" title="" />
+        <column table="a" column="prim" type="string" title="" comment="Примечание" />
+        <column table="a" column="telefon" type="string" title="" comment="Телефон" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" comment="Cокращенное наименование" />
+        <column table="a" column="d_c" type="date" title="" />
+        <column table="a" column="is_deleted" type="number" title="" />
+        <column table="a" column="kod_pay" type="number" comment="из справочника ks_pay_type" />
+        <column table="a" column="ogrn" type="string" title="" comment="ОГРН" />
+        <column table="a" column="inn" type="string" title="" comment="ИНН" />
+        <column table="a" column="kpp" type="string" title="" comment="КПП" />
+        <column table="a" column="okopf" type="string" title="" comment="ОКОПФ" />
+        <column table="a" column="kodd" type="number" title="" comment="код адреса из справочника адресов" />
+      </select>
+      <from>
+        <table name="ks_bank" as="a" />
+        <query name="k_house" as="kodd" join="left outer">
+          <call function="=">
+            <column table="a" column="kodd" />
+            <column table="kodd" column="kodd" />
+          </call>
+        </query>
+        <query name="ks_pay_type" as="kod_pay" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_pay" />
+            <column table="kod_pay" column="kod_pay" />
+          </call>
+        </query>
+        <query name="ks_bank" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kodb" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_bankpol" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_bankpol.xml">
+      <select>
+        <column table="a" column="kodbpol" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kodb" type="number" title="" />
+        <column table="a" column="rs" type="string" column-mandatory="1" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="remark" type="string" title="" />
+        <column table="a" column="ocher_plat" type="number" title="" comment="очередность платежа" />
+        <column table="a" column="nvar" type="number" title="" comment="номер реквизитов из KS_OTCHET_SIGN" />
+        <column table="a" column="days_accept" type="number" title="" comment="количество дней для акцепта" />
+        <column table="a" column="npp" type="number" column-mandatory="1" title="" comment="порядковый номер" />
+        <column table="a" column="pay_type" type="string" title="" comment="Вид платежа для печати в плат.док" />
+        <column table="a" column="dep" type="number" title="" comment="Отделение" />
+        <column table="a" column="predel" type="number" title="" comment="Минимальная сумма в плат.док." />
+        <column table="a" column="pr_active" type="number" title="" comment="0-Активный,1-удаленный" />
+        <column table="a" column="copys" type="number" title="" comment="кол-во копий платежек при печати к реестру" />
+        <column table="a" column="kod_for_bank" type="string" comment="код для банка получателя" />
+        <column table="a" column="dat_otkr" type="date" title="" />
+        <column table="a" column="dat_fin" type="date" title="" />
+      </select>
+      <from>
+        <table name="ks_bankpol" as="a" />
+        <query name="kr_org" as="dep" join="left outer">
+          <call function="=">
+            <column table="a" column="dep" />
+            <column table="dep" column="kodp" />
+          </call>
+        </query>
+        <query name="ks_bank" as="kodb" join="left outer">
+          <call function="=">
+            <column table="a" column="kodb" />
+            <column table="kodb" column="kodb" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_bezakcept_prich" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_bezakcept_prich.xml">
+      <select>
+        <column table="a" column="kod_bez_prich" type="number" column-mandatory="1" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="abbr" type="string" column-mandatory="1" title="Аббревиатура" />
+        <column table="a" column="pr_pech_ndog" type="number" column-mandatory="1" title="" comment="Признак печати номера договора в платежке к причине без.спис." />
+        <column table="a" column="name_pech" type="string" title="" comment="наименование для печати в платежку" />
+      </select>
+      <from>
+        <table name="ks_bezakcept_prich" as="a" />
+      </from>
+    </query>
+    <query name="ks_istfin" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_istfin.xml">
+      <select>
+        <column table="a" column="kod_ist" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="ocher" type="number" title="" />
+        <column table="a" column="kodbpol_teplo" type="number" title="" comment="Код банка-получателя(тепло)" />
+        <column table="a" column="npp" type="number" title="" />
+      </select>
+      <from>
+        <table name="ks_istfin" as="a" />
+      </from>
+    </query>
+    <query name="ks_kazn" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_kazn.xml">
+      <select>
+        <column table="a" column="kod_kazn" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="inn" type="string" column-mandatory="1" title="" />
+        <column table="a" column="rs" type="string" column-mandatory="1" title="" />
+        <column table="a" column="npp" type="number" title="" comment="номер" />
+        <column table="a" column="okrk" type="number" title="" comment="номер округа казначейства" />
+        <column table="a" column="allname" type="string" title="" comment="полное наименование" />
+      </select>
+      <from>
+        <table name="ks_kazn" as="a" />
+      </from>
+    </query>
+    <query name="ks_otrasl" class="1" title="Отрасль" timestamp="26.01.2018 05:02:36" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_otrasl.xml">
+      <select>
+        <column table="a" column="kod_otrasl" type="number" column-mandatory="1" key="1" />
+        <column table="a" column="okonh" type="string" column-mandatory="1" title="Номер" is-name="1" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="parent" type="number" title="   " />
+      </select>
+      <from>
+        <table name="ks_otrasl" as="a" />
+        <query name="ks_otrasl" as="parent" join="left outer">
+          <call function="=">
+            <column table="a" column="parent" />
+            <column table="parent" column="kod_otrasl" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_spos_opl" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_spos_opl.xml">
+      <select>
+        <column table="a" column="kod_spos_opl" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" title="Наименование" />
+      </select>
+      <from>
+        <table name="ks_spos_opl" as="a" />
+      </from>
+    </query>
+    <query name="ks_vdog" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_vdog.xml">
+      <select>
+        <column table="a" column="kod_vdog" type="number" column-mandatory="1" comment="Код вида договора" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="podr" type="number" title="" comment="Код подразделения" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" comment="Название вида договора" />
+        <column table="a" column="sqrp" type="string" column-mandatory="1" title="" comment="Имя файла шаблона" />
+        <column table="a" column="byt" type="number" title="" />
+        <column table="a" column="day_energy" type="number" title="" />
+        <column table="a" column="day_power" type="number" title="" />
+        <column table="a" column="public_suite" type="number" title="" comment="0/1 1- есть учет общих помещений" />
+        <column table="a" column="kod_vdoc" type="number" column-mandatory="1" />
+        <column table="a" column="kod_tipdog" type="number" comment="код типа договора" />
+        <column table="a" column="kod_vivod" type="number" comment="прямой вывод (0/null - обычный договор;1- прямой вывод;2- внутр.потребл.)" />
+        <column table="a" column="payer_kind" type="string" column-mandatory="1" title="" comment="Наименование стороны по договору" />
+        <column table="a" column="pr_arx" type="number" title="" comment="0-активный, 1-архивный" />
+        <column table="a" column="kod_tipdog2" type="number" column-mandatory="1" />
+      </select>
+      <from>
+        <table name="ks_vdog" as="a" />
+        <query name="kk_tipdog" as="kod_tipdog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_tipdog" />
+            <column table="kod_tipdog" column="kod_tipdog" />
+          </call>
+        </query>
+        <query name="ks_vdoc" as="kod_vdoc" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vdoc" />
+            <column table="kod_vdoc" column="kod_vdoc" />
+          </call>
+        </query>
+        <query name="kr_org" as="podr" join="left outer">
+          <call function="=">
+            <column table="a" column="podr" />
+            <column table="podr" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ks_way_delivery" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ks_way_delivery.xml">
+      <select>
+        <column table="a" column="kod_way_delivery" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+      </select>
+      <from>
+        <table name="ks_way_delivery" as="a" />
+      </from>
+    </query>
+    <query name="sk_edizm" class="1" title="Единицы измерения" timestamp="26.01.2018 02:42:43" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_edizm.xml">
+      <select>
+        <column table="a" column="edizm" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="kod_okei" type="string" comment="Код ОКЕИ" />
+      </select>
+      <from>
+        <table name="sk_edizm" as="a" />
+      </from>
+    </query>
+    <query name="sk_nachisl" class="1" timestamp="26.01.2018 02:48:03" title="Вид начисления" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_nachisl.xml">
+      <select>
+        <column table="a" column="vid_t" type="number" column-mandatory="1" title="" comment="vid_t=25 -население&#xA;vid_t=30 - самовольное подкл.электроприемников" />
+        <column table="a" column="vid_real" type="number" title="" />
+        <column table="a" column="vid_sf" type="number" column-mandatory="1" title="" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="edizm" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="por_pech" type="number" column-mandatory="1" title="Порядок печати" comment="порядок печати начислений в СФ" />
+        <column table="a" column="pr_osn" type="number" column-mandatory="1" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="pr_hand" type="number" column-mandatory="1" title="" />
+        <column table="a" column="krat_sh" type="number" title="" />
+        <column table="a" column="num_t" type="string" column-mandatory="1" title="Код" />
+        <column table="a" column="limit" type="number" title="Порог для начисления штрафов" comment="порог для начисления штрафов" />
+        <column table="a" column="name_pech" type="string" title="Наименование для печати в платежку" comment="наименование для печати в платежку" />
+        <column table="a" column="min_val" type="number" title="Минимальное значение для начисления штрафов" comment="минимальное значение для начисления штрафов" />
+        <column table="a" column="use_in_populcalc" type="number" column-mandatory="1" title="Использовать в расчетах с населением" comment="использовать в расчетах с населением (чек-бокс, 1-разрешить в расчетах с населением, 0-не показывать в расчетах с населением)" controlType="UICheck" />
+        <column table="a" column="allname" type="string" title="Наименование для печати в сф по оплате" comment="наименование для печати в сф по оплате" />
+        <column table="a" column="gr_sf_nachisl" type="number" title="" comment="для &quot;мин.&quot;сф группы начислений" />
+        <column table="a" column="gr_sf_cust" type="number" title="" comment="для &quot;мин.&quot;сф группы натуральных" />
+        <column table="a" column="gr_sf_name" type="string" title="" comment="Наименование группы товаров для &quot;минимальной&quot; формы сф" />
+        <column table="a" column="gr_akt_nachisl" type="number" title="" comment="для &quot;мин.&quot;актов пп группы начислений" />
+        <column table="a" column="gr_akt_cust" type="number" title="" comment="для &quot;мин.&quot;актов пп группы натуральных" />
+        <column table="a" column="gr_akt_name" type="string" title="" comment="Наименование группы товаров для &quot;минимальной&quot; формы акта пп" />
+        <column table="a" column="pr_nopogash" type="number" column-mandatory="1" title="" comment="Не производить автоматическое погашение этим видом начисления" />
+      </select>
+      <from>
+        <table name="sk_nachisl" as="a" />
+        <query name="sk_edizm" as="edizm" join="left outer">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <column table="edizm" column="edizm" />
+          </call>
+        </query>
+        <query name="sk_vid_sf" as="vid_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_sf" />
+            <column table="vid_sf" column="vid_sf" />
+          </call>
+        </query>
+        <query name="sk_vid_real" as="vid_real" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <column table="vid_real" column="vid_real" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="sk_nalog" class="1" title="Вид налога" timestamp="26.01.2018 02:20:55" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_nalog.xml">
+      <select>
+        <column table="a" column="kod_nal" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="abbr" type="string" column-mandatory="1" title="Аббревиатура" />
+      </select>
+      <from>
+        <table name="sk_nalog" as="a" />
+      </from>
+    </query>
+    <query name="sk_nalog_type" class="1" title="Тип обложения налогом" timestamp="26.01.2018 02:20:55" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_nalog_type.xml">
+      <select>
+        <column table="a" column="kod_naltype" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="formula" type="string" column-mandatory="1" title="" comment="Определяет формулу, по которой считаем налог.&#xA;принимаем @C = cust&#xA;принимаем @T = ставка&#xA;" />
+        <column table="a" column="pr_add" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <table name="sk_nalog_type" as="a" />
+      </from>
+    </query>
+    <query name="sk_vid_pl" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_vid_pl.xml">
+      <select>
+        <column table="a" column="vid_pl" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="docum" type="string" title="" />
+        <column table="a" column="esys" type="string" title="" comment="коды энергоситем, в которых данный док-т можно использовать" />
+        <column table="a" column="visible" type="number" column-mandatory="1" title="" comment="при 1 доступно для выбора" />
+      </select>
+      <from>
+        <table name="sk_vid_pl" as="a" />
+      </from>
+    </query>
+    <query name="sk_vid_real" class="1" timestamp="26.01.2018 01:44:45" title="Вид реализации" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_vid_real.xml">
+      <select>
+        <column table="a" column="vid_real" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Полное наименование" comment="полное наименование- уже НЕ печатается в назначение платежа" />
+        <column table="a" column="abbr" type="string" column-mandatory="1" title="Аббревиатура" />
+        <column table="a" column="pr_osn" type="number" title="Признак основного вида реализации" controlType="UICheck" column-default="false" />
+        <column table="a" column="sname" type="string" column-mandatory="1" title="Краткое наименование" comment="краткое наименование" />
+        <column table="a" column="post_num_sf" type="string" title="Постфикс номера СФ по оплате" comment="символьный постфикс после номера сф" />
+        <column table="a" column="pr_no_mass_pech" type="number" title="Искл. из массовой печати в случае, когда соотв док-т на оплату 'отозван'" comment="при=1 док-ты начисл-я не попадут в масс.печать, если док-ты на оплату &quot;отозваны&quot; и пр." controlType="UICheck" column-default="false" />
+        <column table="a" column="pr_pogash_all" type="number" title="Гасить только переплатой своего вида реализации" comment="для pr_osn=1; если =1, то гасить только переплатой своего вида реал-ии" controlType="UICheck" column-default="false" />
+      </select>
+      <from>
+        <table name="sk_vid_real" as="a" />
+      </from>
+    </query>
+    <query name="sk_vid_sf" class="1" title="Вид СФ" timestamp="26.01.2018 02:42:56" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sk_vid_sf.xml">
+      <select>
+        <column table="a" column="vid_sf" type="number" column-mandatory="1" title="" />
+        <column table="a" column="plate" type="number" column-mandatory="1" title="" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="name_for_sf" type="string" column-mandatory="1" title="" />
+        <column table="a" column="sf_schet" type="number" title="" />
+        <column table="a" column="prim" type="string" title="" />
+        <column table="a" column="abbr" type="string" column-mandatory="1" title="Аббревиатура" />
+        <column table="a" column="cust" type="number" column-mandatory="1" title="" />
+        <column table="a" column="price" type="number" column-mandatory="1" title="" />
+        <column table="a" column="nach" type="number" column-mandatory="1" title="" />
+        <column table="a" column="tax" type="number" column-mandatory="1" title="" />
+        <column table="a" column="nal" type="number" column-mandatory="1" title="" />
+        <column table="a" column="sum_potr" type="number" column-mandatory="1" title="" comment="печать/непечать &quot;всего по потр-лю/тарифу&quot;" />
+        <column table="a" column="shapka" type="string" title="" comment="конструктор для сф/счетов/УО" />
+        <column table="a" column="shapka1" type="string" title="" comment="конструктор для сф как счетов" />
+        <column table="a" column="pref_num_sf" type="string" title="" comment="символьный префикс перед номером сф" />
+        <column table="a" column="n_num_sf" type="number" title="" comment="цифра в номере сф, заменяющая букву s(S)" />
+        <column table="a" column="name_r" type="string" title="" />
+        <column table="a" column="name_tovar" type="string" title="" comment="наполнение/тепло/..." />
+        <column table="a" column="format_rym" type="number" column-mandatory="1" title="" comment="вывод периода:1/2/3/4-словом/2010.03/03.2010/не выводить" />
+        <column table="a" column="format_prom" type="number" column-mandatory="1" title="" comment="для промежути период в виде интервала дат: 0/1-не выводить/выводить" />
+        <column table="a" column="shapka_k" type="string" title="" comment="конструктор для корр-чных сф" />
+        <column table="a" column="shapka_uch" type="string" title="" comment="конструктор для сф по пост-ке на учет" />
+        <column table="a" column="edo_xml" type="number" column-mandatory="1" title="" comment="1/0-выгружать/нет документ в XML в рамках ЭДО" />
+        <column table="a" column="pr_faximile" type="number" title="" comment="вывод на печать факсимиле" />
+        <column table="a" column="nastr_sum" type="number" title="" comment="настраиваются ли данные для строк с суммами" />
+        <column table="a" column="sum_edizm" type="number" title="" comment="печать/непечать &quot;итого по ... ед.изм-я&quot;" />
+      </select>
+      <from>
+        <table name="sk_vid_sf" as="a" />
+      </from>
+    </query>
+    <query name="sr_debet" class="1" timestamp="26.01.2018 15:57:00" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sr_debet.xml">
+      <select>
+        <column table="a" column="kod_deb" type="number" column-mandatory="1" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kodp" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_dog" type="number" column-mandatory="1" />
+        <column table="a" column="vid_pl" type="number" column-mandatory="1" title="" />
+        <column table="a" column="num_pl" type="number" column-mandatory="1" title="Номер" />
+        <column table="a" column="dat_deb" type="date" column-mandatory="1" title="Дата" />
+        <column table="a" column="ym" type="number" column-mandatory="1" title="Период" format="F2" />
+        <column table="a" column="dat_priem" type="date" column-mandatory="1" title="" />
+        <column table="a" column="pr_old" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pr_perep" type="number" title="" />
+        <column table="a" column="den" type="number" column-mandatory="1" title="" />
+        <column table="a" column="dat_bzad" type="date" column-mandatory="1" title="" />
+        <column table="a" column="kodp_plat" type="number" title="" comment="код плательщика" />
+        <column table="a" column="kod_dog_link" type="number" comment="код консолидированного договора" />
+        <column table="a" column="kod_deb_konsol" type="number" comment="код фиктивной консолид. платежки" />
+        <column table="a" column="u_c" type="string" title="" />
+        <column table="a" column="d_c" type="date" title="" />
+        <column table="a" column="dat_vruch" type="date" title="" comment="Дата вручения документа, для рассчета пеней" />
+      </select>
+      <from>
+        <table name="sr_debet" as="a" />
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="sk_vid_pl" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl" />
+            <column table="vid_pl" column="vid_pl" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="sr_facras" class="1" timestamp="26.01.2018 21:28:27" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sr_facras.xml">
+      <select>
+        <column table="a" column="kod_ras" type="number" column-mandatory="1" />
+        <column table="a" column="kod_sf" type="number" column-mandatory="1" dimension="sr_facvip" />
+        <column table="a" column="tarif" type="number" title="" comment="Первичный ключ" />
+        <column table="a" column="kod_numobj" type="number" comment="Код объекта в договоре" />
+        <column table="a" column="rym" type="number" column-mandatory="1" title="" />
+        <column table="a" column="vid_t" type="number" column-mandatory="1" title="" />
+        <column table="a" column="edizm" type="number" column-mandatory="1" title="" />
+        <column table="a" column="cust" type="number" title="" is-fact="1" agg="sum" />
+        <column table="a" column="price" type="number" title="" />
+        <column table="a" column="nachisl" type="number" column-mandatory="1" title="Начислено" is-fact="1" agg="sum" />
+        <column table="a" column="kod_opl" type="number" />
+        <column table="a" column="pr_peres" type="number" title="" comment="1/-1 - новые данные/сторно" />
+        <column table="a" column="rym_acc" type="number" title="" comment="rym из _account" />
+        <column table="a" column="kod_tip_tu" type="number" comment="Код типа т.у. заполняется для ЧЖД: -1 - ЧЖД, 5 - теплица, 6 - баня, 7 - гараж, 8 - хозпостройка" />
+        <column table="a" column="pr_oto_gvs" type="number" title="" comment="Для вида начисления 1(за теплоэнергию в Гкал) признак отопления(=1)/ГВС(=2)" />
+        <column table="a" column="kod_ras_old" type="number" comment="для корректирующих сф" />
+        <column table="a" column="pr_pech" type="number" title="" comment="если =1, то строка идет в печать в КоррСФ" />
+        <column table="a" column="kod_ras_first" type="number" comment="для корректирующих сф" />
+        <column table="a" column="gr_nachisl" type="number" title="" comment="группировка для подгона налогов" />
+      </select>
+      <from>
+        <table name="sr_facras" as="a" />
+        <query name="sk_nachisl" as="vid_t" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_t" />
+            <column table="vid_t" column="vid_t" />
+          </call>
+        </query>
+        <query name="ks_tarif" as="tarif" join="left outer">
+          <call function="=">
+            <column table="a" column="tarif" />
+            <column table="tarif" column="tarif" />
+          </call>
+        </query>
+        <query name="sr_facras" as="kod_ras_first" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_ras_first" />
+            <column table="kod_ras_first" column="kod_ras" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_opl" />
+            <column table="kod_opl" column="kod_opl" />
+          </call>
+        </query>
+        <query name="kr_numobj" as="kod_numobj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_numobj" />
+            <column table="kod_numobj" column="kod_numobj" />
+          </call>
+        </query>
+        <query name="sk_edizm" as="edizm" join="left outer">
+          <call function="=">
+            <column table="a" column="edizm" />
+            <column table="edizm" column="edizm" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="sr_facvip" class="1" timestamp="26.01.2018 19:34:28" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sr_facvip.xml">
+      <select>
+        <column table="a" column="kod_sf" type="number" column-mandatory="1" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_deb" type="number" dimension="sr_debet" />
+        <column table="a" column="kodp" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_dog" type="number" column-mandatory="1" dimension="kr_dogovor" />
+        <column table="a" column="vid_real" type="number" title="" dimension="sk_vid_real" />
+        <column table="a" column="vid_sf" type="number" column-mandatory="1" title="" />
+        <column table="a" column="vid_pl" type="number" title="" />
+        <column table="a" column="num_sf" type="number" column-mandatory="1" title="" />
+        <column table="a" column="dat_sf" type="date" column-mandatory="1" title="" dimension="dat" />
+        <column table="a" column="ym" type="number" column-mandatory="1" title="" />
+        <column table="a" column="dat_priem" type="date" column-mandatory="1" title="" />
+        <column table="a" column="pr_old" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pr_sv" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pr_osn" type="number" column-mandatory="1" title="" />
+        <column table="a" column="gru_pl" type="number" title="" />
+        <column table="a" column="den" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_dog_r" type="number" column-mandatory="1" comment="код договора при объединении в SR_DEBET" />
+        <column table="a" column="dat_uchet" type="date" title="" />
+        <column table="a" column="dat_ezad" type="date" title="" />
+        <column table="a" column="vist_day" type="number" title="" comment="день выставления промежути" />
+        <column table="a" column="num_sf_uch" type="number" title="" comment="Номер сф при постановке на учет" />
+        <column table="a" column="ym_uch" type="number" title="" comment="Период постановки на учет" />
+        <column table="a" column="d_m" type="date" title="" />
+        <column table="a" column="u_m" type="string" title="" />
+        <column table="a" column="pr_hand" type="number" title="" />
+        <column table="a" column="vid_avans" type="number" title="" />
+        <column table="a" column="prim_uo" type="string" title="" comment="Заполняется при погашении любым периодом" />
+        <column table="a" column="kod_sf_old" type="number" comment="kod_sf перерасчитываемой сф" />
+        <column table="a" column="kodp_plat" type="number" title="" comment="код плательщика" />
+        <column table="a" column="kod_sf_konsol" type="number" comment="код консолидированной сф" />
+        <column table="a" column="vid_recalc" type="number" title="" comment="вид перерасчета из спр-ка ss_vid_recalc" />
+        <column table="a" column="kod_dog_link" type="number" comment="код консолидированного договора" />
+        <column table="a" column="pr_uch_av" type="number" title="" comment="Учитывать 0/1-по факту оплаты/на сумму начисления" />
+        <column table="a" column="kod_bu_akt" type="number" comment="код безучетки" />
+        <column table="a" column="kod_sf_first" type="number" comment="при перерасчете самый исходный kod_sf" />
+        <column table="a" column="tip_bu_akt" type="number" title="" comment="0\1-пром./ок. расчет" />
+        <column table="a" column="kniga" type="number" title="" />
+        <column table="a" column="dat_pen_ezad" type="date" title="" comment="Конечная дата расчета пени по авансам (для ЭХ)" />
+        <column table="a" column="nom_sf" type="string" title="" comment="полный номер док-та для печати" />
+        <column table="a" column="dat_zadol" type="date" title="" comment="дата наступления задолженности (то же что и sr_debet.dat_bzad)" />
+        <column table="a" column="rezhim" type="string" title="" comment="в каком окне/режиме создан документ" />
+      </select>
+      <from>
+        <table name="sr_facvip" as="a" />
+        <query name="hr_bu_akt" as="kod_bu_akt" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bu_akt" />
+            <column table="kod_bu_akt" column="kod_bu_akt" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf_first" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf_first" />
+            <column table="kod_sf_first" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf_old" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf_old" />
+            <column table="kod_sf_old" column="kod_sf" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog_r" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog_r" />
+            <column table="kod_dog_r" column="kod_dog" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="sk_vid_real" as="vid_real" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <column table="vid_real" column="vid_real" />
+          </call>
+        </query>
+        <query name="sk_vid_pl" as="vid_pl" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_pl" />
+            <column table="vid_pl" column="vid_pl" />
+          </call>
+        </query>
+        <query name="sr_debet" as="kod_deb" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_deb" />
+            <column table="kod_deb" column="kod_deb" />
+          </call>
+        </query>
+        <query name="sk_vid_sf" as="vid_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_sf" />
+            <column table="vid_sf" column="vid_sf" />
+          </call>
+        </query>
+        <query name="kr_payer" as="kodp" join="left outer">
+          <call function="=">
+            <column table="a" column="kodp" />
+            <column table="kodp" column="kodp" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="not in">
+          <column table="a" column="vid_sf" />
+          <array>2,9</array>
+        </call>
+      </where>
+    </query>
+    <query name="sr_opl" class="1" timestamp="26.01.2018 17:10:13" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\sr_opl.xml">
+      <select>
+        <column table="a" column="kod_opl" type="number" column-mandatory="1" />
+        <call function="+nvl" as="oplf">
+          <column table="this" column="opl" />
+          <column table="this" column="opls" />
+        </call>
+        <column table="a" column="kod_vidopl" type="number" column-mandatory="1" />
+        <column table="a" column="vid_real" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_dog" type="number" column-mandatory="1" />
+        <column table="a" column="kod_sf" type="number" />
+        <column table="a" column="num_opl" type="string" column-mandatory="1" title="" />
+        <column table="a" column="opl" type="number" column-mandatory="1" title="" />
+        <column table="a" column="ym" type="number" column-mandatory="1" title="" />
+        <column table="a" column="remark" type="string" title="" comment="Примечания" />
+        <column table="a" column="d_m" type="date" title="" comment="Когда изменено" />
+        <column table="a" column="num_sf" type="number" title="" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="u_m" type="string" title="" comment="Кем изменено" />
+        <column table="a" column="kod_sf_uo" type="number" />
+        <column table="a" column="opls" type="number" title="" />
+        <column table="a" column="kod_dest" type="number" column-mandatory="1" />
+        <column table="a" column="kod_type_opl" type="number" column-mandatory="1" />
+        <column table="a" column="kod_link" type="number" column-mandatory="1" />
+        <column table="a" column="dat_opl" type="date" column-mandatory="1" title="" />
+        <column table="a" column="tep_el" type="number" column-mandatory="1" title="" />
+        <column table="a" column="kod_dog_r" type="number" column-mandatory="1" />
+        <column table="a" column="vid_sf" type="number" title="" comment="Вид счета-фактуры для переплаты" />
+        <column table="a" column="prim" type="string" title="" comment="Дополнительные отметки" />
+        <column table="a" column="nom_sf" type="string" title="" comment="полный номер СФ по оплате для печати" />
+        <column table="a" column="u_c" type="string" title="" comment="кем добавлено" />
+        <column table="a" column="d_c" type="date" title="" comment="когда добавлено" />
+        <column table="a" column="dat_uch" type="date" title="" comment="Дата попадания оплаты в учет. Заполняется в триггере" />
+      </select>
+      <from>
+        <table name="sr_opl" as="a" />
+        <query name="kr_dogovor" as="kod_dog_r" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog_r" />
+            <column table="kod_dog_r" column="kod_dog" />
+          </call>
+        </query>
+        <query name="sk_vid_sf" as="vid_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_sf" />
+            <column table="vid_sf" column="vid_sf" />
+          </call>
+        </query>
+        <query name="kr_dogovor" as="kod_dog" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kod_dog" column="kod_dog" />
+          </call>
+        </query>
+        <query name="ss_vidopl" as="kod_vidopl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_vidopl" />
+            <column table="kod_vidopl" column="kod_vidopl" />
+          </call>
+        </query>
+        <query name="ss_dest_opl" as="kod_dest" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dest" />
+            <column table="kod_dest" column="kod_dest" />
+          </call>
+        </query>
+        <query name="sr_opl" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_opl" />
+          </call>
+        </query>
+        <query name="sr_opl_bank" as="kod_link" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_link" />
+            <column table="kod_link" column="kod_link" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf" />
+            <column table="kod_sf" column="kod_sf" />
+          </call>
+        </query>
+        <query name="sk_vid_real" as="vid_real" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <column table="vid_real" column="vid_real" />
+          </call>
+        </query>
+        <query name="sk_type_opl" as="kod_type_opl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_type_opl" />
+            <column table="kod_type_opl" column="kod_type_opl" />
+          </call>
+        </query>
+        <query name="kk_tep_el" as="tep_el" join="left outer">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <column table="tep_el" column="tep_el" />
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf_uo" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf_uo" />
+            <column table="kod_sf_uo" column="kod_sf" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ss_nachisl_nal" class="1" timestamp="26.01.2018 02:47:00" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ss_nachisl_nal.xml">
+      <select>
+        <column table="a" column="kod_nachisl_nal" type="number" column-mandatory="1" />
+        <column table="a" column="vid_t" type="number" column-mandatory="1" title="" comment="Налогообложение по начислениям.&#xA;Использутеся при формировании начислений, в-основном, по штрафам. &#xA;Где в начислении указан тариф - берем из тарифа.&#xA;" />
+        <column table="a" column="kod_naltype" type="number" column-mandatory="1" />
+        <column table="a" column="kod_nal" type="number" column-mandatory="1" />
+        <column table="a" column="dat_beg" type="date" column-mandatory="1" title="Дата начала" />
+        <column table="a" column="dat_end" type="date" title="Дата окончания" />
+        <column table="a" column="d_m" type="date" title="" comment="Когда изменено" />
+        <column table="a" column="u_m" type="string" title="" comment="Кем изменено" />
+      </select>
+      <from>
+        <table name="ss_nachisl_nal" as="a" />
+        <query name="sk_nachisl" as="vid_t" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_t" />
+            <column table="vid_t" column="vid_t" />
+          </call>
+        </query>
+        <query name="sk_nalog_type" as="kod_naltype" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_naltype" />
+            <column table="kod_naltype" column="kod_naltype" />
+          </call>
+        </query>
+        <query name="sk_nalog" as="kod_nal" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_nal" />
+            <column table="kod_nal" column="kod_nal" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ss_vidopl" class="1" title="Вид оплаты" timestamp="26.01.2018 21:55:38" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ss_vidopl.xml">
+      <select>
+        <column table="a" column="kod_vidopl" type="number" column-mandatory="1" />
+        <column table="a" column="abbr" type="string" column-mandatory="1" title="Аббревиатура" />
+        <column table="a" column="sname" type="string" column-mandatory="1" title="" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="d_m" type="date" column-mandatory="1" title="" />
+        <column table="a" column="u_m" type="string" column-mandatory="1" title="" />
+        <column table="a" column="kod_tvidopl" type="number" column-mandatory="1" />
+        <column table="a" column="alg" type="number" title="" comment="Алгоритм поведения: NULL -нет, 1 =Касса наличные 2=Касса оплата картой" />
+      </select>
+      <from>
+        <table name="ss_vidopl" as="a" />
+        <query name="ss_vidopl" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_vidopl" />
+          </call>
+        </query>
+        <query name="sk_tvidopl" as="kod_tvidopl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_tvidopl" />
+            <column table="kod_tvidopl" column="kod_tvidopl" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ss_vid_real_nal" class="1" timestamp="26.01.2018 02:20:48" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ss_vid_real_nal.xml">
+      <select>
+        <column table="a" column="kod_vid_real_nal" type="number" column-mandatory="1" />
+        <column table="a" column="kod_naltype" type="number" column-mandatory="1" comment="Налогообложение по видам реализации.&#xA;Где указано, в оплате формируем налог&#xA;на полную сумму оплаты (одновременно формируем номер СФ по оплате)&#xA;В этом случае налог в расшифровке оплаты не формируется. &#xA;Если не указано, то налог вормируется пропорционально начислениям в СФ" />
+        <column table="a" column="kod_nal" type="number" column-mandatory="1" />
+        <column table="a" column="vid_real" type="number" column-mandatory="1" title="" />
+        <column table="a" column="dat_beg" type="date" column-mandatory="1" title="Дата начала действия" />
+        <column table="a" column="dat_end" type="date" title="Дата окончания действия" />
+        <column table="a" column="d_m" type="date" title="" comment="Когда изменено" />
+        <column table="a" column="u_m" type="string" title="" comment="Кем изменено" />
+        <column table="a" column="pr_sf_opl" type="number" column-mandatory="1" title="Признак формирования СФ по оплате и постановке на учет" controlType="UICheck" />
+      </select>
+      <from>
+        <table name="ss_vid_real_nal" as="a" />
+        <query name="sk_vid_real" as="vid_real" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real" />
+            <column table="vid_real" column="vid_real" />
+          </call>
+        </query>
+        <query name="sk_nalog_type" as="kod_naltype" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_naltype" />
+            <column table="kod_naltype" column="kod_naltype" />
+          </call>
+        </query>
+        <query name="sk_nalog" as="kod_nal" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_nal" />
+            <column table="kod_nal" column="kod_nal" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ss_zadol_day" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\ss_zadol_day.xml">
+      <select>
+        <column table="a" column="kod_bzad" type="number" column-mandatory="1" />
+        <column table="a" column="days_bzad" type="number" column-mandatory="1" title="" />
+        <column table="a" column="day_type" type="number" column-mandatory="1" title="" comment="способ указания дней задолж. из справочника kk_type_zadol" />
+        <column table="a" column="no_less" type="number" title="" comment="для day_type=1" />
+      </select>
+      <from>
+        <table name="ss_zadol_day" as="a" />
+        <query name="kk_type_zadol" as="day_type" join="left outer">
+          <call function="=">
+            <column table="a" column="day_type" />
+            <column table="day_type" column="day_type" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="tk_delivery" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\tk_delivery.xml">
+      <select>
+        <column table="a" column="id" type="number" column-mandatory="1" title="" comment="Код" />
+        <column table="a" column="dname" type="string" column-mandatory="1" title="" comment="Наименование способа" />
+        <column table="a" column="autoprint" type="number" title="" comment="Массовая печать бумаж. квитанций" />
+      </select>
+      <from>
+        <table name="tk_delivery" as="a" />
+      </from>
+    </query>
+    <query name="uk_sdp" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\uk_sdp.xml">
+      <select>
+        <column table="a" column="kod_sdp" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="name_tbl" type="string" title="" />
+        <column table="a" column="name_key" type="string" title="" />
+        <column table="a" column="kod_parent" type="number" />
+        <column table="a" column="prioritet" type="number" title="" comment="приоритет документа для ЮЗ" />
+        <column table="a" column="doc_close" type="number" title="" comment="документ не работает" />
+      </select>
+      <from>
+        <table name="uk_sdp" as="a" />
+        <query name="uk_sdp" as="kod_parent" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_parent" />
+            <column table="kod_parent" column="kod_sdp" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="uk_stage" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\uk_stage.xml">
+      <select>
+        <column table="a" column="kod_stage" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" title="Наименование" />
+        <column table="a" column="upr" type="string" title="" />
+      </select>
+      <from>
+        <table name="uk_stage" as="a" />
+      </from>
+    </query>
+    <query name="us_viduz" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\us_viduz.xml">
+      <select>
+        <column table="a" column="kod_viduz" type="number" column-mandatory="1" />
+        <column table="a" column="name" type="string" column-mandatory="1" title="Наименование" />
+        <column table="a" column="abbr" type="string" title="Аббревиатура" />
+        <column table="a" column="not_opl" type="number" title="" comment="1-оплату не разносить" />
+        <column table="a" column="kod_sdp" type="number" comment="связь с ЮД" />
+        <column table="a" column="prizn_sdp" type="number" title="" comment="признак отд для претензии" />
+        <column table="a" column="prizn_otkaz" type="number" title="" comment="признак отказа по судебному акту" />
+        <column table="a" column="kod_stage" type="number" comment="стадия банкротства" />
+      </select>
+      <from>
+        <table name="us_viduz" as="a" />
+        <query name="uk_stage" as="kod_stage" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_stage" />
+            <column table="kod_stage" column="kod_stage" />
+          </call>
+        </query>
+        <query name="uk_sdp" as="kod_sdp" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sdp" />
+            <column table="kod_sdp" column="kod_sdp" />
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="vr_prop1" title="Свойство1" timestamp="26.01.2018 15:29:22" class="1" file="sql.builder.templates\sql.builder\projects\demo1\scheme\original\vr_prop1.xml">
+      <select>
+        <column table="a" column="kod_prop1" type="number" />
+        <column table="a" column="name" type="string" data-size="300" />
+        <column table="a" column="u_m" type="string" title="" comment="последняя корректировка - пользователь" data-size="30" />
+        <column table="a" column="d_m" type="date" title="" comment="последняя корректировка - дата" />
+      </select>
+      <from>
+        <table name="vr_prop1" as="a" />
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name">
+    <report name="report_demo1" timestamp="26.01.2018 20:56:05" form="form_params1" title="Начисления и оплаты" nogrid="1" mode="excel" file="sql.builder.templates\sql.builder\projects\demo1\reports\reports.xml">
+      <print-templates>
+        <excel>
+          <template name="demo1.xlsx" title="Начисления и оплаты" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <params>
+        <param name="p_kod_dep" type="array" />
+        <param name="p_ym" type="number" />
+      </params>
+      <queries>
+        <query name="test_qube1" as="a">
+          <withparams>
+            <useparam name="p_kod_dep" />
+            <useparam name="p_ym" />
+          </withparams>
+          <events>
+            <useaction event-name="double-click" action-type="open-column-grouping-detail" call="test_qube1_detail">
+              <useparam name="p_kod_dep" />
+              <useparam name="p_ym" />
+            </useaction>
+          </events>
+        </query>
+      </queries>
+    </report>
+    <report name="report_demo0" timestamp="29.01.2018 21:18:50" form="empty" title="Договоры и объекты" file="sql.builder.templates\sql.builder\projects\demo1\reports\reports.xml">
+      <print-templates>
+        <excel>
+          <template name="demo0.xlsx" title="Договоры и объекты" print-proc="2" print-xlsx="1" />
+        </excel>
+      </print-templates>
+      <queries>
+        <query name="demo_dog" as="a" title="Договоры">
+          <query name="demo_obj" as="b" title="Объекты">
+            <call function="=">
+              <column table="a" column="kod_dog" />
+              <column table="b" column="kod_dog" />
+            </call>
+          </query>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <forms child-name="form" key-name="name">
+    <form name="form_sk_vid_real" title="Вид реализации" timestamp="25.05.2018 14:02:10" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <content>
+        <splitcontainer>
+          <fieldgroup title=" ">
+            <grid table="a" show-toolbar="1">
+              <columns>
+                <column table="a" column="vid_real" column-width="191" parname="p_vid_real" />
+                <column table="a" column="name" column-width="191" />
+                <column table="a" column="abbr" column-width="222" />
+                <column table="a" column="pr_osn" column-width="244" />
+                <column table="a" column="sname" column-width="155" />
+                <column table="a" column="post_num_sf" />
+                <column table="a" column="pr_no_mass_pech" column-width="162" />
+                <column table="a" column="pr_pogash_all" column-width="256" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title=" " noborder="1">
+            <tabcontainer>
+              <fieldgroup title="Налогообложение">
+                <grid table="b" show-toolbar="1">
+                  <columns>
+                    <column table="b" column="kod_naltype" column-width="671" />
+                    <column table="b" column="kod_nal" column-width="148" />
+                    <column table="b" column="vid_real" column-width="100" />
+                    <column table="b" column="dat_beg" column-width="135" />
+                    <column table="b" column="dat_end" column-width="153" />
+                    <column table="b" column="pr_sf_opl" column-width="323" />
+                  </columns>
+                </grid>
+              </fieldgroup>
+              <fieldgroup title="Виды начисления">
+                <useform action-type="dynamic-form" call="form_sk_nachisl">
+                  <useparam name="p_vid_real" />
+                </useform>
+              </fieldgroup>
+            </tabcontainer>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="sk_vid_real" as="a">
+          <elink name="ss_vid_real_nal" as="b" />
+        </query>
+      </from>
+    </form>
+    <form name="form_sk_nachisl" title="Вид начисления" timestamp="28.05.2018 17:35:59" show-toolbar="1" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <toolbar>
+        <menu title="aasd">
+          <uicommand title="sssss" />
+          <uicommand title="sssss1" />
+        </menu>
+      </toolbar>
+      <params>
+        <param name="p_vid_real" type="number" />
+      </params>
+      <content>
+        <splitcontainer>
+          <fieldgroup title=" ">
+            <menu title="aasd">
+              <uicommand title="sssss" />
+              <uicommand title="sssss1" action-type="dynamic-form" call="period" />
+              <menu title="aasd">
+                <uicommand title="sssss" />
+                <uicommand title="sssss1" action-type="dynamic-form" call="period" />
+              </menu>
+            </menu>
+            <usefield field="cmn_string" name="ttt">
+              <buttons>
+                <uicommand type="OK" title="ttttt" />
+                <menu title="aasd">
+                  <uicommand title="sssss" />
+                  <uicommand title="sssss1" action-type="dynamic-form" call="period" />
+                </menu>
+              </buttons>
+            </usefield>
+            <grid table="a" show-toolbar="1">
+              <columns>
+                <column table="a" column="vid_real" />
+                <column table="a" column="vid_sf" />
+                <column table="a" column="edizm" />
+                <column table="a" column="name" />
+                <column table="a" column="por_pech" />
+                <column table="a" column="num_t" />
+                <column table="a" column="limit" />
+                <column table="a" column="name_pech" />
+                <column table="a" column="min_val" />
+                <column table="a" column="use_in_populcalc" />
+                <column table="a" column="allname" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title=" ">
+            <grid table="b" show-toolbar="1">
+              <columns>
+                <column table="a" column="vid_t" />
+                <column table="b" column="kod_naltype" />
+                <column table="b" column="kod_nal" />
+                <column table="b" column="dat_beg" />
+                <column table="b" column="dat_end" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </splitcontainer>
+      </content>
+      <from>
+        <query name="sk_nachisl" as="a">
+          <elink name="ss_nachisl_nal" as="b" />
+          <where>
+            <call function="=" optional="1">
+              <column table="a" column="vid_real" />
+              <call function="nvl">
+                <useparam name="p_vid_real" />
+                <column table="a" column="vid_real" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="form_kr_dogovor_list" title="Договоры" timestamp="30.01.2018 21:01:14" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <content>
+        <fieldgroup title="Условия поиска">
+          <usefield field="demo_otrasl" />
+        </fieldgroup>
+        <fieldgroup title="Договоры">
+          <grid table="a" show-toolbar="1">
+            <toolbar>
+              <uicommand button-type="grid-save" column-visible="0" />
+              <uicommand button-type="grid-add" column-visible="0" />
+              <uicommand button-type="grid-delete" column-visible="0" />
+              <uicommand action-type="dynamic-form-create" call="form_abon_kard" title="Создать абонента" />
+              <usefield field="cmn_check" title="adasda" name="vvv">
+                <defaultquery>
+                  <query name="false" />
+                </defaultquery>
+              </usefield>
+            </toolbar>
+            <columns>
+              <column table="dep" column="name" title="Отделение" as="dep_name" />
+              <column table="kodp" column="nump" column-width="435" visible="vvv" />
+              <column table="kodp" column="kodp" as="kodp1" parname="p_kodp" />
+              <column table="kodp" column="name" visible="vvv" />
+              <column table="kod_otrasl" column="name" as="otrasl_name" title="Отрасль" visible="vvv" />
+              <column table="a" column="ndog" parname="ttt" type="string" column-visible="1" as="ndog" />
+              <column table="a" column="prim" title="Примечание" column-visible="1" />
+              <column table="a" column="pr_active" />
+              <column table="a" column="dat_dog" />
+              <column table="a" column="dat_fin" />
+              <band title="Задолженность" exclude="1">
+                <fact table="a" column="expr_deb_ob_osn" title="Дебиторская" />
+                <fact table="a" column="expr_kred_ob" title="Кредиторская" />
+              </band>
+            </columns>
+            <events>
+              <useaction event-name="double-click" action-type="dynamic-form" call="form_abon_kard" title="Карточка абонента">
+                <useparam name="p_kodp" />
+              </useaction>
+            </events>
+            <menu>
+              <uicommand action-type="dynamic-form" call="form_abon_kard" title="Карточка абонента">
+                <useparam name="p_kodp" />
+              </uicommand>
+            </menu>
+          </grid>
+        </fieldgroup>
+      </content>
+      <from>
+        <query name="kr_dogovor" as="a" column-editable="0">
+          <link name="dep" />
+          <link name="kodp">
+            <link name="kod_otrasl" />
+          </link>
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="in" optional="1">
+                <column table="kod_otrasl" column="kod_otrasl" />
+                <useparam name="p_kod_otrasl" />
+              </call>
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="form_abon_kard" title="Карточка абонента [:a.nump] [:a.name]" timestamp="26.01.2018 19:08:56" show-toolbar="1" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <params>
+        <param name="p_kodp" type="number" />
+      </params>
+      <content>
+        <tabcontainer>
+          <fieldgroup title="Абонент">
+            <column table="a" column="nump" />
+            <column table="a" column="name" />
+            <column table="a" column="kod_otrasl" />
+            <fieldgroup title="Задолженность">
+              <fact table="a" column="expr_deb_ob_osn" title="Дебиторская" />
+              <fact table="a" column="expr_kred_ob" title="Кредиторская" />
+            </fieldgroup>
+          </fieldgroup>
+          <fieldgroup title="Договоры">
+            <splitcontainer>
+              <fieldgroup title=" ">
+                <grid table="d" show-toolbar="1">
+                  <columns>
+                    <column table="d" column="ndog" column-width="764" />
+                    <column table="d" column="dat_fin" column-width="150" />
+                    <column table="d" column="dat_dog" />
+                    <band title="Задолженность">
+                      <fact table="d" column="expr_deb_ob_osn" title="Дебиторская" column-width="124" />
+                      <fact table="d" column="expr_kred_ob" title="Кредиторская" column-width="125" />
+                    </band>
+                  </columns>
+                </grid>
+              </fieldgroup>
+              <fieldgroup title=" ">
+                <column table="d" column="ndog" />
+                <column table="d" column="pr_active" />
+                <column table="d" column="dat_dog" />
+                <column table="d" column="dat_fin" />
+                <column table="d" column="srok" />
+              </fieldgroup>
+            </splitcontainer>
+          </fieldgroup>
+          <fieldgroup title="Объекты">
+            <grid table="o" show-toolbar="1">
+              <columns>
+                <column table="o" column="num_obj" title="Номер" />
+                <column table="o" column="name" />
+              </columns>
+            </grid>
+          </fieldgroup>
+          <fieldgroup title="Документы на оплату">
+            <grid table="f" show-footer="1">
+              <columns>
+                <column table="f" column="ym" title="Период" column-width="644" />
+                <column table="f" column="num_pl" column-width="111" />
+                <column table="f" column="dat_deb" column-width="127" />
+                <fact table="f" column="sr_facras_nachisl" title="Начислено" />
+                <fact table="f" column="sr_opl_deb_opl" title="Оплачено" />
+                <fact table="f" column="expr_deb_ob_osn" title="Задолженность" column-width="180" />
+              </columns>
+            </grid>
+          </fieldgroup>
+        </tabcontainer>
+      </content>
+      <from>
+        <query name="kr_payer" as="a">
+          <elink name="kr_dogovor" as="d">
+            <elink name="kr_numobj" as="o" />
+            <elink name="sr_debet" as="f" column-editable="0">
+              <where>
+                <call function="is not null">
+                  <fact column="expr_deb_ob_osn" title="Задолженность" column-width="180" />
+                </call>
+              </where>
+            </elink>
+          </elink>
+          <where>
+            <call function="=">
+              <column table="a" column="kodp" />
+              <useparam name="p_kodp" />
+            </call>
+          </where>
+        </query>
+      </from>
+    </form>
+    <form name="form_params1" timestamp="26.01.2018 20:30:57" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <content>
+        <usefield field="demo_ym" column-mandatory="1" />
+        <usefield field="demo_dep" />
+      </content>
+    </form>
+    <form name="form_us_viduz" title="Документы" timestamp="25.04.2018 18:39:55" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <content>
+        <grid table="a" show-toolbar="1">
+          <columns>
+            <column table="a" column="kod_viduz" column-visible="0" />
+            <column table="a" column="name" />
+            <column table="a" column="kod_sdp" title="Вид" />
+            <column table="a" column="prizn_otkaz" title="Количество" />
+          </columns>
+        </grid>
+      </content>
+      <from>
+        <query name="us_viduz" as="a" order="kod_viduz" />
+      </from>
+    </form>
+  </forms>
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name">
+    <expression-package name="demo1" timestamp="26.01.2018 21:44:30" file="sql.builder.templates\sql.builder\projects\demo1\cube\cube.xml">
+      <call function="-nvl" type="number" as="expr_deb_ob" title="Оборот дебет" group="sum">
+        <fact column="sr_facras_nachisl" />
+        <fact column="sr_opl_deb_opl" />
+      </call>
+      <call function="+nvl" type="number" as="expr_kred_ob" title="Оборот кредит" group="sum">
+        <fact column="sr_opl_kred_opl" />
+        <fact column="sr_opl_stor_opl" />
+      </call>
+      <call function="if" type="number" as="expr_deb_ob_osn" title="Оборот дебет (осн. реал.)" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>2</const>
+        </call>
+        <fact column="expr_deb_ob" />
+      </call>
+      <call function="if" type="number" as="expr_deb_ob_peni" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>7</const>
+        </call>
+        <fact column="expr_deb_ob" />
+      </call>
+      <call function="if" type="number" as="expr_deb_ob_gp" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>9</const>
+        </call>
+        <fact column="expr_deb_ob" />
+      </call>
+      <call function="if" type="number" as="expr_deb_ob_av" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>0</const>
+        </call>
+        <fact column="expr_deb_ob" />
+      </call>
+      <call function="if" type="number" as="expr_nach_osn" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>2</const>
+        </call>
+        <fact column="sr_facras_nachisl" />
+      </call>
+      <call function="if" type="number" as="expr_nach_peni" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>7</const>
+        </call>
+        <fact column="sr_facras_nachisl" />
+      </call>
+      <call function="if" type="number" as="expr_nach_gp" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>9</const>
+        </call>
+        <fact column="sr_facras_nachisl" />
+      </call>
+      <call function="if" type="number" as="expr_nach_av" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>0</const>
+        </call>
+        <fact column="sr_facras_nachisl" />
+      </call>
+      <call function="if" type="number" as="expr_opl_deb_osn" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>2</const>
+        </call>
+        <fact column="sr_opl_deb_opl" />
+      </call>
+      <call function="if" type="number" as="expr_opl_deb_peni" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>7</const>
+        </call>
+        <fact column="sr_opl_deb_opl" />
+      </call>
+      <call function="if" type="number" as="expr_opl_deb_gp" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>9</const>
+        </call>
+        <fact column="sr_opl_deb_opl" />
+      </call>
+      <call function="if" type="number" as="expr_opl_deb_av" group="sum">
+        <call function="=">
+          <column table="sk_vid_real" column="vid_real" />
+          <const>0</const>
+        </call>
+        <fact column="sr_opl_deb_opl" />
+      </call>
+    </expression-package>
+  </expression-packages>
+  <dimension-packages child-name="dimension-package" key-name="name">
+    <dimension-package name="demo1" timestamp="26.01.2018 18:53:59" file="sql.builder.templates\sql.builder\projects\demo1\cube\cube.xml">
+      <dimension class-type="kr_dogovor" name="kr_dogovor" />
+      <dimension class-type="sr_debet" name="sr_debet" />
+      <dimension class-type="kr_payer" name="kr_payer" />
+      <dimension class-type="kr_dep" name="kr_dep" />
+      <dimension class-type="sk_vid_real" name="sk_vid_real" />
+      <dimension class-type="sr_facvip" name="sr_facvip" />
+      <dimension class-type="sr_opl_deb" name="sr_opl_deb" />
+      <dimension class-type="sr_opl_kred" name="sr_opl_kred" />
+      <dimension class-type="sr_opl_stor" name="sr_opl_stor" />
+      <dimension class-type="ss_vidopl" name="ss_vidopl" />
+    </dimension-package>
+  </dimension-packages>
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id">
+    <field id="demo_otrasl" name="p_kod_otrasl" type="number" controlType="UIList" title="Отрасль" parent-field-name="parent" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <listquery>
+        <query name="ks_otrasl" />
+      </listquery>
+    </field>
+    <field id="demo_ym" name="p_ym" type="number" controlType="UICombo" title="Период" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <listquery>
+        <query name="spr_time_ym" />
+      </listquery>
+    </field>
+    <field id="demo_dep" name="p_kod_dep" type="number" controlType="UIList" title="Отделение" file="sql.builder.templates\sql.builder\projects\demo1\forms\forms.xml">
+      <listquery>
+        <query name="kr_dep" />
+      </listquery>
+    </field>
+  </fields>
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

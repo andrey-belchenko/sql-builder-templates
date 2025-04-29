@@ -1,0 +1,65 @@
+<root>
+  <queries>
+    <query name="ur_dogplat">
+      <select>
+        <column table="a" column="kod_dogplat" type="number">
+        </column>
+        <column table="a" column="kod" type="number">
+        </column>
+        <column table="a" column="kod_sdp" type="number">
+        </column>
+        <column table="a" column="kod_izv" type="number">
+        </column>
+        <column table="mat" column="nump">
+        </column>
+        <column table="mat" column="num_delo">
+        </column>
+        <column table="mat" column="kod_mat">
+        </column>
+        <column table="izv" column="nachisl">
+        </column>
+      </select>
+      <from>
+        <table name="ur_dogplat" as="a">
+        </table>
+        <query name="ur_mat" as="mat" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod">
+              </column>
+              <column table="mat" column="kod_mat">
+              </column>
+            </call>
+            <call function="=">
+              <column table="a" column="kod_sdp">
+              </column>
+              <const>6</const>
+            </call>
+          </call>
+        </query>
+        <query name="tnr_izv" as="izv" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_izv">
+            </column>
+            <column table="izv" column="kod_izv">
+            </column>
+          </call>
+        </query>
+      </from>
+    </query>
+    <query name="ur_mat.ur_dogplat">
+      <select>
+        <column table="a" column="kod_mat" as="kod_mat" group="1">
+        </column>
+        <column table="a" column="kod_izv" group="stragg">
+        </column>
+        <column table="a" column="nachisl" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="ur_dogplat" as="a">
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

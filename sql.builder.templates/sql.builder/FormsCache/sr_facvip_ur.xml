@@ -1,0 +1,2702 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="sr_facvip_ur" title="Счет № [:sr_facvip.num_sf] от [:sr_facvip.dat_sf] [:sr_facvip.vid_real]" show-toolbar="1" with-behavior="0" timestamp="28.12.2023 14:43:21" file="sql.builder.templates\sql.builder\projects\asuse2\forms\Арбитраж\sr_facvip_ur.xml" elid="185" ord="185" leaf="0" lvl="2" pelid="">
+    <field table="ur_mat" name="num_delo" title="Номер дела" controlType="UIText" rows-limit="100" id="130589" />
+    <field table="sr_facvip" name="kod_sf" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="31281542" />
+    <field table="sr_facvip" name="kodp" title="Абонент" controlType="UICombo" rows-limit="100" id="24349775" />
+    <field table="sr_facvip" name="kod_dog" title="Договор" controlType="UICombo" rows-limit="100" id="14587447" />
+    <field table="sr_facvip" name="dat_sf" title="Дата счета" controlType="UIDate" rows-limit="100" id="39731978" />
+    <field table="sr_facvip" name="num_sf" title="Номер счета" controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="5087784" />
+    <field table="sr_facvip" name="ym" title="Период" controlType="UIText" format="F2" edit-mask="F2" rows-limit="100" id="64508415" />
+    <field table="sr_facvip" name="sr_facras_nachisl" title="Сумма" controlType="UIText" edit-mask="N2" rows-limit="100" id="10205067" />
+    <field table="sr_facvip" name="vid_real" title="Вид реализации" controlType="UICombo" rows-limit="100" id="39166351" />
+    <field table="sr_facvip" name="sr_facras_vid_t_full_name" title="Вид начисления" controlType="UIText" rows-limit="100" id="26852434" />
+    <field table="sr_facvip" name="kod_deb" title="" controlType="UICombo" rows-limit="100" id="56159545" />
+    <fieldgroup title="Документ на оплату" id="52516069">
+      <field table="sr_debet" name="num_pl" title="Номер документа" controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="46333129" />
+      <field table="sr_debet" name="dat_deb" title="Дата документа" controlType="UIDate" rows-limit="100" id="25674304" />
+      <field table="sr_debet" name="dat_bzad" title="Дата возник. задолж." controlType="UIDate" rows-limit="100" id="60938214" />
+    </fieldgroup>
+    <toolbar id="2100960">
+      <uicommand button-type="form-save" column-visible="0" name="form-save" control-name="ButtonSave" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="371" ord="371" leaf="1" lvl="2" pelid="" title="" id="31888242" />
+      <uicommand button-type="form-save-and-close" column-visible="0" name="form-save-and-close" control-name="ButtonSaveAndClose" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="372" ord="372" leaf="1" lvl="2" pelid="" title="" id="12355232" />
+      <uicommand button-type="form-refresh" column-visible="0" name="form-refresh" control-name="ButtonRefresh" file="sql.builder.templates\sql.builder\projects\common\main.xml" elid="373" ord="373" leaf="1" lvl="2" pelid="" title="" id="50847553" />
+      <uicommand action-type="custom" title="Удалить счёт" prompt="Вы уверены, что хотите удалить счёт № [:sr_facvip.num_sf] от [:sr_facvip.dat_sf]?" message="Счёт № [:sr_facvip.num_sf] от [:sr_facvip.dat_sf] удалён" id="39996851">
+        <useaction name="sg_dop_plat.del_dop_deb" title="Удалить счёт" id="23116507">
+          <useparam name="kod_sf" id="10565800" />
+        </useaction>
+        <useaction action-type="close" id="17215322" />
+      </uicommand>
+      <uicommand name="print_sf" title="Печать счета" id="10917265">
+        <useparam name="kod_sf" id="39458340" />
+      </uicommand>
+      <uicommand name="print_deb" editable="kod_deb" title="Печать документа на оплату" id="64955401">
+        <useparam name="kod_deb" id="41744133" />
+      </uicommand>
+      <uicommand action-type="custom" title="Создать документ на оплату" editable="kod_deb" editable-invert="1" id="44356815">
+        <useaction name="create_sf_deb" object="sr_facvip" editable="kod_deb" editable-invert="1" modal="1" id="57831427">
+          <useparam name="dat_sf" id="20084233" />
+        </useaction>
+        <useaction name="ur_save.p_dogplat_sf_to_deb" id="56724387">
+          <const id="45166800">6</const>
+          <useparam name="kod_mat" id="45030197" />
+          <useparam name="kod_sf" id="37790215" />
+        </useaction>
+        <useaction object="sr_facvip" action-type="refresh-table" id="53602541" />
+        <useaction object="sr_debet" action-type="refresh-table" id="22362405" />
+      </uicommand>
+    </toolbar>
+  </form>
+  <params>
+    <param name="kod_mat" type="number" />
+    <param name="kod_sf" type="number" />
+  </params>
+  <dataset>
+    <params>
+      <param name="kod_mat" type="number" />
+      <param name="kod_sf" type="number" />
+    </params>
+    <fields>
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="sr_facvip_has_changes" parname="sr_facvip_has_changes" />
+      <field type="string" name="ur_mat_has_changes" parname="ur_mat_has_changes" />
+      <field type="string" name="sr_debet_has_changes" parname="sr_debet_has_changes" />
+    </fields>
+    <table name="sr_facvip" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="sr_facvip" key="kod_sf" is-ms-upd="1" is-top="1" key-dimension="kod_sf">
+      <select-text>
+--
+select sr_facvip.kod_sf as kod_sf, /*number*//*key*/
+sr_facvip.kodp as kodp, /*Абонент*//*number*/
+sr_facvip.kod_dog as kod_dog, /*Договор*//*number*/
+sr_facvip.dat_sf as dat_sf, /*Дата счета*//*date*/
+sr_facvip.num_sf as num_sf, /*Номер счета*//*number*/
+sr_facvip.ym as ym, /*Период*//*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl, /*Сумма*//*number*/
+sr_facvip.vid_real as vid_real, /*Вид реализации*//*number*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name, /*Вид начисления*//*string*/
+sr_facvip.kod_deb as kod_deb, /*number*/
+kodp_x_n.sp_col_name as kodp_x_n, /*Абонент*//*string*/
+kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+vid_real_x_n.name as vid_real_x_n, /*Вид реализации*//*string*/
+kod_deb_x_n.num_pl as kod_deb_x_n, /*Номер документа на оплату*//*number*/
+sr_facvip.is_new as is_new, /*number*/
+sr_facvip.is_not_new as is_not_new/*number*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+sum(qube.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Сумма*//*number*/
+max(qube.sr_facras_vid_t_full_name1)  as sr_facras_vid_t_full_name1/*Вид начисления*//*string*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+(
+(
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+--
+select un.kod_sf as kod_sf, /*number*//*key*/
+sum(un.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Начислено*//*number*/
+max(un.sr_facras_vid_t_full_name1)  as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+(
+(
+--
+select sr_facras_a_d.kod_sf as kod_sf, /*number*//*key*/
+sr_facras_a_d.nachisl as sr_facras_nachisl1, /*Начислено*//*number*/
+sr_facras_a_d.vid_t_full_name as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf, /*number*/
+a.nachisl as nachisl, /*Начислено*//*number*/
+vid_t.full_name as vid_t_full_name/*Вид товара*//*string*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sk_nachisl
+select a.vid_t as vid_t, /**//*number*//*key*/
+a.vid_t || ' ' || a.name as full_name/*Вид товара*//*string*/
+
+from sk_nachisl
+a
+--\sk_nachisl
+)
+vid_t on a.vid_t = vid_t.vid_t--\sk_nachisl
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facras_a_d.kod_sf = sr_facvip.kod_sf--\sr_facvip
+where
+(sr_facvip.kod_sf = :kod_sf )  and (sr_facvip.kod_sf is not null ) )
+--\
+union all
+(
+--
+select sr_facvip.kod_sf as kod_sf, /*number*//*key*/
+null as sr_facras_nachisl1, /*number*/
+null as sr_facras_vid_t_full_name1/*string*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+where
+(sr_facvip.kod_sf = :kod_sf )  and (sr_facvip.kod_sf is not null ) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_sf/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_sf/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_deb as kod_deb, /*number*/
+a.kodp as kodp, /*number*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real, /*number*/
+a.num_sf as num_sf, /*Номер документа начисления*//*number*/
+a.dat_sf as dat_sf, /*Дата документа начисления*//*date*/
+a.ym as ym, /*Отчетный период начисления*//*number*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from sr_facvip
+a
+--\sr_facvip
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facvip.kod_sf = qube.kod_sf--\sr_facvip
+left outer join
+(
+--sr_debet
+select a.kod_deb as kod_deb, /*number*//*key*/
+a.num_pl as num_pl/*Номер документа на оплату*//*number*/
+
+from sr_debet
+a
+--\sr_debet
+)
+kod_deb_x_n on sr_facvip.kod_deb = kod_deb_x_n.kod_deb--\sr_debet
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real, /**//*number*//*key*/
+a.name as name/*Вид реализации*//*string*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real_x_n on sr_facvip.vid_real = vid_real_x_n.vid_real--\sk_vid_real
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sr_facvip.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump || ' ' || a.name as sp_col_name/**//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_x_n on sr_facvip.kodp = kodp_x_n.kodp--\kr_payer
+--\
+</select-text>
+      <columns>
+        <column name="kod_sf" table="sr_facvip" type="number" title="" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_sf" temp-col-name="n1" />
+        <column name="kodp" table="sr_facvip" type="number" title="Абонент" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="kodp" temp-col-name="n4">
+          <dep-refresh-cmd>
+            <root table="sr_facvip">
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kodp_x_n.sp_col_name as kodp_x_n, /*Абонент*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kodp as kodp/*number*/
+
+from (select a.kod_sf as kod_sf,a.kodp as kodp,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n4 as kodp,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kodp as kodp,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n4 as kodp,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump || ' ' || a.name as sp_col_name/**//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_x_n on sr_facvip.kodp = kodp_x_n.kodp--\kr_payer
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kodp_x_n" table="sr_facvip" />
+          </dependants>
+        </column>
+        <column name="kod_dog" table="sr_facvip" type="number" title="Договор" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="kod_dog" temp-col-name="n5">
+          <dep-refresh-cmd>
+            <root table="sr_facvip">
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_sf as kod_sf,a.kod_dog as kod_dog,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n5 as kod_dog,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kod_dog as kod_dog,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n5 as kod_dog,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sr_facvip.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_dog_x_n" table="sr_facvip" />
+          </dependants>
+        </column>
+        <column name="dat_sf" table="sr_facvip" type="date" title="Дата счета" parname="dat_sf" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="dat_sf" temp-col-name="d1" />
+        <column name="num_sf" table="sr_facvip" type="number" title="Номер счета" parname="num_sf" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="num_sf" temp-col-name="n9" />
+        <column name="ym" table="sr_facvip" type="number" title="Период" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="ym" temp-col-name="n10" />
+        <column name="sr_facras_nachisl" table="sr_facvip" type="number" title="Сумма" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select qube.sr_facras_nachisl1 as sr_facras_nachisl, /*Сумма*//*number*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+sum(qube.sr_facras_nachisl1)  as sr_facras_nachisl1/*Сумма*//*number*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1/*Начислено*//*number*/
+
+from (
+(
+(
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1/*Начислено*//*number*/
+
+from (
+--
+select un.kod_sf as kod_sf, /*number*//*key*/
+sum(un.sr_facras_nachisl1)  as sr_facras_nachisl1/*Начислено*//*number*/
+
+from (
+(
+(
+--
+select sr_facras_a_d.kod_sf as kod_sf, /*number*//*key*/
+sr_facras_a_d.nachisl as sr_facras_nachisl1/*Начислено*//*number*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf, /*number*/
+a.nachisl as nachisl/*Начислено*//*number*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facras_a_d.kod_sf = sr_facvip.kod_sf--\sr_facvip
+where
+sr_facvip.kod_sf is not null )
+--\
+union all
+(
+--
+select sr_facvip.kod_sf as kod_sf, /*number*//*key*/
+null as sr_facras_nachisl1/*number*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+where
+sr_facvip.kod_sf is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_sf/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_sf/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facvip.kod_sf = qube.kod_sf--\sr_facvip
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="vid_real" table="sr_facvip" type="number" title="Вид реализации" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="vid_real" temp-col-name="n6">
+          <dep-refresh-cmd>
+            <root table="sr_facvip">
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select vid_real_x_n.name as vid_real_x_n, /*Вид реализации*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_real as vid_real/*number*/
+
+from (select a.kod_sf as kod_sf,a.vid_real as vid_real,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n6 as vid_real,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_real as vid_real,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n6 as vid_real,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real, /**//*number*//*key*/
+a.name as name/*Вид реализации*//*string*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real_x_n on sr_facvip.vid_real = vid_real_x_n.vid_real--\sk_vid_real
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="vid_real_x_n" table="sr_facvip" />
+          </dependants>
+        </column>
+        <column name="sr_facras_vid_t_full_name" table="sr_facvip" type="string" title="Вид начисления" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name, /*Вид начисления*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+max(qube.sr_facras_vid_t_full_name1)  as sr_facras_vid_t_full_name1/*Вид начисления*//*string*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+(
+(
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+--
+select un.kod_sf as kod_sf, /*number*//*key*/
+max(un.sr_facras_vid_t_full_name1)  as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+(
+(
+--
+select sr_facras_a_d.kod_sf as kod_sf, /*number*//*key*/
+sr_facras_a_d.vid_t_full_name as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf, /*number*/
+vid_t.full_name as vid_t_full_name/*Вид товара*//*string*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sk_nachisl
+select a.vid_t as vid_t, /**//*number*//*key*/
+a.vid_t || ' ' || a.name as full_name/*Вид товара*//*string*/
+
+from sk_nachisl
+a
+--\sk_nachisl
+)
+vid_t on a.vid_t = vid_t.vid_t--\sk_nachisl
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facras_a_d.kod_sf = sr_facvip.kod_sf--\sr_facvip
+where
+sr_facvip.kod_sf is not null )
+--\
+union all
+(
+--
+select sr_facvip.kod_sf as kod_sf, /*number*//*key*/
+null as sr_facras_vid_t_full_name1/*string*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+where
+sr_facvip.kod_sf is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_sf/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_sf/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facvip.kod_sf = qube.kod_sf--\sr_facvip
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_deb" table="sr_facvip" type="number" title="" parname="kod_deb" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_deb" temp-col-name="n3">
+          <dep-refresh-cmd>
+            <root table="sr_facvip">
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_deb_x_n.num_pl as kod_deb_x_n, /*Номер документа на оплату*//*number*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_deb as kod_deb/*number*/
+
+from (select a.kod_sf as kod_sf,a.kod_deb as kod_deb,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n3 as kod_deb,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kod_deb as kod_deb,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n3 as kod_deb,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--sr_debet
+select a.kod_deb as kod_deb, /*number*//*key*/
+a.num_pl as num_pl/*Номер документа на оплату*//*number*/
+
+from sr_debet
+a
+--\sr_debet
+)
+kod_deb_x_n on sr_facvip.kod_deb = kod_deb_x_n.kod_deb--\sr_debet
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_deb_x_n" table="sr_facvip" />
+          </dependants>
+        </column>
+        <column name="kodp_x_n" table="sr_facvip.kodp" type="string" title="Абонент" text-source-for="kodp" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kodp_x_n.sp_col_name as kodp_x_n, /*Абонент*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kodp as kodp/*number*/
+
+from (select a.kod_sf as kod_sf,a.kodp as kodp,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n4 as kodp,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kodp as kodp,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n4 as kodp,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump || ' ' || a.name as sp_col_name/**//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_x_n on sr_facvip.kodp = kodp_x_n.kodp--\kr_payer
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_dog_x_n" table="sr_facvip.kod_dog" type="string" title="Договор" text-source-for="kod_dog" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_dog as kod_dog/*number*/
+
+from (select a.kod_sf as kod_sf,a.kod_dog as kod_dog,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n5 as kod_dog,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kod_dog as kod_dog,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n5 as kod_dog,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sr_facvip.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="vid_real_x_n" table="sr_facvip.vid_real" type="string" title="Вид реализации" text-source-for="vid_real" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select vid_real_x_n.name as vid_real_x_n, /*Вид реализации*//*string*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_real as vid_real/*number*/
+
+from (select a.kod_sf as kod_sf,a.vid_real as vid_real,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n6 as vid_real,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_real as vid_real,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n6 as vid_real,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real, /**//*number*//*key*/
+a.name as name/*Вид реализации*//*string*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real_x_n on sr_facvip.vid_real = vid_real_x_n.vid_real--\sk_vid_real
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_deb_x_n" table="sr_facvip.kod_deb" type="number" title="" text-source-for="kod_deb" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_sf_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_sf_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_deb_x_n.num_pl as kod_deb_x_n, /*Номер документа на оплату*//*number*/
+sr_facvip.kod_sf as kod_sf/*number*//*key*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_deb as kod_deb/*number*/
+
+from (select a.kod_sf as kod_sf,a.kod_deb as kod_deb,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n3 as kod_deb,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kod_deb as kod_deb,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n3 as kod_deb,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+left outer join
+(
+--sr_debet
+select a.kod_deb as kod_deb, /*number*//*key*/
+a.num_pl as num_pl/*Номер документа на оплату*//*number*/
+
+from sr_debet
+a
+--\sr_debet
+)
+kod_deb_x_n on sr_facvip.kod_deb = kod_deb_x_n.kod_deb--\sr_debet
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="sr_facvip" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="sr_facvip" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_sf as kod_sf 
+,:kodp as kodp 
+,:kod_dog as kod_dog 
+,:dat_sf as dat_sf 
+,:num_sf as num_sf 
+,:ym as ym 
+,:vid_real as vid_real 
+,:kod_deb as kod_deb 
+ 
+from dual ) 
+ 
+loop 
+insert into sr_facvip 
+(kod_sf 
+,kodp 
+,kod_dog 
+,dat_sf 
+,num_sf 
+,ym 
+,vid_real 
+,kod_deb 
+) 
+ values  
+(r.kod_sf 
+,r.kodp 
+,r.kod_dog 
+,r.dat_sf 
+,r.num_sf 
+,r.ym 
+,r.vid_real 
+,r.kod_deb 
+) 
+ returning  
+kod_sf into :kod_sf; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from sr_facvip where kod_sf=:kod_sf</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='sr_facvip' 
+and 
+names=:form_id 
+and 
+f2=:kod_sf; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_sf as kod_sf 
+,:kodp as kodp 
+,:kod_dog as kod_dog 
+,:dat_sf as dat_sf 
+,:num_sf as num_sf 
+,:ym as ym 
+,:vid_real as vid_real 
+,:kod_deb as kod_deb 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n4 
+,n5 
+,d1 
+,n9 
+,n10 
+,n6 
+,n3 
+) 
+ values  
+('sr_facvip' 
+,:form_id 
+,:kod_sf 
+,:row_state_id 
+,r.kod_sf 
+,r.kodp 
+,r.kod_dog 
+,r.dat_sf 
+,r.num_sf 
+,r.ym 
+,r.vid_real 
+,r.kod_deb 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_sf as kod_sf 
+,:kodp as kodp 
+,:kod_dog as kod_dog 
+,:dat_sf as dat_sf 
+,:num_sf as num_sf 
+,:ym as ym 
+,:vid_real as vid_real 
+,:kod_deb as kod_deb 
+,a.tep_el 
+,a.vid_sf 
+,a.vid_pl 
+,a.dat_priem 
+,a.pr_old 
+,a.pr_sv 
+,a.pr_osn 
+,a.gru_pl 
+,a.den 
+,a.kod_dog_r 
+,a.dat_uchet 
+,a.dat_ezad 
+,a.vist_day 
+,a.num_sf_uch 
+,a.ym_uch 
+,a.d_m 
+,a.u_m 
+,a.pr_hand 
+,a.vid_avans 
+,a.prim_uo 
+,a.kod_sf_old 
+,a.kodp_plat 
+,a.kod_sf_konsol 
+,a.vid_recalc 
+,a.kod_dog_link 
+,a.pr_uch_av 
+,a.kod_bu_akt 
+,a.kod_sf_first 
+,a.tip_bu_akt 
+,a.kniga 
+,a.dat_pen_ezad 
+,a.dat_zadol 
+,a.nom_sf 
+,a.proc 
+ 
+from sr_facvip a  where kod_sf=:kod_sf) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n4 
+,n5 
+,d1 
+,n9 
+,n10 
+,n6 
+,n3 
+,n2 
+,n7 
+,n8 
+,d2 
+,n11 
+,n12 
+,n13 
+,n14 
+,n15 
+,n16 
+,d3 
+,d4 
+,n17 
+,n18 
+,n19 
+,d5 
+,s1 
+,n20 
+,n21 
+,s2 
+,n22 
+,n23 
+,n24 
+,n25 
+,n26 
+,n27 
+,n28 
+,n29 
+,n30 
+,n31 
+,d6 
+,d7 
+,s3 
+,n32 
+) 
+ values  
+('sr_facvip' 
+,:form_id 
+,:kod_sf 
+,:row_state_id 
+,r.kod_sf 
+,r.kodp 
+,r.kod_dog 
+,r.dat_sf 
+,r.num_sf 
+,r.ym 
+,r.vid_real 
+,r.kod_deb 
+,r.tep_el 
+,r.vid_sf 
+,r.vid_pl 
+,r.dat_priem 
+,r.pr_old 
+,r.pr_sv 
+,r.pr_osn 
+,r.gru_pl 
+,r.den 
+,r.kod_dog_r 
+,r.dat_uchet 
+,r.dat_ezad 
+,r.vist_day 
+,r.num_sf_uch 
+,r.ym_uch 
+,r.d_m 
+,r.u_m 
+,r.pr_hand 
+,r.vid_avans 
+,r.prim_uo 
+,r.kod_sf_old 
+,r.kodp_plat 
+,r.kod_sf_konsol 
+,r.vid_recalc 
+,r.kod_dog_link 
+,r.pr_uch_av 
+,r.kod_bu_akt 
+,r.kod_sf_first 
+,r.tip_bu_akt 
+,r.kniga 
+,r.dat_pen_ezad 
+,r.dat_zadol 
+,r.nom_sf 
+,r.proc 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='sr_facvip' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update sr_facvip set  
+(kod_sf 
+,kodp 
+,kod_dog 
+,dat_sf 
+,num_sf 
+,ym 
+,vid_real 
+,kod_deb 
+) 
+= 
+ ( select  
+:kod_sf as kod_sf 
+,:kodp as kodp 
+,:kod_dog as kod_dog 
+,:dat_sf as dat_sf 
+,:num_sf as num_sf 
+,:ym as ym 
+,:vid_real as vid_real 
+,:kod_deb as kod_deb 
+ 
+from dual ) 
+ 
+where 
+kod_sf=:kod_sf 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="sr_facvip" as="sr_facvip">
+          <columns>
+            <column name="kod_sf" type="number" title="" visible="0" />
+            <column name="kodp" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_dog" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="dat_sf" type="date" title="Дата счета" />
+            <column name="num_sf" type="number" format="F0" edit-mask="F0" title="Номер счета" />
+            <column name="ym" type="number" format="F2" edit-mask="F2" title="Период" />
+            <column name="sr_facras_nachisl" type="number" title="Сумма" />
+            <column name="vid_real" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="sr_facras_vid_t_full_name" type="string" title="Вид начисления" />
+            <column name="kod_deb" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kodp_x_n" type="string" title="Абонент" />
+            <column name="kod_dog_x_n" type="string" title="Договор" />
+            <column name="vid_real_x_n" type="string" title="Вид реализации" />
+            <column name="kod_deb_x_n" type="number" title="" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns />
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_sf_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_sf_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select sr_facvip.kod_sf as kod_sf, /*number*//*key*/
+sr_facvip.kodp as kodp, /*Абонент*//*number*/
+sr_facvip.kod_dog as kod_dog, /*Договор*//*number*/
+sr_facvip.dat_sf as dat_sf, /*Дата счета*//*date*/
+sr_facvip.num_sf as num_sf, /*Номер счета*//*number*/
+sr_facvip.ym as ym, /*Период*//*number*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl, /*Сумма*//*number*/
+sr_facvip.vid_real as vid_real, /*Вид реализации*//*number*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name, /*Вид начисления*//*string*/
+sr_facvip.kod_deb as kod_deb, /*number*/
+kodp_x_n.sp_col_name as kodp_x_n, /*Абонент*//*string*/
+kod_dog_x_n.name as kod_dog_x_n, /*Договор*//*string*/
+vid_real_x_n.name as vid_real_x_n, /*Вид реализации*//*string*/
+kod_deb_x_n.num_pl as kod_deb_x_n, /*Номер документа на оплату*//*number*/
+sr_facvip.is_new as is_new, /*number*/
+sr_facvip.is_not_new as is_not_new/*number*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+sum(qube.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Сумма*//*number*/
+max(qube.sr_facras_vid_t_full_name1)  as sr_facras_vid_t_full_name1/*Вид начисления*//*string*/
+
+from (
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+(
+(
+--
+select qube.kod_sf as kod_sf, /*number*//*key*/
+qube.sr_facras_nachisl1 as sr_facras_nachisl1, /*Начислено*//*number*/
+qube.sr_facras_vid_t_full_name1 as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+--
+select un.kod_sf as kod_sf, /*number*//*key*/
+sum(un.sr_facras_nachisl1)  as sr_facras_nachisl1, /*Начислено*//*number*/
+max(un.sr_facras_vid_t_full_name1)  as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+(
+(
+--
+select sr_facras_a_d.kod_sf as kod_sf, /*number*//*key*/
+sr_facras_a_d.nachisl as sr_facras_nachisl1, /*Начислено*//*number*/
+sr_facras_a_d.vid_t_full_name as sr_facras_vid_t_full_name1/*Вид товара*//*string*/
+
+from (
+--sr_facras
+select a.kod_ras as kod_ras, /*number*//*key*/
+a.kod_sf as kod_sf, /*number*/
+a.nachisl as nachisl, /*Начислено*//*number*/
+vid_t.full_name as vid_t_full_name/*Вид товара*//*string*/
+
+from sr_facras
+a
+--\sr_facras
+left outer join
+(
+--sk_nachisl
+select a.vid_t as vid_t, /**//*number*//*key*/
+a.vid_t || ' ' || a.name as full_name/*Вид товара*//*string*/
+
+from sk_nachisl
+a
+--\sk_nachisl
+)
+vid_t on a.vid_t = vid_t.vid_t--\sk_nachisl
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.vid_sf as vid_sf/*number*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+kod_sf on a.kod_sf = kod_sf.kod_sf--\sr_facvip
+where
+kod_sf.vid_sf not in (2 , 9) )
+sr_facras_a_d
+--\sr_facras
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facras_a_d.kod_sf = sr_facvip.kod_sf--\sr_facvip
+where
+sr_facvip.kod_sf is not null )
+--\
+union all
+(
+--
+select sr_facvip.kod_sf as kod_sf, /*number*//*key*/
+null as sr_facras_nachisl1, /*number*/
+null as sr_facras_vid_t_full_name1/*string*/
+
+from (
+--sr_facvip
+select a.kod_sf as kod_sf/*number*//*key*/
+
+from (select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip
+--\sr_facvip
+where
+sr_facvip.kod_sf is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_sf/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_sf/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--sr_facvip
+select a.kod_sf as kod_sf, /*number*//*key*/
+a.kod_deb as kod_deb, /*number*/
+a.kodp as kodp, /*number*/
+a.kod_dog as kod_dog, /*number*/
+a.vid_real as vid_real, /*number*/
+a.num_sf as num_sf, /*Номер документа начисления*//*number*/
+a.dat_sf as dat_sf, /*Дата документа начисления*//*date*/
+a.ym as ym, /*Отчетный период начисления*//*number*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_sf as kod_sf,a.kod_deb as kod_deb,a.kodp as kodp,a.kod_dog as kod_dog,a.vid_real as vid_real,a.num_sf as num_sf,a.dat_sf as dat_sf,a.ym as ym,0 as is_new,1 as is_not_new,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n3 as kod_deb,t.n4 as kodp,t.n5 as kod_dog,t.n6 as vid_real,t.n9 as num_sf,t.d1 as dat_sf,t.n10 as ym,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+a
+--\(select a.kod_sf as kod_sf,a.kod_deb as kod_deb,a.kodp as kodp,a.kod_dog as kod_dog,a.vid_real as vid_real,a.num_sf as num_sf,a.dat_sf as dat_sf,a.ym as ym,0 as is_new,1 as is_not_new,a.vid_sf as vid_sf  from sr_facvip a where not exists (select * from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and a.kod_sf=t.f2 ) and   a.kod_sf in :kod_sf_prm   union all  select t.n1 as kod_sf,t.n3 as kod_deb,t.n4 as kodp,t.n5 as kod_dog,t.n6 as vid_real,t.n9 as num_sf,t.d1 as dat_sf,t.n10 as ym,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new,t.n7 as vid_sf  from rr_temp t where t.skod ='sr_facvip' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_sf_prm )
+where
+a.vid_sf not in (2 , 9) )
+sr_facvip on sr_facvip.kod_sf = qube.kod_sf--\sr_facvip
+left outer join
+(
+--sr_debet
+select a.kod_deb as kod_deb, /*number*//*key*/
+a.num_pl as num_pl/*Номер документа на оплату*//*number*/
+
+from sr_debet
+a
+--\sr_debet
+)
+kod_deb_x_n on sr_facvip.kod_deb = kod_deb_x_n.kod_deb--\sr_debet
+left outer join
+(
+--sk_vid_real
+select a.vid_real as vid_real, /**//*number*//*key*/
+a.name as name/*Вид реализации*//*string*/
+
+from sk_vid_real
+a
+--\sk_vid_real
+)
+vid_real_x_n on sr_facvip.vid_real = vid_real_x_n.vid_real--\sk_vid_real
+left outer join
+(
+--kr_dogovor
+select a.kod_dog as kod_dog, /*number*//*key*/
+a.ndog || ' от ' || ( to_char( a.dat_dog ,'DD.MM.YYYY') )  as name/*Договор*//*string*/
+
+from kr_dogovor
+a
+--\kr_dogovor
+)
+kod_dog_x_n on sr_facvip.kod_dog = kod_dog_x_n.kod_dog--\kr_dogovor
+left outer join
+(
+--kr_payer
+select a.kodp as kodp, /**//*number*//*key*/
+a.nump || ' ' || a.name as sp_col_name/**//*string*/
+
+from kr_payer
+a
+--\kr_payer
+)
+kodp_x_n on sr_facvip.kodp = kodp_x_n.kodp--\kr_payer
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+    <table name="ur_mat" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="ur_mat" delete-validation="ur_dp_exists_vld" key="kod_mat" is-ms-upd="1" is-top="1" key-dimension="kod_mat">
+      <select-text>
+--
+select ur_mat.num_delo as num_delo, /*Номер дела*//*string*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count, /*number*/
+ur_mat.is_new as is_new, /*number*/
+ur_mat.is_not_new as is_not_new, /*number*/
+qube.ur_dp_exists_vld1 as ur_dp_exists_vld, /*Валидация (наличие привязанных документов)*//*string*/
+ur_mat.kod_mat as kod_mat/*number*//*key*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+sum(qube.ur_hist_mat_count1)  as ur_hist_mat_count1, /*number*/
+max( case  when ( nvl( qube.ur_dogplat_count1 ,0)!=0 )  then 'Есть суммы по документу' end )  as ur_dp_exists_vld1/*Валидация (наличие привязанных документов)*//*string*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_dogplat_count1 as ur_dogplat_count1, /*number*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_dogplat_count1 as ur_dogplat_count1, /*number*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count1/*number*/
+
+from (
+--
+select un.kod_mat as kod_mat, /*number*//*key*/
+sum(un.ur_dogplat_count1)  as ur_dogplat_count1, /*number*/
+sum(un.ur_hist_mat_count1)  as ur_hist_mat_count1/*number*/
+
+from (
+(
+(
+--
+select ur_dogplat_a_d.kod_mat as kod_mat, /*number*//*key*/
+ur_dogplat_a_d.cnt as ur_dogplat_count1, /*number*/
+null as ur_hist_mat_count1/*number*/
+
+from (
+--ur_dogplat
+select a.kod_dogplat as kod_dogplat, /*number*//*key*/
+a.kod_mat as kod_mat, /*number*/
+1 as cnt/*number*/
+
+from ur_dogplat
+a
+--\ur_dogplat
+)
+ur_dogplat_a_d
+--\ur_dogplat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat on ur_dogplat_a_d.kod_mat = ur_mat.kod_mat--\ur_mat
+where
+(ur_mat.kod_mat = :kod_mat )  and (ur_mat.kod_mat is not null ) )
+--\
+union all
+(
+--
+select ur_hist_mat_a_d.kod_mat as kod_mat, /*number*//*key*/
+null as ur_dogplat_count1, /*number*/
+ur_hist_mat_a_d.cnt as ur_hist_mat_count1/*number*/
+
+from (
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.kod_mat as kod_mat, /*number*/
+1 as cnt/*number*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+ur_hist_mat_a_d
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat on ur_hist_mat_a_d.kod_mat = ur_mat.kod_mat--\ur_mat
+where
+(ur_mat.kod_mat = :kod_mat )  and (ur_mat.kod_mat is not null ) )
+--\
+union all
+(
+--
+select ur_mat.kod_mat as kod_mat, /*number*//*key*/
+null as ur_dogplat_count1, /*number*/
+null as ur_hist_mat_count1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat
+--\ur_mat
+where
+(ur_mat.kod_mat = :kod_mat )  and (ur_mat.kod_mat is not null ) )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_mat/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_mat/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.num_delo as num_delo, /*Номер дела*//*string*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from ur_mat
+a
+--\ur_mat
+)
+ur_mat on ur_mat.kod_mat = qube.kod_mat--\ur_mat
+--\
+</select-text>
+      <columns>
+        <column name="num_delo" table="ur_mat" type="string" title="Номер дела" ColumnEditable="0" Mandatory="qube.ur_hist_mat_count" is-updateable="1" is-updateable-ext="1" update-target="num_delo" temp-col-name="s1" />
+        <column name="ur_hist_mat_count" table="ur_mat" type="number" title="" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_mat_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_mat_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select qube.ur_hist_mat_count1 as ur_hist_mat_count, /*number*/
+ur_mat.kod_mat as kod_mat/*number*//*key*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+sum(qube.ur_hist_mat_count1)  as ur_hist_mat_count1/*number*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count1/*number*/
+
+from (
+--
+select un.kod_mat as kod_mat, /*number*//*key*/
+sum(un.ur_hist_mat_count1)  as ur_hist_mat_count1/*number*/
+
+from (
+(
+(
+--
+select ur_hist_mat_a_d.kod_mat as kod_mat, /*number*//*key*/
+ur_hist_mat_a_d.cnt as ur_hist_mat_count1/*number*/
+
+from (
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.kod_mat as kod_mat, /*number*/
+1 as cnt/*number*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+ur_hist_mat_a_d
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_hist_mat_a_d.kod_mat = ur_mat.kod_mat--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+union all
+(
+--
+select ur_mat.kod_mat as kod_mat, /*number*//*key*/
+null as ur_hist_mat_count1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat
+--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_mat/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_mat/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_mat.kod_mat = qube.kod_mat--\ur_mat
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="ur_mat" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="ur_mat" type="number" title="" is-user-editable="1" />
+        <column name="ur_dp_exists_vld" table="ur_mat" type="string" title="Валидация (наличие привязанных документов)" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_mat_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_mat_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select qube.ur_dp_exists_vld1 as ur_dp_exists_vld, /*Валидация (наличие привязанных документов)*//*string*/
+ur_mat.kod_mat as kod_mat/*number*//*key*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+max( case  when ( nvl( qube.ur_dogplat_count1 ,0)!=0 )  then 'Есть суммы по документу' end )  as ur_dp_exists_vld1/*Валидация (наличие привязанных документов)*//*string*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_dogplat_count1 as ur_dogplat_count1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_dogplat_count1 as ur_dogplat_count1/*number*/
+
+from (
+--
+select un.kod_mat as kod_mat, /*number*//*key*/
+sum(un.ur_dogplat_count1)  as ur_dogplat_count1/*number*/
+
+from (
+(
+(
+--
+select ur_dogplat_a_d.kod_mat as kod_mat, /*number*//*key*/
+ur_dogplat_a_d.cnt as ur_dogplat_count1/*number*/
+
+from (
+--ur_dogplat
+select a.kod_dogplat as kod_dogplat, /*number*//*key*/
+a.kod_mat as kod_mat, /*number*/
+1 as cnt/*number*/
+
+from ur_dogplat
+a
+--\ur_dogplat
+)
+ur_dogplat_a_d
+--\ur_dogplat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_dogplat_a_d.kod_mat = ur_mat.kod_mat--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+union all
+(
+--
+select ur_mat.kod_mat as kod_mat, /*number*//*key*/
+null as ur_dogplat_count1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat
+--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_mat/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_mat/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_mat.kod_mat = qube.kod_mat--\ur_mat
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_mat" table="ur_mat" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_mat" temp-col-name="n3" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:num_delo as num_delo 
+,:kod_mat as kod_mat 
+ 
+from dual ) 
+ 
+loop 
+insert into ur_mat 
+(num_delo 
+,kod_mat 
+) 
+ values  
+(r.num_delo 
+,r.kod_mat 
+) 
+ returning  
+kod_mat into :kod_mat; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from ur_mat where kod_mat=:kod_mat</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='ur_mat' 
+and 
+names=:form_id 
+and 
+f2=:kod_mat; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:num_delo as num_delo 
+,:kod_mat as kod_mat 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n3 
+) 
+ values  
+('ur_mat' 
+,:form_id 
+,:kod_mat 
+,:row_state_id 
+,r.num_delo 
+,r.kod_mat 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:num_delo as num_delo 
+,:kod_mat as kod_mat 
+,a.kod_folders 
+,a.kod_doc 
+,a.kod_ssp 
+,a.num_reg 
+,a.dat_otv 
+,a.kod_ret_isk 
+,a.dat_prin 
+,a.u_m 
+,a.d_m 
+,a.num_otz 
+,a.dat_otz 
+,a.dat_doc 
+,a.fio_otz 
+,a.kod_subject 
+,a.prichina_otz 
+,a.sum_gp 
+,a.prim 
+,a.dat_gp 
+,a.kod_sud 
+,a.num_pp_gp 
+,a.kod_parent 
+,a.kodp 
+,a.ogr 
+,a.kod_dispute 
+,a.type_claim_template 
+,a.kod_delo 
+,a.tep_el 
+,a.type_potr 
+,a.vvod 
+,a.kod_emp 
+,a.kod_vi 
+,a.dep 
+,a.dat_finish 
+,a.prim_mor_dz 
+,a.osnreal 
+,a.period_zadol_s_vvod 
+,a.period_zadol_po_vvod 
+,a.ur_opl_do_resh_vvod 
+,a.shtraf 
+,a.peni 
+,a.otvetch_info 
+,a.link_delo 
+,a.sum_zach_gp 
+,a.num_zach_doc 
+,a.dat_zach 
+,a.sum_ifns_gp 
+,a.num_ifns_doc 
+,a.dat_ifns 
+,a.kod_scan 
+,a.astrent_exists 
+,a.dat_post 
+,a.dat_arh 
+,a.type_rassm 
+,a.dat_post_mat_pio 
+,a.num_zap_post_mat 
+ 
+from ur_mat a  where kod_mat=:kod_mat) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,s1 
+,n3 
+,n4 
+,n5 
+,n6 
+,s2 
+,d1 
+,n7 
+,d2 
+,s3 
+,d3 
+,s4 
+,d4 
+,d5 
+,s5 
+,n8 
+,s6 
+,n9 
+,s7 
+,d6 
+,n10 
+,s8 
+,n11 
+,n1 
+,n12 
+,n13 
+,n14 
+,n15 
+,n16 
+,n17 
+,n18 
+,n19 
+,n20 
+,n21 
+,d7 
+,s9 
+,n22 
+,n23 
+,n24 
+,n25 
+,n26 
+,n27 
+,s10 
+,s11 
+,n28 
+,s12 
+,d8 
+,n29 
+,s13 
+,d9 
+,n30 
+,n31 
+,d10 
+,d11 
+,n32 
+,d12 
+,s14 
+) 
+ values  
+('ur_mat' 
+,:form_id 
+,:kod_mat 
+,:row_state_id 
+,r.num_delo 
+,r.kod_mat 
+,r.kod_folders 
+,r.kod_doc 
+,r.kod_ssp 
+,r.num_reg 
+,r.dat_otv 
+,r.kod_ret_isk 
+,r.dat_prin 
+,r.u_m 
+,r.d_m 
+,r.num_otz 
+,r.dat_otz 
+,r.dat_doc 
+,r.fio_otz 
+,r.kod_subject 
+,r.prichina_otz 
+,r.sum_gp 
+,r.prim 
+,r.dat_gp 
+,r.kod_sud 
+,r.num_pp_gp 
+,r.kod_parent 
+,r.kodp 
+,r.ogr 
+,r.kod_dispute 
+,r.type_claim_template 
+,r.kod_delo 
+,r.tep_el 
+,r.type_potr 
+,r.vvod 
+,r.kod_emp 
+,r.kod_vi 
+,r.dep 
+,r.dat_finish 
+,r.prim_mor_dz 
+,r.osnreal 
+,r.period_zadol_s_vvod 
+,r.period_zadol_po_vvod 
+,r.ur_opl_do_resh_vvod 
+,r.shtraf 
+,r.peni 
+,r.otvetch_info 
+,r.link_delo 
+,r.sum_zach_gp 
+,r.num_zach_doc 
+,r.dat_zach 
+,r.sum_ifns_gp 
+,r.num_ifns_doc 
+,r.dat_ifns 
+,r.kod_scan 
+,r.astrent_exists 
+,r.dat_post 
+,r.dat_arh 
+,r.type_rassm 
+,r.dat_post_mat_pio 
+,r.num_zap_post_mat 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='ur_mat' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update ur_mat set  
+(num_delo 
+,kod_mat 
+) 
+= 
+ ( select  
+:num_delo as num_delo 
+,:kod_mat as kod_mat 
+ 
+from dual ) 
+ 
+where 
+kod_mat=:kod_mat 
+;
+end;
+</update-text>
+      <events>
+        <useaction action-type="custom" event-name="object-save">
+          <useaction action-type="execute-update" call="ur_mat_upd_num_reg">
+            <column table="this" column="kod_mat" />
+          </useaction>
+          <useaction action-type="execute-update" call="ur_mat_upd_pretenz">
+            <column table="this" column="kod_mat" />
+          </useaction>
+        </useaction>
+      </events>
+      <scheme>
+        <table name="ur_mat" as="ur_mat">
+          <columns>
+            <column name="num_delo" type="string" title="Номер дела" />
+            <column name="ur_hist_mat_count" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="ur_dp_exists_vld" type="string" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_mat" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns />
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_mat_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_mat_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select ur_mat.num_delo as num_delo, /*Номер дела*//*string*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count, /*number*/
+ur_mat.is_new as is_new, /*number*/
+ur_mat.is_not_new as is_not_new, /*number*/
+qube.ur_dp_exists_vld1 as ur_dp_exists_vld, /*Валидация (наличие привязанных документов)*//*string*/
+ur_mat.kod_mat as kod_mat/*number*//*key*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+sum(qube.ur_hist_mat_count1)  as ur_hist_mat_count1, /*number*/
+max( case  when ( nvl( qube.ur_dogplat_count1 ,0)!=0 )  then 'Есть суммы по документу' end )  as ur_dp_exists_vld1/*Валидация (наличие привязанных документов)*//*string*/
+
+from (
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_dogplat_count1 as ur_dogplat_count1, /*number*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count1/*number*/
+
+from (
+(
+(
+--
+select qube.kod_mat as kod_mat, /*number*//*key*/
+qube.ur_dogplat_count1 as ur_dogplat_count1, /*number*/
+qube.ur_hist_mat_count1 as ur_hist_mat_count1/*number*/
+
+from (
+--
+select un.kod_mat as kod_mat, /*number*//*key*/
+sum(un.ur_dogplat_count1)  as ur_dogplat_count1, /*number*/
+sum(un.ur_hist_mat_count1)  as ur_hist_mat_count1/*number*/
+
+from (
+(
+(
+--
+select ur_dogplat_a_d.kod_mat as kod_mat, /*number*//*key*/
+ur_dogplat_a_d.cnt as ur_dogplat_count1, /*number*/
+null as ur_hist_mat_count1/*number*/
+
+from (
+--ur_dogplat
+select a.kod_dogplat as kod_dogplat, /*number*//*key*/
+a.kod_mat as kod_mat, /*number*/
+1 as cnt/*number*/
+
+from ur_dogplat
+a
+--\ur_dogplat
+)
+ur_dogplat_a_d
+--\ur_dogplat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_dogplat_a_d.kod_mat = ur_mat.kod_mat--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+union all
+(
+--
+select ur_hist_mat_a_d.kod_mat as kod_mat, /*number*//*key*/
+null as ur_dogplat_count1, /*number*/
+ur_hist_mat_a_d.cnt as ur_hist_mat_count1/*number*/
+
+from (
+--ur_hist_mat
+select a.kod_hist_mat as kod_hist_mat, /*number*//*key*/
+a.kod_mat as kod_mat, /*number*/
+1 as cnt/*number*/
+
+from ur_hist_mat
+a
+--\ur_hist_mat
+)
+ur_hist_mat_a_d
+--\ur_hist_mat
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_hist_mat_a_d.kod_mat = ur_mat.kod_mat--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+union all
+(
+--
+select ur_mat.kod_mat as kod_mat, /*number*//*key*/
+null as ur_dogplat_count1, /*number*/
+null as ur_hist_mat_count1/*number*/
+
+from (
+--ur_mat
+select a.kod_mat as kod_mat/*number*//*key*/
+
+from (select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat
+--\ur_mat
+where
+ur_mat.kod_mat is not null )
+--\
+)
+--\
+)
+un
+--\
+ group by
+un.kod_mat/*number*//*key*/
+)
+qube
+--\
+)
+--\
+)
+--\
+)
+qube
+--\
+)
+qube
+--\
+ group by
+qube.kod_mat/*number*//*key*/
+)
+qube
+--\
+left outer join
+(
+--ur_mat
+select a.kod_mat as kod_mat, /*number*//*key*/
+a.num_delo as num_delo, /*Номер дела*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_mat as kod_mat,a.num_delo as num_delo,0 as is_new,1 as is_not_new  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat,t.s1 as num_delo,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+a
+--\(select a.kod_mat as kod_mat,a.num_delo as num_delo,0 as is_new,1 as is_not_new  from ur_mat a where not exists (select * from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and a.kod_mat=t.f2 ) and   a.kod_mat in :kod_mat_prm   union all  select t.n3 as kod_mat,t.s1 as num_delo,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='ur_mat' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_mat_prm )
+)
+ur_mat on ur_mat.kod_mat = qube.kod_mat--\ur_mat
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+    <table name="sr_debet" auto-refresh="" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multi-select-column="" multi-select-target="" update-target="sr_debet" key="kod_deb" is-ms-upd="1" is-top="1" key-dimension="kod_deb">
+      <select-text>
+--
+select sr_debet.num_pl as num_pl, /*Номер документа*//*number*/
+sr_debet.dat_deb as dat_deb, /*Дата документа*//*date*/
+sr_debet.dat_bzad as dat_bzad, /*Дата возник. задолж.*//*date*/
+sr_debet.is_new as is_new, /*number*/
+sr_debet.is_not_new as is_not_new, /*number*/
+sr_debet.kod_deb as kod_deb/*number*//*key*/
+
+from (
+--sr_debet
+select a.kod_deb as kod_deb, /*number*//*key*/
+a.num_pl as num_pl, /*Номер документа на оплату*//*number*/
+a.dat_deb as dat_deb, /*Дата документа на оплату*//*date*/
+a.dat_bzad as dat_bzad, /*Дата возникновения обязательства по погашению задолженности*//*date*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from sr_debet
+a
+--\sr_debet
+)
+sr_debet
+--\sr_debet
+where
+sr_debet.kod_deb = :kod_deb --\
+</select-text>
+      <columns>
+        <column name="num_pl" table="sr_debet" type="number" title="Номер документа" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="num_pl" temp-col-name="n1" />
+        <column name="dat_deb" table="sr_debet" type="date" title="Дата документа" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="dat_deb" temp-col-name="d1" />
+        <column name="dat_bzad" table="sr_debet" type="date" title="Дата возник. задолж." ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="dat_bzad" temp-col-name="d2" />
+        <column name="is_new" table="sr_debet" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="sr_debet" type="number" title="" is-user-editable="1" />
+        <column name="kod_deb" table="sr_debet" type="number" title="" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_deb" temp-col-name="n2" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:num_pl as num_pl 
+,:dat_deb as dat_deb 
+,:dat_bzad as dat_bzad 
+,:kod_deb as kod_deb 
+ 
+from dual ) 
+ 
+loop 
+insert into sr_debet 
+(num_pl 
+,dat_deb 
+,dat_bzad 
+,kod_deb 
+) 
+ values  
+(r.num_pl 
+,r.dat_deb 
+,r.dat_bzad 
+,r.kod_deb 
+) 
+ returning  
+kod_deb into :kod_deb; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from sr_debet where kod_deb=:kod_deb</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='sr_debet' 
+and 
+names=:form_id 
+and 
+f2=:kod_deb; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:num_pl as num_pl 
+,:dat_deb as dat_deb 
+,:dat_bzad as dat_bzad 
+,:kod_deb as kod_deb 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,d1 
+,d2 
+,n2 
+) 
+ values  
+('sr_debet' 
+,:form_id 
+,:kod_deb 
+,:row_state_id 
+,r.num_pl 
+,r.dat_deb 
+,r.dat_bzad 
+,r.kod_deb 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:num_pl as num_pl 
+,:dat_deb as dat_deb 
+,:dat_bzad as dat_bzad 
+,:kod_deb as kod_deb 
+,a.tep_el 
+,a.kodp 
+,a.kod_dog 
+,a.vid_pl 
+,a.ym 
+,a.dat_priem 
+,a.pr_old 
+,a.pr_perep 
+,a.den 
+,a.kodp_plat 
+,a.kod_dog_link 
+,a.kod_deb_konsol 
+,a.u_c 
+,a.d_c 
+ 
+from sr_debet a  where kod_deb=:kod_deb) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,d1 
+,d2 
+,n2 
+,n3 
+,n4 
+,n5 
+,n6 
+,n7 
+,d3 
+,n8 
+,n9 
+,n10 
+,n11 
+,n12 
+,n13 
+,s1 
+,d4 
+) 
+ values  
+('sr_debet' 
+,:form_id 
+,:kod_deb 
+,:row_state_id 
+,r.num_pl 
+,r.dat_deb 
+,r.dat_bzad 
+,r.kod_deb 
+,r.tep_el 
+,r.kodp 
+,r.kod_dog 
+,r.vid_pl 
+,r.ym 
+,r.dat_priem 
+,r.pr_old 
+,r.pr_perep 
+,r.den 
+,r.kodp_plat 
+,r.kod_dog_link 
+,r.kod_deb_konsol 
+,r.u_c 
+,r.d_c 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='sr_debet' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update sr_debet set  
+(num_pl 
+,dat_deb 
+,dat_bzad 
+,kod_deb 
+) 
+= 
+ ( select  
+:num_pl as num_pl 
+,:dat_deb as dat_deb 
+,:dat_bzad as dat_bzad 
+,:kod_deb as kod_deb 
+ 
+from dual ) 
+ 
+where 
+kod_deb=:kod_deb 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="sr_debet" as="sr_debet">
+          <columns>
+            <column name="num_pl" type="number" format="F0" edit-mask="F0" title="Номер документа" />
+            <column name="dat_deb" type="date" title="Дата документа" />
+            <column name="dat_bzad" type="date" title="Дата возник. задолж." />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="kod_deb" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns />
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_deb_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_deb_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select sr_debet.num_pl as num_pl, /*Номер документа*//*number*/
+sr_debet.dat_deb as dat_deb, /*Дата документа*//*date*/
+sr_debet.dat_bzad as dat_bzad, /*Дата возник. задолж.*//*date*/
+sr_debet.is_new as is_new, /*number*/
+sr_debet.is_not_new as is_not_new, /*number*/
+sr_debet.kod_deb as kod_deb/*number*//*key*/
+
+from (
+--sr_debet
+select a.kod_deb as kod_deb, /*number*//*key*/
+a.num_pl as num_pl, /*Номер документа на оплату*//*number*/
+a.dat_deb as dat_deb, /*Дата документа на оплату*//*date*/
+a.dat_bzad as dat_bzad, /*Дата возникновения обязательства по погашению задолженности*//*date*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_deb as kod_deb,a.num_pl as num_pl,a.dat_deb as dat_deb,a.dat_bzad as dat_bzad,0 as is_new,1 as is_not_new  from sr_debet a where not exists (select * from rr_temp t where t.skod ='sr_debet' and t.names=:form_id  and a.kod_deb=t.f2 ) and   a.kod_deb in :kod_deb_prm   union all  select t.n2 as kod_deb,t.n1 as num_pl,t.d1 as dat_deb,t.d2 as dat_bzad,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sr_debet' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_deb_prm )
+a
+--\(select a.kod_deb as kod_deb,a.num_pl as num_pl,a.dat_deb as dat_deb,a.dat_bzad as dat_bzad,0 as is_new,1 as is_not_new  from sr_debet a where not exists (select * from rr_temp t where t.skod ='sr_debet' and t.names=:form_id  and a.kod_deb=t.f2 ) and   a.kod_deb in :kod_deb_prm   union all  select t.n2 as kod_deb,t.n1 as num_pl,t.d1 as dat_deb,t.d2 as dat_bzad,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='sr_debet' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_deb_prm )
+)
+sr_debet
+--\sr_debet
+--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

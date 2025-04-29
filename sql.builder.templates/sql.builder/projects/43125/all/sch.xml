@@ -1,0 +1,1524 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="43125-grsets" timestamp="26.09.2017 01:56:28">
+      <params>
+        <param name="p" />
+      </params>
+      <grset as="[:p]itog">
+        <where>
+          <call function="or">
+            <call function="false" />
+            <call function="=1" optional="1">
+              <useparam name="pr_itog" />
+            </call>
+          </call>
+        </where>
+      </grset>
+      <grset as="[:p]dep">
+        <group>
+          <column table="this" column="dep_name_g" />
+        </group>
+        <grset as="[:p]dep1">
+          <where>
+            <call function="or">
+              <call function="false" />
+              <call function="=1" optional="1">
+                <useparam name="pr_dep" />
+              </call>
+            </call>
+          </where>
+        </grset>
+        <grset as="[:p]pgrp">
+          <where>
+            <call function="is not null">
+              <column table="this" column="kod_group_cust_parent" />
+            </call>
+          </where>
+          <group>
+            <sourcelink table="kod_group_cust_parent" />
+          </group>
+          <grset as="[:p]pgrp1">
+            <where>
+              <call function="or">
+                <call function="false" />
+                <call function="=1" optional="1">
+                  <useparam name="pr_grp_prnt" />
+                </call>
+              </call>
+            </where>
+          </grset>
+          <grset as="[:p]grp">
+            <call function="is not null">
+              <column table="this" column="kod_group_cust" />
+            </call>
+            <group>
+              <sourcelink table="kod_group_cust" />
+            </group>
+            <grset as="[:p]grp1">
+              <where>
+                <call function="or">
+                  <call function="false" />
+                  <call function="=1" optional="1">
+                    <useparam name="pr_grp" />
+                  </call>
+                </call>
+              </where>
+            </grset>
+            <grset as="[:p]dog">
+              <where>
+                <call function="and">
+                  <call function="is not null">
+                    <column table="this" column="kod_dog" />
+                  </call>
+                  <call function="or">
+                    <call function="false" />
+                    <call function="=1" optional="1">
+                      <useparam name="pr_dog" />
+                    </call>
+                  </call>
+                </call>
+              </where>
+              <group>
+                <sourcelink table="kod_dog" />
+              </group>
+            </grset>
+          </grset>
+        </grset>
+      </grset>
+    </part>
+  </parts>
+  <queries>
+    <query name="43125-cols">
+      <const as="id" type="string">'Отделение'</const>
+      <const as="name" type="string">'Отделение'</const>
+      <const>'Группа потребителей'</const>
+      <const>'Группа потребителей'</const>
+      <const>'Подгруппа потребителей'</const>
+      <const>'Подгруппа потребителей'</const>
+      <const>'Договор'</const>
+      <const>'Договор'</const>
+    </query>
+    <query name="43125-cols-def" timestamp="26.09.2017 01:54:35">
+      <params>
+        <param type="number" name="pr_dep" />
+        <param type="number" name="pr_grp" />
+        <param type="number" name="pr_grp_prnt" />
+        <param type="number" name="pr_dog" />
+      </params>
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="43125-cols" as="a" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="and" optional="1">
+            <call function="=1">
+              <useparam name="pr_dep" />
+            </call>
+            <call function="in">
+              <column table="a" column="id" />
+              <array>'Отделение'</array>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="=1">
+              <useparam name="pr_grp_prnt" />
+            </call>
+            <call function="in">
+              <column table="a" column="id" />
+              <array>'Группа потребителей'</array>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="=1">
+              <useparam name="pr_grp" />
+            </call>
+            <call function="in">
+              <column table="a" column="id" />
+              <array>'Группа потребителей','Подгруппа потребителей'</array>
+            </call>
+          </call>
+          <call function="and" optional="1">
+            <call function="=1">
+              <useparam name="pr_dog" />
+            </call>
+            <call function="in">
+              <column table="a" column="id" />
+              <array>'Отделение','Группа потребителей','Подгруппа потребителей','Договор'</array>
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="43125-tst1" timestamp="22.09.2017 16:19:49" is-report="1" use-repository="1" title="Расчет нормативной оплаты по фактическим показателям" allow-save="1" edit-columns="1">
+      <params>
+        <usepart part="42865-params" />
+      </params>
+      <content exclude="1">
+        <usefield field="asuse_ym" title="Отчетный период" />
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust" />
+        <usefield field="cmn_string" title="Дата" name="sdat" column-visible="0">
+          <defaultquery>
+            <query name="42865-sdat-def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sym1" title="Отчетный период" column-visible="0">
+          <defaultquery>
+            <query name="42865-sym1-def" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sym2" title="Следующий период" column-visible="0">
+          <defaultquery>
+            <query name="42865-sym2-def" />
+          </defaultquery>
+        </usefield>
+      </content>
+      <expressions>
+        <call function="le" as="end_pev_ym" dontpushpred="1">
+          <column table="dat" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="ym" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="le" as="end_pev_y" dontpushpred="1">
+          <column table="dat" column="val" />
+          <call function="year end time">
+            <call function="-nvl">
+              <call function="trunc">
+                <useparam name="ym" />
+              </call>
+              <const>1</const>
+            </call>
+          </call>
+        </call>
+        <call function="=" as="in_ym" dontpushpred="1">
+          <call function="date to ym">
+            <column table="dat" column="val" />
+          </call>
+          <useparam name="ym" />
+        </call>
+        <call function="=" as="in_last_pry_ym" dontpushpred="1">
+          <call function="date to ym">
+            <column table="dat" column="val" />
+          </call>
+          <call function="date to ym">
+            <call function="year begin time">
+              <call function="-nvl">
+                <call function="trunc">
+                  <useparam name="ym" />
+                </call>
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="between" as="in_period" dontpushpred="1">
+          <call function="date to ym">
+            <column table="dat" column="val" />
+          </call>
+          <call function="date to ym">
+            <call function="year begin time">
+              <call function="trunc">
+                <useparam name="ym" />
+              </call>
+            </call>
+          </call>
+          <call function="ym add month">
+            <useparam name="ym" />
+            <const>-1</const>
+          </call>
+        </call>
+        <call function="=" dontpushpred="1" as="rym_tek">
+          <column table="ym_vozn2" column="val" />
+          <useparam name="ym" />
+        </call>
+        <call function="=" dontpushpred="1" as="rym_nxt">
+          <column table="ym_vozn2" column="val" />
+          <call function="ym add month">
+            <useparam name="ym" />
+            <const>1</const>
+          </call>
+        </call>
+        <call function="=" dontpushpred="1" as="rym_beg_y">
+          <column table="ym_vozn2" column="val" />
+          <call function="date to ym">
+            <call function="year begin time">
+              <call function="trunc">
+                <useparam name="ym" />
+              </call>
+            </call>
+          </call>
+        </call>
+        <call function="0-" group="sum" as="dolg_kred_end_pev_ym" title="Кредиторская задолженность">
+          <fact column="fin_ul_ob_kr_os_av" condition="end_pev_ym" />
+        </call>
+        <call function="()" group="sum" as="dolg_deb_end_pev_ym" title="Дебиторская задолженность" type="number">
+          <fact column="fin_ul_ob_osn" condition="end_pev_ym" />
+        </call>
+        <call function="0-" group="sum" as="dolg_kred_end_pev_y" title="Кредиторская задолженность">
+          <fact column="fin_ul_ob_kr_os_av" condition="end_pev_y" />
+        </call>
+        <call function="()" group="sum" as="dolg_deb_end_pev_y" title="Дебиторская задолженность" type="number">
+          <fact column="fin_ul_ob_osn" condition="end_pev_y" />
+        </call>
+        <call function="()" group="sum" as="nach_osn_tek" type="number">
+          <fact column="fin_ul_nachisl_osn" condition="in_ym" />
+        </call>
+        <call function="()" group="sum" as="nach_osn_period" type="number">
+          <fact column="fin_ul_nachisl_osn" condition="in_period" />
+        </call>
+        <call function="()" group="sum" as="nach_av_tek" type="number">
+          <fact column="fin_ul_nachisl_av" condition="in_ym" />
+        </call>
+        <call function="()" group="sum" as="nach_av_last_pry_ym" type="number">
+          <fact column="fin_ul_nachisl_av" condition="in_last_pry_ym" />
+        </call>
+        <call function="()" group="sum" as="nach_av_for_tek" type="number">
+          <fact column="fin_ul_nachisl_av" condition="rym_tek" />
+        </call>
+        <call function="()" group="sum" as="nach_av_tek_for_nxt" type="number">
+          <fact column="nach_av_tek" condition="rym_nxt" />
+        </call>
+        <call function="()" group="sum" as="perc_av_for_tek" type="number">
+          <fact column="sr_facvip_perc_sum" condition="rym_tek" />
+        </call>
+        <call function="()" group="sum" as="nach_av_last_pry_for_beg_y" type="number">
+          <fact column="nach_av_last_pry_ym" condition="rym_beg_y" />
+        </call>
+      </expressions>
+      <select>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kod_group_cust_parent" column="name" as="user_group_parent" title="Группа потребителей" />
+        <column table="kod_group_cust" column="name" as="user_group" title="Подгруппа потребителей" />
+        <column table="kod_dog" column="ndog" />
+        <column table="kodp" column="name" />
+        <fact column="dolg_deb_end_pev_y" />
+        <fact column="dolg_kred_end_pev_y" />
+        <call function="+nvl" as="dolg_end_pev_y">
+          <column table="this" column="dolg_deb_end_pev_y" />
+          <column table="this" column="dolg_kred_end_pev_y" />
+        </call>
+        <fact column="nach_osn_period" />
+        <call function="if" as="norm_opl_pred_beg_y" type="number">
+          <call function="in">
+            <column table="this" column="perc_av_for_tek" />
+            <array>80,90,100</array>
+          </call>
+          <fact column="nach_av_last_pry_for_beg_y" />
+        </call>
+        <fact column="dolg_deb_end_pev_ym" />
+        <fact column="dolg_kred_end_pev_ym" />
+        <call function="+nvl" as="dolg_end_pev_ym">
+          <column table="this" column="dolg_deb_end_pev_ym" />
+          <column table="this" column="dolg_kred_end_pev_ym" />
+        </call>
+        <fact column="nach_osn_tek" />
+        <fact column="nach_av_for_tek" />
+        <fact column="perc_av_for_tek" />
+        <call function="smallest" as="av_tek_limited">
+          <fact column="nach_av_for_tek" />
+          <fact column="nach_osn_tek" />
+        </call>
+        <call function="if" as="norm_opl_pred" type="number">
+          <call function="in">
+            <column table="this" column="perc_av_for_tek" />
+            <array>80,90,100</array>
+          </call>
+          <column table="this" column="av_tek_limited" />
+        </call>
+        <call function="-nvl" as="norm_opl_in">
+          <column table="this" column="av_tek_limited" />
+          <column table="this" column="norm_opl_pred" />
+        </call>
+        <call function="-nvl" as="norm_opl_post">
+          <column table="this" column="nach_osn_tek" />
+          <column table="this" column="av_tek_limited" />
+        </call>
+        <call function="if" as="norm_opl_pred_nxt" type="number">
+          <call function="in">
+            <column table="this" column="perc_av_for_tek" />
+            <array>80,90,100</array>
+          </call>
+          <fact column="nach_av_tek_for_nxt" />
+        </call>
+        <call function="greatest_num" as="norm_opl_tek">
+          <call function="+nvl">
+            <column table="this" column="dolg_end_pev_ym" />
+            <column table="this" column="norm_opl_in" />
+            <column table="this" column="norm_opl_pred_nxt" />
+          </call>
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_vdog" />
+          </link>
+          <link name="kod_dep" as="dep" />
+          <link name="kodp" />
+          <link name="dat" />
+          <link name="kod_group_cust" />
+          <link name="kod_group_cust_parent" />
+          <where>
+            <call function="and">
+              <call function="true" />
+              <usepart part="33654-cmn-cond" />
+              <call function="le" dontpushpred="1">
+                <column table="dat" column="val" />
+                <call function="ym end time">
+                  <useparam name="ym" />
+                </call>
+              </call>
+              <call function="in" optional="1">
+                <column table="dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust_parent" column="kod_group_cust" />
+                <useparam name="kod_group_cust_parent" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust" column="kod_group_cust" />
+                <useparam name="kod_group_cust" />
+              </call>
+              <!--<call function="=">
+                <column table="kod_sf" column="kod_sf" />
+                <const>1845863</const>
+              </call>-->
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="43125" is-report="1" use-repository="1" title="Расчет нормативной оплаты по фактическим показателям" edit-columns="2" nogrid="1" with-behavior="0" timestamp="20.05.2025 03:35:51">
+      <params exclude="1">
+        <param type="number" name="m3">
+          <const>2017.08</const>
+        </param>
+        <param type="number" name="m0">
+          <const>2017.01</const>
+        </param>
+        <param type="number" name="m1">
+          <const>2017.07</const>
+        </param>
+        <param type="number" name="m2">
+          <const>2017.07</const>
+        </param>
+        <param name="dep" type="array">
+          <const>(102276621)</const>
+        </param>
+        <param name="kod_group_cust_parent" type="array" />
+        <param name="kod_group_cust" type="array" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="43125.xlsx" title="Расчет нормативной оплаты по фактическим показателям" print-xlsx="1" print-proc="2" del-cols="1" />
+        </excel>
+      </print-templates>
+      <content>
+        <usefield field="asuse_dep" />
+        <usefield field="asuse_ym" title="Отчетный период" name="m3">
+          <listquery>
+            <query name="43125-yms" />
+          </listquery>
+          <defaultquery>
+            <query name="spr_time_ym_cur" />
+          </defaultquery>
+        </usefield>
+        <usefield field="asuse_kod_group_cust_parent" />
+        <usefield field="asuse_kod_group_cust" />
+        <usefield field="asuse_kod_dog">
+          <listquery>
+            <query name="kr_dogovor_list_active" />
+          </listquery>
+        </usefield>
+        <fieldgroup title="Выводить строки">
+          <usefield field="cmn_check" name="pr_itog" title="Итог">
+            <defaultquery>
+              <query name="true" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_check" name="pr_dep" title="По отделениям">
+            <defaultquery>
+              <query name="true" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_check" name="pr_grp_prnt" title="По группам потребления">
+            <defaultquery>
+              <query name="true" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_check" name="pr_grp" title="По подгруппам потребления">
+            <defaultquery>
+              <query name="true" />
+            </defaultquery>
+          </usefield>
+          <usefield field="cmn_check" name="pr_dog" title="По договорам">
+            <defaultquery>
+              <query name="true" />
+            </defaultquery>
+          </usefield>
+        </fieldgroup>
+        <usefield field="asuse_ym_noma" title="Начало года" name="m0" column-visible="0">
+          <defaultquery>
+            <query name="43125-m0-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="asuse_ym_noma" name="m1" title="Начало квартала" column-visible="0">
+          <defaultquery>
+            <query name="43125-m1-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="asuse_ym_noma" title="Прошлый месяц" name="m2" column-visible="0">
+          <defaultquery>
+            <query name="43125-m2-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="spry" column-visible="0">
+          <defaultquery>
+            <query name="43125-spry-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sm0" column-visible="0">
+          <defaultquery>
+            <query name="43125-sm0-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="smp1" column-visible="0">
+          <defaultquery>
+            <query name="43125-smp1-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sm2" column-visible="0">
+          <defaultquery>
+            <query name="43125-sm2-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sm3" column-visible="0">
+          <defaultquery>
+            <query name="43125-sm3-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="smp3" column-visible="0">
+          <defaultquery>
+            <query name="43125-smp3-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sm4" column-visible="0">
+          <defaultquery>
+            <query name="43125-sm4-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="smp4" column-visible="0">
+          <defaultquery>
+            <query name="43125-smp4-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sm5" column-visible="0">
+          <defaultquery>
+            <query name="43125-sm5-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="smp5" column-visible="0">
+          <defaultquery>
+            <query name="43125-smp5-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_string" name="sdep" column-visible="0">
+          <defaultquery>
+            <query name="43125-sdep-val" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="dog_filter_m" visible="0">
+          <listquery>
+            <query name="43125-dog_filter_m" />
+          </listquery>
+          <defaultquery>
+            <query name="43125-dog_filter_m" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="dog_filter_g" visible="0">
+          <listquery>
+            <query name="43125-dog_filter_g" />
+          </listquery>
+          <defaultquery>
+            <query name="43125-dog_filter_g" />
+          </defaultquery>
+        </usefield>
+        <usefield field="cmn_list" name="dog_filter_k" visible="0">
+          <listquery>
+            <query name="43125-dog_filter_k" />
+          </listquery>
+          <defaultquery>
+            <query name="43125-dog_filter_k" />
+          </defaultquery>
+        </usefield>
+        <field name="colsets" controlType="UIList" special-type="colsets" title="Колонки" type="string" column-visible="0">
+          <defaultquery>
+            <query name="43125-cols-def" />
+          </defaultquery>
+        </field>
+        <label />
+        <label title="Некоторые данные в отчете" />
+        <label title="могут учитываться по" />
+        <label title="состоянию на вчерашний день" />
+        <label />
+        <uicommand name="vg_mview.refresh_43125" title="Обновить хранилище" is-ret="0" message="Хранилище обновлено" />
+      </content>
+      <expressions>
+        <call function="le" dontpushpred="1" as="dat_do_m3">
+          <column table="dat" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="m3" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="le" dontpushpred="1" as="dat_do_m0">
+          <column table="dat" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="m0" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="le" dontpushpred="1" as="dat_do_m1">
+          <column table="dat" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="m1" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="le" dontpushpred="1" as="dat_recalc_do_m3">
+          <column table="dat_recalc" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="m3" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="le" dontpushpred="1" as="dat_recalc_do_m0">
+          <column table="dat_recalc" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="m0" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="le" dontpushpred="1" as="dat_recalc_do_m1">
+          <column table="dat_recalc" column="val" />
+          <call function="ym end time">
+            <call function="ym add month">
+              <useparam name="m1" />
+              <const>-1</const>
+            </call>
+          </call>
+        </call>
+        <call function="0-" group="sum" as="dolg_kred_m" title="Кредиторская задолженность">
+          <fact column="fin_ul_ob_kr_os_av_rm" condition="dat_do_m3" />
+        </call>
+        <call function="()" group="sum" as="dolg_deb_m" title="Дебиторская задолженность" type="number">
+          <fact column="fin_ul_ob_osn" condition="dat_do_m3" exclude="1" />
+          <fact column="fin_ul_ob_osn_rm" condition="dat_recalc_do_m3" />
+        </call>
+        <call function="0-" group="sum" as="dolg_kred_y" title="Кредиторская задолженность">
+          <fact column="fin_ul_ob_kr_os_av_rm" condition="dat_do_m0" />
+        </call>
+        <call function="()" group="sum" as="dolg_deb_y" title="Дебиторская задолженность" type="number">
+          <fact column="fin_ul_ob_osn" condition="dat_do_m0" exclude="1" />
+          <fact column="fin_ul_ob_osn_rm" condition="dat_recalc_do_m0" />
+        </call>
+        <call function="0-" group="sum" as="dolg_kred_k" title="Кредиторская задолженность">
+          <fact column="fin_ul_ob_kr_os_av_rm" condition="dat_do_m1" />
+        </call>
+        <call function="()" group="sum" as="dolg_deb_k" title="Дебиторская задолженность" type="number">
+          <fact column="fin_ul_ob_osn" condition="dat_do_m1" exclude="1" />
+          <fact column="fin_ul_ob_osn_rm" condition="dat_recalc_do_m1" />
+        </call>
+        <call as="norm_opl" function="+nvl" group="sum" exclude="1">
+          <fact column="sr_facvip_norm_av_av_nach" />
+          <fact column="sr_facvip_norm_av_osn_nach" />
+        </call>
+        <call as="norm_opl" function="+nvl" group="sum">
+          <fact column="sr_aotch_norm_av_nach" />
+          <fact column="sr_aotch_norm_av_no_nach" />
+          <fact column="sr_aotch_norm_osn_nach" />
+        </call>
+        <call function="if" group="sum" as="nrm_do_god" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="lt">
+              <column table="ym_vist" column="val" />
+              <useparam name="m0" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <useparam name="m0" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_v_god" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="between">
+              <column table="ym_vist" column="val" />
+              <useparam name="m0" />
+              <useparam name="m2" />
+            </call>
+            <call function="between">
+              <column table="ym_potr" column="val" />
+              <useparam name="m0" />
+              <useparam name="m2" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_do_kv" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="lt">
+              <column table="ym_vist" column="val" />
+              <useparam name="m1" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <useparam name="m1" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_v_kv" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="between">
+              <column table="ym_vist" column="val" />
+              <useparam name="m1" />
+              <useparam name="m2" />
+            </call>
+            <call function="between">
+              <column table="ym_potr" column="val" />
+              <useparam name="m1" />
+              <useparam name="m2" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_p_godkv" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="gt">
+              <column table="ym_vist" column="val" />
+              <useparam name="m2" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <useparam name="m2" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_do_mes" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="lt">
+              <column table="ym_vist" column="val" />
+              <useparam name="m3" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <useparam name="m3" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_v_mes" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="=">
+              <column table="ym_vist" column="val" />
+              <useparam name="m3" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <useparam name="m3" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_p_mes" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="gt">
+              <column table="ym_vist" column="val" />
+              <useparam name="m3" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <useparam name="m3" />
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="nrm_do_nxt" type="number" exclude="1">
+          <call function="and">
+            <call function="=" dontpushpred="1">
+              <call function="date to ym">
+                <column table="dat" column="val" />
+              </call>
+              <useparam name="m3" />
+            </call>
+            <call function="=" dontpushpred="1">
+              <column table="ym_vozn2" column="val" />
+              <call function="ym add month">
+                <useparam name="m3" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="fin_ul_nachisl_av" />
+        </call>
+        <call function="if" group="sum" as="nrm_do_nxt" type="number" exclude="1">
+          <call function="and">
+            <call function="=" dontpushpred="1">
+              <call function="date to ym">
+                <column table="dat" column="val" />
+              </call>
+              <useparam name="m3" />
+            </call>
+            <call function="=" dontpushpred="1">
+              <column table="ym_vozn2" column="val" />
+              <call function="ym add month">
+                <useparam name="m3" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="sr_avans_otch_avans" />
+        </call>
+        <call function="if" group="sum" as="nrm_do_nxt" type="number">
+          <call function="and" dontpushpred="1">
+            <call function="=">
+              <column table="ym_vist" column="val" />
+              <useparam name="m3" />
+            </call>
+            <call function="=">
+              <column table="ym_potr" column="val" />
+              <call function="ym add month">
+                <useparam name="m3" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+          <fact column="norm_opl" />
+        </call>
+        <call function="if" group="sum" as="perc" type="number" exclude="1">
+          <call function="and">
+            <call function="=" dontpushpred="1">
+              <call function="date to ym">
+                <column table="dat" column="val" />
+              </call>
+              <useparam name="m3" />
+            </call>
+          </call>
+          <fact column="sr_facvip_perc_sum" />
+        </call>
+        <call function="if" group="sum" as="perc" type="number">
+          <call function="and">
+            <call function="=" dontpushpred="1">
+              <call function="date to ym">
+                <column table="dat" column="val" />
+              </call>
+              <useparam name="m3" />
+            </call>
+          </call>
+          <fact column="sr_avans_otch_perc" />
+        </call>
+      </expressions>
+      <select>
+        <call as="n3" function="mes" exclude="1">
+          <useparam name="m3" />
+        </call>
+        <call as="n2" function="mes" exclude="1">
+          <useparam name="m2" />
+        </call>
+        <call function="if" as="mms3" exclude="1">
+          <call function="lt">
+            <column table="this" column="n3" />
+          </call>
+          <const>'месяца'</const>
+        </call>
+        <call function="to_char" as="sy" group="max">
+          <call function="trunc">
+            <useparam name="m3" />
+          </call>
+        </call>
+        <call function="||" as="sm2sm4" group="max">
+          <column table="this" column="sm2" group="no" />
+          <const>'-'</const>
+          <column table="this" column="sm4" group="no" />
+        </call>
+        <call function="to_char" as="skv" group="max" exclude="1">
+          <call function="mes to kv">
+            <call function="mes">
+              <useparam name="m3" />
+            </call>
+          </call>
+        </call>
+        <call function="()" type="string" group="max" as="spry">
+          <useparam name="spry" />
+        </call>
+        <call function="()" type="string" group="max" as="sm0">
+          <useparam name="sm0" />
+        </call>
+        <call function="()" type="string" group="max" as="smp1">
+          <useparam name="smp1" />
+        </call>
+        <call function="()" type="string" group="max" as="sm2">
+          <useparam name="sm2" />
+        </call>
+        <call function="()" type="string" group="max" as="sm3">
+          <useparam name="sm3" />
+        </call>
+        <call function="()" type="string" group="max" as="smp3">
+          <useparam name="smp3" />
+        </call>
+        <call function="()" type="string" group="max" as="sm4">
+          <useparam name="sm4" />
+        </call>
+        <call function="()" type="string" group="max" as="smp4">
+          <useparam name="smp4" />
+        </call>
+        <call function="()" type="string" group="max" as="sm5">
+          <useparam name="sm5" />
+        </call>
+        <call function="()" type="string" group="max" as="smp5">
+          <useparam name="smp5" />
+        </call>
+        <call function="()" type="string" group="max" as="sdep">
+          <useparam name="sdep" />
+        </call>
+        <column table="kod_dog" column="kod_dog" />
+        <column table="dep" column="kodp" as="dep" />
+        <column table="kod_group_cust" column="kod_group_cust" />
+        <column table="kod_group_cust_parent" column="kod_group_cust" as="kod_group_cust_parent" />
+        <column table="dep" column="sname" as="dep_name" title="Отделение" colset="Отделение" group="max" />
+        <call function="if" as="dep_name_g" type="string">
+          <call function="or">
+            <call function="false" />
+            <call function="=1" optional="1">
+              <useparam name="pr_dep" />
+            </call>
+          </call>
+          <column table="dep" column="sname" title="Отделение" colset="Отделение" />
+        </call>
+        <column table="kod_group_cust_parent" column="name" as="user_group_parent" title="Группа потребителей" colset="Группа потребителей" />
+        <column table="kod_group_cust" column="name" as="user_group" title="Подгруппа потребителей" colset="Подгруппа потребителей" />
+        <column table="kodp" column="name" colset="Договор" />
+        <column table="kod_dog" column="ndog" colset="Договор" />
+        <fact column="dolg_deb_y" group="sum" nullif="0" />
+        <fact column="dolg_kred_y" group="sum" nullif="0" />
+        <call function="+nvl" as="dolg_y" group="sum" nullif="0">
+          <column table="this" column="dolg_kred_y" />
+          <column table="this" column="dolg_deb_y" />
+        </call>
+        <fact column="dolg_deb_k" group="sum" nullif="0" />
+        <fact column="dolg_kred_k" group="sum" nullif="0" />
+        <call function="+nvl" as="dolg_k" group="sum" nullif="0">
+          <column table="this" column="dolg_kred_k" />
+          <column table="this" column="dolg_deb_k" />
+        </call>
+        <fact column="dolg_deb_m" group="sum" nullif="0" />
+        <fact column="dolg_kred_m" group="sum" nullif="0" />
+        <call function="+nvl" as="dolg_m" group="sum" nullif="0">
+          <column table="this" column="dolg_kred_m" />
+          <column table="this" column="dolg_deb_m" />
+        </call>
+        <call function="+nvl" as="nrm_god" group="sum" nullif="0">
+          <column table="this" column="nrm_do_god" />
+          <column table="this" column="nrm_v_god" />
+          <column table="this" column="nrm_p_godkv" />
+        </call>
+        <fact column="nrm_do_god" group="sum" nullif="0" />
+        <fact column="nrm_v_god" group="sum" nullif="0" />
+        <call function="+nvl" as="nrm_kv" group="sum" nullif="0">
+          <column table="this" column="nrm_do_kv" />
+          <column table="this" column="nrm_v_kv" />
+          <column table="this" column="nrm_p_godkv" />
+        </call>
+        <fact column="nrm_do_kv" group="sum" nullif="0" />
+        <fact column="nrm_v_kv" group="sum" nullif="0" />
+        <fact column="nrm_p_godkv" group="sum" nullif="0" />
+        <call function="+nvl" as="nrm_mes" group="sum" nullif="0">
+          <column table="this" column="nrm_do_mes" />
+          <column table="this" column="nrm_v_mes" />
+          <column table="this" column="nrm_p_mes" />
+        </call>
+        <fact column="nrm_do_mes" group="sum" nullif="0" />
+        <fact column="nrm_v_mes" group="sum" nullif="0" />
+        <fact column="nrm_p_mes" group="sum" nullif="0" />
+        <call function="if" as="nrm_do_nxt" type="number" group="sum" nullif="0" exclude="1">
+          <call function="in">
+            <fact column="perc" />
+            <array>80,90,100</array>
+          </call>
+          <fact column="nrm_do_nxt" />
+        </call>
+        <fact column="nrm_do_nxt" group="sum" />
+        <call function="greatest_num" as="nrm_all_m" group="sum">
+          <call function="+nvl">
+            <column table="this" column="dolg_m" />
+            <column table="this" column="nrm_v_mes" />
+            <column table="this" column="nrm_do_nxt" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="greatest_num" as="nrm_all_k" group="sum">
+          <call function="+nvl">
+            <column table="this" column="dolg_k" />
+            <column table="this" column="nrm_kv" />
+            <column table="this" column="nrm_v_mes" />
+            <column table="this" column="nrm_do_nxt" />
+          </call>
+          <const>0</const>
+        </call>
+        <call function="greatest_num" as="nrm_all_y" group="sum">
+          <call function="+nvl">
+            <column table="this" column="dolg_y" />
+            <column table="this" column="nrm_god" />
+            <column table="this" column="nrm_v_mes" />
+            <column table="this" column="nrm_do_nxt" />
+          </call>
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <qube>
+          <link name="kod_dog">
+            <link name="kod_vdog" />
+            <link name="kodp" />
+          </link>
+          <link name="kod_dep" as="dep" />
+          <link name="kod_group_cust" />
+          <link name="kod_group_cust_parent" />
+          <where>
+            <call function="and">
+              <call function="true" />
+              <usepart part="33654-cmn-cond" exclude="1" />
+              <call function="or" exclude="1">
+                <call function="=0">
+                  <column table="kod_dog" column="pr_active" />
+                </call>
+                <call function="between">
+                  <call function="trunc">
+                    <column table="kod_dog" column="dat_fin" />
+                  </call>
+                  <call function="trunc">
+                    <call function="ym begin time">
+                      <useparam name="m3" />
+                    </call>
+                  </call>
+                  <call function="trunc">
+                    <call function="ym end time">
+                      <useparam name="m3" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+              <call function="!=" exclude="1">
+                <column table="kod_vdog" column="kod_tipdog" />
+                <const>6</const>
+              </call>
+              <call function="or">
+                <call function="!=">
+                  <column table="kod_vdog" column="kod_tipdog" />
+                  <const>6</const>
+                </call>
+                <call function="=">
+                  <column table="kod_group_cust" column="kod_group_cust" />
+                  <const>100076</const>
+                </call>
+              </call>
+              <call function="in" optional="1">
+                <column table="dep" column="kodp" />
+                <useparam name="dep" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_dog" column="kod_dog" />
+                <useparam name="kod_dog" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust_parent" column="kod_group_cust" />
+                <useparam name="kod_group_cust_parent" />
+              </call>
+              <call function="in" optional="1">
+                <column table="kod_group_cust" column="kod_group_cust" />
+                <useparam name="kod_group_cust" />
+              </call>
+              <!--<call function="=">
+                <column table="kod_sf" column="kod_sf" />
+                <const>1845863</const>
+              </call>-->
+            </call>
+          </where>
+        </qube>
+      </from>
+      <grouping>
+        <grset as="g">
+          <where>
+            <call function="and">
+              <call function="gt">
+                <call function="mes">
+                  <useparam name="m3" />
+                </call>
+                <const>1</const>
+              </call>
+              <call function="not in" comment="SD43125(18)" optional="1">
+                <column table="this" column="kod_dog" />
+                <useparam name="dog_filter_g" />
+              </call>
+            </call>
+          </where>
+          <usepart part="43125-grsets">
+            <const>'g_'</const>
+          </usepart>
+        </grset>
+        <grset as="k">
+          <where>
+            <call function="and">
+              <call function="gt">
+                <call function="mes">
+                  <useparam name="m3" />
+                </call>
+                <const>3</const>
+              </call>
+              <call function="=">
+                <call function="mes">
+                  <useparam name="m3" />
+                </call>
+                <call function="kv end mes">
+                  <call function="mes to kv">
+                    <call function="mes">
+                      <useparam name="m3" />
+                    </call>
+                  </call>
+                </call>
+              </call>
+              <call function="not in" comment="SD43125(18)" optional="1">
+                <column table="this" column="kod_dog" />
+                <useparam name="dog_filter_k" />
+              </call>
+            </call>
+          </where>
+          <usepart part="43125-grsets">
+            <const>'k_'</const>
+          </usepart>
+        </grset>
+        <grset as="m">
+          <where>
+            <call function="and">
+              <call function="true" />
+              <call function="not in" comment="SD43125(18)" optional="1">
+                <column table="this" column="kod_dog" />
+                <useparam name="dog_filter_m" />
+              </call>
+            </call>
+          </where>
+          <usepart part="43125-grsets">
+            <const>'m_'</const>
+          </usepart>
+        </grset>
+      </grouping>
+    </query>
+    <query name="43125-m0-val" timestamp="22.09.2017 16:26:10">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="if" type="number" as="val">
+          <call function="is not null">
+            <useparam name="m3" />
+          </call>
+          <call function="date to ym">
+            <call function="year begin time">
+              <call function="trunc">
+                <useparam name="m3" />
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-m1-val" timestamp="22.09.2017 16:16:37">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="num to ym" as="val">
+          <call function="trunc">
+            <useparam name="m3" />
+          </call>
+          <call function="kv beg mes">
+            <call function="ym to kv">
+              <useparam name="m3" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-m2-val" timestamp="22.09.2017 16:17:35">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="ym add month" as="val">
+          <useparam name="m3" />
+          <const>-1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-spry-val" timestamp="22.09.2017 16:40:12">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="-" as="val">
+          <call function="trunc">
+            <useparam name="m3" />
+          </call>
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-sm0-val" timestamp="22.09.2017 17:15:34">
+      <params>
+        <param type="number" name="m0" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name">
+            <call function="mes">
+              <useparam name="m0" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-smp1-val" timestamp="22.09.2017 17:17:37">
+      <params>
+        <param type="number" name="m1" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name-pp">
+            <call function="mes">
+              <call function="ym add month">
+                <useparam name="m1" />
+                <const>-1</const>
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-sm2-val" timestamp="22.09.2017 17:17:10">
+      <params>
+        <param type="number" name="m1" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name">
+            <call function="mes">
+              <useparam name="m1" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-sm3-val" timestamp="22.09.2017 17:18:24">
+      <params>
+        <param type="number" name="m2" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name">
+            <call function="mes">
+              <useparam name="m2" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-smp3-val" timestamp="22.09.2017 17:18:45">
+      <params>
+        <param type="number" name="m2" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name-pp">
+            <call function="mes">
+              <useparam name="m2" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-sm4-val" timestamp="22.09.2017 17:19:16">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name">
+            <call function="mes">
+              <useparam name="m3" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-smp4-val" timestamp="22.09.2017 17:19:35">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name-pp">
+            <call function="mes">
+              <useparam name="m3" />
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-sm5-val" timestamp="22.09.2017 17:28:42">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name">
+            <call function="mes">
+              <call function="ym add month">
+                <useparam name="m3" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-smp5-val" timestamp="22.09.2017 17:28:42">
+      <params>
+        <param type="number" name="m3" />
+      </params>
+      <select>
+        <call function="lower" as="val">
+          <call function="mes-name-pp">
+            <call function="mes">
+              <call function="ym add month">
+                <useparam name="m3" />
+                <const>1</const>
+              </call>
+            </call>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="dual" />
+      </from>
+    </query>
+    <query name="43125-sdep-val" timestamp="26.09.2017 10:50:40">
+      <params>
+        <param type="array" name="dep" />
+      </params>
+      <select>
+        <column table="a" column="sname" as="val" group="stragg" />
+      </select>
+      <from>
+        <query name="kr_dep" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="43125-dog_filter_m" timestamp="19.03.2020 23:41:21">
+      <params>
+        <param type="number" name="m3">
+          <const>2020.01</const>
+        </param>
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" group="1" key="1" />
+        <column table="kr_dogovor" column="ndog" group="1" />
+      </select>
+      <from>
+        <query name="kr_dogovor" />
+        <query name="sr_opl" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="sr_opl" column="ym" />
+              <useparam name="m3" />
+            </call>
+            <call function="=">
+              <column table="kr_dogovor" column="kod_dog" />
+              <column table="sr_opl" column="kod_dog" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=1">
+            <column table="kr_dogovor" column="pr_active" />
+          </call>
+          <call function="is null">
+            <column table="sr_opl" column="kod_opl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="43125-dog_filter_k" timestamp="19.03.2020 23:46:12">
+      <params>
+        <param type="number" name="m3">
+          <const>2020.01</const>
+        </param>
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" group="1" key="1" />
+        <column table="kr_dogovor" column="ndog" group="1" />
+      </select>
+      <from>
+        <query name="kr_dogovor" />
+        <query name="sr_opl" join="left outer">
+          <call function="and">
+            <call function="le">
+              <column table="sr_opl" column="ym" />
+              <useparam name="m3" />
+            </call>
+            <call function="ge">
+              <column table="sr_opl" column="ym" />
+              <call function="num to ym">
+                <call function="trunc">
+                  <useparam name="m3" />
+                </call>
+                <call function="kv beg mes">
+                  <call function="ym to kv">
+                    <useparam name="m3" />
+                  </call>
+                </call>
+              </call>
+            </call>
+            <call function="=">
+              <column table="kr_dogovor" column="kod_dog" />
+              <column table="sr_opl" column="kod_dog" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=1">
+            <column table="kr_dogovor" column="pr_active" />
+          </call>
+          <call function="is null">
+            <column table="sr_opl" column="kod_opl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="43125-dog_filter_g" timestamp="19.03.2020 23:49:59">
+      <params>
+        <param type="number" name="m3">
+          <const>2020.01</const>
+        </param>
+      </params>
+      <select>
+        <column table="kr_dogovor" column="kod_dog" group="1" key="1" />
+        <column table="kr_dogovor" column="ndog" group="1" />
+      </select>
+      <from>
+        <query name="kr_dogovor" />
+        <query name="sr_opl" join="left outer">
+          <call function="and">
+            <call function="le">
+              <column table="sr_opl" column="ym" />
+              <useparam name="m3" />
+            </call>
+            <call function="ge">
+              <column table="sr_opl" column="ym" />
+              <call function="trunc">
+                <useparam name="m3" />
+              </call>
+            </call>
+            <call function="=">
+              <column table="kr_dogovor" column="kod_dog" />
+              <column table="sr_opl" column="kod_dog" />
+            </call>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=1">
+            <column table="kr_dogovor" column="pr_active" />
+          </call>
+          <call function="is null">
+            <column table="sr_opl" column="kod_opl" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

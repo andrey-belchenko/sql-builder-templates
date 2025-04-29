@@ -1,0 +1,760 @@
+<root>
+  <query name="10653(52)-ym-nachisl" file="C:\tfs\all\sql.builder\sql.builder\oldsource\reports\asuse2\10653(52).xml" path="." used="1">
+    <select>
+      <column table="a" column="kod_bu_akt" as="kod_bu_akt" group="1" key="1" used="1" type="number" sourcetable="./a/a/a" sourcecolumn="kod_bu_akt" />
+      <column table="a" column="ym" as="ym" group="1" key="1" used="1" type="number" title="Период признания" sourcetable="./a/a/a" sourcecolumn="date_isp" />
+      <column table="a" column="nachisl" as="nachisl" group="sum" key="0" used="1" type="number" title="Начислено(руб)" sourcetable="./a/a/acc/acc" sourcecolumn="nachisl" />
+      <column table="a" column="cust" as="cust" group="sum" key="0" used="1" type="number" title="Начислено(нат. пок.)" sourcetable="./a/a/acc/acc/nch" sourcecolumn="edizm" reference="sk_edizm" refcol="edizm" />
+      <column table="a" column="proc" as="proc" group="sum" key="0" used="1" type="number" title="Начислено (руб)" sourcetable="./a/a/acc/acc" sourcecolumn="nachisl" />
+      <column table="a" column="proc_cust" as="proc_cust" group="sum" key="0" used="1" type="number" title="Начислено (квтч)" sourcetable="./a/a/acc/acc/nch" sourcecolumn="edizm" reference="sk_edizm" refcol="edizm" />
+      <column table="a" column="prizn" as="prizn" group="sum" key="0" used="1" type="number" />
+    </select>
+    <from>
+      <query as="a" path="./a" used="1">
+        <query path="./a" used="1">
+          <query name="10653(52)-ym-priz" union="1" path="./a" used="1">
+            <select>
+              <column table="a" column="kod_bu_akt" as="kod_bu_akt" key="1" used="1" type="number" sourcetable="./a/a/a" sourcecolumn="kod_bu_akt" />
+              <call function="date to ym" as="ym" title="Период признания" pth="" type="number" key="0" used="1">
+                <text>          to_number(to_char( </text>
+                <column table="a" column="date_isp" />
+                <text> ,'YYYYMM'))/100        </text>
+              </call>
+              <call function="-nvl" as="nachisl" title="Начислено(руб)" pth="" type="number" key="0" used="1">
+                <text>          nvl( </text>
+                <column table="a" column="nachisl" />
+                <text> ,0)        </text>
+                <text>          -nvl( </text>
+                <column table="a" column="opl_do" />
+                <text> ,0)        </text>
+              </call>
+              <call function="-nvl" as="cust" title="Начислено(нат. пок.)" pth="" type="number" key="0" used="1">
+                <text>          nvl( </text>
+                <column table="a" column="cust" />
+                <text> ,0)        </text>
+                <text>          -nvl( </text>
+                <column table="a" column="opl_cust_do" />
+                <text> ,0)        </text>
+              </call>
+              <call function="/nvl" as="proc" pth="" type="number" key="0" used="1">
+                <text>          nvl( </text>
+                <call function="-nvl" as="nachisl" title="Начислено(руб)" pth="" type="number">
+                  <text>          nvl( </text>
+                  <column table="a" column="nachisl" />
+                  <text> ,0)        </text>
+                  <text>          -nvl( </text>
+                  <column table="a" column="opl_do" />
+                  <text> ,0)        </text>
+                </call>
+                <text> ,0)        </text>
+                <text>          /nullif( </text>
+                <column table="a" column="nachisl" />
+                <text> ,0)        </text>
+              </call>
+              <call function="/nvl" as="proc_cust" pth="" type="number" key="0" used="1">
+                <text>          nvl( </text>
+                <call function="-nvl" as="cust" title="Начислено(нат. пок.)" pth="" type="number">
+                  <text>          nvl( </text>
+                  <column table="a" column="cust" />
+                  <text> ,0)        </text>
+                  <text>          -nvl( </text>
+                  <column table="a" column="opl_cust_do" />
+                  <text> ,0)        </text>
+                </call>
+                <text> ,0)        </text>
+                <text>          /nullif( </text>
+                <column table="a" column="cust" />
+                <text> ,0)        </text>
+              </call>
+              <const as="prizn" type="number" key="0" used="1">
+                <text>1</text>
+              </const>
+            </select>
+            <from>
+              <query name="10653(52)" as="a" path="./a/a" hint=" use_nl(a fv)" used="1">
+                <select>
+                  <column table="a" column="kod_bu_akt" as="kod_bu_akt" key="1" keypath=".kod_bu_akt" used="1" type="number" sourcetable="./a/a/a" sourcecolumn="kod_bu_akt" />
+                  <column table="a" column="date_isp" as="date_isp" key="0" used="1" type="date" title="Дата признания акта б/п" sourcetable="./a/a/a" sourcecolumn="date_isp" />
+                  <column table="acc" column="nachisl" dgroup="sum" as="nachisl" key="0" used="1" type="number" title="Начислено (руб)" sourcetable="./a/a/acc/acc" sourcecolumn="nachisl" />
+                  <column table="acc" column="cust" dgroup="sum" as="cust" key="0" used="1" type="number" title="Начислено (квтч)" sourcetable="./a/a/acc/acc/nch" sourcecolumn="edizm" reference="sk_edizm" refcol="edizm" />
+                  <column table="fv" column="opl_do" dgroup="sum" as="opl_do" title="Оплата до признания (руб.)" key="0" used="1" type="number" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="opl" />
+                  <column table="fv" column="opl_cust_do" dgroup="sum" as="opl_cust_do" title="Оплата до признания (нат. пок.)" key="0" used="1" type="number" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="cust" />
+                </select>
+                <from>
+                  <query name="hr_bu_akt" as="a" path="./a/a/a" used="1">
+                    <select>
+                      <column table="a" column="kod_bu_akt" as="kod_bu_akt" type="number" key="1" sourcetable="./a/a/a" sourcecolumn="kod_bu_akt" used="1" />
+                      <column table="a" column="date_isp" as="date_isp" type="date" title="Дата признания акта б/п" key="0" sourcetable="./a/a/a" sourcecolumn="date_isp" used="1" />
+                      <call function="date to ym" as="akt_bu_ym" title="Период составления акта б/п" pth="" type="number" key="0" used="1">
+                        <text>          to_number(to_char( </text>
+                        <column table="a" column="dat" />
+                        <text> ,'YYYYMM'))/100        </text>
+                      </call>
+                    </select>
+                    <from>
+                      <table name="hr_bu_akt" as="a" used="1" />
+                    </from>
+                  </query>
+                  <query as="acc" join="left outer" path="./a/a/acc" used="1">
+                    <select>
+                      <column table="acc" column="kod_bu_akt" as="kod_bu_akt" group="1" key="1" used="1" type="number" sourcetable="./a/a/acc/acc" sourcecolumn="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" />
+                      <column table="acc" column="nachisl" as="nachisl" group="sum" key="0" used="1" type="number" title="Начислено (руб)" sourcetable="./a/a/acc/acc" sourcecolumn="nachisl" />
+                      <column table="acc" column="cust4" as="cust" group="sum" key="0" used="1" type="number" title="Начислено (квтч)" sourcetable="./a/a/acc/acc/nch" sourcecolumn="edizm" reference="sk_edizm" refcol="edizm" />
+                    </select>
+                    <from>
+                      <query name="nr_account" as="acc" path="./a/a/acc/acc" used="1">
+                        <select>
+                          <call function="case" type="number" as="cust4" title="Начислено (квтч)" pth="" key="0" used="1">
+                            <text>        case        </text>
+                            <call function="when" pth="0">
+                              <text>         when        </text>
+                              <call function="=" pth="">
+                                <column table="nch" column="edizm" />
+                                <text>          = </text>
+                                <const>
+                                  <text>4</text>
+                                </const>
+                              </call>
+                              <text>          then          </text>
+                              <column table="a" column="cust" />
+                            </call>
+                            <text>        end      </text>
+                          </call>
+                          <column table="a" column="nachisl" as="nachisl" type="number" title="Начислено (руб)" key="0" sourcetable="./a/a/acc/acc" sourcecolumn="nachisl" used="1" />
+                          <column table="a" column="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" as="kod_bu_akt" type="number" key="0" sourcetable="./a/a/acc/acc" sourcecolumn="kod_bu_akt" used="1" />
+                        </select>
+                        <from>
+                          <table name="nr_account" as="a" used="1" />
+                          <query name="sk_nachisl" as="nch" join="left outer" path="./a/a/acc/acc/nch" used="1">
+                            <select>
+                              <column table="a" column="vid_t" as="vid_t" key="1" sourcetable="./a/a/acc/acc/nch" sourcecolumn="vid_t" used="1" />
+                              <column table="a" column="edizm" reference="sk_edizm" refcol="edizm" as="edizm" type="number" key="0" sourcetable="./a/a/acc/acc/nch" sourcecolumn="edizm" used="1" />
+                            </select>
+                            <from>
+                              <table name="sk_nachisl" as="a" used="1" />
+                            </from>
+                            <call function="=">
+                              <column table="a" column="vid_t" />
+                              <text>          = </text>
+                              <column table="nch" column="vid_t" />
+                            </call>
+                          </query>
+                        </from>
+                      </query>
+                    </from>
+                    <call function="=" pth="">
+                      <column table="acc" column="kod_bu_akt" />
+                      <text>          = </text>
+                      <column table="a" column="kod_bu_akt" />
+                    </call>
+                  </query>
+                  <query as="fv" join="left outer" hint=" use_nl(fv opl) use_nl(fv opl_do)" path="./a/a/fv" used="1">
+                    <select>
+                      <column table="fv" column="kod_bu_akt" as="kod_bu_akt" group="1" key="1" used="1" type="number" sourcetable="./a/a/fv/fv" sourcecolumn="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" />
+                      <column table="opl_do" dgroup="sum" column="opl_do" as="opl_do" group="sum" key="0" used="1" type="number" title="Оплачено (руб.)" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="opl" />
+                      <column table="opl_do" dgroup="sum" column="opl_cust_do" as="opl_cust_do" group="sum" key="0" used="1" type="number" title="Оплачено (нат. пок.)" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="cust" />
+                    </select>
+                    <from>
+                      <query name="sr_facvip" as="fv" path="./a/a/fv/fv" used="1">
+                        <select>
+                          <column table="v" column="kod_sf" as="kod_sf" type="number" key="1" sourcetable="./a/a/fv/fv" sourcecolumn="kod_sf" used="1" />
+                          <column table="v" column="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" as="kod_bu_akt" type="number" key="0" sourcetable="./a/a/fv/fv" sourcecolumn="kod_bu_akt" used="1" />
+                        </select>
+                        <from>
+                          <table name="sr_facvip" as="v" used="1" />
+                        </from>
+                      </query>
+                      <query as="opl_do" join="left outer" hint=" use_nl(opl_do fopl_do)" path="./a/a/fv/opl_do" used="1">
+                        <select>
+                          <column table="opl_do" column="kod_sf" as="kod_sf" group="1" key="1" used="1" sourcetable="./a/a/fv/opl_do/opl_do" sourcecolumn="kod_sf" reference="sr_facvip" refcol="kod_sf" />
+                          <column table="fopl_do" dgroup="sum" column="opl_do" as="opl_do" group="sum" key="0" used="1" type="number" title="Оплачено (руб.)" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="opl" />
+                          <column table="fopl_do" dgroup="sum" column="opl_cust_do" as="opl_cust_do" group="sum" key="0" used="1" type="number" title="Оплачено (нат. пок.)" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="cust" />
+                        </select>
+                        <from>
+                          <query name="sr_opl" as="opl_do" path="./a/a/fv/opl_do/opl_do" used="1">
+                            <select>
+                              <column table="o" column="kod_opl" as="kod_opl" key="1" sourcetable="./a/a/fv/opl_do/opl_do" sourcecolumn="kod_opl" used="1" />
+                              <column table="o" column="kod_sf" reference="sr_facvip" refcol="kod_sf" as="kod_sf" key="0" sourcetable="./a/a/fv/opl_do/opl_do" sourcecolumn="kod_sf" used="1" />
+                              <call function="case" as="dat_oper" pth="" key="0" used="1">
+                                <text>        case        </text>
+                                <call function="when" pth="0">
+                                  <text>         when        </text>
+                                  <call function="in" pth="">
+                                    <column table="o" column="kod_type_opl" />
+                                    <text>          in </text>
+                                    <call function="array" pth="">
+                                      <const>
+                                        <text>0</text>
+                                      </const>
+                                      <text>          ,  </text>
+                                      <const>
+                                        <text>1</text>
+                                      </const>
+                                      <text>          ,  </text>
+                                      <const>
+                                        <text>2</text>
+                                      </const>
+                                    </call>
+                                  </call>
+                                  <text>          then          </text>
+                                  <column table="o" column="dat_opl" />
+                                </call>
+                                <call function="else" pth="0">
+                                  <text>          else </text>
+                                  <call function="ym end time" pth="">
+                                    <text>           LAST_DAY(to_date( </text>
+                                    <column table="o" column="ym" />
+                                    <text> *100,'YYYYMM'))+(1-1/24/60/60)         </text>
+                                  </call>
+                                </call>
+                                <text>        end      </text>
+                              </call>
+                            </select>
+                            <from>
+                              <table name="sr_opl" as="o" used="1" />
+                            </from>
+                            <where>
+                              <call function="ls" pth="">
+                                <call function="case" as="dat_oper" pth="">
+                                  <text>        case        </text>
+                                  <call function="when" pth="0">
+                                    <text>         when        </text>
+                                    <call function="in" pth="">
+                                      <column table="o" column="kod_type_opl" />
+                                      <text>          in </text>
+                                      <call function="array" pth="">
+                                        <const>
+                                          <text>0</text>
+                                        </const>
+                                        <text>          ,  </text>
+                                        <const>
+                                          <text>1</text>
+                                        </const>
+                                        <text>          ,  </text>
+                                        <const>
+                                          <text>2</text>
+                                        </const>
+                                      </call>
+                                    </call>
+                                    <text>          then          </text>
+                                    <column table="o" column="dat_opl" />
+                                  </call>
+                                  <call function="else" pth="0">
+                                    <text>          else </text>
+                                    <call function="ym end time" pth="">
+                                      <text>           LAST_DAY(to_date( </text>
+                                      <column table="o" column="ym" />
+                                      <text> *100,'YYYYMM'))+(1-1/24/60/60)         </text>
+                                    </call>
+                                  </call>
+                                  <text>        end      </text>
+                                </call>
+                                <text>          &lt; </text>
+                                <call function="doomsday" pth="0">
+                                  <text>        to_date('31.12.9999', 'dd.mm.yyyy')        </text>
+                                </call>
+                              </call>
+                            </where>
+                          </query>
+                          <query as="fopl_do" join="left outer" path="./a/a/fv/opl_do/fopl_do" used="1">
+                            <select>
+                              <column table="fopl_do" column="kod_opl" as="kod_opl" group="1" key="1" used="1" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="kod_opl" reference="sr_opl" refcol="kod_opl" />
+                              <column table="fopl_do" column="opl" as="opl_do" group="sum" key="0" used="1" type="number" title="Оплачено (руб.)" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="opl" />
+                              <column table="fopl_do" column="cust" as="opl_cust_do" group="sum" key="0" used="1" type="number" title="Оплачено (нат. пок.)" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="cust" />
+                            </select>
+                            <from>
+                              <query name="sr_facopl" as="fopl_do" path="./a/a/fv/opl_do/fopl_do/fopl_do" used="1">
+                                <select>
+                                  <column table="a" column="kod_opl" reference="sr_opl" refcol="kod_opl" as="kod_opl" key="0" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="kod_opl" used="1" />
+                                  <column table="a" column="opl" as="opl" type="number" title="Оплачено (руб.)" key="0" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="opl" used="1" />
+                                  <column table="a" column="cust" as="cust" type="number" title="Оплачено (нат. пок.)" key="0" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do" sourcecolumn="cust" used="1" />
+                                </select>
+                                <from>
+                                  <table name="sr_facopl" as="a" used="1" />
+                                  <query name="sr_opl" as="b" join="left outer" path="./a/a/fv/opl_do/fopl_do/fopl_do/b" used="1">
+                                    <select>
+                                      <column table="o" column="kod_opl" as="kod_opl" key="1" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do/b" sourcecolumn="kod_opl" used="1" />
+                                      <column table="o" column="ym" as="ym" key="0" sourcetable="./a/a/fv/opl_do/fopl_do/fopl_do/b" sourcecolumn="ym" used="1" />
+                                    </select>
+                                    <from>
+                                      <table name="sr_opl" as="o" used="1" />
+                                    </from>
+                                    <where>
+                                      <call function="ls" pth="">
+                                        <call function="case" as="dat_oper" pth="">
+                                          <text>        case        </text>
+                                          <call function="when" pth="0">
+                                            <text>         when        </text>
+                                            <call function="in" pth="">
+                                              <column table="o" column="kod_type_opl" />
+                                              <text>          in </text>
+                                              <call function="array" pth="">
+                                                <const>
+                                                  <text>0</text>
+                                                </const>
+                                                <text>          ,  </text>
+                                                <const>
+                                                  <text>1</text>
+                                                </const>
+                                                <text>          ,  </text>
+                                                <const>
+                                                  <text>2</text>
+                                                </const>
+                                              </call>
+                                            </call>
+                                            <text>          then          </text>
+                                            <column table="o" column="dat_opl" />
+                                          </call>
+                                          <call function="else" pth="0">
+                                            <text>          else </text>
+                                            <call function="ym end time" pth="">
+                                              <text>           LAST_DAY(to_date( </text>
+                                              <column table="o" column="ym" />
+                                              <text> *100,'YYYYMM'))+(1-1/24/60/60)         </text>
+                                            </call>
+                                          </call>
+                                          <text>        end      </text>
+                                        </call>
+                                        <text>          &lt; </text>
+                                        <call function="doomsday" pth="0">
+                                          <text>        to_date('31.12.9999', 'dd.mm.yyyy')        </text>
+                                        </call>
+                                      </call>
+                                    </where>
+                                    <call function="=">
+                                      <column table="a" column="kod_opl" />
+                                      <text>          = </text>
+                                      <column table="b" column="kod_opl" />
+                                    </call>
+                                  </query>
+                                </from>
+                                <where>
+                                  <call function="ls=" pth="">
+                                    <column table="b" column="ym" />
+                                    <text>          &lt;= </text>
+                                    <call function="nvl" pth="">
+                                      <text>        nvl(        </text>
+                                      <call function="date to ym" pth="" type="number">
+                                        <text>          to_number(to_char( </text>
+                                        <const>
+                                          <text>null</text>
+                                        </const>
+                                        <text> ,'YYYYMM'))/100        </text>
+                                      </call>
+                                      <text>          , </text>
+                                      <column table="b" column="ym" />
+                                      <text> )      </text>
+                                    </call>
+                                  </call>
+                                </where>
+                              </query>
+                            </from>
+                            <call function="=" pth="">
+                              <column table="fopl_do" column="kod_opl" />
+                              <text>          = </text>
+                              <column table="opl_do" column="kod_opl" />
+                            </call>
+                          </query>
+                          <query name="sr_facvip" as="fv1" join="left outer" path="./a/a/fv/opl_do/fv1" used="1">
+                            <select>
+                              <column table="v" column="kod_sf" as="kod_sf" type="number" key="1" sourcetable="./a/a/fv/opl_do/fv1" sourcecolumn="kod_sf" used="1" />
+                              <column table="v" column="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" as="kod_bu_akt" type="number" key="0" sourcetable="./a/a/fv/opl_do/fv1" sourcecolumn="kod_bu_akt" used="1" />
+                            </select>
+                            <from>
+                              <table name="sr_facvip" as="v" used="1" />
+                            </from>
+                            <call function="=">
+                              <column table="opl_do" column="kod_sf" />
+                              <text>          = </text>
+                              <column table="fv1" column="kod_sf" />
+                            </call>
+                          </query>
+                          <query name="hr_bu_akt" as="obu" join="left outer" path="./a/a/fv/opl_do/obu" used="1">
+                            <select>
+                              <column table="a" column="kod_bu_akt" as="kod_bu_akt" type="number" key="1" sourcetable="./a/a/fv/opl_do/obu" sourcecolumn="kod_bu_akt" used="1" />
+                              <column table="a" column="date_isp" as="date_isp" type="date" title="Дата признания акта б/п" key="0" sourcetable="./a/a/fv/opl_do/obu" sourcecolumn="date_isp" used="1" />
+                            </select>
+                            <from>
+                              <table name="hr_bu_akt" as="a" used="1" />
+                            </from>
+                            <call function="=">
+                              <column table="fv1" column="kod_bu_akt" />
+                              <text>          = </text>
+                              <column table="obu" column="kod_bu_akt" />
+                            </call>
+                          </query>
+                        </from>
+                        <where>
+                          <call function="ls=" pth="">
+                            <column table="opl_do" column="dat_oper" />
+                            <text>          &lt;= </text>
+                            <call function="nvl" pth="">
+                              <text>        nvl(        </text>
+                              <column table="obu" column="date_isp" />
+                              <text>          , </text>
+                              <column table="opl_do" column="dat_oper" />
+                              <text> )      </text>
+                            </call>
+                          </call>
+                        </where>
+                        <call function="=" pth="">
+                          <column table="opl_do" column="kod_sf" />
+                          <text>          = </text>
+                          <column table="fv" column="kod_sf" />
+                        </call>
+                      </query>
+                    </from>
+                    <call function="=" pth="">
+                      <column table="fv" column="kod_bu_akt" />
+                      <text>          = </text>
+                      <column table="a" column="kod_bu_akt" />
+                    </call>
+                  </query>
+                </from>
+                <where>
+                  <call function="and" pth="">
+                    <call function="between" pth="">
+                      <column table="a" column="akt_bu_ym" />
+                      <text>          between  </text>
+                      <call function="date to ym" pth="" type="number">
+                        <text>          to_number(to_char( </text>
+                        <call function="nativity" pth="0">
+                          <text>        to_date('01.01.0001', 'dd.mm.yyyy')        </text>
+                        </call>
+                        <text> ,'YYYYMM'))/100        </text>
+                      </call>
+                      <text>          and </text>
+                      <call function="date to ym" pth="" type="number">
+                        <text>          to_number(to_char( </text>
+                        <call function="doomsday" pth="0">
+                          <text>        to_date('31.12.9999', 'dd.mm.yyyy')        </text>
+                        </call>
+                        <text> ,'YYYYMM'))/100        </text>
+                      </call>
+                    </call>
+                  </call>
+                </where>
+              </query>
+            </from>
+            <where>
+              <call function="is not null" pth="">
+                <column table="a" column="date_isp" />
+                <text> is not null        </text>
+              </call>
+            </where>
+          </query>
+          <query name="10653(52)-ym-opl-priz" union="1" path="./a" hint=" use_nl(a fopl)" used="1">
+            <select>
+              <column table="obu" column="kod_bu_akt" as="kod_bu_akt" key="1" used="1" type="number" sourcetable="./a/obu" sourcecolumn="kod_bu_akt" />
+              <column table="a" column="ym" as="ym" key="0" used="1" sourcetable="./a/a" sourcecolumn="ym" />
+              <column table="fopl" column="cust" dgroup="sum" as="cust" key="0" used="1" type="number" title="Оплачено (нат. пок.)" sourcetable="./a/fopl/fopl" sourcecolumn="cust" />
+              <call function="/nvl" as="proc" pth="" type="number" key="0" used="1">
+                <text>          nvl( </text>
+                <column table="fopl" column="opl" dgroup="sum" as="opl" />
+                <text> ,0)        </text>
+                <text>          /nullif( </text>
+                <column table="acc" column="nachisl" dgroup="sum" />
+                <text> ,0)        </text>
+              </call>
+              <call function="/nvl" as="proc_cust" pth="" type="number" key="0" used="1">
+                <text>          nvl( </text>
+                <column table="fopl" column="cust" dgroup="sum" as="cust" />
+                <text> ,0)        </text>
+                <text>          /nullif( </text>
+                <column table="acc" column="cust" dgroup="sum" />
+                <text> ,0)        </text>
+              </call>
+              <const as="prizn" type="number" key="0" used="1">
+                <text>0</text>
+              </const>
+            </select>
+            <from>
+              <query name="sr_opl" as="a" path="./a/a" used="1">
+                <select>
+                  <column table="o" column="kod_opl" as="kod_opl" key="1" sourcetable="./a/a" sourcecolumn="kod_opl" used="1" />
+                  <column table="o" column="kod_sf" reference="sr_facvip" refcol="kod_sf" as="kod_sf" key="0" sourcetable="./a/a" sourcecolumn="kod_sf" used="1" />
+                  <column table="o" column="ym" as="ym" key="0" sourcetable="./a/a" sourcecolumn="ym" used="1" />
+                  <call function="case" as="dat_oper" pth="" key="0" used="1">
+                    <text>        case        </text>
+                    <call function="when" pth="0">
+                      <text>         when        </text>
+                      <call function="in" pth="">
+                        <column table="o" column="kod_type_opl" />
+                        <text>          in </text>
+                        <call function="array" pth="">
+                          <const>
+                            <text>0</text>
+                          </const>
+                          <text>          ,  </text>
+                          <const>
+                            <text>1</text>
+                          </const>
+                          <text>          ,  </text>
+                          <const>
+                            <text>2</text>
+                          </const>
+                        </call>
+                      </call>
+                      <text>          then          </text>
+                      <column table="o" column="dat_opl" />
+                    </call>
+                    <call function="else" pth="0">
+                      <text>          else </text>
+                      <call function="ym end time" pth="">
+                        <text>           LAST_DAY(to_date( </text>
+                        <column table="o" column="ym" />
+                        <text> *100,'YYYYMM'))+(1-1/24/60/60)         </text>
+                      </call>
+                    </call>
+                    <text>        end      </text>
+                  </call>
+                </select>
+                <from>
+                  <table name="sr_opl" as="o" used="1" />
+                </from>
+                <where>
+                  <call function="ls" pth="">
+                    <call function="case" as="dat_oper" pth="">
+                      <text>        case        </text>
+                      <call function="when" pth="0">
+                        <text>         when        </text>
+                        <call function="in" pth="">
+                          <column table="o" column="kod_type_opl" />
+                          <text>          in </text>
+                          <call function="array" pth="">
+                            <const>
+                              <text>0</text>
+                            </const>
+                            <text>          ,  </text>
+                            <const>
+                              <text>1</text>
+                            </const>
+                            <text>          ,  </text>
+                            <const>
+                              <text>2</text>
+                            </const>
+                          </call>
+                        </call>
+                        <text>          then          </text>
+                        <column table="o" column="dat_opl" />
+                      </call>
+                      <call function="else" pth="0">
+                        <text>          else </text>
+                        <call function="ym end time" pth="">
+                          <text>           LAST_DAY(to_date( </text>
+                          <column table="o" column="ym" />
+                          <text> *100,'YYYYMM'))+(1-1/24/60/60)         </text>
+                        </call>
+                      </call>
+                      <text>        end      </text>
+                    </call>
+                    <text>          &lt; </text>
+                    <call function="doomsday" pth="0">
+                      <text>        to_date('31.12.9999', 'dd.mm.yyyy')        </text>
+                    </call>
+                  </call>
+                </where>
+              </query>
+              <query as="fopl" join="left outer" path="./a/fopl" used="1">
+                <select>
+                  <column table="fopl" column="kod_opl" as="kod_opl" group="1" key="1" used="1" sourcetable="./a/fopl/fopl" sourcecolumn="kod_opl" reference="sr_opl" refcol="kod_opl" />
+                  <column table="fopl" column="opl" as="opl" group="sum" key="0" used="1" type="number" title="Оплачено (руб.)" sourcetable="./a/fopl/fopl" sourcecolumn="opl" />
+                  <column table="fopl" column="cust" as="cust" group="sum" key="0" used="1" type="number" title="Оплачено (нат. пок.)" sourcetable="./a/fopl/fopl" sourcecolumn="cust" />
+                </select>
+                <from>
+                  <query name="sr_facopl" as="fopl" path="./a/fopl/fopl" used="1">
+                    <select>
+                      <column table="a" column="kod_opl" reference="sr_opl" refcol="kod_opl" as="kod_opl" key="0" sourcetable="./a/fopl/fopl" sourcecolumn="kod_opl" used="1" />
+                      <column table="a" column="opl" as="opl" type="number" title="Оплачено (руб.)" key="0" sourcetable="./a/fopl/fopl" sourcecolumn="opl" used="1" />
+                      <column table="a" column="cust" as="cust" type="number" title="Оплачено (нат. пок.)" key="0" sourcetable="./a/fopl/fopl" sourcecolumn="cust" used="1" />
+                    </select>
+                    <from>
+                      <table name="sr_facopl" as="a" used="1" />
+                      <query name="sr_opl" as="b" join="left outer" path="./a/fopl/fopl/b" used="1">
+                        <select>
+                          <column table="o" column="kod_opl" as="kod_opl" key="1" sourcetable="./a/fopl/fopl/b" sourcecolumn="kod_opl" used="1" />
+                          <column table="o" column="ym" as="ym" key="0" sourcetable="./a/fopl/fopl/b" sourcecolumn="ym" used="1" />
+                        </select>
+                        <from>
+                          <table name="sr_opl" as="o" used="1" />
+                        </from>
+                        <where>
+                          <call function="ls" pth="">
+                            <call function="case" as="dat_oper" pth="">
+                              <text>        case        </text>
+                              <call function="when" pth="0">
+                                <text>         when        </text>
+                                <call function="in" pth="">
+                                  <column table="o" column="kod_type_opl" />
+                                  <text>          in </text>
+                                  <call function="array" pth="">
+                                    <const>
+                                      <text>0</text>
+                                    </const>
+                                    <text>          ,  </text>
+                                    <const>
+                                      <text>1</text>
+                                    </const>
+                                    <text>          ,  </text>
+                                    <const>
+                                      <text>2</text>
+                                    </const>
+                                  </call>
+                                </call>
+                                <text>          then          </text>
+                                <column table="o" column="dat_opl" />
+                              </call>
+                              <call function="else" pth="0">
+                                <text>          else </text>
+                                <call function="ym end time" pth="">
+                                  <text>           LAST_DAY(to_date( </text>
+                                  <column table="o" column="ym" />
+                                  <text> *100,'YYYYMM'))+(1-1/24/60/60)         </text>
+                                </call>
+                              </call>
+                              <text>        end      </text>
+                            </call>
+                            <text>          &lt; </text>
+                            <call function="doomsday" pth="0">
+                              <text>        to_date('31.12.9999', 'dd.mm.yyyy')        </text>
+                            </call>
+                          </call>
+                        </where>
+                        <call function="=">
+                          <column table="a" column="kod_opl" />
+                          <text>          = </text>
+                          <column table="b" column="kod_opl" />
+                        </call>
+                      </query>
+                    </from>
+                    <where>
+                      <call function="ls=" pth="">
+                        <column table="b" column="ym" />
+                        <text>          &lt;= </text>
+                        <call function="nvl" pth="">
+                          <text>        nvl(        </text>
+                          <call function="date to ym" pth="" type="number">
+                            <text>          to_number(to_char( </text>
+                            <const>
+                              <text>null</text>
+                            </const>
+                            <text> ,'YYYYMM'))/100        </text>
+                          </call>
+                          <text>          , </text>
+                          <column table="b" column="ym" />
+                          <text> )      </text>
+                        </call>
+                      </call>
+                    </where>
+                  </query>
+                </from>
+                <call function="=" pth="">
+                  <column table="fopl" column="kod_opl" />
+                  <text>          = </text>
+                  <column table="a" column="kod_opl" />
+                </call>
+              </query>
+              <query name="sr_facvip" as="fv1" join="left outer" path="./a/fv1" used="1">
+                <select>
+                  <column table="v" column="kod_sf" as="kod_sf" type="number" key="1" sourcetable="./a/fv1" sourcecolumn="kod_sf" used="1" />
+                  <column table="v" column="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" as="kod_bu_akt" type="number" key="0" sourcetable="./a/fv1" sourcecolumn="kod_bu_akt" used="1" />
+                </select>
+                <from>
+                  <table name="sr_facvip" as="v" used="1" />
+                </from>
+                <call function="=">
+                  <column table="a" column="kod_sf" />
+                  <text>          = </text>
+                  <column table="fv1" column="kod_sf" />
+                </call>
+              </query>
+              <query name="hr_bu_akt" as="obu" join="left outer" path="./a/obu" used="1">
+                <select>
+                  <column table="a" column="kod_bu_akt" as="kod_bu_akt" type="number" key="1" sourcetable="./a/obu" sourcecolumn="kod_bu_akt" used="1" />
+                  <column table="a" column="date_isp" as="date_isp" type="date" title="Дата признания акта б/п" key="0" sourcetable="./a/obu" sourcecolumn="date_isp" used="1" />
+                  <call function="date to ym" as="akt_bu_ym" title="Период составления акта б/п" pth="" type="number" key="0" used="1">
+                    <text>          to_number(to_char( </text>
+                    <column table="a" column="dat" />
+                    <text> ,'YYYYMM'))/100        </text>
+                  </call>
+                </select>
+                <from>
+                  <table name="hr_bu_akt" as="a" used="1" />
+                </from>
+                <call function="=">
+                  <column table="fv1" column="kod_bu_akt" />
+                  <text>          = </text>
+                  <column table="obu" column="kod_bu_akt" />
+                </call>
+              </query>
+              <query as="acc" join="left outer" path="./a/acc" used="1">
+                <select>
+                  <column table="acc" column="kod_bu_akt" as="kod_bu_akt" group="1" key="1" used="1" type="number" sourcetable="./a/acc/acc" sourcecolumn="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" />
+                  <column table="acc" column="nachisl" as="nachisl" group="sum" key="0" used="1" type="number" title="Начислено (руб)" sourcetable="./a/acc/acc" sourcecolumn="nachisl" />
+                  <column table="acc" column="cust" as="cust" group="sum" key="0" used="1" type="number" title="Начислено (нат. пок.)" sourcetable="./a/acc/acc" sourcecolumn="cust" />
+                </select>
+                <from>
+                  <query name="nr_account" as="acc" path="./a/acc/acc" used="1">
+                    <select>
+                      <column table="a" column="cust" as="cust" type="number" title="Начислено (нат. пок.)" key="0" sourcetable="./a/acc/acc" sourcecolumn="cust" used="1" />
+                      <column table="a" column="nachisl" as="nachisl" type="number" title="Начислено (руб)" key="0" sourcetable="./a/acc/acc" sourcecolumn="nachisl" used="1" />
+                      <column table="a" column="kod_bu_akt" reference="hr_bu_akt" refcol="kod_bu_akt" as="kod_bu_akt" type="number" key="0" sourcetable="./a/acc/acc" sourcecolumn="kod_bu_akt" used="1" />
+                    </select>
+                    <from>
+                      <table name="nr_account" as="a" used="1" />
+                    </from>
+                  </query>
+                </from>
+                <call function="=" pth="">
+                  <column table="acc" column="kod_bu_akt" />
+                  <text>          = </text>
+                  <column table="obu" column="kod_bu_akt" />
+                </call>
+              </query>
+            </from>
+            <where>
+              <call function="and" pth="">
+                <call function="between" pth="">
+                  <column table="obu" column="akt_bu_ym" />
+                  <text>          between  </text>
+                  <call function="date to ym" pth="" type="number">
+                    <text>          to_number(to_char( </text>
+                    <call function="nativity" pth="0">
+                      <text>        to_date('01.01.0001', 'dd.mm.yyyy')        </text>
+                    </call>
+                    <text> ,'YYYYMM'))/100        </text>
+                  </call>
+                  <text>          and </text>
+                  <call function="date to ym" pth="" type="number">
+                    <text>          to_number(to_char( </text>
+                    <call function="doomsday" pth="0">
+                      <text>        to_date('31.12.9999', 'dd.mm.yyyy')        </text>
+                    </call>
+                    <text> ,'YYYYMM'))/100        </text>
+                  </call>
+                </call>
+                <text>          and  </text>
+                <call function="ls=" pth="">
+                  <column table="a" column="dat_oper" />
+                  <text>          &lt;= </text>
+                  <call function="nvl" pth="">
+                    <text>        nvl(        </text>
+                    <column table="obu" column="date_isp" />
+                    <text>          , </text>
+                    <column table="a" column="dat_oper" />
+                    <text> )      </text>
+                  </call>
+                </call>
+                <text>          and  </text>
+                <call function="is not null" pth="">
+                  <column table="fv1" column="kod_bu_akt" />
+                  <text> is not null        </text>
+                </call>
+              </call>
+            </where>
+          </query>
+        </query>
+      </query>
+    </from>
+  </query>
+</root>

@@ -1,0 +1,615 @@
+<root>
+  <parts>
+    <part id="pr_nasel">
+      <call function="case" type="number">
+        <call function="when">
+          <call function="in">
+            <column table="a" column="vid_t" />
+            <call function="array">
+              <const>25</const>
+              <const>35</const>
+            </call>
+          </call>
+          <const>1</const>
+        </call>
+        <call function="else">
+          <const>0</const>
+        </call>
+      </call>
+    </part>
+    <part id="f46_podrazdel">
+      <call function="case" type="string">
+        <call function="when">
+          <call function="=">
+            <usepart part="pr_nasel" as="pr_nasel" />
+            <const>1</const>
+          </call>
+          <const>'В'</const>
+        </call>
+        <call function="else">
+          <call function="case">
+            <call function="when">
+              <call function="=">
+                <column table="ao" column="pr_usl">
+                </column>
+                <const>1</const>
+              </call>
+              <const>'А'</const>
+            </call>
+            <call function="else">
+              <const>'Б'</const>
+            </call>
+          </call>
+        </call>
+      </call>
+    </part>
+    <part id="f46_razdel">
+      <call function="case" type="string">
+        <call function="when">
+          <call function="and">
+            <call function="=">
+              <column table="ao" column="pr_free">
+              </column>
+              <const>1</const>
+            </call>
+            <call function="=">
+              <usepart part="pr_nasel" as="pr_nasel" />
+              <const>0</const>
+            </call>
+          </call>
+          <const>'II'</const>
+        </call>
+        <call function="else">
+          <const>'I'</const>
+        </call>
+      </call>
+    </part>
+    <part id="pr_2rate_name">
+      <call function="case" type="string">
+        <call function="when">
+          <call function="=">
+            <column table="ao" column="pr_2rate">
+            </column>
+            <const>1</const>
+          </call>
+          <const>'Двухставочный/Трехставочный'</const>
+        </call>
+        <call function="else">
+          <const>'Одноставочный'</const>
+        </call>
+      </call>
+    </part>
+  </parts>
+  <queries>
+    <!-- хинт для актов бп возможно даст замедление в других случаях  hint="use_nl(a sost1) use_nl(a sost2) use_nl(a sost10) use_nl(a sost16) use_nl(a nal)  use_nl(a t)"-->
+    <query name="nr_account">
+      <!--<params>
+        <param name="ym1"/>
+        <param name="ym2"/>
+      </params>-->
+      <select>
+        <column table="a" column="kod_account" type="number">
+        </column>
+        <column table="a" column="kod_dog" type="number">
+        </column>
+        <column table="a" column="kod_numobj">
+        </column>
+        <column table="a" column="ym">
+        </column>
+        <column table="a" column="rym">
+        </column>
+        <call function="nvl" as="rym_nvl" title="Период потребления" type="number">
+          <column table="a" column="rym"/>
+          <column table="a" column="ym"/>
+        </call>
+        <column table="a" column="kod_f46">
+        </column>
+        <column table="a" column="tarif" type="number">
+        </column>
+        <column table="t2" column="tarif" as="tarif2">
+        </column>
+        <column table="pl" column="tarif16" as="tarif16">
+        </column>
+        <call function="nvl" as="tarif_osn">
+          <column table="t2" column="tarif">
+          </column>
+          <column table="a" column="tarif">
+          </column>
+        </call>
+        <column table="a" column="cust" type="number" title="Начислено (нат. пок.)">
+        </column>
+        <call function="case" type="number" as="cust3" title="Начислено (квт)">
+          <call function="when">
+            <call function="=">
+              <column table="nch" column="edizm">
+              </column>
+              <const>3</const>
+            </call>
+            <column table="a" column="cust"/>
+          </call>
+        </call>
+
+        <call function="case" type="number" as="cust4" title="Начислено (квтч)">
+          <call function="when">
+            <call function="=">
+              <column table="nch" column="edizm">
+              </column>
+              <const>4</const>
+            </call>
+            <column table="a" column="cust"/>
+          </call>
+        </call>
+        <column table="a" column="nachisl" type="number" title="Начислено (руб)">
+        </column>
+        <column table="a" column="vid_t">
+        </column>
+        <column table="nch" column="edizm">
+        </column>
+        <column table="d" column="ndog">
+        </column>
+        <column table="d" column="dep">
+        </column>
+        <column table="d" column="dep_name">
+        </column>
+        <column table="d" column="kod_ist">
+        </column>
+        <column table="t" column="prizn_selo">
+        </column>
+        <column table="t" column="tarif_root">
+        </column>
+        <column table="t" column="root_name" as="tarif_root_name">
+        </column>
+        <call function="ng_account.f_category_account" as="category" type="number">
+          <column table="a" column="kod_account">
+          </column>
+        </call>
+        <!--<const as="category" type="number">1</const>-->
+        <column table="pr_cat" column="name" as="category_name">
+        </column>
+        <column table="a" column="kod_dhh">
+        </column>
+        <column table="nal" column="nal">
+        </column>
+        <column table="ao" column="pr_usl">
+        </column>
+        <usepart part="pr_nasel" as="pr_nasel" />
+        <column table="ao" column="pr_2rate">
+        </column>
+        <usepart part="pr_2rate_name" as="pr_2rate_name" />
+        <usepart part="f46_razdel" as="f46_razdel" />
+        <column table="r46" column="name" as="f46_razdel_name">
+        </column>
+        <usepart part="f46_podrazdel" as="f46_podrazdel" />
+        <column table="p46" column="name" as="f46_podrazdel_name">
+        </column>
+        <column table="a" column="kod_bu_akt" type="number">
+        </column>
+        <column table="bu" column="akt_bu_ym">
+        </column>
+        <column table="bu" column="kod_bu_org">
+        </column>
+        <column table="bu" column="org_name" as="akt_bu_org_name">
+        </column>
+        <column table="bu" column="dat" as="akt_bu_dat">
+        </column>
+        <column table="bu" column="num" as="akt_bu_num">
+        </column>
+        <column table="bu" column="ym_priz_bu">
+        </column>
+        <column table="bu" column="proc_priz_bu"/>
+        <column table="sost1" column="nachisl" as="nachisl_s1" title="Начислено, руб (Ц mСВНЦЭМ)"/>
+        <column table="sost2" column="nachisl" as="nachisl_s2" title="Начислено, руб (Цj,mCET)"/>
+        <column table="sost10" column="nachisl" as="nachisl_s10" title="Начислено, руб (Цm ПУ)"/>
+        <column table="sost16" column="nachisl" as="nachisl_s16" title="Начислено, руб (Ц m,n СН,ЭМ)"/>
+        <call function="case" type="number" as="nachisl_t22" title="Начислено, руб (Ц m,n ПУНЦЭМ,М)">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t">
+              </column>
+              <const>22</const>
+            </call>
+            <column table="a" column="nachisl"/>
+          </call>
+        </call>
+        <call function="case" type="number" as="nachisl_t72" title="Начислено, руб (Ц j,mПУНЦЭМ,С)">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t">
+              </column>
+              <const>72</const>
+            </call>
+            <column table="a" column="nachisl"/>
+          </call>
+        </call>
+        <column table="obj" column="num_obj">
+        </column>
+        <column table="obj" column="kod_m" as="obj_kod_m">
+        </column>
+        <column table="obj" column="adr_m_name" as="obj_adr_m_name">
+        </column>
+        <column table="obj" column="tarif" as="obj_tar">
+        </column>
+        <column table="obj" column="obj_tar_name">
+        </column>
+        <column table="a" column="voltage" type="number">
+        </column>
+        <column table="vlt" column="abbr" as="voltage_abbr" type="string">
+        </column>
+        <column table="a" column="kodinterval" type="number">
+        </column>
+        <column table="it" column="abbr" as="interval_abbr">
+        </column>
+        <column table="it" column="name" as="interval_name">
+        </column>
+        <column table="it" column="zone"/>
+      
+        <column table="a" column="kod_sf"/>
+      </select>
+      <from>
+        <table name="nr_account" as="a">
+        </table>
+        <query name="kr_dogovor" as="d" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_dog">
+            </column>
+            <column table="d" column="kod_dog">
+            </column>
+          </call>
+        </query>
+        <query name="sk_nachisl" as="nch" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_t">
+            </column>
+            <column table="nch" column="vid_t">
+            </column>
+          </call>
+        </query>
+        <query name="ks_tarif" as="t" join="left outer">
+          <call function="=">
+            <column table="a" column="tarif">
+            </column>
+            <column table="t" column="tarif">
+            </column>
+          </call>
+        </query>
+        <query name="nr_account.nr_account_nal" as="nal" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_account">
+            </column>
+            <column table="nal" column="kod_account">
+            </column>
+          </call>
+        </query>
+        <query name="kr_plan" as="pl" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_plan">
+            </column>
+            <column table="pl" column="kod_plan">
+            </column>
+          </call>
+        </query>
+        <query name="ks_tarif" as="t2" join="left outer">
+          <call function="or">
+            <call function="and">
+              <call function="=">
+                <column table="pl" column="tarif2">
+                </column>
+                <column table="t2" column="tarif_parent">
+                </column>
+              </call>
+              <call function="=">
+                <column table="a" column="voltage">
+                </column>
+                <column table="t2" column="voltage">
+                </column>
+              </call>
+            </call>
+            <call function="and">
+              <call function="=">
+                <column table="pl" column="tarif2">
+                </column>
+                <column table="t2" column="tarif">
+                </column>
+              </call>
+              <call function="=">
+                <column table="a" column="voltage">
+                </column>
+                <column table="t2" column="voltage">
+                </column>
+              </call>
+            </call>
+          </call>
+          
+        </query>
+        <query name="nr_account_obj" as="ao" join="left outer">
+          <call function="and">
+            <call function="=">
+              <column table="a" column="kod_numobj">
+              </column>
+              <column table="ao" column="kod_numobj">
+              </column>
+            </call>
+            <call function="=">
+              <column table="a" column="ym">
+              </column>
+              <column table="ao" column="ym">
+              </column>
+            </call>
+          </call>
+        </query>
+        <query name="f46_podrazdel" as="p46" join="left outer">
+          <call function="=">
+            <usepart part="f46_podrazdel" as="f46_podrazdel" />
+            <column table="p46" column="id">
+            </column>
+          </call>
+        </query>
+        <query name="f46_razdel" as="r46" join="left outer">
+          <call function="=">
+            <usepart part="f46_razdel" as="f46_razdel" />
+            <column table="r46" column="id">
+            </column>
+          </call>
+        </query>
+        <query name="nr_account.nr_account_sost(tip_tarif_sost)" as="sost1" join="left outer">
+          <withparams>
+            <const>-1</const>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_account"></column>
+            <column table="sost1" column="kod_account"></column>
+          </call>
+        </query>
+        <query name="nr_account.nr_account_sost(tip_tarif_sost)" as="sost2" join="left outer">
+          <withparams>
+            <const>2</const>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_account"></column>
+            <column table="sost2" column="kod_account"></column>
+          </call>
+        </query>
+        <query name="nr_account.nr_account_sost(tip_tarif_sost)" as="sost10" join="left outer">
+          <withparams>
+            <const>10</const>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_account"></column>
+            <column table="sost10" column="kod_account"></column>
+          </call>
+        </query>
+        <query name="nr_account.nr_account_sost(tip_tarif_sost)" as="sost16" join="left outer">
+          <withparams>
+            <const>16</const>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_account"></column>
+            <column table="sost16" column="kod_account"></column>
+          </call>
+        </query>
+        <query name="kr_numobj" as="obj" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_numobj">
+            </column>
+            <column table="obj" column="kod_numobj">
+            </column>
+          </call>
+        </query>
+        <query name="hr_bu_akt" as="bu" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_bu_akt">
+            </column>
+            <column table="bu" column="kod_bu_akt">
+            </column>
+          </call>
+        </query>
+        <query name="hk_voltage" as="vlt" join="left outer">
+          <call function="=">
+            <column table="a" column="voltage">
+            </column>
+            <column table="vlt" column="voltage">
+            </column>
+          </call>
+        </query>
+        <query name="kk_interval" as="it" join="left outer">
+          <call function="=">
+            <column table="a" column="kodinterval">
+            </column>
+            <column table="it" column="kodinterval">
+            </column>
+          </call>
+        </query>
+        <query name="price_cat" as="pr_cat" join="left outer">
+          <call function="=">
+            <column table="this" column="category"/>
+            <column table="pr_cat" column="category"/>
+          </call>
+        </query>
+        <query name="sr_facvip" as="kod_sf" join="left outer">
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="kod_sf" column="kod_sf">
+            </column>
+          </call>
+        </query>
+      </from>
+      
+    </query>
+    <query name="nr_account.nr_account_nal">
+      <select>
+        <column table="a" column="kod_account" group="1">
+        </column>
+        <column table="a" column="nal" group="sum" type="number">
+        </column>
+      </select>
+      <from>
+        <query name="nr_account_nal" as="a">
+        </query>
+      </from>
+    </query>
+    <query name="nr_account_obj">
+      <select>
+        <column table="a" column="kod_numobj" group="1">
+        </column>
+        <column table="a" column="ym" group="1">
+        </column>
+        <call function="case" as="pr_usl" type="number">
+          <call function="when">
+            <call function="is null">
+              <column table="a" column="tarif2" group="max">
+              </column>
+            </call>
+            <const>0</const>
+          </call>
+          <call function="else">
+            <const>1</const>
+          </call>
+        </call>
+        <call function="case" as="pr_free" group="max" type="number">
+          <call function="when">
+            <call function="in">
+              <column table="a" column="vid_t">
+              </column>
+              <call function="array">
+                <const>77</const>
+                <const>78</const>
+                <const>79</const>
+              </call>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="else">
+            <const>0</const>
+          </call>
+        </call>
+        <call function="case" as="pr_2rate" group="max" type="number">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_t">
+              </column>
+              <const>22</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="else">
+            <const>0</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="nr_account" as="a" />
+      </from>
+    </query>
+    <query name="nr_account[vid_t]">
+      <select>
+        <column table="a" column="*">
+        </column>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="vid_t">
+            </column>
+            <const>:1</const>
+          </call>
+          <call function="is not null">
+            <column table="a" column="nachisl">
+            </column>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="nr_account[edizm]">
+      <select>
+        <column table="a" column="*">
+        </column>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="edizm">
+          </column>
+          <const>:1</const>
+        </call>
+      </where>
+    </query>
+    <query name="nr_account[ym]">
+      <select>
+        <column table="a" column="*">
+        </column>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="ym">
+          </column>
+          <const>:1</const>
+        </call>
+      </where>
+    </query>
+    <query name="hr_bu_akt.nr_account">
+      <select>
+        <column table="a" column="kod_bu_akt" group="1">
+        </column>
+        <column table="a" column="cust" group="sum">
+        </column>
+        <column table="a" column="nachisl" group="sum">
+        </column>
+        <column table="a" column="nachisl_s1" group="sum">
+        </column>
+        <column table="a" column="nachisl_s2" group="sum">
+        </column>
+        <column table="a" column="nachisl_s10" group="sum">
+        </column>
+        <column table="a" column="nachisl_s16" group="sum">
+        </column>
+        <column table="a" column="nachisl_t22" group="sum">
+        </column>
+        <column table="a" column="nachisl_t72" group="sum">
+        </column>
+        <column table="a" column="cust3" group="sum">
+        </column>
+        <column table="a" column="cust4" group="sum">
+        </column>
+        <column table="a" column="nal" group="sum">
+        </column>
+      </select>
+      <from>
+        <query name="nr_account" as="a">
+        </query>
+      </from>
+    </query>
+
+    <query name="price_cat">
+      <select>
+        <column table="a" column="category" type="number"/>
+        <column table="a" column="name" type="string" title="Ценовая категория"/>
+      </select>
+      <from>
+        <table name="price_cat" as="a" view="1"/>
+      </from>
+    </query>
+  </queries>
+  <views>
+    <view name="price_cat">
+      select 0 as category,'Население' as name from dual union
+      select 1,'Первая ценовая категория' from dual union
+      select 2,'Вторая ценовая категория' from dual union
+      select 3,'Третяя ценовая категория' from dual union
+      select 4,'Четвертая ценовая категория' from dual union
+      select 5,'Пятая ценовая категория' from dual union
+      select 6,'Шестая ценовая категория' from dual
+    </view>
+  </views>
+</root>

@@ -1,0 +1,1228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <form name="vbf_spr_direct_sap" timestamp="15.08.2019 18:20:54" title="Кодировка подразделений SAP" file="sql.builder.templates\sql.builder\projects\mped\forms\va_dir_struct_apply.xml">
+    <field table="a" name="name1" title="Текущее подразделение" width="368" controlType="UIText" rows-limit="100" id="31123505" />
+    <field id="5097349" controlType="UICombo" type="number" name="pr" show-checkbox="0" title="Активность подразделения">
+      <listquery>
+        <query name="pr_tek_all_vals" />
+      </listquery>
+      <defaultquery>
+        <query name="pr_tek_start_val" />
+      </defaultquery>
+    </field>
+    <field id="7664725" controlType="UICombo" type="number" name="has_sap" show-checkbox="0" title="Строки с кодом SAP">
+      <listquery>
+        <query name="pr_has_sap_code" />
+      </listquery>
+      <defaultquery>
+        <query name="pr_has_sap_start_val" />
+      </defaultquery>
+    </field>
+    <grid table="a" show-toolbar="1" auto-filter="1" parent-field-name="kod_parent_i" id="21551780">
+      <toolbar id="6807502">
+        <uicommand button-type="grid-add" column-visible="0" name="grid-add" control-name="ButtonAddRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="45818309" />
+        <uicommand button-type="grid-delete" column-visible="0" name="grid-delete" control-name="ButtonDeleteRow" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="66611356" />
+        <uicommand button-type="grid-save" column-visible="0" name="grid-save" control-name="ButtonCommit" file="sql.builder.templates\sql.builder\projects\common\main.xml" title="" id="46711052" />
+        <uicommand action-type="custom" button-type="custom-commit" editable="a_has_changes" name="custom-commit" icon="Commit_24" title="Сохранить" file="sql.builder.templates\sql.builder\projects\common\main.xml" id="59090892">
+          <useaction action-type="save" id="36104941" />
+          <useaction action-type="call-plsql" name="vb_refs.ins_spr_direct_mvp" id="3907585" />
+          <useaction action-type="refresh-table" object="a" id="25993264" />
+        </uicommand>
+      </toolbar>
+      <columns id="525653">
+        <field table="a" name="namex" title="Подразделение" width="297" controlType="UIText" rows-limit="100" id="10672151" />
+        <field table="a" name="kod_direct" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="62853294" />
+        <field table="a" name="kod_parent_i" title="-" controlType="UIText" edit-mask="N2" rows-limit="100" id="27036197" />
+        <field table="a" name="mes" title="Месяц оконч." width="76" controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="17081330" />
+        <field table="a" name="god" title="Год оконч." controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="41961994" />
+        <field table="a" name="name_kr" title="Краткое наименование" width="136" controlType="UIText" rows-limit="100" id="48721275" />
+        <field table="a" name="kod_predpr" title="Код предпр. балансодерж." width="134" controlType="UIText" rows-limit="100" id="59935503" />
+        <field table="a" name="mvp_code" title="Код SAP (МВП)" width="95" controlType="UIText" rows-limit="100" id="62951419" />
+        <field table="a" name="mvp_name" title="Наименование кода SAP" width="144" controlType="UIText" rows-limit="100" id="19606153" />
+        <field table="a" name="mb3_code" title="Детализация SAP кода" width="138" controlType="UIText" rows-limit="100" id="38729837" />
+        <field table="a" name="kod_spr_group" title="Группировка" width="131" controlType="UICombo" rows-limit="100" id="44051841" />
+        <field table="a" name="use_in_mped" title="Использовать в новом МПЕД" width="190" controlType="UIText" format="F0" edit-mask="F0" rows-limit="100" id="24867977" />
+        <field table="a" name="valid_mvp" title="" controlType="UIText" rows-limit="100" id="32618992" />
+        <field table="a" name="valid_mb3" title="" controlType="UIText" rows-limit="100" id="28249382" />
+        <field table="a" name="has_mvp_bool" title="" controlType="UIText" edit-mask="N2" rows-limit="100" id="48208451" />
+      </columns>
+    </grid>
+  </form>
+  <dataset>
+    <fields>
+      <field type="number" name="pr" parname="pr" title="Активность подразделения" />
+      <field type="number" name="has_sap" parname="has_sap" title="Строки с кодом SAP" />
+      <field type="string" name="is_form_valid" parname="is_form_valid" />
+      <field type="string" name="is_form_valid_not" parname="is_form_valid_not" />
+      <field type="string" name="a_has_changes" parname="a_has_changes" />
+    </fields>
+    <table name="a" auto-refresh="1" async="" only-visible-refresh="" only-force-refresh="" ref-column="" multiselect-column="" multiselect-target="" update-target="is_spr_direct" key="kod_direct" is-ms-upd="1" is-top="1">
+      <select-text>
+--
+select a.name_orig as name1, /*Текущее подразделение*//*string*/
+a.namex as namex, /*Подразделение*//*string*/
+a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_parent_i as kod_parent_i, /*-*//*number*/
+a.mes as mes, /*Месяц оконч.*//*number*/
+a.god as god, /*Год оконч.*//*number*/
+a.name_kr as name_kr, /*Краткое наименование*//*string*/
+a.kod_predpr as kod_predpr, /*Код предпр. балансодерж.*//*string*/
+a.mvp_code as mvp_code, /*Код SAP (МВП)*//*string*/
+a.mvp_name as mvp_name, /*Наименование кода SAP*//*string*/
+a.mb3_code as mb3_code, /*Детализация SAP кода*//*string*/
+a.kod_spr_group as kod_spr_group, /*Группировка*//*number*/
+a.use_in_mped as use_in_mped, /*Использовать в новом МПЕД*//*number*/
+a.valid_mvp as valid_mvp, /*string*/
+a.valid_mb3 as valid_mb3, /*string*/
+a.has_mvp_bool as has_mvp_bool, /*number*/
+kod_spr_group_x_n.gr_name as kod_spr_group_x_n, /*Группировка*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_predpr as kod_predpr, /*string*/
+a.name_kr as name_kr, /**//*string*/
+a.mes as mes, /*Месяц оконч.*//*number*/
+a.god as god, /*Год оконч.*//*number*/
+ TRIM( a.name )  as name_orig, /*string*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+ case  when (a.kod_direct = 0)  then 'ТГК-1' else ( TRIM( a.name ) )  end  as namex, /*Подразделение*//*string*/
+a.mvp_code as mvp_code, /*string*/
+a.mvp_name as mvp_name, /*string*/
+a.mb3_code as mb3_code, /*string*/
+a.kod_spr_group as kod_spr_group, /*number*/
+a.use_in_mped as use_in_mped, /*number*/
+ case  when (( length( a.mvp_code ) )  &lt; 4)  then '[inf]Код МВП должен состоять из 4 символов. Код не будет сохранен' when (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is not null )  then '[inf]Код МВП должен быть вида Dxxx, где x - цифра. Код не будет сохранен' when ((( length( a.mvp_code ) )  &gt; 4)  and (( SUBSTR( a.mvp_code , 1 , 1 ) )  = 'D') )  then '[inf]Код МВП должен состоять из 4 символов. Код будет автоматически образен до 4 символов' when ((( SUBSTR( a.mvp_code , 1 , 1 ) )  != 'D')  and (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is null ) )  then '[inf]Код МВП должен начинаться с буквы D. Код будет автоматически исправлен' end  as valid_mvp, /*string*/
+ case  when ((((
+--
+select  replace( ( sys_connect_by_path( d.mvp_code , '/' ) )  , '/' , '' ) /*string*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+a.mvp_code as mvp_code/*string*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+)
+d
+--\is_spr_direct
+where
+(d.mvp_code is not null )  and ( rownum  = 1) connect by nocycle
+(prior d.kod_parent_i = d.kod_direct) 
+start with d.kod_direct = a.kod_direct)
+--\
+)  is not null )  or (( length( a.mb3_code ) )  &gt; 0) )  then 1 else 0 end  as has_mvp_bool, /*number*/
+ case  when (( length( a.mb3_code ) )  &lt; 10)  then '[inf]Код МВЗ должен состоять из 10 символов. Код не будет сохранен' when ((( length( a.mb3_code ) )  &gt; 10) )  then '[inf]Код МВЗ должен состоять из 10 символов. Код будет автоматически образен до 10 символов' when (mb3_code1.cnt &gt; 1)  then '[inf]Дублированная маска! Это приведет к дублированию данных' end  as valid_mb3, /*string*/
+0 as is_new, /*number*/
+1 as is_not_new/*number*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+left outer join
+(
+--is_spr_direct_count_mb3
+select a.mb3_code as mb3_code, /*string*//*key*/
+count(a.kod_direct)  as cnt/*number*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.mb3_code as mb3_code/*string*/
+
+from is_spr_direct
+a
+--\is_spr_direct
+)
+a
+--\is_spr_direct
+where
+( TRIM( a.mb3_code ) )  is not null  group by
+a.mb3_code/*string*//*key*/
+)
+mb3_code1 on a.mb3_code = mb3_code1.mb3_code--\is_spr_direct_count_mb3
+)
+a
+--\is_spr_direct
+left outer join
+(
+--vb_spr_grouping
+select a.kod_spr_group as kod_spr_group, /*number*//*key*/
+a.gr_name as gr_name/*Группировка*//*string*/
+
+from vb_spr_grouping
+a
+--\vb_spr_grouping
+)
+kod_spr_group_x_n on a.kod_spr_group = kod_spr_group_x_n.kod_spr_group--\vb_spr_grouping
+where
+(( 0=1 )  {  or (:pr  != 1)  }  {  or ((:pr  = 1)  and (a.god is null ) )  } )  and (( 0=1 )  {  or (:has_sap  != 2)  }  {  or ((:has_sap  = 2)  and ((a.mvp_code is not null )  or (a.mb3_code is not null ) ) )  } ) 
+order by namex--\
+</select-text>
+      <columns>
+        <column name="name1" table="a" type="string" title="Текущее подразделение" is-user-editable="1" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.name_orig as name1, /*Текущее подразделение*//*string*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ TRIM( a.name )  as name_orig/*string*/
+
+from (select a.kod_direct as kod_direct,a.name as name  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s6 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.name as name  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s6 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="namex" table="a" type="string" title="Подразделение" ColumnEditable="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.namex as namex, /*Подразделение*//*string*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (a.kod_direct = 0)  then 'ТГК-1' else ( TRIM( a.name ) )  end  as namex/*Подразделение*//*string*/
+
+from (select a.kod_direct as kod_direct,a.name as name  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s6 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.name as name  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s6 as name  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_direct" table="a" type="number" title="" ColumnVisible="0" is-updateable="1" is-updateable-ext="1" update-target="kod_direct" temp-col-name="n1" />
+        <column name="kod_parent_i" table="a" type="number" title="-" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.kod_parent_i as kod_parent_i, /*-*//*number*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i/*-*//*number*/
+
+from (select a.kod_direct as kod_direct,a.kod_parent as kod_parent  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_parent as kod_parent  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="mes" table="a" type="number" title="Месяц оконч." ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="mes" temp-col-name="n2" />
+        <column name="god" table="a" type="number" title="Год оконч." ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="god" temp-col-name="n3" />
+        <column name="name_kr" table="a" type="string" title="Краткое наименование" ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="name_kr" temp-col-name="s1" />
+        <column name="kod_predpr" table="a" type="string" title="Код предпр. балансодерж." ColumnEditable="0" is-updateable="1" is-updateable-ext="1" update-target="kod_predpr" temp-col-name="s2" />
+        <column name="mvp_code" table="a" type="string" title="Код SAP (МВП)" ColumnEditable="1" is-user-editable="1" ClientValid="valid_mvp" is-updateable="1" is-updateable-ext="1" update-target="mvp_code" temp-col-name="s3">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.valid_mvp as valid_mvp, /*string*/
+a.has_mvp_bool as has_mvp_bool, /*number*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( length( a.mvp_code ) )  &lt; 4)  then '[inf]Код МВП должен состоять из 4 символов. Код не будет сохранен' when (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is not null )  then '[inf]Код МВП должен быть вида Dxxx, где x - цифра. Код не будет сохранен' when ((( length( a.mvp_code ) )  &gt; 4)  and (( SUBSTR( a.mvp_code , 1 , 1 ) )  = 'D') )  then '[inf]Код МВП должен состоять из 4 символов. Код будет автоматически образен до 4 символов' when ((( SUBSTR( a.mvp_code , 1 , 1 ) )  != 'D')  and (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is null ) )  then '[inf]Код МВП должен начинаться с буквы D. Код будет автоматически исправлен' end  as valid_mvp, /*string*/
+ case  when ((((
+--
+select  replace( ( sys_connect_by_path( d.mvp_code , '/' ) )  , '/' , '' ) /*string*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+a.mvp_code as mvp_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+d
+--\is_spr_direct
+where
+(d.mvp_code is not null )  and ( rownum  = 1) connect by nocycle
+(prior d.kod_parent_i = d.kod_direct) 
+start with d.kod_direct = a.kod_direct)
+--\
+)  is not null )  or (( length( a.mb3_code ) )  &gt; 0) )  then 1 else 0 end  as has_mvp_bool/*number*/
+
+from (select a.kod_direct as kod_direct,a.mvp_code as mvp_code,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s3 as mvp_code,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mvp_code as mvp_code,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s3 as mvp_code,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="valid_mvp" table="a" />
+            <dependant name="has_mvp_bool" table="a" />
+          </dependants>
+        </column>
+        <column name="mvp_name" table="a" type="string" title="Наименование кода SAP" ColumnEditable="1" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="mvp_name" temp-col-name="s4" />
+        <column name="mb3_code" table="a" type="string" title="Детализация SAP кода" ClientEditable="has_mvp_bool" is-user-editable="1" ClientValid="valid_mb3" is-updateable="1" is-updateable-ext="1" update-target="mb3_code" temp-col-name="s5">
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.valid_mb3 as valid_mb3, /*string*/
+a.has_mvp_bool as has_mvp_bool, /*number*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when ((((
+--
+select  replace( ( sys_connect_by_path( d.mvp_code , '/' ) )  , '/' , '' ) /*string*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+a.mvp_code as mvp_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+d
+--\is_spr_direct
+where
+(d.mvp_code is not null )  and ( rownum  = 1) connect by nocycle
+(prior d.kod_parent_i = d.kod_direct) 
+start with d.kod_direct = a.kod_direct)
+--\
+)  is not null )  or (( length( a.mb3_code ) )  &gt; 0) )  then 1 else 0 end  as has_mvp_bool, /*number*/
+ case  when (( length( a.mb3_code ) )  &lt; 10)  then '[inf]Код МВЗ должен состоять из 10 символов. Код не будет сохранен' when ((( length( a.mb3_code ) )  &gt; 10) )  then '[inf]Код МВЗ должен состоять из 10 символов. Код будет автоматически образен до 10 символов' when (mb3_code1.cnt &gt; 1)  then '[inf]Дублированная маска! Это приведет к дублированию данных' end  as valid_mb3/*string*/
+
+from (select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+left outer join
+(
+--is_spr_direct_count_mb3
+select a.mb3_code as mb3_code, /*string*//*key*/
+count(a.kod_direct)  as cnt/*number*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.mb3_code as mb3_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+where
+( TRIM( a.mb3_code ) )  is not null  group by
+a.mb3_code/*string*//*key*/
+)
+mb3_code1 on a.mb3_code = mb3_code1.mb3_code--\is_spr_direct_count_mb3
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="valid_mb3" table="a" />
+            <dependant name="has_mvp_bool" table="a" />
+          </dependants>
+        </column>
+        <column name="kod_spr_group" table="a" type="number" title="Группировка" ColumnEditable="1" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="kod_spr_group" temp-col-name="n4">
+          <sel-list-compiled>
+            <root>
+              <query class="1" timestamp="03.07.2019 16:11:10" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_grouping.xml" haskeys="1" name="a" as="a" noname="1" path="./a" used="1">
+                <select>--a
+select <column table="a" column="kod_spr_group" as="kod_spr_group" title="" key="1" used="1" type="number" sourcetable="./a/a" sourcecolumn="kod_spr_group" into="n1">a.kod_spr_group as kod_spr_group, /**//*number*//*key*/
+</column><column table="a" column="gr_name" as="gr_name" title="Группировка" key="0" used="1" type="string" sourcetable="./a/a" sourcecolumn="gr_name" into="s1">a.gr_name as gr_name/*Группировка*//*string*/
+</column></select>
+                <from>
+from <query name="vb_spr_grouping" as="a" path="./a/a" haskeys="1" used="1">(
+<select>--vb_spr_grouping
+select <column table="a" column="kod_spr_group" type="number" column-mandatory="1" key="1" as="kod_spr_group" used="1" sourcetable="./a/a" sourcecolumn="kod_spr_group">a.kod_spr_group as kod_spr_group, /*number*//*key*/
+</column><column table="a" column="gr_name" type="string" data-size="300" title="Группировка" vid="1" is-name="1" as="gr_name" used="1" sourcetable="./a/a" sourcecolumn="gr_name" key="0">a.gr_name as gr_name/*Группировка*//*string*/
+</column></select><from>
+from <table name="vb_spr_grouping" as="a" used="1">vb_spr_grouping
+a
+--\vb_spr_grouping
+</table></from>)
+a
+--\vb_spr_grouping
+</query></from>
+                <where>where
+<call function="and" pth="" type="bool"><call function="le" pth="" type="bool">(<call function="rownum" pth="0" type="number"><text txtype="func"> rownum </text></call><text txtype="func"> &lt;= </text><const><text>:p_rows_limit </text></const>) </call><text txtype="func"> { </text><text txtype="func"> and </text><call function="in" pth="" optional="1" type="bool">(<column table="a" column="kod_spr_group" as="kod_spr_group" title="" key="1" thissrc="kod_spr_group">a.kod_spr_group</column><text txtype="func"> in </text><const><text>:pk_prm </text></const>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="kod_spr_group" as="kod_spr_group" title="" key="1" thissrc="kod_spr_group">a.kod_spr_group</column><text txtype="func"> ) like lower( </text><const><text>:kod_spr_group_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text><text txtype="func"> { </text><text txtype="func"> and </text><call function="like" pth="" optional="1" type="bool">(<text txtype="func"> lower( </text><column table="a" column="gr_name" as="gr_name" title="Группировка" thissrc="gr_name">a.gr_name</column><text txtype="func"> ) like lower( </text><const><text>:gr_name_filter </text></const><text txtype="func"> ) </text>) </call><text txtype="func"> } </text></call></where>--\a
+</query>
+            </root>
+          </sel-list-compiled>
+          <sel-list-report>
+            <report name="a" class="1" timestamp="03.07.2019 16:11:10" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_grouping.xml" haskeys="1" as="a">
+              <queries>
+                <query class="1" timestamp="03.07.2019 16:11:10" file="sql.builder.templates\sql.builder\projects\mped\scheme\original\vb_spr_grouping.xml" haskeys="1" name="a" as="a">
+                  <params>
+                    <param name="pk_prm" type="array" />
+                    <param name="kod_spr_group_filter" type="string" />
+                    <param name="gr_name_filter" type="string" />
+                    <param name="p_rows_limit" type="number" />
+                  </params>
+                  <select>
+                    <column table="a" column="kod_spr_group" as="kod_spr_group" title="" key="1" />
+                    <column table="a" column="gr_name" as="gr_name" title="Группировка" />
+                  </select>
+                  <from>
+                    <query name="vb_spr_grouping" as="a" />
+                  </from>
+                  <where>
+                    <call function="and">
+                      <call function="le">
+                        <call function="rownum" />
+                        <useparam name="p_rows_limit" />
+                      </call>
+                      <call function="in" optional="1">
+                        <column table="this" column="kod_spr_group" />
+                        <useparam name="pk_prm" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="kod_spr_group" />
+                        <useparam name="kod_spr_group_filter" />
+                      </call>
+                      <call function="like" optional="1">
+                        <column table="this" column="gr_name" />
+                        <useparam name="gr_name_filter" />
+                      </call>
+                    </call>
+                  </where>
+                  <withparams>
+                    <useparam name="pk_prm" />
+                    <useparam name="kod_spr_group_filter" />
+                    <useparam name="gr_name_filter" />
+                    <useparam name="p_rows_limit" />
+                  </withparams>
+                </query>
+              </queries>
+              <params>
+                <param name="pk_prm" type="array">
+                  <const>:pk_prm </const>
+                </param>
+                <param name="kod_spr_group_filter" type="string">
+                  <const>:kod_spr_group_filter </const>
+                </param>
+                <param name="gr_name_filter" type="string">
+                  <const>:gr_name_filter </const>
+                </param>
+                <param name="p_rows_limit" type="number">
+                  <const>:p_rows_limit </const>
+                </param>
+              </params>
+            </report>
+          </sel-list-report>
+          <sel-list-pars>
+            <params />
+          </sel-list-pars>
+          <dep-refresh-cmd>
+            <root table="a">
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_spr_group_x_n.gr_name as kod_spr_group_x_n, /*Группировка*//*string*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_spr_group as kod_spr_group/*number*/
+
+from (select a.kod_direct as kod_direct,a.kod_spr_group as kod_spr_group  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n4 as kod_spr_group  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_spr_group as kod_spr_group  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n4 as kod_spr_group  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+left outer join
+(
+--vb_spr_grouping
+select a.kod_spr_group as kod_spr_group, /*number*//*key*/
+a.gr_name as gr_name/*Группировка*//*string*/
+
+from vb_spr_grouping
+a
+--\vb_spr_grouping
+)
+kod_spr_group_x_n on a.kod_spr_group = kod_spr_group_x_n.kod_spr_group--\vb_spr_grouping
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </dep-refresh-cmd>
+          <dependants>
+            <dependant name="kod_spr_group_x_n" table="a" />
+          </dependants>
+        </column>
+        <column name="use_in_mped" table="a" type="number" title="Использовать в новом МПЕД" ColumnEditable="1" is-user-editable="1" is-updateable="1" is-updateable-ext="1" update-target="use_in_mped" temp-col-name="n5" />
+        <column name="valid_mvp" table="a" type="string" title="" parname="valid_mvp" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.valid_mvp as valid_mvp, /*string*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( length( a.mvp_code ) )  &lt; 4)  then '[inf]Код МВП должен состоять из 4 символов. Код не будет сохранен' when (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is not null )  then '[inf]Код МВП должен быть вида Dxxx, где x - цифра. Код не будет сохранен' when ((( length( a.mvp_code ) )  &gt; 4)  and (( SUBSTR( a.mvp_code , 1 , 1 ) )  = 'D') )  then '[inf]Код МВП должен состоять из 4 символов. Код будет автоматически образен до 4 символов' when ((( SUBSTR( a.mvp_code , 1 , 1 ) )  != 'D')  and (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is null ) )  then '[inf]Код МВП должен начинаться с буквы D. Код будет автоматически исправлен' end  as valid_mvp/*string*/
+
+from (select a.kod_direct as kod_direct,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="valid_mb3" table="a" type="string" title="" parname="valid_mb3" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.valid_mb3 as valid_mb3, /*string*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( length( a.mb3_code ) )  &lt; 10)  then '[inf]Код МВЗ должен состоять из 10 символов. Код не будет сохранен' when ((( length( a.mb3_code ) )  &gt; 10) )  then '[inf]Код МВЗ должен состоять из 10 символов. Код будет автоматически образен до 10 символов' when (mb3_code1.cnt &gt; 1)  then '[inf]Дублированная маска! Это приведет к дублированию данных' end  as valid_mb3/*string*/
+
+from (select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+left outer join
+(
+--is_spr_direct_count_mb3
+select a.mb3_code as mb3_code, /*string*//*key*/
+count(a.kod_direct)  as cnt/*number*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.mb3_code as mb3_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+where
+( TRIM( a.mb3_code ) )  is not null  group by
+a.mb3_code/*string*//*key*/
+)
+mb3_code1 on a.mb3_code = mb3_code1.mb3_code--\is_spr_direct_count_mb3
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="has_mvp_bool" table="a" type="number" title="" parname="has_mvp_bool" ColumnVisible="0" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select a.has_mvp_bool as has_mvp_bool, /*number*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when ((((
+--
+select  replace( ( sys_connect_by_path( d.mvp_code , '/' ) )  , '/' , '' ) /*string*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+a.mvp_code as mvp_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+d
+--\is_spr_direct
+where
+(d.mvp_code is not null )  and ( rownum  = 1) connect by nocycle
+(prior d.kod_parent_i = d.kod_direct) 
+start with d.kod_direct = a.kod_direct)
+--\
+)  is not null )  or (( length( a.mb3_code ) )  &gt; 0) )  then 1 else 0 end  as has_mvp_bool/*number*/
+
+from (select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="kod_spr_group_x_n" table="a.kod_spr_group" type="string" title="Группировка" text-source-for="kod_spr_group" is-refreshed="1">
+          <value-refresh-cmd>
+            <root>
+              <params>
+                <param name="kod_direct_prm" type="number" column="" />
+                <param name="form_id" type="number" column="" />
+              </params>
+              <select>
+                <params>
+                  <param name="kod_direct_prm" type="number" column="" />
+                  <param name="form_id" type="number" column="" />
+                </params>
+                <query>
+--
+select kod_spr_group_x_n.gr_name as kod_spr_group_x_n, /*Группировка*//*string*/
+a.kod_direct as kod_direct/*number*//*key*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_spr_group as kod_spr_group/*number*/
+
+from (select a.kod_direct as kod_direct,a.kod_spr_group as kod_spr_group  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n4 as kod_spr_group  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_spr_group as kod_spr_group  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n4 as kod_spr_group  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+left outer join
+(
+--vb_spr_grouping
+select a.kod_spr_group as kod_spr_group, /*number*//*key*/
+a.gr_name as gr_name/*Группировка*//*string*/
+
+from vb_spr_grouping
+a
+--\vb_spr_grouping
+)
+kod_spr_group_x_n on a.kod_spr_group = kod_spr_group_x_n.kod_spr_group--\vb_spr_grouping
+--\
+</query>
+              </select>
+              <procedure>
+                <params />
+              </procedure>
+            </root>
+          </value-refresh-cmd>
+        </column>
+        <column name="is_new" table="a" type="number" title="" is-user-editable="1" />
+        <column name="is_not_new" table="a" type="number" title="" is-user-editable="1" />
+      </columns>
+      <insert-text>begin 
+for r in  
+ ( select  
+:kod_direct as kod_direct 
+,:mes as mes 
+,:god as god 
+,:name_kr as name_kr 
+,:kod_predpr as kod_predpr 
+,:mvp_code as mvp_code 
+,:mvp_name as mvp_name 
+,:mb3_code as mb3_code 
+,:kod_spr_group as kod_spr_group 
+,:use_in_mped as use_in_mped 
+ 
+from dual ) 
+ 
+loop 
+insert into is_spr_direct 
+(kod_direct 
+,mes 
+,god 
+,name_kr 
+,kod_predpr 
+,mvp_code 
+,mvp_name 
+,mb3_code 
+,kod_spr_group 
+,use_in_mped 
+) 
+ values  
+(r.kod_direct 
+,r.mes 
+,r.god 
+,r.name_kr 
+,r.kod_predpr 
+,r.mvp_code 
+,r.mvp_name 
+,r.mb3_code 
+,r.kod_spr_group 
+,r.use_in_mped 
+) 
+ returning  
+kod_direct into :kod_direct; 
+end loop; 
+end; 
+</insert-text>
+      <delete-text>delete from is_spr_direct where kod_direct=:kod_direct</delete-text>
+      <update-temp-text>begin 
+delete from rr_temp 
+where 
+skod='a' 
+and 
+names=:form_id 
+and 
+f2=:kod_direct; 
+if :row_state_id=1  then 
+for r in  
+ ( select  
+:kod_direct as kod_direct 
+,:mes as mes 
+,:god as god 
+,:name_kr as name_kr 
+,:kod_predpr as kod_predpr 
+,:mvp_code as mvp_code 
+,:mvp_name as mvp_name 
+,:mb3_code as mb3_code 
+,:kod_spr_group as kod_spr_group 
+,:use_in_mped as use_in_mped 
+ 
+from dual ) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+,s1 
+,s2 
+,s3 
+,s4 
+,s5 
+,n4 
+,n5 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_direct 
+,:row_state_id 
+,r.kod_direct 
+,r.mes 
+,r.god 
+,r.name_kr 
+,r.kod_predpr 
+,r.mvp_code 
+,r.mvp_name 
+,r.mb3_code 
+,r.kod_spr_group 
+,r.use_in_mped 
+); 
+end loop; 
+else 
+for r in  
+ ( select  
+:kod_direct as kod_direct 
+,:mes as mes 
+,:god as god 
+,:name_kr as name_kr 
+,:kod_predpr as kod_predpr 
+,:mvp_code as mvp_code 
+,:mvp_name as mvp_name 
+,:mb3_code as mb3_code 
+,:kod_spr_group as kod_spr_group 
+,:use_in_mped as use_in_mped 
+,a.name 
+,a.kod_parent 
+,a.gor_obl 
+,a.kod_podr 
+,a.en_gor 
+,a.en_obl 
+,a.tep_gor 
+,a.kod_plant 
+,a.tep_obl 
+,a.prizn_isp 
+,a.crkp 
+,a.kod_spr_doc 
+,a.kod_dir_old 
+,a.kod_gkpz 
+,a.path_doc 
+,a.d_c 
+,a.d_m 
+,a.u_m 
+,a.kod_kazn 
+,a.kod_nemo 
+,a.fl_branch 
+,a.kod_xml_plan 
+,a.invest_pr 
+,a.fl_ask_atp 
+,a.kod_spr_pfm 
+,a.full_name 
+,a.pr_vks_ofz 
+,a.zone 
+,a.kodp 
+ 
+from is_spr_direct a  where kod_direct=:kod_direct) 
+ 
+loop 
+insert into rr_temp 
+(skod 
+,names 
+,f2 
+,f3 
+,n1 
+,n2 
+,n3 
+,s1 
+,s2 
+,s3 
+,s4 
+,s5 
+,n4 
+,n5 
+,s6 
+,n6 
+,n7 
+,n8 
+,n9 
+,n10 
+,n11 
+,s7 
+,n12 
+,n13 
+,n14 
+,n15 
+,n16 
+,n17 
+,s8 
+,d1 
+,d2 
+,s9 
+,s10 
+,n18 
+,n19 
+,n20 
+,n21 
+,n22 
+,n23 
+,s11 
+,n24 
+,n25 
+,n26 
+) 
+ values  
+('a' 
+,:form_id 
+,:kod_direct 
+,:row_state_id 
+,r.kod_direct 
+,r.mes 
+,r.god 
+,r.name_kr 
+,r.kod_predpr 
+,r.mvp_code 
+,r.mvp_name 
+,r.mb3_code 
+,r.kod_spr_group 
+,r.use_in_mped 
+,r.name 
+,r.kod_parent 
+,r.gor_obl 
+,r.kod_podr 
+,r.en_gor 
+,r.en_obl 
+,r.tep_gor 
+,r.kod_plant 
+,r.tep_obl 
+,r.prizn_isp 
+,r.crkp 
+,r.kod_spr_doc 
+,r.kod_dir_old 
+,r.kod_gkpz 
+,r.path_doc 
+,r.d_c 
+,r.d_m 
+,r.u_m 
+,r.kod_kazn 
+,r.kod_nemo 
+,r.fl_branch 
+,r.kod_xml_plan 
+,r.invest_pr 
+,r.fl_ask_atp 
+,r.kod_spr_pfm 
+,r.full_name 
+,r.pr_vks_ofz 
+,r.zone 
+,r.kodp 
+); 
+end loop; 
+end if; 
+end; 
+</update-temp-text>
+      <clear-temp-text>delete from rr_temp where skod='a' and names=:form_id</clear-temp-text>
+      <update-text>begin
+update is_spr_direct set  
+(kod_direct 
+,mes 
+,god 
+,name_kr 
+,kod_predpr 
+,mvp_code 
+,mvp_name 
+,mb3_code 
+,kod_spr_group 
+,use_in_mped 
+) 
+= 
+ ( select  
+:kod_direct as kod_direct 
+,:mes as mes 
+,:god as god 
+,:name_kr as name_kr 
+,:kod_predpr as kod_predpr 
+,:mvp_code as mvp_code 
+,:mvp_name as mvp_name 
+,:mb3_code as mb3_code 
+,:kod_spr_group as kod_spr_group 
+,:use_in_mped as use_in_mped 
+ 
+from dual ) 
+ 
+where 
+kod_direct=:kod_direct 
+;
+end;
+</update-text>
+      <scheme>
+        <table name="is_spr_direct" as="a">
+          <columns>
+            <column name="name1" type="string" title="Текущее подразделение" />
+            <column name="namex" type="string" title="Подразделение" />
+            <column name="kod_direct" type="number" title="" visible="0" />
+            <column name="kod_parent_i" type="number" title="-" visible="0" />
+            <column name="mes" type="number" format="F0" edit-mask="F0" title="Месяц оконч." />
+            <column name="god" type="number" format="F0" edit-mask="F0" title="Год оконч." />
+            <column name="name_kr" type="string" title="Краткое наименование" />
+            <column name="kod_predpr" type="string" title="Код предпр. балансодерж." />
+            <column name="mvp_code" type="string" title="Код SAP (МВП)" />
+            <column name="mvp_name" type="string" title="Наименование кода SAP" />
+            <column name="mb3_code" type="string" title="Детализация SAP кода" />
+            <column name="kod_spr_group" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="use_in_mped" type="number" format="F0" edit-mask="F0" title="Использовать в новом МПЕД" />
+            <column name="valid_mvp" type="string" title="" visible="0" />
+            <column name="valid_mb3" type="string" title="" visible="0" />
+            <column name="has_mvp_bool" type="number" title="" visible="0" />
+            <column name="kod_spr_group_x_n" type="string" title="Группировка" />
+            <column name="is_new" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="is_not_new" type="number" invisible-in-column-chooser="1" visible="0" />
+          </columns>
+          <viewcolumns>
+            <column name="namex" type="string" title="Подразделение" />
+            <column name="kod_direct" type="number" title="" visible="0" />
+            <column name="kod_parent_i" type="number" title="-" visible="0" />
+            <column name="mes" type="number" format="F0" edit-mask="F0" title="Месяц оконч." />
+            <column name="god" type="number" format="F0" edit-mask="F0" title="Год оконч." />
+            <column name="name_kr" type="string" title="Краткое наименование" />
+            <column name="kod_predpr" type="string" title="Код предпр. балансодерж." />
+            <column name="mvp_code" type="string" title="Код SAP (МВП)" />
+            <column name="mvp_name" type="string" title="Наименование кода SAP" />
+            <column name="mb3_code" type="string" title="Детализация SAP кода" />
+            <column name="kod_spr_group_x_n" type="string" title="Группировка" />
+            <column name="kod_spr_group" type="number" invisible-in-column-chooser="1" visible="0" />
+            <column name="use_in_mped" type="number" format="F0" edit-mask="F0" title="Использовать в новом МПЕД" />
+            <column name="valid_mvp" type="string" title="" visible="0" />
+            <column name="valid_mb3" type="string" title="" visible="0" />
+            <column name="has_mvp_bool" type="number" title="" visible="0" />
+          </viewcolumns>
+        </table>
+      </scheme>
+      <single-row-refresh-cmd>
+        <root>
+          <params>
+            <param name="kod_direct_prm" type="number" column="" />
+            <param name="form_id" type="number" column="" />
+          </params>
+          <select>
+            <params>
+              <param name="kod_direct_prm" type="number" column="" />
+              <param name="form_id" type="number" column="" />
+            </params>
+            <query>
+--
+select a.name_orig as name1, /*Текущее подразделение*//*string*/
+a.namex as namex, /*Подразделение*//*string*/
+a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_parent_i as kod_parent_i, /*-*//*number*/
+a.mes as mes, /*Месяц оконч.*//*number*/
+a.god as god, /*Год оконч.*//*number*/
+a.name_kr as name_kr, /*Краткое наименование*//*string*/
+a.kod_predpr as kod_predpr, /*Код предпр. балансодерж.*//*string*/
+a.mvp_code as mvp_code, /*Код SAP (МВП)*//*string*/
+a.mvp_name as mvp_name, /*Наименование кода SAP*//*string*/
+a.mb3_code as mb3_code, /*Детализация SAP кода*//*string*/
+a.kod_spr_group as kod_spr_group, /*Группировка*//*number*/
+a.use_in_mped as use_in_mped, /*Использовать в новом МПЕД*//*number*/
+a.valid_mvp as valid_mvp, /*string*/
+a.valid_mb3 as valid_mb3, /*string*/
+a.has_mvp_bool as has_mvp_bool, /*number*/
+kod_spr_group_x_n.gr_name as kod_spr_group_x_n, /*Группировка*//*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.kod_predpr as kod_predpr, /*string*/
+a.name_kr as name_kr, /**//*string*/
+a.mes as mes, /*Месяц оконч.*//*number*/
+a.god as god, /*Год оконч.*//*number*/
+ TRIM( a.name )  as name_orig, /*string*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+ case  when (a.kod_direct = 0)  then 'ТГК-1' else ( TRIM( a.name ) )  end  as namex, /*Подразделение*//*string*/
+a.mvp_code as mvp_code, /*string*/
+a.mvp_name as mvp_name, /*string*/
+a.mb3_code as mb3_code, /*string*/
+a.kod_spr_group as kod_spr_group, /*number*/
+a.use_in_mped as use_in_mped, /*number*/
+ case  when (( length( a.mvp_code ) )  &lt; 4)  then '[inf]Код МВП должен состоять из 4 символов. Код не будет сохранен' when (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is not null )  then '[inf]Код МВП должен быть вида Dxxx, где x - цифра. Код не будет сохранен' when ((( length( a.mvp_code ) )  &gt; 4)  and (( SUBSTR( a.mvp_code , 1 , 1 ) )  = 'D') )  then '[inf]Код МВП должен состоять из 4 символов. Код будет автоматически образен до 4 символов' when ((( SUBSTR( a.mvp_code , 1 , 1 ) )  != 'D')  and (( TRIM( ( TRANSLATE( ( SUBSTR( a.mvp_code , 2 , 3 ) )  , '0123456789' , ' ' ) )  ) )  is null ) )  then '[inf]Код МВП должен начинаться с буквы D. Код будет автоматически исправлен' end  as valid_mvp, /*string*/
+ case  when ((((
+--
+select  replace( ( sys_connect_by_path( d.mvp_code , '/' ) )  , '/' , '' ) /*string*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+ case  when (( nvl( a.kod_direct ,0)!=0  or nvl( 0 ,0)!=0 )  and (a.kod_parent is null ) )  then 0 else a.kod_parent end  as kod_parent_i, /*-*//*number*/
+a.mvp_code as mvp_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_parent as kod_parent,a.mvp_code as mvp_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.n6 as kod_parent,t.s3 as mvp_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+d
+--\is_spr_direct
+where
+(d.mvp_code is not null )  and ( rownum  = 1) connect by nocycle
+(prior d.kod_parent_i = d.kod_direct) 
+start with d.kod_direct = a.kod_direct)
+--\
+)  is not null )  or (( length( a.mb3_code ) )  &gt; 0) )  then 1 else 0 end  as has_mvp_bool, /*number*/
+ case  when (( length( a.mb3_code ) )  &lt; 10)  then '[inf]Код МВЗ должен состоять из 10 символов. Код не будет сохранен' when ((( length( a.mb3_code ) )  &gt; 10) )  then '[inf]Код МВЗ должен состоять из 10 символов. Код будет автоматически образен до 10 символов' when (mb3_code1.cnt &gt; 1)  then '[inf]Дублированная маска! Это приведет к дублированию данных' end  as valid_mb3, /*string*/
+a.is_new as is_new, /*number*/
+a.is_not_new as is_not_new/*number*/
+
+from (select a.kod_direct as kod_direct,a.kod_predpr as kod_predpr,a.name_kr as name_kr,a.mes as mes,a.god as god,a.name as name,a.kod_parent as kod_parent,a.mvp_code as mvp_code,a.mvp_name as mvp_name,a.mb3_code as mb3_code,a.kod_spr_group as kod_spr_group,a.use_in_mped as use_in_mped,0 as is_new,1 as is_not_new  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s2 as kod_predpr,t.s1 as name_kr,t.n2 as mes,t.n3 as god,t.s6 as name,t.n6 as kod_parent,t.s3 as mvp_code,t.s4 as mvp_name,t.s5 as mb3_code,t.n4 as kod_spr_group,t.n5 as use_in_mped,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.kod_predpr as kod_predpr,a.name_kr as name_kr,a.mes as mes,a.god as god,a.name as name,a.kod_parent as kod_parent,a.mvp_code as mvp_code,a.mvp_name as mvp_name,a.mb3_code as mb3_code,a.kod_spr_group as kod_spr_group,a.use_in_mped as use_in_mped,0 as is_new,1 as is_not_new  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s2 as kod_predpr,t.s1 as name_kr,t.n2 as mes,t.n3 as god,t.s6 as name,t.n6 as kod_parent,t.s3 as mvp_code,t.s4 as mvp_name,t.s5 as mb3_code,t.n4 as kod_spr_group,t.n5 as use_in_mped,decode (f3,1,1,0) as is_new,decode (f3,1,0,1) as is_not_new  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+left outer join
+(
+--is_spr_direct_count_mb3
+select a.mb3_code as mb3_code, /*string*//*key*/
+count(a.kod_direct)  as cnt/*number*/
+
+from (
+--is_spr_direct
+select a.kod_direct as kod_direct, /*number*//*key*/
+a.mb3_code as mb3_code/*string*/
+
+from (select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+a
+--\(select a.kod_direct as kod_direct,a.mb3_code as mb3_code  from is_spr_direct a where not exists (select * from rr_temp t where t.skod ='a' and t.names=:form_id  and a.kod_direct=t.f2 ) and   a.kod_direct in :kod_direct_prm   union all  select t.n1 as kod_direct,t.s5 as mb3_code  from rr_temp t where t.skod ='a' and t.names=:form_id  and t.f3!=3  and t.f2 in :kod_direct_prm )
+)
+a
+--\is_spr_direct
+where
+( TRIM( a.mb3_code ) )  is not null  group by
+a.mb3_code/*string*//*key*/
+)
+mb3_code1 on a.mb3_code = mb3_code1.mb3_code--\is_spr_direct_count_mb3
+)
+a
+--\is_spr_direct
+left outer join
+(
+--vb_spr_grouping
+select a.kod_spr_group as kod_spr_group, /*number*//*key*/
+a.gr_name as gr_name/*Группировка*//*string*/
+
+from vb_spr_grouping
+a
+--\vb_spr_grouping
+)
+kod_spr_group_x_n on a.kod_spr_group = kod_spr_group_x_n.kod_spr_group--\vb_spr_grouping
+
+order by namex--\
+</query>
+          </select>
+          <procedure>
+            <params />
+          </procedure>
+        </root>
+      </single-row-refresh-cmd>
+    </table>
+  </dataset>
+</root>

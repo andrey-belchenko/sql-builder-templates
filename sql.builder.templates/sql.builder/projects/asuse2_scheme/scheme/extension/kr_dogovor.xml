@@ -1,0 +1,1019 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <parts>
+    <part id="kr_dogovor-field" class="1" timestamp="13.10.2017 14:53:08">
+      <field name="kod_dog" controlType="UIList" title="Договоры" type="number">
+        <listquery>
+          <query name="kr_dogovor_list(dep)" />
+        </listquery>
+      </field>
+    </part>
+  </parts>
+  <queries>
+    <query name="kr_dogovor_ext" class="1" extend="kr_dogovor" timestamp="06.08.2024 09:54:37">
+      <select>
+        <call function="||" as="name" title="Договор" is-name="1" fact="kr_dog_name" agg="stragg_dist">
+          <const exclude="1">'№ '</const>
+          <column table="a" column="ndog" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_dog" />
+          </call>
+        </call>
+        <call function="if" as="kod_abon_type">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <const>4</const>
+          </call>
+          <const>1</const>
+          <const>2</const>
+        </call>
+        <call function="if" as="abon_type_name" title="Тип абонента">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <const>4</const>
+          </call>
+          <const>'Физические лица'</const>
+          <const>'Юридические лица'</const>
+        </call>
+        <column table="rr_refprop_dog_103" column="kod_refcode" as="kod_gr_potr_nas" />
+        <column table="rr_refprop_dog_62" column="kod_refcode" as="kod_gr_potr_dog" />
+        <column table="rr_refprop_dog_102" column="kod_refcode" as="kod_state_dog" />
+        <call function="case" type="string" as="potr_cat" title="Категория потребителя">
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Промышленность'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>3</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Сельское хозяйство'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>8</const>
+              </call>
+              <call function="=">
+                <column table="okonh" column="p2" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Управляющие организации'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>8</const>
+              </call>
+              <call function="!=">
+                <column table="okonh" column="p2" />
+                <const>1</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'ЖКХ'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="kod_ist_ag" column="p3" />
+                <array>
+                  <const>1</const>
+                  <const>2</const>
+                  <const>3</const>
+                  <const>4</const>
+                  <const>5</const>
+                </array>
+              </call>
+            </call>
+            <const>'Бюджет'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="in">
+                <column table="okonh" column="p1" />
+                <array>
+                  <const>4</const>
+                  <const>5</const>
+                  <const>6</const>
+                  <const>9</const>
+                </array>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Прочие потребители'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>7</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Население'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>2</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Энергосбытовые компании'</const>
+          </call>
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="okonh" column="p1" />
+                <const>9</const>
+              </call>
+              <call function="=">
+                <column table="okonh" column="p2" />
+                <const>4</const>
+              </call>
+              <call function="=">
+                <column table="kod_ist_ag" column="p3" />
+                <const>0</const>
+              </call>
+            </call>
+            <const>'Компенсация потерь'</const>
+          </call>
+          <call function="else">
+            <const>'-'</const>
+          </call>
+        </call>
+        <!--Номер договора - Барнаул (ф-я в файле по 28660)-->
+        <call function="if" as="ndog_bar5" type="string">
+          <call function="gt">
+            <call function="length">
+              <call function="replace">
+                <column table="a" column="ndog" />
+                <const>'.'</const>
+                <const>''</const>
+              </call>
+            </call>
+            <const>4</const>
+          </call>
+          <column table="a" column="ndog" />
+          <call function="||">
+            <call function="lpad">
+              <call function="replace">
+                <column table="a" column="ndog" />
+                <const>'.'</const>
+                <const>''</const>
+              </call>
+              <call function="greatest">
+                <const>4</const>
+                <call function="length">
+                  <call function="replace">
+                    <column table="a" column="ndog" />
+                    <const>'.'</const>
+                    <const>''</const>
+                  </call>
+                </call>
+              </call>
+              <const>'0'</const>
+            </call>
+            <const>'Э'</const>
+          </call>
+        </call>
+        <call function="case" as="ndog_bar6" type="string">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>1172</const>
+            </call>
+            <call function="||">
+              <const>'1'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>2199</const>
+            </call>
+            <call function="if">
+              <call function="=">
+                <column table="a" column="kodp_uch" />
+                <const>2199</const>
+              </call>
+              <call function="||">
+                <const>'1'</const>
+                <column table="this" column="ndog_bar5" />
+              </call>
+              <call function="||">
+                <const>'4'</const>
+                <column table="this" column="ndog_bar5" />
+              </call>
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15210</const>
+            </call>
+            <call function="||">
+              <const>'5'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15223</const>
+            </call>
+            <call function="||">
+              <const>'8'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15225</const>
+            </call>
+            <call function="||">
+              <const>'7'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15227</const>
+            </call>
+            <call function="||">
+              <const>'Ж'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15229</const>
+            </call>
+            <call function="||">
+              <const>'М'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15231</const>
+            </call>
+            <call function="||">
+              <const>'Д'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15232</const>
+            </call>
+            <call function="||">
+              <const>'6'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>15235</const>
+            </call>
+            <call function="||">
+              <const>'О'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="when">
+            <call function="=">
+              <column table="a" column="dep" />
+              <const>26912</const>
+            </call>
+            <call function="||">
+              <const>'А'</const>
+              <column table="this" column="ndog_bar5" />
+            </call>
+          </call>
+          <call function="else">
+            <column table="this" column="ndog_bar5" />
+          </call>
+        </call>
+        <column table="kr_vist_day" column="name" dgroup="stragg" as="avans_info" title="Условия оплаты по договору (аванс)" />
+        <column table="kr_vist_day" column="perc" dgroup="sum" as="avans_proc" />
+        <call function="||" as="postplat_info" title="Условия оплаты по договору (постоплата)">
+          <const exclude="1">'Постоплата '</const>
+          <column table="kod_bzad" column="name" />
+        </call>
+        <call function="if" as="tep_el_fact">
+          <call function="=">
+            <column table="a" column="tep_el" />
+            <const>4</const>
+          </call>
+          <column table="a" column="tep_el_byt" />
+          <column table="a" column="tep_el" />
+        </call>
+        <call function="case" type="string" title="Группа потребителей для ФО" comment="алгоритм описан 40745 " as="cust_fo">
+          <call function="when">
+            <call function="in">
+              <column table="a" column="kod_ist" />
+              <array>
+                <const>2</const>
+                <const>3</const>
+                <const>4</const>
+                <const>5</const>
+              </array>
+            </call>
+            <column table="kod_ist" column="name" />
+          </call>
+          <call function="else">
+            <column table="kod_group_cust" column="fin_name" />
+          </call>
+        </call>
+        <column table="kod_group_cust" column="kod_group_cust" dimension="kod_group_cust" />
+        <column table="kod_group_cust" column="kod_gr_parent" dimension="kod_group_cust_parent" />
+        <call function="if" as="dat_active_sign" is-fact="1" agg="min" fact="kr_dogovor_dat_active_sign">
+          <call function="!=">
+            <column table="a" column="pr_active" />
+            <const>1</const>
+          </call>
+          <column table="a" column="dat_sign" />
+        </call>
+        <call function="if" as="ndog_active" is-fact="1" agg="stragg_dist" fact="kr_dogovor_ndog_active">
+          <call function="!=">
+            <column table="a" column="pr_active" />
+            <const>1</const>
+          </call>
+          <column table="a" column="ndog" />
+        </call>
+        <call function="if" as="name_group_cust" is-fact="1" agg="min" fact="kr_dogovor_name_group_cust" type="string">
+          <call function="!=">
+            <column table="a" column="pr_active" />
+            <const>1</const>
+          </call>
+          <column table="kod_group_cust" column="name" />
+        </call>
+        <call function="adress_region" as="adress_region" title="Регион">
+          <column table="a" column="kod_d_dog" />
+        </call>
+        <call function="adress_sf" as="adress_sf" title="СФ (Субъект Федерации)">
+          <column table="a" column="kod_d_dog" />
+        </call>
+        <call function="adress_region2" as="adress_region_name" title="Регион">
+          <column table="a" column="kod_d_dog" />
+        </call>
+        <call function="adress_district" as="adress_district" title="Район">
+          <column table="a" column="kod_d_dog" />
+        </call>
+      </select>
+      <from>
+        <query name="p_gr_potr_nas" as="kod_gr_potr_nas" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_gr_potr_nas" />
+            <column table="kod_gr_potr_nas" column="kod_gr_potr_nas" />
+          </call>
+        </query>
+        <query name="rs_refcode" as="kod_gr_potr_dog" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_gr_potr_dog" />
+            <column table="kod_gr_potr_dog" column="kod_refcode" />
+          </call>
+        </query>
+        <query name="kr_dep" as="kod_dep" join="left outer" title="Отделение" dimension="1">
+          <call function="=">
+            <column table="a" column="dep" />
+            <column table="kod_dep" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_podr" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="podr" />
+            <column table="kr_podr" column="kodp" />
+          </call>
+        </query>
+        <query name="rr_gen_codes_t" as="kod_rr_gen" join="left outer" dimension="1">
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="kod_rr_gen" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <slink name="rr_refprop_dog_103" />
+        <slink name="rr_refprop_dog_62" />
+        <slink name="rr_refprop_dog_102" />
+        <link name="kod_ist" as="kod_ist1">
+          <link name="kod_ist_ag" />
+        </link>
+        <link name="kodp" as="kodp1" dimension="1">
+          <link name="kod_m">
+            <link name="kod_m_ag" />
+          </link>
+          <link name="kod_otrasl">
+            <link name="okonh" />
+          </link>
+          <dimlink name="ks_otrasl_root" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_ministry" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_otrasl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_fs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kk_cls" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="ks_okved" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="kod_folders_kodp" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </link>
+        <dlink name="ur_dogplat" dimension="1" is-private-dimension="1" is-final-dimension="1">
+          <dimlink name="kod_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_pp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_ba" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_dec" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_folders_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_hist_mat_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_sogl" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_pretenz" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_inkasso" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_kazn" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_isp_other" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_dp_graf" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dlink name="ur_dp_graf">
+            <link name="kod_graf" as="kod_graf1">
+              <dlink name="ur_graf_for_dog" dimension="1" as="ur_graf_for_dog1" is-final-dimension="1" />
+            </link>
+          </dlink>
+          <link name="kod_mat" exclude="1">
+            <dlink name="ur_hist_mat">
+              <dlink name="ur_graf" as="ur_graf1">
+                <dlink name="ur_graf_for_dog" dimension="1" as="ur_graf_for_dog1" is-final-dimension="1" />
+              </dlink>
+              <dlink name="ur_isp">
+                <dlink name="ur_graf" as="ur_graf2">
+                  <dlink name="ur_graf_for_dog" dimension="1" as="ur_graf_for_dog2" is-final-dimension="1" />
+                </dlink>
+              </dlink>
+            </dlink>
+          </link>
+          <link name="kod_sogl" exclude="1">
+            <dlink name="ur_graf" as="ur_graf3">
+              <dlink name="ur_graf_for_dog" dimension="1" as="ur_graf_for_dog3" is-final-dimension="1" />
+            </dlink>
+          </link>
+        </dlink>
+        <dlink name="sr_debet" exclude="1">
+          <dlink name="ur_dogplat" dimension="1" />
+        </dlink>
+        <dlink name="sr_facvip" exclude="1">
+          <dlink name="ur_dogplat" dimension="1" as="ur_dogplat1" />
+        </dlink>
+        <dlink name="tnr_izv" exclude="1">
+          <dlink name="ur_dogplat" as="ur_dogplat2" dimension="1" />
+        </dlink>
+        <dlink name="kr_vist_day" pushpred="1" />
+        <dlink name="kr_dogpodr" dimension="1" />
+        <dlink name="kr_dogobj_emp" dimension="1" is-final-dimension="1" />
+        <dlink name="kr_numobj" dimension="1" />
+        <dlink name="kr_numobj_mn" dimension="1" is-final-dimension="1" is-private-dimension="1">
+          <dimlink name="kod_point" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_point_har" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_seti" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_elter" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="eobj_id" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_parent_eo" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_srckind" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp_bal" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kodp_elter" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_org_group" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_eobject_senter_nut" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_point_pu" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_v" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="kod_elnet" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="point_dat_s" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+          <dimlink name="point_dat_po" is-final-dimension="1" is-private-dimension="1" dimension="1" />
+        </dlink>
+        <dlink name="kr_dopdoc" dimension="1" />
+        <dlink name="tr_izv_dolg" dimension="1" />
+        <dlink name="kr_predabon" dimension="1" is-final-dimension="1" />
+        <dlink name="kr_vist_day" dimension="1" is-final-dimension="1" />
+        <link name="kod_dog_dop">
+          <link name="kod_group_cust" />
+        </link>
+        <link name="kod_ist" />
+        <link name="day_pokaz" dimension="1" is-final-dimension="1" is-private-dimension="1" />
+      </links>
+    </query>
+    <query name="kr_dogovor_list(dep)" class="1" timestamp="21.11.2016 19:52:49">
+      <params>
+        <param name="dep" type="array" />
+        <param type="array" name="kodp" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="pr_active" column="name" exclude="1" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" exclude="1" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" exclude="1">
+            <column table="a" column="pr_active" />
+            <array>0,2</array>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="kodp" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_org-list" title="Управляющие компании" order="name">
+      <params>
+        <param name="kodd" type="array" />
+        <param name="kod_vid_upr" type="array" />
+        <param name="kod_upr_house" type="array" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog_org" type="number" group="1" />
+        <column table="kod_dog_org" column="ndog" type="string" group="max" title="Договор" />
+        <column table="kodp" column="name" type="string" group="max" title="Управляющая компания" />
+      </select>
+      <from>
+        <query name="tr_his_upr" as="a">
+          <link name="kod_dog_org">
+            <link name="kodp" />
+          </link>
+          <link name="kod_obj" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="=">
+            <column table="a" column="tip_org" />
+            <const>1</const>
+          </call>
+          <call function="=">
+            <column table="kod_obj" column="tep_el" />
+            <const>4</const>
+          </call>
+          <call function="=">
+            <column table="kod_obj" column="tep_el_byt" />
+            <const>1</const>
+          </call>
+          <call function="in" optional="1">
+            <column table="kod_obj" column="kodd" />
+            <useparam name="kodd" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_vid_upr" />
+            <useparam name="kod_vid_upr" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kod_typ_upr" />
+            <useparam name="kod_upr_house" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_teplo_list(dep)" inherit="kr_dogovor_list(dep)">
+      <where>
+        <call function="=">
+          <column table="a" column="tep_el" />
+          <const>2</const>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list_cur_dep" class="1" timestamp="25.03.2016 12:13:38">
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="dep" optional="1" />
+          <useglobparam name="dep" />
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_el_list(dep)" inherit="kr_dogovor_list(dep)">
+      <where>
+        <call function="=">
+          <column table="a" column="tep_el" />
+          <const>1</const>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor(kodp)" timestamp="15.03.2016 18:24:50" class="1">
+      <params>
+        <param type="number" name="kodp" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="kodp" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_rassh_list" class="1" order="1" timestamp="21.11.2016 12:42:48" title="Список расчётных счетов по договорам">
+      <params>
+        <param type="array" name="dep" />
+        <param type="array" name="tep_el" />
+      </params>
+      <select>
+        <column table="a" column="rassh1" type="string" group="1" key="1" is-name="1" as="id" />
+        <column table="a" column="rassh1" type="string" group="1" title="Расчётный счёт" as="name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="rassh1" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1" comment="Вид энергии">
+            <column table="a" column="tep_el" />
+            <useparam name="tep_el" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list_active" class="1" timestamp="31.01.2017 13:37:28">
+      <params>
+        <param name="dep" type="array" />
+        <param type="array" name="kodp" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="pr_active" column="name" exclude="1" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="inn" />
+        <column table="kodp" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" exclude="1" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in">
+            <column table="a" column="pr_active" />
+            <array>0</array>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="kodp" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_lic_kazn_list" class="1" order="1" timestamp="21.11.2016 17:49:25" title="Список счетов казначейства по договорам">
+      <params>
+        <param type="array" name="dep" />
+        <param type="array" name="tep_el" />
+      </params>
+      <select>
+        <column table="a" column="lic_kazn" type="string" group="1" key="1" is-name="1" as="id" />
+        <column table="a" column="lic_kazn" type="string" group="1" title="Счет в казначействе" as="name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="is not null">
+            <column table="a" column="lic_kazn" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1" comment="Вид энергии">
+            <column table="a" column="tep_el" />
+            <useparam name="tep_el" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list(dep_sng)" timestamp="23.08.2023 15:22:34">
+      <params>
+        <param name="dep" type="number">
+          <const>null</const>
+        </param>
+      </params>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="d" column="kod_dog" />
+        <column table="p" column="kodp" />
+        <column table="d" column="ndog" title="Номер договора" />
+        <column table="p" column="nump" title="Код абонента" />
+        <column table="p" column="name" as="payer_name" title="Наименование абонента" />
+        <column table="p" column="inn" title="ИНН" />
+        <column table="d" column="dat_sign" title="Дата подписания" />
+        <column table="dep" column="sname" as="dep_name" title="Отделение" />
+        <column table="d" column="dep" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="d" />
+        <query name="kr_payer" as="p" join="inner">
+          <call function="=">
+            <column table="p" column="kodp" />
+            <column table="d" column="kodp" />
+          </call>
+        </query>
+        <query name="kr_org" as="dep" join="inner">
+          <call function="=">
+            <column table="dep" column="kodp" />
+            <column table="d" column="dep" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="in">
+            <column table="d" column="tep_el" />
+            <array>1,2</array>
+          </call>
+          <call function="or">
+            <call function="=">
+              <column table="d" column="dep" />
+              <useparam name="dep" />
+            </call>
+            <call function="is null">
+              <useparam name="dep" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list2" class="1" timestamp="04.07.2017 14:33:44">
+      <params>
+        <param name="dep" type="array" />
+        <param type="array" name="kodp" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="inn" />
+        <column table="kodp" column="name" as="payer_name" />
+        <column table="pr_active" column="name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="kodp" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_fin" class="1" timestamp="30.10.2018 16:46:08" inherit="kr_dogovor">
+      <select>
+        <!--Номер договора - Барнаул (ф-я в файле по 28660)-->
+      </select>
+      <from />
+    </query>
+    <query name="kr_dogovor_list_fin(dep)" class="1" timestamp="30.10.2018 18:07:47">
+      <params>
+        <param name="dep" type="array" />
+        <param type="array" name="kodp" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="pr_active" column="name" exclude="1" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" exclude="1" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="=">
+            <column table="a" column="kod_dog" />
+            <column table="a" column="kod_dog_fin" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="kodp" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list_adr_m(dep)" class="1" timestamp="06.08.2024 10:08:38">
+      <params>
+        <param name="dep" type="array" />
+      </params>
+      <select>
+        <column table="a" column="adress_region" />
+        <column table="a" column="adress_sf" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a" />
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list_adr_m_obj(dep)" class="1" timestamp="06.08.2024 09:27:55">
+      <params>
+        <param name="dep" type="array" />
+      </params>
+      <select>
+        <call function="if" as="adress_region">
+          <call function="=">
+            <column table="kod_obj" column="kodd" />
+            <const>-1</const>
+          </call>
+          <call table="a" column="adress_region" function="adress_sf">
+            <column table="kod_dog" column="kod_d_dog" />
+          </call>
+          <call table="a" column="adress_region" function="adress_sf">
+            <column table="kod_obj" column="kodd" />
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="kr_numobj" as="a">
+          <link name="kod_dog" />
+          <link name="kod_obj" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" optional="1">
+            <column table="kod_dog" column="dep" />
+            <useparam name="dep" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="kr_dogovor_list(dep)_A" class="1" timestamp="14.06.2023 14:54:24">
+      <params>
+        <param name="dep" type="array" />
+        <param type="array" name="kodp" />
+      </params>
+      <select>
+        <column table="a" column="kod_dog" />
+        <column table="a" column="ndog" />
+        <column table="pr_active" column="name" title="Статус" />
+        <column table="dep" column="name" as="dep_name" title="Отделение" />
+        <column table="kodp" column="nump" />
+        <column table="kodp" column="name" as="payer_name" />
+      </select>
+      <from>
+        <query name="kr_dogovor" as="a">
+          <link name="kodp" />
+          <link name="dep" />
+          <link name="pr_active" />
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="true" />
+          <call function="in" exclude="1">
+            <column table="a" column="pr_active" />
+            <array>0,2</array>
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="dep" />
+            <useparam name="dep" />
+          </call>
+          <call function="in" optional="1">
+            <column table="a" column="kodp" />
+            <useparam name="kodp" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

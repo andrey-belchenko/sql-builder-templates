@@ -1,0 +1,1070 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="44164-test" timestamp="26.10.2017 02:05:47" use-repository="1" title="Отчёт по использованию денежных средств (авансов) от заявителей" is-report="1" visible="0">
+      <params>
+        <usepart part="44164-params" />
+      </params>
+      <change-sources>
+        <change-source name="ipr_titul_dop_contract" call="44164_ipr_tit_dc" />
+      </change-sources>
+      <expressions>
+        <call as="on_dat" function="le">
+          <column table="ipr_dat" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call as="sch_uch" function="in" dontpushpred="1">
+          <column table="ipr_kod_schet" column="kod" />
+          <array>3,4,5</array>
+        </call>
+        <call as="sch_neuch" function="in" dontpushpred="1">
+          <column table="ipr_kod_schet" column="kod" />
+          <array>1</array>
+        </call>
+        <call as="pir" function="and" dontpushpred="1">
+          <call function="in">
+            <column table="ipr_kod_smet" column="kod_smet" />
+            <array>1</array>
+          </call>
+          <call function="not like">
+            <column table="ipr_kod_zatrat" column="abbr" />
+            <const>'9.%'</const>
+          </call>
+        </call>
+        <call as="smr" function="and" dontpushpred="1">
+          <call function="in">
+            <column table="ipr_kod_smet" column="kod_smet" />
+            <array>2</array>
+          </call>
+          <call function="not like">
+            <column table="ipr_kod_zatrat" column="abbr" />
+            <const>'9.%'</const>
+          </call>
+        </call>
+        <call function="like" as="hoz" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="abbr" />
+          <const>'9.%'</const>
+        </call>
+        <call function="like" as="proch" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="abbr" />
+          <const>'7.%'</const>
+        </call>
+        <call as="is_avans" function="=1" dontpushpred="1">
+          <column table="ipr_kod_opl_per" column="is_avans" />
+        </call>
+        <call as="dlg_on_dat" function="le" dontpushpred="1">
+          <column table="kido_dat_dolg" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call function="()" group="sum" as="opl_kido">
+          <fact column="is_opl_period_sum" condition="on_dat" />
+        </call>
+        <call function="()" group="sum" as="avans">
+          <fact column="opl_kido" condition="is_avans" />
+        </call>
+        <call function="()" as="kap" group="sum">
+          <fact column="ipr_kap_fact_sum" condition="on_dat" />
+        </call>
+        <call function="()" as="kap_uch" group="sum">
+          <fact column="kap" condition="sch_uch" />
+        </call>
+        <call function="()" as="kap_neuch" group="sum">
+          <fact column="kap" condition="sch_neuch" />
+        </call>
+        <call function="()" as="pir_kap_uch" group="sum">
+          <fact column="kap_uch" condition="pir" />
+        </call>
+        <call function="()" as="smr_kap_uch" group="sum">
+          <fact column="kap_uch" condition="smr" />
+        </call>
+        <call function="()" as="prch_kap_uch" group="sum">
+          <fact column="kap_uch" condition="proch" />
+        </call>
+        <call function="()" as="hoz_kap_uch" group="sum">
+          <fact column="kap_uch" condition="hoz" />
+        </call>
+        <call function="()" as="sld" group="sum">
+          <fact column="ipr_sld_fact_sum" condition="on_dat" />
+        </call>
+        <call function="if" as="kz" group="sum">
+          <call function="gt">
+            <call function="over">
+              <call function="sum">
+                <fact column="sld" />
+              </call>
+              <call function="partition by">
+                <column table="ipr_kod_dog" column="kod_dog" />
+                <column table="ipr_kod_titul_ip_teh_pr" column="kod_titul_ip" />
+              </call>
+            </call>
+            <const>0</const>
+          </call>
+          <fact column="sld" />
+        </call>
+        <call function="=1" as="pr_part_akt">
+          <column table="kod_atp_dop_info" column="pr_part_akt" />
+        </call>
+        <call function="()" group="sum" as="tp_sum_akt">
+          <fact column="kido_c_akt_sum_bn" condition="on_dat" />
+        </call>
+        <call function="()" group="sum" as="tp_kred_akt">
+          <fact column="kido_ob_tp_akt_kred_bn" condition="on_dat" />
+        </call>
+        <call function="()" group="sum" as="tp_sum_akt_part">
+          <fact column="tp_sum_akt" condition="pr_part_akt" />
+        </call>
+        <call function="-nvl" as="tp_ostatok" group="sum" exclude="1">
+          <fact column="is_dop_cont_contr_sum" />
+          <fact column="tp_sum_akt" />
+        </call>
+        <call function="()" group="sum" as="tp_dlg_pros">
+          <fact column="kido_ob_for_pros_dlg_bn" condition="dlg_on_dat" />
+        </call>
+        <call function="()" group="sum" as="tp_dlg_pros_s_nds">
+          <fact column="kido_ob_for_pros_dlg" condition="dlg_on_dat" />
+        </call>
+      </expressions>
+      <select>
+        <call function="row_num" as="npp" group="max" title=" " exclude="1">
+          <column table="this" column="podr_name" />
+          <column table="this" column="tit_name" />
+        </call>
+        <column table="ipr_kod_titul_ip" column="kod_titul_ip" exclude="1" />
+        <column table="kod_dop_contract" column="kod_dop_contract" />
+        <call function="over" as="tit_in_dog" group="outer" type="number" exclude="1">
+          <call function="count">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+        <call function="over" as="first_tit_in_dog" group="outer" type="number" exclude="1">
+          <call function="max">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+        <call function="if" group="outer" type="number" as="un_dog" exclude="1">
+          <call function="=">
+            <column table="this" column="first_tit_in_dog" />
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <const>1</const>
+        </call>
+        <column table="kod_ispolnit" column="name" as="podr_name_tit" title="Наименование филиала (из титула)" group="max" comment="1" exclude="1" />
+        <column table="kod_filial" column="name" as="podr_name_dog" title="Наименование филиала (и договора ТП)" group="max" comment="1" exclude="1" />
+        <call function="nvl" as="podr" exclude="1">
+          <column table="kod_ispolnit" column="kod_direct" title="Наименование филиала (из титула)" comment="1" />
+          <column table="kod_filial" column="kod_direct" title="Наименование филиала (и договора ТП)" comment="1" />
+        </call>
+        <call function="nvl" title="Наименование филиала" as="podr_name" group="max" exclude="1">
+          <column table="this" column="podr_name_tit" group="no" />
+          <column table="this" column="podr_name_dog" group="no" />
+        </call>
+        <call function="nvl" as="mgr_id" group="max" exclude="1">
+          <column table="this" column="kod_titul_ip" group="no" />
+          <column table="this" column="kod_dop_contract" group="no" />
+        </call>
+        <column table="kn_customer" column="name" as="cust_name" title="Наименование заявителя" group="max" comment="1" exclude="1" />
+        <column table="kod_dop_contract" column="num_ad_pref_nvl" as="num_ad" title="Реквизиты договора ТП" group="max" comment="1" exclude="1" />
+        <call function="if" as="name_region" title="Льготная категория по 550 руб" qlikview="1" type="string" group="max" comment="?" exclude="1">
+          <call function="=">
+            <column table="kod_dop_contract" column="fl_discount" />
+            <const>1</const>
+          </call>
+          <const>'Да'</const>
+        </call>
+        <call function="/" as="is_dop_cont_contr_sum" group="sum" mp="-6" exclude="1">
+          <call function="+nvl">
+            <column table="ad_all" column="contr_sum_m" title="Срок исполнения обязательств по ТП по договору" />
+            <column table="ad_all" column="contr_sum_e" title="Срок исполнения обязательств по ТП по договору" />
+          </call>
+          <call function="+nvl">
+            <const>1</const>
+            <call function="/">
+              <call function="nvl">
+                <column table="kod_dop_contract" column="proc" />
+                <const>18</const>
+              </call>
+              <const>100</const>
+            </call>
+          </call>
+        </call>
+        <fact column="tp_sum_akt_part" table="dc" title="Заактировано выручки" group="sum" comment="1" mp="-6" exclude="1" />
+        <call function="-nvl" as="tp_ostatok" group="sum" mp="-6" title="Отстаток" exclude="1">
+          <column table="this" column="is_dop_cont_contr_sum" />
+          <fact column="tp_sum_akt" table="dc" />
+        </call>
+        <column table="ad_all" column="srok_uslug" title="Срок исполнения обязательств по ТП по договору" group="max" exclude="1" />
+        <call function="if" as="tp_dlg_pros" type="number" mp="-6" group="sum" title=" " exclude="1">
+          <call function="=1">
+            <fact column="is_reestr_44164_pr" table="dc" />
+          </call>
+          <fact column="is_reestr_44164_dolg_pr" table="dc" />
+          <fact column="tp_dlg_pros" table="dc" comment="1" title=" " />
+        </call>
+        <call function="if" title="Признак просроченных обязательств по договору" as="pr_pros" type="string" group="max" exclude="1">
+          <call function="gt">
+            <column table="this" column="tp_dlg_pros" />
+            <const>0</const>
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <call function="if" as="pr_vina" type="string" group="max" title="Признак просрочнного договора по вине заявителя" exclude="1">
+          <call function="and">
+            <call function="lt">
+              <column table="this" column="srok_uslug" />
+              <useparam name="dat" />
+            </call>
+            <call function="or">
+              <call function="in">
+                <column table="ad_all" column="status" />
+                <array>5,30</array>
+              </call>
+              <call function="and">
+                <call function="in">
+                  <column table="ad_all" column="status" />
+                  <array>1</array>
+                </call>
+                <call function="or">
+                  <call function="=1">
+                    <column table="ad_all" column="read_to_close" />
+                  </call>
+                  <call function="=">
+                    <column table="ad_all" column="vid_opl_ad" />
+                    <const>'ОДИ'</const>
+                  </call>
+                  <call function="!=nvl">
+                    <column table="ad_all" column="fl_build" />
+                    <const>1</const>
+                  </call>
+                  <call function="and">
+                    <call function="=">
+                      <column table="ad_all" column="contr_sum_m" />
+                      <const>550</const>
+                    </call>
+                    <call function="gt">
+                      <column table="this" column="tp_dlg_pros" />
+                      <const>0</const>
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <fact column="is_reestr_44164_saldo" table="dc" exclude="1" />
+        <fact column="is_reestr_44164_pr" table="dc" exclude="1" />
+        <call function="if" as="tp_kred_akt" type="number" mp="-6" group="sum" exclude="1">
+          <call function="=1">
+            <fact column="is_reestr_44164_pr" table="dc" />
+          </call>
+          <fact column="is_reestr_44164_saldo" table="dc" />
+          <fact column="tp_kred_akt" table="dc" comment="1" mp="-6" title=" Кредиторская задолженность по суммам перечисленных в рамках договоров ТП авансов " />
+        </call>
+        <call function="if" title="Наличие мероприятий в договоре ТП, требующих от ДЗО капвложений" type="string" group="max" as="pr_build" exclude="1">
+          <call function="=1">
+            <column table="ad_all" column="fl_build" />
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <column table="ipr_kod_titul_ip" column="num_name" as="tit_name" title="Наименование титула в инвестпрограмме" comment="1" />
+        <fact table="dc" column="is_dop_cont_count" />
+        <fact column="cube_ipr_tit_smet" as="smet" title="Стоимость титула в инвестпрограмме" group="sum" comment="1" mp="-6" table="tit" exclude="1" />
+        <fact column="is_dogovor_dog_info" table="pir_n" as="pir_dog_info" title="Реквизиты договора на ПИР" group="max" comment="1" exclude="1" />
+        <fact column="cube_ipr_dog_cost" table="pir" as="pir_dog_cost" title="Стоимость договора на ПИР" group="sum" comment="1" mp="-6" exclude="1" />
+        <fact column="is_dogovor_dat_end" table="pir_n" as="pir_dog_end" title="Срок исполнения услуг по договору ПИР" group="max" comment="1" exclude="1" />
+        <fact column="pir_kap_uch" title="Стоимость принятых актов выполненных работ по ПИР " group="sum" comment="1" mp="-6" table="tit" exclude="1" />
+        <fact column="is_dogovor_dog_info" table="smr_n" as="smr_dog_info" title="Реквизиты договора на СМР" group="max" comment="1" exclude="1" />
+        <fact column="cube_ipr_dog_cost" table="smr" as="smr_dog_cost" title="Стоимость договора на СМР" group="sum" comment="1" mp="-6" exclude="1" />
+        <fact column="is_dogovor_dat_end" table="smr_n" as="smr_dog_end" title="Срок исполнения услуг по договору СМР" group="max" comment="1" exclude="1" />
+        <fact column="smr_kap_uch" title="Стоимость принятых актов выполненных работ по СМР " group="sum" comment="1" mp="-6" type="number" table="tit" exclude="1" />
+        <fact column="kap_neuch" title="Стоимость закупленного, но не переданного в монтаж оборудования " group="sum" comment="1" mp="-6" type="number" table="tit" exclude="1" />
+        <fact column="prch_kap_uch" title="Прочие затраты" group="sum" comment="1" mp="-6" type="number" table="tit" exclude="1" />
+        <fact column="hoz_kap_uch" title="Произведенные затраты по работам, осуществленным хозспособом" group="sum" comment="1" mp="-6" type="number" table="tit" exclude="1" />
+        <call function="+nvl" as="kap" title="Итого капвложений" group="sum" comment="1" mp="-6" exclude="1">
+          <column table="this" column="pir_kap_uch" group="no" />
+          <column table="this" column="smr_kap_uch" group="no" />
+          <column table="this" column="kap_neuch" group="no" />
+          <column table="this" column="prch_kap_uch" group="no" />
+          <column table="this" column="hoz_kap_uch" group="no" />
+        </call>
+        <fact column="kz" title="Кредиторская задолженность поставщикам и подрядчикам по титулу" group="sum" comment="1" mp="-6" table="tit" exclude="1" />
+        <call function="+nvl" as="opl" title="Итого капвложения оплаченные" group="sum" comment="1" mp="-6" exclude="1">
+          <column table="this" column="kap" group="no" />
+          <column table="this" column="kz" group="no" />
+        </call>
+        <fact column="avans" title="Авансы, выплаченные поставщикам и подрядчикам" group="sum" comment="1" mp="-6" table="tit" exclude="1" />
+        <call as="isp_sr" function="if" type="number" title="Итого использовано средств на цели ТП" group="sum" mp="-6" exclude="1">
+          <call function="=1">
+            <column table="ad_all_tit" column="fl_build" group="no" />
+          </call>
+          <call function="+nvl">
+            <column table="this" column="opl" group="no" />
+            <column table="this" column="avans" group="no" />
+          </call>
+          <column table="this" column="tp_kred_akt" group="no" />
+        </call>
+        <call as="razn" function="-nvl" type="number" title="Разница между полученными авансами по договору ТП и оплаченными затратами" group="sum" mp="-6" exclude="1">
+          <column table="this" column="tp_kred_akt" group="no" />
+          <column table="this" column="isp_sr" group="no" />
+        </call>
+        <call function="over" as="razn_tit" type="number" group="sum" exclude="1">
+          <call function="sum">
+            <column table="this" column="razn" group="no" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+        </call>
+        <call as="nepok" function="if" type="number" title="Итого использовано средств на цели ТП" group="sum" mp="-6" exclude="1">
+          <call function="gt">
+            <column table="this" column="razn_tit" group="no" />
+            <const>0</const>
+          </call>
+          <column table="this" column="razn" group="no" />
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <qube merge-dimsets="1">
+          <link name="ipr_kod_titul_ip" as="ipr_kod_titul_ip">
+            <link name="kod_ispolnit" />
+          </link>
+          <link name="kod_reestr_44164" />
+          <link name="kod_dop_contract" only-for-cond="1">
+            <link name="kod_filial" />
+            <link name="kn_customer" />
+          </link>
+          <where>
+            <call function="=">
+              <column table="kod_dop_contract" column="kod_dop_contract" />
+              <const>3166820</const>
+            </call>
+            <call function="=" dont-push="1" exclude="1">
+              <column table="kod_reestr_44164" column="dat" />
+              <useparam name="dat" />
+            </call>
+            <call function="!=" dont-push="1" exclude="1">
+              <column table="kod_reestr_44164" column="pr550" />
+              <const>1</const>
+            </call>
+          </where>
+          <dimset as="pir_n">
+            <link name="ipr_kod_smet" />
+            <link name="ipr_kod_vid_zt_tit" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>1</const>
+              </call>
+              <call function="!=0" dont-push="1">
+                <column table="ipr_kod_vid_zt_tit" column="plan_cost" />
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="pir">
+            <link name="ipr_kod_smet" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>1</const>
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="smr_n">
+            <link name="ipr_kod_smet" />
+            <link name="ipr_kod_vid_zt_tit" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>2</const>
+              </call>
+              <call function="!=0" dont-push="1">
+                <column table="ipr_kod_vid_zt_tit" column="plan_cost" />
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="smr">
+            <link name="ipr_kod_smet" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>2</const>
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="dc">
+            <link name="kod_dop_contract" all-rows="1">
+              <link name="kn_customer" />
+            </link>
+          </dimset>
+          <dimset as="tit">
+            <where>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+        </qube>
+        <query name="41164_isv_s_of_ad_all" as="ad_all" join="left outer" exclude="1">
+          <call function="=">
+            <column table="this" column="kod_dop_contract" />
+            <column table="ad_all" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="41164_isv_s_of_ad_all_tit" as="ad_all_tit" join="left outer" exclude="1">
+          <call function="=">
+            <column table="this" column="kod_titul_ip" />
+            <column table="ad_all_tit" column="kod_titul_ip" />
+          </call>
+        </query>
+      </from>
+      <grouping materialize-type="temp-table">
+        <grset as="all" title="Всего" exclude="1">
+          <grset as="dep" title="По филиалам">
+            <group>
+              <sourcelink table="kod_ispolnit" exclude="1" />
+              <column table="this" column="podr" />
+            </group>
+            <grset as="tit" title="По титулам" order="tit_name">
+              <group>
+                <sourcelink table="ipr_kod_titul_ip" />
+              </group>
+              <grset as="dog" title="По договорам">
+                <where exclude="1">
+                  <call function="is not null">
+                    <column table="this" column="kod_dop_contract" />
+                  </call>
+                </where>
+                <group>
+                  <sourcelink table="kod_dop_contract" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+          <grset as="all_prosr" title="Всего - просроченные">
+            <where>
+              <call function="lt">
+                <column table="this" column="srok_uslug" />
+                <useparam name="dat" />
+              </call>
+            </where>
+          </grset>
+          <grset as="all_2017" title="Всего - СОУ 2017">
+            <where>
+              <call function="=">
+                <call function="year">
+                  <column table="this" column="srok_uslug" />
+                </call>
+                <const>2017</const>
+              </call>
+            </where>
+          </grset>
+          <grset as="all_2018" title="Всего - СОУ 2018">
+            <where>
+              <call function="=">
+                <call function="year">
+                  <column table="this" column="srok_uslug" />
+                </call>
+                <const>2018</const>
+              </call>
+            </where>
+          </grset>
+          <grset as="all_2019" title="Всего - СОУ 2019+">
+            <where>
+              <call function="ge">
+                <call function="year">
+                  <column table="this" column="srok_uslug" />
+                </call>
+                <const>2019</const>
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="44164" timestamp="26.10.2017 01:40:31" use-repository="1" title="Отчёт по использованию денежных средств (авансов) от заявителей">
+      <params>
+        <usepart part="44164-params" />
+      </params>
+      <expressions>
+        <call as="on_dat" function="le">
+          <column table="ipr_dat" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call as="sch_uch" function="in" dontpushpred="1">
+          <column table="ipr_kod_schet" column="kod" />
+          <array>3,4,5</array>
+        </call>
+        <call as="sch_neuch" function="in" dontpushpred="1">
+          <column table="ipr_kod_schet" column="kod" />
+          <array>1</array>
+        </call>
+        <call as="pir" function="and" dontpushpred="1">
+          <call function="in">
+            <column table="ipr_kod_smet" column="kod_smet" />
+            <array>1</array>
+          </call>
+          <call function="not like">
+            <column table="ipr_kod_zatrat" column="abbr" />
+            <const>'9.%'</const>
+          </call>
+        </call>
+        <call as="smr" function="and" dontpushpred="1">
+          <call function="in">
+            <column table="ipr_kod_smet" column="kod_smet" />
+            <array>2</array>
+          </call>
+          <call function="not like">
+            <column table="ipr_kod_zatrat" column="abbr" />
+            <const>'9.%'</const>
+          </call>
+        </call>
+        <call function="like" as="hoz" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="abbr" />
+          <const>'9.%'</const>
+        </call>
+        <call function="like" as="proch" dontpushpred="1">
+          <column table="ipr_kod_zatrat" column="abbr" />
+          <const>'7.%'</const>
+        </call>
+        <call as="is_avans" function="=1" dontpushpred="1">
+          <column table="ipr_kod_opl_per" column="is_avans" />
+        </call>
+        <call as="dlg_on_dat" function="le" dontpushpred="1">
+          <column table="kido_dat_dolg" column="val" />
+          <useparam name="dat" />
+        </call>
+        <call function="()" group="sum" as="opl_kido">
+          <fact column="is_opl_period_sum" condition="on_dat" />
+        </call>
+        <call function="()" group="sum" as="avans">
+          <fact column="opl_kido" condition="is_avans" />
+        </call>
+        <call function="()" as="kap" group="sum">
+          <fact column="ipr_kap_fact_sum" condition="on_dat" />
+        </call>
+        <call function="()" as="kap_uch" group="sum">
+          <fact column="kap" condition="sch_uch" />
+        </call>
+        <call function="()" as="kap_neuch" group="sum">
+          <fact column="kap" condition="sch_neuch" />
+        </call>
+        <call function="()" as="pir_kap_uch" group="sum">
+          <fact column="kap_uch" condition="pir" />
+        </call>
+        <call function="()" as="smr_kap_uch" group="sum">
+          <fact column="kap_uch" condition="smr" />
+        </call>
+        <call function="()" as="prch_kap_uch" group="sum">
+          <fact column="kap_uch" condition="proch" />
+        </call>
+        <call function="()" as="hoz_kap_uch" group="sum">
+          <fact column="kap_uch" condition="hoz" />
+        </call>
+        <call function="()" as="sld" group="sum">
+          <fact column="ipr_sld_fact_sum" condition="on_dat" />
+        </call>
+        <call function="if" as="kz" group="sum">
+          <call function="gt">
+            <call function="over">
+              <call function="sum">
+                <fact column="sld" />
+              </call>
+              <call function="partition by">
+                <column table="ipr_kod_dog" column="kod_dog" />
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </call>
+            <const>0</const>
+          </call>
+          <fact column="sld" />
+        </call>
+        <call function="=1" as="pr_part_akt">
+          <column table="kod_atp_dop_info" column="pr_part_akt" />
+        </call>
+        <call function="()" group="sum" as="tp_sum_akt">
+          <fact column="kido_c_akt_sum_bn" condition="on_dat" />
+        </call>
+        <call function="()" group="sum" as="tp_kred_akt">
+          <fact column="kido_ob_tp_akt_kred_bn" condition="on_dat" />
+        </call>
+        <call function="()" group="sum" as="tp_sum_akt_part">
+          <fact column="tp_sum_akt" condition="pr_part_akt" />
+        </call>
+        <call function="-nvl" as="tp_ostatok" group="sum" exclude="1">
+          <fact column="is_dop_cont_contr_sum" />
+          <fact column="tp_sum_akt" />
+        </call>
+        <call function="()" group="sum" as="tp_dlg_pros">
+          <fact column="kido_ob_for_pros_dlg_bn" condition="dlg_on_dat" />
+        </call>
+        <call function="()" group="sum" as="tp_dlg_pros_s_nds">
+          <fact column="kido_ob_for_pros_dlg" condition="dlg_on_dat" />
+        </call>
+      </expressions>
+      <change-sources>
+        <change-source name="ipr_titul_dop_contract" call="44164_ipr_tit_dc" />
+      </change-sources>
+      <select>
+        <call function="row_num" as="npp" group="max" title=" " key="1">
+          <column table="this" column="podr_name" />
+          <column table="this" column="tit_name" />
+        </call>
+        <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+        <column table="kod_dop_contract" column="kod_dop_contract" />
+        <call function="over" as="tit_in_dog" group="outer" type="number">
+          <call function="count">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+        <call function="over" as="first_tit_in_dog" group="outer" type="number">
+          <call function="max">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+        <call function="if" group="outer" type="number" as="un_dog">
+          <call function="=nvl">
+            <column table="this" column="first_tit_in_dog" />
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <const>1</const>
+        </call>
+        <column table="kod_ispolnit" column="name" as="podr_name_tit" title="Наименование филиала (из титула)" group="max" comment="1" />
+        <column table="kod_filial" column="name" as="podr_name_dog" title="Наименование филиала (и договора ТП)" group="max" comment="1" />
+        <call function="nvl" as="podr">
+          <column table="kod_ispolnit" column="kod_direct" title="Наименование филиала (из титула)" comment="1" />
+          <column table="kod_filial" column="kod_direct" title="Наименование филиала (и договора ТП)" comment="1" />
+        </call>
+        <call function="nvl" title="Наименование филиала" as="podr_name" group="max">
+          <column table="this" column="podr_name_tit" group="no" />
+          <column table="this" column="podr_name_dog" group="no" />
+        </call>
+        <call function="nvl" as="mgr_id" group="max">
+          <column table="this" column="kod_titul_ip" group="no" />
+          <column table="this" column="kod_dop_contract" group="no" />
+        </call>
+        <column table="kn_customer" column="name" as="cust_name" title="Наименование заявителя" group="max" comment="1" />
+        <column table="kod_dop_contract" column="num_ad_pref_nvl" as="num_ad" title="Реквизиты договора ТП" group="max" comment="1" />
+        <call function="if" as="name_region" title="Льготная категория по 550 руб" qlikview="1" type="string" group="max" comment="?">
+          <call function="=">
+            <column table="kod_dop_contract" column="fl_discount" />
+            <const>1</const>
+          </call>
+          <const>'Да'</const>
+        </call>
+        <call function="/" as="is_dop_cont_contr_sum" group="sum" mp="-6">
+          <call function="+nvl">
+            <column table="ad_all" column="contr_sum_m" title="Срок исполнения обязательств по ТП по договору" />
+            <column table="ad_all" column="contr_sum_e" title="Срок исполнения обязательств по ТП по договору" />
+          </call>
+          <call function="+nvl">
+            <const>1</const>
+            <call function="/">
+              <call function="nvl">
+                <column table="kod_dop_contract" column="proc" />
+                <const>18</const>
+              </call>
+              <const>100</const>
+            </call>
+          </call>
+        </call>
+        <fact column="tp_sum_akt_part" table="dc" title="Заактировано выручки" group="sum" comment="1" mp="-6" />
+        <call function="-nvl" as="tp_ostatok" group="sum" mp="-6" title="Отстаток">
+          <column table="this" column="is_dop_cont_contr_sum" />
+          <fact column="tp_sum_akt" table="dc" />
+        </call>
+        <column table="ad_all" column="srok_uslug" title="Срок исполнения обязательств по ТП по договору" group="max" />
+        <call function="if" as="tp_dlg_pros" type="number" mp="-6" group="sum" title=" ">
+          <call function="=1">
+            <fact column="is_reestr_44164_pr" table="dc" />
+          </call>
+          <fact column="is_reestr_44164_dolg_pr" table="dc" />
+          <fact column="tp_dlg_pros" table="dc" comment="1" title=" " />
+        </call>
+        <call function="if" title="Признак просроченных обязательств по договору" as="pr_pros" type="string" group="max">
+          <call function="gt">
+            <column table="this" column="tp_dlg_pros" />
+            <const>0</const>
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <call function="if" as="pr_vina" type="string" group="max" title="Признак просрочнного договора по вине заявителя">
+          <call function="and">
+            <call function="lt">
+              <column table="this" column="srok_uslug" />
+              <useparam name="dat" />
+            </call>
+            <call function="or">
+              <call function="in">
+                <column table="ad_all" column="status" />
+                <array>5,30</array>
+              </call>
+              <call function="and">
+                <call function="in">
+                  <column table="ad_all" column="status" />
+                  <array>1</array>
+                </call>
+                <call function="or">
+                  <call function="=1">
+                    <column table="ad_all" column="read_to_close" />
+                  </call>
+                  <call function="=">
+                    <column table="ad_all" column="vid_opl_ad" />
+                    <const>'ОДИ'</const>
+                  </call>
+                  <call function="!=nvl">
+                    <column table="ad_all" column="fl_build" />
+                    <const>1</const>
+                  </call>
+                  <call function="and">
+                    <call function="=">
+                      <column table="ad_all" column="contr_sum_m" />
+                      <const>550</const>
+                    </call>
+                    <call function="gt">
+                      <column table="this" column="tp_dlg_pros" />
+                      <const>0</const>
+                    </call>
+                  </call>
+                </call>
+              </call>
+            </call>
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <call function="if" as="tp_kred_akt" type="number" mp="-6" group="sum">
+          <call function="=1">
+            <fact column="is_reestr_44164_pr" table="dc" />
+          </call>
+          <fact column="is_reestr_44164_saldo" table="dc" />
+          <fact column="tp_kred_akt" table="dc" comment="1" mp="-6" title=" Кредиторская задолженность по суммам перечисленных в рамках договоров ТП авансов " />
+        </call>
+        <call function="if" title="Наличие мероприятий в договоре ТП, требующих от ДЗО капвложений" type="string" group="max" as="pr_build">
+          <call function="=1">
+            <column table="ad_all" column="fl_build" />
+          </call>
+          <const>'да'</const>
+          <const>'нет'</const>
+        </call>
+        <column table="ipr_kod_titul_ip" column="num_name" as="tit_name" title="Наименование титула в инвестпрограмме" comment="1" />
+        <fact column="cube_ipr_tit_smet" as="smet" title="Стоимость титула в инвестпрограмме" group="sum" comment="1" mp="-6" table="tit" />
+        <fact column="is_dogovor_dog_info" table="pir_n" as="pir_dog_info" title="Реквизиты договора на ПИР" group="max" comment="1" />
+        <fact column="cube_ipr_dog_cost" table="pir" as="pir_dog_cost" title="Стоимость договора на ПИР" group="sum" comment="1" mp="-6" />
+        <fact column="is_dogovor_dat_end" table="pir_n" as="pir_dog_end" title="Срок исполнения услуг по договору ПИР" group="max" comment="1" />
+        <fact column="pir_kap_uch" title="Стоимость принятых актов выполненных работ по ПИР " group="sum" comment="1" mp="-6" table="tit" />
+        <fact column="is_dogovor_dog_info" table="smr_n" as="smr_dog_info" title="Реквизиты договора на СМР" group="max" comment="1" />
+        <fact column="cube_ipr_dog_cost" table="smr" as="smr_dog_cost" title="Стоимость договора на СМР" group="sum" comment="1" mp="-6" />
+        <fact column="is_dogovor_dat_end" table="smr_n" as="smr_dog_end" title="Срок исполнения услуг по договору СМР" group="max" comment="1" />
+        <fact column="smr_kap_uch" title="Стоимость принятых актов выполненных работ по СМР " group="sum" comment="1" mp="-6" type="number" table="tit" />
+        <fact column="kap_neuch" title="Стоимость закупленного, но не переданного в монтаж оборудования " group="sum" comment="1" mp="-6" type="number" table="tit" />
+        <fact column="prch_kap_uch" title="Прочие затраты" group="sum" comment="1" mp="-6" type="number" table="tit" />
+        <fact column="hoz_kap_uch" title="Произведенные затраты по работам, осуществленным хозспособом" group="sum" comment="1" mp="-6" type="number" table="tit" />
+        <call function="+nvl" as="kap" title="Итого капвложений" group="sum" comment="1" mp="-6">
+          <column table="this" column="pir_kap_uch" group="no" />
+          <column table="this" column="smr_kap_uch" group="no" />
+          <column table="this" column="kap_neuch" group="no" />
+          <column table="this" column="prch_kap_uch" group="no" />
+          <column table="this" column="hoz_kap_uch" group="no" />
+        </call>
+        <fact column="kz" title="Кредиторская задолженность поставщикам и подрядчикам по титулу" group="sum" comment="1" mp="-6" table="tit" />
+        <call function="+nvl" as="opl" title="Итого капвложения оплаченные" group="sum" comment="1" mp="-6">
+          <column table="this" column="kap" group="no" />
+          <column table="this" column="kz" group="no" />
+        </call>
+        <fact column="avans" title="Авансы, выплаченные поставщикам и подрядчикам" group="sum" comment="1" mp="-6" table="tit" />
+        <call as="isp_sr" function="if" type="number" title="Итого использовано средств на цели ТП" group="sum" mp="-6">
+          <call function="=1">
+            <column table="ad_all_tit" column="fl_build" group="no" />
+          </call>
+          <call function="+nvl">
+            <column table="this" column="opl" group="no" />
+            <column table="this" column="avans" group="no" />
+          </call>
+          <column table="this" column="tp_kred_akt" group="no" />
+        </call>
+        <call as="razn" function="-nvl" type="number" title="Разница между полученными авансами по договору ТП и оплаченными затратами" group="sum" mp="-6">
+          <column table="this" column="tp_kred_akt" group="no" />
+          <column table="this" column="isp_sr" group="no" />
+        </call>
+        <call function="over" as="razn_tit" type="number" group="sum">
+          <call function="sum">
+            <column table="this" column="razn" group="no" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+        </call>
+        <call as="nepok" function="if" type="number" title="Итого использовано средств на цели ТП" group="sum" mp="-6">
+          <call function="gt">
+            <column table="this" column="razn_tit" group="no" />
+            <const>0</const>
+          </call>
+          <column table="this" column="razn" group="no" />
+          <const>0</const>
+        </call>
+      </select>
+      <from>
+        <qube merge-dimsets="1">
+          <change-source name="ipr_titul_dop_contract" call="44164_ipr_tit_dc" />
+          <link name="ipr_kod_titul_ip" as="ipr_kod_titul_ip">
+            <link name="kod_ispolnit" />
+          </link>
+          <link name="kod_reestr_44164" />
+          <link name="kod_dop_contract" only-for-cond="1">
+            <link name="kod_filial" />
+            <link name="kn_customer" />
+          </link>
+          <where>
+            <call function="=" exclude="1">
+              <column table="kod_dop_contract" column="kod_dop_contract" />
+              <const>3148198</const>
+            </call>
+            <call function="=" dont-push="1">
+              <column table="kod_reestr_44164" column="dat" />
+              <useparam name="dat" />
+            </call>
+            <call function="!=" dont-push="1">
+              <column table="kod_reestr_44164" column="pr550" />
+              <const>1</const>
+            </call>
+          </where>
+          <dimset as="pir_n">
+            <link name="ipr_kod_smet" />
+            <link name="ipr_kod_vid_zt_tit" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>1</const>
+              </call>
+              <call function="!=0" dont-push="1">
+                <column table="ipr_kod_vid_zt_tit" column="plan_cost" />
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="pir">
+            <link name="ipr_kod_smet" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>1</const>
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="smr_n">
+            <link name="ipr_kod_smet" />
+            <link name="ipr_kod_vid_zt_tit" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>2</const>
+              </call>
+              <call function="!=0" dont-push="1">
+                <column table="ipr_kod_vid_zt_tit" column="plan_cost" />
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="smr">
+            <link name="ipr_kod_smet" />
+            <where>
+              <call function="=">
+                <column table="ipr_kod_smet" column="kod_smet" />
+                <const>2</const>
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+          <dimset as="dc">
+            <link name="kod_dop_contract" all-rows="1">
+              <link name="kn_customer" />
+            </link>
+          </dimset>
+          <dimset as="tit">
+            <where>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+            </where>
+          </dimset>
+        </qube>
+        <query name="41164_isv_s_of_ad_all" as="ad_all" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_dop_contract" />
+            <column table="ad_all" column="kod_dop_contract" />
+          </call>
+        </query>
+        <query name="41164_isv_s_of_ad_all_tit" as="ad_all_tit" join="left outer">
+          <call function="=">
+            <column table="this" column="kod_titul_ip" />
+            <column table="ad_all_tit" column="kod_titul_ip" />
+          </call>
+        </query>
+      </from>
+      <grouping materialize-type="temp-table">
+        <grset as="all" title="Всего">
+          <grset as="dep" title="По филиалам">
+            <group>
+              <sourcelink table="kod_ispolnit" exclude="1" />
+              <column table="this" column="podr" />
+            </group>
+            <grset as="tit" title="По титулам" order="tit_name">
+              <group>
+                <sourcelink table="ipr_kod_titul_ip" />
+              </group>
+              <grset as="dog" title="По договорам">
+                <where>
+                  <call function="is not null">
+                    <column table="this" column="kod_dop_contract" />
+                  </call>
+                </where>
+                <group>
+                  <sourcelink table="kod_dop_contract" />
+                </group>
+              </grset>
+            </grset>
+          </grset>
+          <grset as="all_prosr" title="Всего - просроченные">
+            <where>
+              <call function="lt">
+                <column table="this" column="srok_uslug" />
+                <useparam name="dat" />
+              </call>
+            </where>
+          </grset>
+          <grset as="all_2017" title="Всего - СОУ 2017">
+            <where>
+              <call function="=">
+                <call function="year">
+                  <column table="this" column="srok_uslug" />
+                </call>
+                <const>2017</const>
+              </call>
+            </where>
+          </grset>
+          <grset as="all_2018" title="Всего - СОУ 2018">
+            <where>
+              <call function="=">
+                <call function="year">
+                  <column table="this" column="srok_uslug" />
+                </call>
+                <const>2018</const>
+              </call>
+            </where>
+          </grset>
+          <grset as="all_2019" title="Всего - СОУ 2019+">
+            <where>
+              <call function="ge">
+                <call function="year">
+                  <column table="this" column="srok_uslug" />
+                </call>
+                <const>2019</const>
+              </call>
+            </where>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+    <query name="41164_isv_s_of_ad_all" class="1" materialize="1" timestamp="20.10.2017 19:29:22">
+      <select>
+        <column table="a" column="kod_dop_contract" type="number" />
+        <column table="a" column="srok_uslug" type="date" title="" />
+        <column table="a" column="contr_sum_m" />
+        <column table="a" column="contr_sum_e" />
+        <column table="a" column="status" />
+        <column table="a" column="fl_build" />
+        <column table="a" column="vid_opl_ad" />
+        <column table="a" column="read_to_close" />
+      </select>
+      <from>
+        <query name="isv_slice_of_ad_all" as="a" />
+      </from>
+    </query>
+    <query name="41164_isv_s_of_ad_all_tit" class="1" materialize="1" timestamp="21.10.2017 19:28:50">
+      <select>
+        <column table="b" column="kod_titul_ip" type="number" group="1" />
+        <column table="a" column="fl_build" title="" group="max" />
+      </select>
+      <from>
+        <query name="isv_slice_of_ad_all" as="a">
+          <elink name="isv_slice_of_tdc_all" as="b" />
+        </query>
+      </from>
+    </query>
+    <query name="44164_ipr_tit_dc1" timestamp="26.10.2017 02:43:55" materialize="1">
+      <select>
+        <column table="a" column="*" />
+        <call function="over" as="cnt_tit_on_dog" type="number">
+          <call function="count">
+            <column table="this" column="kod_titul_ip" />
+          </call>
+          <call function="partition by">
+            <column table="this" column="kod_dop_contract" />
+          </call>
+        </call>
+        <column table="kod_titul_ip" column="is_teh_pris" type="number" />
+      </select>
+      <from>
+        <query name="ipr_titul_dop_contract" as="a">
+          <link name="kod_titul_ip" />
+        </query>
+      </from>
+    </query>
+    <query name="44164_ipr_tit_dc" timestamp="26.10.2017 02:43:47">
+      <select>
+        <column table="a" column="*" />
+      </select>
+      <from>
+        <query name="44164_ipr_tit_dc1" as="a" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="=1">
+            <column table="a" column="is_teh_pris" />
+          </call>
+          <call function="=1">
+            <column table="a" column="cnt_tit_on_dog" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

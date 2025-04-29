@@ -1,0 +1,422 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <queries>
+    <query name="hv_eopwrc" class="1" timestamp="16.09.2020 18:42:36">
+      <select>
+        <call function="||-" as="hv_eopwrc_id" key="1">
+          <column table="this" column="pwrc_id" />
+          <column table="this" column="bal_id" />
+        </call>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="YM_START_ANALYZ" type="number" column-mandatory="1" title="" />
+        <column table="a" column="is_test" type="number" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_istest_0" as="a" />
+        <query name="jv_rep_cons_d_fl" as="kod_fl" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="bal_id" />
+            <column table="kod_fl" column="kod_fl" />
+          </call>
+        </query>
+        <query name="hv_eopwrc_g" as="hv_eopwrc_g" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="pwrc_id" />
+            <column table="hv_eopwrc_g" column="pwrc_id" />
+          </call>
+        </query>
+        <query name="sqlb_d45862_fl_ym_tbl" as="kod_fl_real" join="left outer" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <call function="=">
+            <column table="a" column="bal_id" />
+            <column table="kod_fl_real" column="kod_fl" />
+          </call>
+        </query>
+      </from>
+      <links>
+        <dlink name="jr_rep_blns_pwrc_fdrs" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        <dlink name="hv_eopwrc_fdrs" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="pwrc_grid" is-private-dimension="1" is-final-dimension="1" dimension="1">
+            <dimlink name="pwrc_grid_dtl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          </dimlink>
+        </dlink>
+      </links>
+    </query>
+    <query name="hv_eopwrc_list" class="1" timestamp="07.12.2018 14:49:31" order="pwrcname">
+      <procedure>
+        <text>
+          BEGIN
+       jg_reports_ise.jr_rep_blns_pwrc_sx_init(:kod_fl);
+	END;
+        </text>
+      </procedure>
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_list_def" as="a">
+          <withparams>
+            <useparam name="kod_fl" />
+          </withparams>
+        </query>
+      </from>
+    </query>
+    <query name="hv_eopwrc_g" class="1" timestamp="14.01.2020 14:22:02">
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" group="1" key="1" />
+        <column table="a" column="pwrcname" type="string" group="max" />
+        <column table="a" column="YM_START_ANALYZ" type="string" group="max" />
+        <call function="()" type="number" as="cnt" is-fact="1" agg="sum">
+          <const>1</const>
+        </call>
+      </select>
+      <from>
+        <query name="hv_eopwrc" as="a" />
+      </from>
+      <links>
+        <dlink name="hv_eopwrc" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="kod_fl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+        <dlink name="hv_eopwrc_fdrs" is-private-dimension="1" is-final-dimension="1" dimension="1">
+          <dimlink name="pwrc_grid" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+          <dimlink name="pwrc_grid_dtl" is-private-dimension="1" is-final-dimension="1" dimension="1" />
+        </dlink>
+      </links>
+    </query>
+    <query name="hv_eopwrc_fdrs_default" class="1" timestamp="10.08.2018 18:07:15" title="Фидеры">
+      <params>
+        <param name="kod_fl" type="number" />
+        <param name="pwrc_id" type="array" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_fdrid" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrc_fdrname" type="string" title="дисп.номер" />
+      </select>
+      <from>
+        <table as="a" name="hv_eopwrc_fdrs" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="and" optional="1">
+            <call function="=">
+              <column table="a" column="pwrc_fdr_bal_id" />
+              <useparam name="kod_fl" />
+            </call>
+            <call function="in">
+              <column table="a" column="pwrc_id" />
+              <useparam name="pwrc_id" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_list_def" class="1" timestamp="16.09.2020 18:40:59" order="pwrcname">
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="is_test" type="number" title="" />
+      </select>
+      <from>
+        <query as="a" name="hv_eopwrc" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="=" optional="1">
+            <column table="a" column="bal_id" />
+            <useparam name="kod_fl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_list_test" class="1" timestamp="16.09.2020 19:27:25" order="pwrcname">
+      <procedure>
+        <text>
+    BEGIN
+        jg_reports_ise.jr_rep_blns_pwrc_sx_init(:kod_fl, 1);
+    END;
+</text>
+      </procedure>
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_list_def" as="a">
+          <withparams>
+            <useparam name="kod_fl" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="!=">
+          <column table="a" column="is_test" />
+          <const type="number">3</const>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_test_det_mat" class="1" timestamp="23.12.2018 19:45:37" materialize="1" is-private-dimension="1" is-final-dimension="1" dimension="1">
+      <select>
+        <column table="a" column="hv_eopwrc_id" key="1" />
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc" as="a" />
+      </from>
+    </query>
+    <query name="hv_eopwrc_list_test2" class="1" order="kod_fl.name, a.pwrcname" timestamp="25.01.2023 12:38:59">
+      <params>
+        <param name="kod_fl" type="array" />
+      </params>
+      <select>
+        <column table="a" column="hv_eopwrc_id" />
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="Подстанция" />
+        <column table="kod_fl" column="name" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc" as="a">
+          <link name="kod_fl" />
+        </query>
+      </from>
+      <where>
+        <call function="in" exclude="1">
+          <column table="a" column="bal_id" />
+          <useparam name="kod_fl" />
+        </call>
+        <call function="and">
+          <call function="=" exclude="1">
+            <column table="a" column="pwrc_id" />
+            <const>13866</const>
+          </call>
+          <call function="in">
+            <column table="a" column="bal_id" />
+            <useparam name="kod_fl" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="vr_rb_pwrc_list_by_hv_eopwrc_id" class="1" timestamp="25.01.2023 12:40:04">
+      <params>
+        <param name="hv_eopwrc_id" type="array" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" group="1" />
+        <column table="a" column="pwrcname" type="string" title="Подстанция" group="1" />
+        <column table="a" column="hv_eopwrc_id" group="max" />
+      </select>
+      <from>
+        <query name="vr_rb_pwrc" as="a" />
+      </from>
+      <where>
+        <call function="in" exclude="1">
+          <column table="a" column="hv_eopwrc_id" />
+          <useparam name="hv_eopwrc_id" />
+        </call>
+        <call function="and">
+          <call function="=" exclude="1">
+            <column table="a" column="pwrc_id" />
+            <const>13866</const>
+          </call>
+          <call function="in">
+            <column table="a" column="hv_eopwrc_id" />
+            <useparam name="hv_eopwrc_id" />
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_fdrs_def_by_33" class="1" timestamp="21.02.2021 00:08:00" title="Фидеры">
+      <params>
+        <param name="kod_fl" type="array" />
+        <param name="pwrc_id" type="array" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_fdrid" type="number" column-mandatory="1" title="" group="1" />
+        <column table="a" column="pwrc_fdrname" type="string" title="дисп.номер" group="1" />
+      </select>
+      <from>
+        <table as="a" name="hv_eopwrc_fdrs" />
+        <query name="vb_rb_default_fdr" as="def_fdr" join="left outer">
+          <link name="kod_fl" />
+          <call function="=">
+            <column table="a" column="pwrc_fdrid" />
+            <column table="def_fdr" column="pwrc_fdrid" />
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="and" optional="1">
+            <call function="in">
+              <column table="kod_fl" column="kod_fl" />
+              <useparam name="kod_fl" />
+            </call>
+            <call function="in">
+              <column table="a" column="pwrc_id" />
+              <useparam name="pwrc_id" />
+            </call>
+            <call function="is not null">
+              <column table="def_fdr" column="kod_id" />
+            </call>
+          </call>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_list_for_q3" class="1" timestamp="31.08.2020 11:57:36" order="pwrcname">
+      <procedure>
+        <text>
+    BEGIN
+        jg_reports_ise.jr_rep_blns_pwrc_sx_init(:kod_fl, 3);
+    END;
+</text>
+      </procedure>
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_list_def" as="a">
+          <withparams>
+            <useparam name="kod_fl" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="is_test" />
+          <const type="number">3</const>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_list_test_for_Q3" class="1" timestamp="16.09.2020 18:55:50" order="pwrcname">
+      <procedure>
+        <text>
+    BEGIN
+        jg_reports_ise.jr_rep_blns_pwrc_sx_init(:kod_fl, 3);
+    END;
+</text>
+      </procedure>
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_list_def_istest_3" as="a">
+          <withparams>
+            <useparam name="kod_fl" />
+          </withparams>
+        </query>
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="is_test" />
+          <const type="number">3</const>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_full" class="1" timestamp="16.09.2020 18:36:32">
+      <select>
+        <call function="||-" as="hv_eopwrc_id" key="1">
+          <column table="this" column="pwrc_id" />
+          <column table="this" column="bal_id" />
+        </call>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="YM_START_ANALYZ" type="number" column-mandatory="1" title="" />
+        <column table="a" column="is_test" type="number" title="" />
+      </select>
+      <from>
+        <table name="hv_eopwrc" as="a" />
+      </from>
+    </query>
+    <query name="hv_eopwrc_istest_0" class="1" timestamp="16.09.2020 18:42:25">
+      <select>
+        <column table="a" column="hv_eopwrc_id" type="number" title="" />
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="YM_START_ANALYZ" type="number" column-mandatory="1" title="" />
+        <column table="a" column="is_test" type="number" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_full" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="is_test" />
+          <const>0</const>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_istest_3" class="1" timestamp="16.09.2020 18:42:25">
+      <select>
+        <column table="a" column="hv_eopwrc_id" type="number" title="" />
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="YM_START_ANALYZ" type="number" column-mandatory="1" title="" />
+        <column table="a" column="is_test" type="number" title="" />
+      </select>
+      <from>
+        <query name="hv_eopwrc_full" as="a" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="a" column="is_test" />
+          <const>3</const>
+        </call>
+      </where>
+    </query>
+    <query name="hv_eopwrc_list_def_istest_3" class="1" timestamp="16.09.2020 18:55:20" order="pwrcname">
+      <params>
+        <param name="kod_fl" type="number" />
+      </params>
+      <select>
+        <column table="a" column="pwrc_id" type="number" column-mandatory="1" />
+        <column table="a" column="pwrcname" type="string" title="" />
+        <column table="a" column="bal_id" type="number" column-mandatory="1" title="" />
+        <column table="a" column="is_test" type="number" title="" />
+      </select>
+      <from>
+        <query as="a" name="hv_eopwrc_istest_3" />
+      </from>
+      <where>
+        <call function="or">
+          <call function="false" />
+          <call function="=" optional="1">
+            <column table="a" column="bal_id" />
+            <useparam name="kod_fl" />
+          </call>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

@@ -1,0 +1,292 @@
+<root>
+  <queries>
+    <query name="s_facvip">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_sf" type="number">
+        </column>
+        <column table="a" column="kod_deb" type="number">
+        </column>
+        <column table="a" column="vid_real" as="vid_real" type="number">
+        </column>
+        <call function="case" as="vid_real_pl" type="number">
+          <call function="when">
+            <call function="and">
+              <call function="=">
+                <column table="a" column="vid_real">
+                </column>
+                <const>8</const>
+              </call>
+              <call function="=">
+                <column table="deb" column="is_osn_real">
+                </column>
+                <const>1</const>
+              </call>
+            </call>
+            <const>2</const>
+          </call>
+          <call function="else">
+            <column table="a" column="vid_real">
+            </column>
+          </call>
+        </call>
+        <column table="vr" column="fname" as="vid_real_fname">
+        </column>
+        <column table="a" column="kodp" type="string" title="Код абонента">
+        </column>
+        <column table="a" column="num_sf" type="string" title="Номер СФ">
+        </column>
+        <column table="a" column="nom_sf" type="string" title="Номер СФ">
+        </column>
+        <column table="a" column="ndog_dat_abon" type="string">
+        </column>
+        <column table="a" column="dat_sf" type="date" title="Дата СФ">
+        </column>
+        <call function="||" as="name" title="Дата и номер счета/СФ">
+          <const>'№ '</const>
+          <column table="a" column="num_sf" />
+          <const>' от '</const>
+          <call function="date to char">
+            <column table="a" column="dat_sf" />
+          </call>
+        </call>
+        <column table="a" column="dat_bzad" type="date">
+        </column>
+        <call function="+" as="ym" type="number">
+          <column table="a" column="god" />
+          <call function="/">
+            <column table="a" column="mes" />
+            <const>100</const>
+          </call>
+        </call>
+        <call function="+" as="ym_uch" type="number">
+          <column table="a" column="god_uch" />
+          <call function="/">
+            <column table="a" column="mes_uch" />
+            <const>100</const>
+          </call>
+        </call>
+        <call function="ym to char" as="ym_name" title="Отчетный период начисления">
+          <usepart part="gm to ym">
+            <const>a</const>
+          </usepart>
+        </call>
+        <call function="nvl" as="dat_bzad_nvl" type="date">
+          <column table="a" column="dat_bzad">
+          </column>
+          <column table="a" column="dat_sf">
+          </column>
+        </call>
+        <column table="p" column="kod_ist">
+        </column>
+        <column table="p" column="kod_otrasl">
+        </column>
+        <column table="p" column="name" as="payer_name">
+        </column>
+        <column table="p" column="ist_fin_name">
+        </column>
+        <column table="p" column="otrasl_fname">
+        </column>
+        <column table="p" column="otrasl_fl_fname">
+        </column>
+        <column table="p" column="voda_par">
+        </column>
+        <column table="p" column="dat_udal">
+        </column>
+        <column table="p" column="voda_par_name">
+        </column>
+        <column table="p" column="ar_name">
+        </column>
+        <column table="p" column="prim" as="adres" title="Адрес абонента">
+        </column>
+        <column table="p" column="rtc_name">
+        </column>
+        <column table="p" column="station_name">
+        </column>
+        <column table="p" column="inn">
+        </column>
+        <column table="deb" column="ym_spis">
+        </column>
+        <column table="deb" column="vid_pl">
+        </column>
+        <column table="fr" column="dolg">
+        </column>
+        <column table="fr" column="oplf">
+        </column>
+        <column table="a" column="ym_end_dolg" type="number">
+        </column>
+        <column table="fr" column="datao">
+        </column>
+        <column table="fr" column="ym_opl">
+        </column>
+        <call function="nvl" as="ym_end_dolg_c" type="date">
+          <call function="case">
+            <call function="when">
+              <call function="=">
+                <column table="fr" column="dolg">
+                </column>
+                <const>0</const>
+              </call>
+              <column table="fr" column="ym_opl">
+              </column>
+            </call>
+            <call function="else">
+              <const>null</const>
+            </call>
+          </call>
+          <column table="deb" column="ym_end_dolg_c">
+          </column>
+        </call>
+        <column table="fr" column="summa">
+        </column>
+        <column table="opl" column="oplf" as="oplf_s">
+        </column>
+        <call function="-nvl" as="dolg_s" type="number">
+          <column table="fr" column="summa">
+          </column>
+          <column table="opl" column="oplf">
+          </column>
+        </call>
+      </select>
+      <from>
+        <table name="s_facvip" as="a">
+        </table>
+        <query name="d_payer" as="p" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kodp">
+            </column>
+            <column table="p" column="kodp">
+            </column>
+          </call>
+        </query>
+        <query name="s_debet" as="deb" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_deb">
+            </column>
+            <column table="deb" column="kod_deb">
+            </column>
+          </call>
+        </query>
+        <query name="k_vid_real" as="vr" join="left outer">
+          <call function="=">
+            <column table="a" column="vid_real">
+            </column>
+            <column table="vr" column="vid_real">
+            </column>
+          </call>
+        </query>
+        <query name="s_facvip.s_facras" as="fr" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="fr" column="kod_sf">
+            </column>
+          </call>
+        </query>
+        <query name="s_facvip.s_opl" as="opl" join="left outer">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+          <call function="=">
+            <column table="a" column="kod_sf">
+            </column>
+            <column table="opl" column="kod_sf">
+            </column>
+          </call>
+        </query>
+      </from>
+      <where>
+        <call function="and">
+          <call function="not in">
+            <column table="a" column="vid_sf">
+            </column>
+            <call function="array">
+              <const>2</const>
+              <const>9</const>
+            </call>
+          </call>
+          <!-- <call function="gt=">
+            <call function="nvl">
+              <column table="a" column="ym_end_dolg"></column>
+              <call function="date to ym">
+                <useparam name="date"/>
+              </call>
+            </call>
+            <call function="date to ym">
+              <useparam name="date"/>
+            </call>
+          </call> -->
+          <usepart part="ext-cond">
+            <const>a</const>
+            <useparam name="kodp_cond">
+            </useparam>
+          </usepart>
+        </call>
+      </where>
+    </query>
+    <query name="s_debet.s_facvip">
+      <params>
+        <param name="date">
+        </param>
+        <param name="kodp_cond">
+        </param>
+      </params>
+      <select>
+        <column table="a" column="kod_deb" group="1" />
+        <column table="a" column="dolg" group="sum" />
+        <column table="a" column="summa" group="sum" />
+        <column table="a" column="datao" group="max" />
+        <column table="a" column="ym_opl" group="max" />
+        <call function="case" as="is_osn_real" type="number" group="max">
+          <call function="when">
+            <call function="=">
+              <column table="a" column="vid_real">
+              </column>
+              <const>2</const>
+            </call>
+            <const>1</const>
+          </call>
+          <call function="else">
+            <const>0</const>
+          </call>
+        </call>
+      </select>
+      <from>
+        <query name="s_facvip" as="a">
+          <withparams>
+            <useparam name="date">
+            </useparam>
+            <useparam name="kodp_cond">
+            </useparam>
+          </withparams>
+        </query>
+      </from>
+    </query>
+  </queries>
+</root>

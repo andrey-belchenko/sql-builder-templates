@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="72418" title="Полезный отпуск по г. Рязань" timestamp="07.08.2024 14:53:45">
+      <usefield field="asuse_dep_single" name="p_dep" mandatory="1" show-checkbox="0" />
+      <usefield field="asuse_year" name="p_year" title="Год" type="number" />
+      <usefield field="asuse_kv_str_list" name="p_kv" title="Квартал" />
+    </form>
+  </forms>
+  <reports>
+    <report name="72418" form="72418" title="19. Полезный отпуск по г. Рязань. " nogrid="1" timestamp="08.08.2024 09:35:01">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="p_dep" type="number" />
+        <param name="p_year" type="number" />
+        <param name="p_kv" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="72418.xlsx" print-proc="2" print-xlsx="1" title="Полезный отпуск по г. Рязань" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[DECLARE
+   p_dep         kr_dogovor.dep%type;
+   p_year        number;
+   p_ym_beg      nv_account.ym%type;
+   p_ym_end      nv_account.ym%type;
+   s_data_id     rr_temp.skod%type;
+BEGIN
+  p_dep        := :p_dep;
+  p_year       := :p_year;
+  p_ym_beg     := p_year + (:p_kv * 3 - 2) / 100;  -- первый месяц квартала периода
+  p_ym_end     := p_year + (:p_kv * 3) / 100;	   -- последний месяц квартала периода	
+  s_data_id    :='{3d8b60b1-6cd0-416a-ac16-8c99c9d294fb}';         
+  
+  DELETE FROM rr_temp WHERE skod = s_data_id;
+  
+  INSERT INTO rr_temp (skod, n1)  
+  SELECT  s_data_id,
+          sum(CASE WHEN (nk_adress_r.get_oktmo_h(CASE WHEN ob.kodd IS NULL OR ob.kodd = -1 THEN d.kod_d_dog ELSE ob.kodd END)) = 61701000001  -- OКТМО г. Рязань
+                  THEN a.cust
+                  ELSE 0 
+              END) as cust
+    FROM nv_account_priem a
+      INNER JOIN kr_dogovor d ON a.kod_dog=d.kod_dog             
+	  INNER JOIN kr_dogovor dp On dp.kod_dog = d.kod_dog_fin                
+      LEFT JOIN kr_numobj no ON no.kod_numobj = a.kod_numobj
+      LEFT JOIN kr_object ob ON ob.kod_obj = no.kod_obj             
+      LEFT JOIN sk_nachisl n ON a.vid_t=n.vid_t
+      LEFT JOIN sk_vid_real vr ON n.vid_real = vr.vid_real
+      LEFT JOIN sk_edizm e ON n.edizm = e.edizm
+   WHERE  a.ym BETWEEN p_ym_beg AND p_ym_end  
+       AND dp.dep = p_dep
+       AND a.price is not null
+       AND vr.pr_osn = 1 -- основная реализация
+       AND e.kod_okei = '245' -- kvth 
+ ; END;]]></procedure>
+      <queries>
+        <query name="72418_data" as="a" />
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="72418_data" title="Запрос для отчета № 19" timestamp="08.08.2024 09:43:16">
+      <select>
+        <call function="nvlu" as="cust">
+          <column table="v" column="n1" type="number" />
+          <const type="number">0</const>
+        </call>
+      </select>
+      <from>
+        <table name="rr_temp" as="v" />
+      </from>
+      <where>
+        <call function="=">
+          <column table="v" column="skod" />
+          <const>'{3d8b60b1-6cd0-416a-ac16-8c99c9d294fb}'</const>
+        </call>
+      </where>
+    </query>
+  </queries>
+</root>

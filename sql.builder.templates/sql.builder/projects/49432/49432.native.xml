@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root timestamp="2025-06-29T01:41:11.0437466+03:00">
+  <customers child-name="customer" key-name="id" />
+  <queries child-name="query" key-name="name">
+    <query name="49432" is-report="1" title="Отчет по ремонтам 49432" visible="0" timestamp="07.09.2018 02:25:51" file="sql.builder.templates\sql.builder\projects\49432\all\query.xml">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <expressions>
+        <call function="and" as="pr_do_2017" dontpushpred="1">
+          <call function="lt">
+            <column table="ipr_kod_dog" column="dat_status_1" />
+            <const>DATE'2017-01-01'</const>
+          </call>
+          <call function="or">
+            <call function="ge">
+              <column table="ipr_kod_dog" column="dat_status_4" />
+              <const>DATE'2017-01-01'</const>
+            </call>
+            <call function="is null">
+              <column table="ipr_kod_dog" column="dat_status_4" />
+            </call>
+          </call>
+        </call>
+        <call function="and" as="pr_v_2017" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="ipr_kod_dog" column="dat_status_1" />
+            </call>
+            <const>2017</const>
+          </call>
+        </call>
+        <call function="and" as="pr_v_2018" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="ipr_kod_dog" column="dat_status_1" />
+            </call>
+            <const>2018</const>
+          </call>
+        </call>
+        <call function="lt" as="pr_akt_do_2017" dontpushpred="1">
+          <column table="is_vip_dog" column="dat_doc" />
+          <const>DATE'2017-01-01'</const>
+        </call>
+        <call function="and" as="pr_akt_v_2017" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="is_vip_dog" column="dat_doc" />
+            </call>
+            <const>2017</const>
+          </call>
+        </call>
+        <call function="and" as="pr_akt_v_2018" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="is_vip_dog" column="dat_doc" />
+            </call>
+            <const>2018</const>
+          </call>
+        </call>
+        <call function="and" as="pr_akt" dontpushpred="1">
+          <call function="=1">
+            <column table="is_vip_dog" column="prizn_r" />
+          </call>
+        </call>
+        <call function="()" type="number" group="sum" as="vip">
+          <fact column="is_vip_dog_vsego" condition="pr_akt" />
+        </call>
+        <call function="()" type="number" group="sum" as="vip_do_2017">
+          <fact column="vip" condition="pr_akt_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="vip_v_2017">
+          <fact column="vip" condition="pr_akt_v_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="vip_v_2018">
+          <fact column="vip" condition="pr_akt_v_2018" />
+        </call>
+        <call function="if" type="number" group="sum" as="sdog_or_vip">
+          <call function="=">
+            <column table="ipr_kod_dog" column="status" />
+            <const>12</const>
+          </call>
+          <fact column="vip" />
+          <fact column="is_period_vsego" />
+        </call>
+        <call function="()" type="number" group="sum" as="f8">
+          <fact column="sdog_or_vip" condition="pr_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f9">
+          <fact column="vip_do_2017" condition="pr_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f11">
+          <fact column="sdog_or_vip" condition="pr_v_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f13">
+          <fact column="vip_v_2017" condition="pr_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f15">
+          <fact column="sdog_or_vip" condition="pr_v_2018" />
+        </call>
+        <call function="()" type="number" group="sum" as="f17">
+          <fact column="vip_v_2018" condition="pr_do_2017" />
+        </call>
+      </expressions>
+      <select>
+        <call function="||" title="Номер статьи сметы" as="ss">
+          <column table="is_spr_smet" column="kod_smet" />
+          <const>' '</const>
+          <column table="is_spr_smet" column="name" as="smet_name" />
+        </call>
+        <column table="ipr_kod_ispolnit" column="name" title="Наименование подразделения заказчика договора" />
+        <column table="ipr_kod_dog" column="name_unig_dog" title="Номер договора" />
+        <column table="e_code" column="name_all" title="Наименование контрагента по договору" />
+        <column table="ipr_kod_dog" column="dat_dog" title="Дата начала договора" />
+        <column table="ipr_kod_dog" column="dat_udal" />
+        <column table="ipr_kod_dog" column="dat_status_1" title="Дата перевода в статус Действующий" />
+        <column table="ipr_kod_dog" column="dat_status_4" title="Дата выполнения договора" />
+        <fact column="f8" title="Сумма действующих договоров на 01.01.2017" />
+        <fact column="f9" title="Сумма выполнения действующих договоров на 01.01.2017" />
+        <call function="-nvl" as="f10" title="Остаток по освоению на 01.01.2017">
+          <column table="this" column="f8" />
+          <column table="this" column="f9" />
+        </call>
+        <fact column="f11" title="Сумма заключенных договоров за 2017 год" />
+        <call function="+nvl" as="f12" title="Сумма к освоению на 31.12.1017">
+          <column table="this" column="f10" />
+          <column table="this" column="f11" />
+        </call>
+        <fact column="f13" title="Сумма выполнения  договоров за 2017" />
+        <call function="-nvl" as="f14" title="Остаток по освоению на 31.12.2017">
+          <column table="this" column="f12" />
+          <column table="this" column="f13" />
+        </call>
+        <fact column="f15" title="Сумма заключенных договоров за 2018 год" />
+        <call function="+nvl" as="f16" title="Сумма к освоению на текущую дату">
+          <column table="this" column="f14" />
+          <column table="this" column="f15" />
+        </call>
+        <fact column="f17" title="Сумма выполнения  договоров за 2018" />
+        <call function="-nvl" as="f18" title="Остаток по освоению на текущую дату">
+          <column table="this" column="f16" />
+          <column table="this" column="f17" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="ipr_kod_dog">
+            <link name="e_code" />
+            <link name="kod_spr_doc" as="s" />
+          </link>
+          <link name="ipr_kod_ispolnit" />
+          <link name="is_spr_smet" />
+          <where>
+            <call function="and">
+              <call function="in">
+                <column table="ipr_kod_ispolnit" column="kod_direct" />
+                <array> 21, 19, 20, 748</array>
+              </call>
+              <call function="in">
+                <column table="is_spr_smet" column="kod_spr_smet" />
+                <array>222, 223, 224</array>
+              </call>
+              <call function="!=nvl">
+                <column table="s" column="not_gur" />
+                <const>1</const>
+              </call>
+              <call function="=1">
+                <column table="s" column="dr" />
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="ipr_kod_dog" column="kod_parent" />
+                </call>
+                <call function="and">
+                  <call function="=0">
+                    <column table="ipr_kod_dog" column="pr_ram_ds" />
+                  </call>
+                  <call function="=1">
+                    <column table="ipr_kod_dog" column="prizn_ram" />
+                  </call>
+                </call>
+              </call>
+              <call function="lt">
+                <column table="ipr_kod_dog" column="dat_status_1" />
+                <const>DATE'2018-09-02'</const>
+              </call>
+              <call function="or">
+                <call function="ge">
+                  <column table="ipr_kod_dog" column="dat_status_4" />
+                  <const>DATE'2017-01-01'</const>
+                </call>
+                <call function="is null">
+                  <column table="ipr_kod_dog" column="dat_status_4" />
+                </call>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+    <query name="49432-ip" is-report="1" title="Отчет по титулам 49432" visible="0" timestamp="07.09.2018 03:48:06" file="sql.builder.templates\sql.builder\projects\49432\all\query.xml">
+      <customers>
+        <customer id="17" />
+      </customers>
+      <expressions>
+        <call function="and" as="pr_do_2017" dontpushpred="1">
+          <call function="lt">
+            <column table="ipr_kod_dog" column="dat_status_1" />
+            <const>DATE'2017-01-01'</const>
+          </call>
+          <call function="or">
+            <call function="ge">
+              <column table="ipr_kod_dog" column="dat_status_4" />
+              <const>DATE'2017-01-01'</const>
+            </call>
+            <call function="is null">
+              <column table="ipr_kod_dog" column="dat_status_4" />
+            </call>
+          </call>
+        </call>
+        <call function="and" as="pr_v_2017" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="ipr_kod_dog" column="dat_status_1" />
+            </call>
+            <const>2017</const>
+          </call>
+        </call>
+        <call function="and" as="pr_v_2018" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="ipr_kod_dog" column="dat_status_1" />
+            </call>
+            <const>2018</const>
+          </call>
+        </call>
+        <call function="lt" as="pr_akt_do_2017" dontpushpred="1">
+          <column table="is_vip_dog" column="dat_doc" />
+          <const>DATE'2017-01-01'</const>
+        </call>
+        <call function="and" as="pr_akt_v_2017" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="is_vip_dog" column="dat_doc" />
+            </call>
+            <const>2017</const>
+          </call>
+        </call>
+        <call function="and" as="pr_akt_v_2018" dontpushpred="1">
+          <call function="=">
+            <call function="year">
+              <column table="is_vip_dog" column="dat_doc" />
+            </call>
+            <const>2018</const>
+          </call>
+        </call>
+        <call function="and" as="pr_akt" dontpushpred="1">
+          <call function="=1">
+            <column table="is_vip_dog" column="prizn_r" />
+          </call>
+        </call>
+        <call function="()" type="number" group="sum" as="vip">
+          <fact column="is_vip_dog_vsego" condition="pr_akt" />
+        </call>
+        <call function="()" type="number" group="sum" as="vip_do_2017">
+          <fact column="vip" condition="pr_akt_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="vip_v_2017">
+          <fact column="vip" condition="pr_akt_v_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="vip_v_2018">
+          <fact column="vip" condition="pr_akt_v_2018" />
+        </call>
+        <call function="if" type="number" group="sum" as="sdog_or_vip">
+          <call function="=">
+            <column table="ipr_kod_dog" column="status" />
+            <const>12</const>
+          </call>
+          <fact column="vip" />
+          <fact column="is_period_vsego" />
+        </call>
+        <call function="()" type="number" group="sum" as="f8">
+          <fact column="sdog_or_vip" condition="pr_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f9">
+          <fact column="vip_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f11">
+          <fact column="sdog_or_vip" condition="pr_v_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f13">
+          <fact column="vip_v_2017" condition="pr_do_2017" />
+        </call>
+        <call function="()" type="number" group="sum" as="f15">
+          <fact column="sdog_or_vip" condition="pr_v_2018" />
+        </call>
+        <call function="()" type="number" group="sum" as="f17">
+          <fact column="vip_v_2018" condition="pr_do_2017" />
+        </call>
+      </expressions>
+      <select>
+        <call function="rownum" as="id" key="1" />
+        <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+        <column table="ipr_kod_titul_ip" column="tit_num_new" />
+        <column table="ipr_kod_dog" column="name_unig_dog" title="Номер договора" />
+        <column table="e_code" column="name_all" title="Наименование контрагента по договору" />
+        <column table="ipr_kod_dog" column="dat_dog" title="Дата начала договора" />
+        <column table="ipr_kod_dog" column="dat_udal" />
+        <column table="ipr_kod_dog" column="dat_status_1" title="Дата перевода в статус Действующий" />
+        <column table="ipr_kod_dog" column="dat_status_4" title="Дата выполнения договора" />
+        <fact column="f8" title="Сумма действующих договоров на 01.01.2017" />
+        <fact column="f9" title="Сумма выполнения действующих договоров на 01.01.2017" />
+        <call function="-nvl" as="f10" title="Остаток по освоению на 01.01.2017">
+          <column table="this" column="f8" />
+          <column table="this" column="f9" />
+        </call>
+        <fact column="f11" title="Сумма заключенных договоров за 2017 год" />
+        <call function="+nvl" as="f12" title="Сумма к освоению на 31.12.1017">
+          <column table="this" column="f10" />
+          <column table="this" column="f11" />
+        </call>
+        <fact column="f13" title="Сумма выполнения  договоров за 2017" />
+        <call function="-nvl" as="f14" title="Остаток по освоению на 31.12.2017">
+          <column table="this" column="f12" />
+          <column table="this" column="f13" />
+        </call>
+        <fact column="f15" title="Сумма заключенных договоров за 2018 год" />
+        <call function="+nvl" as="f16" title="Сумма к освоению на текущую дату">
+          <column table="this" column="f14" />
+          <column table="this" column="f15" />
+        </call>
+        <fact column="f17" title="Сумма выполнения  договоров за 2018" />
+        <call function="-nvl" as="f18" title="Остаток по освоению на текущую дату">
+          <column table="this" column="f16" />
+          <column table="this" column="f17" />
+        </call>
+      </select>
+      <from>
+        <qube star-scheme="1">
+          <link name="ipr_kod_dog">
+            <link name="e_code" />
+            <link name="kod_spr_doc" as="s" />
+          </link>
+          <link name="ipr_kod_titul_ip" />
+          <where>
+            <call function="and">
+              <call function="=" exclude="1">
+                <column table="ipr_kod_dog" column="name_unig_dog" />
+                <const>'07-2151'</const>
+              </call>
+              <call function="in" exclude="1">
+                <column table="ipr_kod_ispolnit" column="kod_direct" />
+                <array> 21, 19, 20, 748</array>
+              </call>
+              <call function="=">
+                <call function="nvl">
+                  <column table="ipr_kod_titul_ip" column="kod_subject" />
+                  <const>0</const>
+                </call>
+                <const>0</const>
+              </call>
+              <call function="is not null">
+                <column table="ipr_kod_titul_ip" column="kod_titul_ip" />
+              </call>
+              <call function="!=nvl">
+                <column table="s" column="not_gur" />
+                <const>1</const>
+              </call>
+              <call function="=1">
+                <column table="s" column="dr" />
+              </call>
+              <call function="or">
+                <call function="is null">
+                  <column table="ipr_kod_dog" column="kod_parent" />
+                </call>
+                <call function="and">
+                  <call function="=0">
+                    <column table="ipr_kod_dog" column="pr_ram_ds" />
+                  </call>
+                  <call function="=1">
+                    <column table="ipr_kod_dog" column="prizn_ram" />
+                  </call>
+                </call>
+              </call>
+              <call function="lt">
+                <column table="ipr_kod_dog" column="dat_status_1" />
+                <const>DATE'2018-09-02'</const>
+              </call>
+              <call function="or">
+                <call function="ge">
+                  <column table="ipr_kod_dog" column="dat_status_4" />
+                  <const>DATE'2017-01-01'</const>
+                </call>
+                <call function="is null">
+                  <column table="ipr_kod_dog" column="dat_status_4" />
+                </call>
+              </call>
+            </call>
+          </where>
+        </qube>
+      </from>
+    </query>
+  </queries>
+  <functions child-name="function" key-name="name" />
+  <parts child-name="part" key-name="id" />
+  <views child-name="view" key-name="id" />
+  <reports child-name="report" key-name="name" />
+  <forms child-name="form" key-name="name" />
+  <datatypes />
+  <editors />
+  <folders />
+  <globalparams child-name="param" key-name="name" />
+  <!--<globalconsts child-name="globalconst" key-name="name">
+  </globalconsts>-->
+  <expression-packages child-name="expression-package" key-name="name" />
+  <dimension-packages child-name="dimension-package" key-name="name" />
+  <security-packages child-name="security-package" key-name="name" />
+  <color-packages child-name="color-package" key-name="name" />
+  <format-packages child-name="format-package" key-name="name" />
+  <button-types child-name="button-type" key-name="name" />
+  <!--раздел qlikview организовать по аналогии с остальными вместо qlikview/customer/@id   дать имена   qwprojects/qwproject/@customer-->
+  <qvprojects />
+  <!--<images>
+    <image char="" name="link" />
+    <image char="" name="dlink" rotate-flip="RotateNoneFlipY"/>
+    <image char="" name="call"/>
+    <image char="" name="column"/>
+  </images>
+  <eltypes>
+    <eltype  name="vcall" image="call"/>
+    <eltype  name="vlink" image="link"/>
+    <eltype  name="vdink" image="dlink"/>
+    <eltype  name="vcolumn" image="column"/>
+  </eltypes>-->
+  <fields child-name="field" key-name="id" />
+  <actions child-name="action" key-name="name" />
+  <navigators child-name="navigator" key-name="name" />
+  <projects child-name="project" key-name="name" />
+</root>

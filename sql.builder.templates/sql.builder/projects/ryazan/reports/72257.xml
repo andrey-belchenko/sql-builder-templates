@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <forms>
+    <form name="72257" title="Отчет по корректировкам в разрезе счетов-фактур" timestamp="24.07.2024 16:43:10">
+      <usefield field="asuse_dep_single" name="p_dep" mandatory="1" show-checkbox="0" />
+      <usefield field="asuse_ym_tek_dep" name="p_ym" mandatory="1" title="Период" show-checkbox="0" />
+    </form>
+  </forms>
+  <reports>
+    <report name="72257" form="72257" title="28. Отчет по корректировкам в разрезе счетов-фактур" nogrid="1" timestamp="19.08.2024 00:07:55">
+      <customers>
+        <customer id="310" />
+      </customers>
+      <params>
+        <param name="p_ym" type="number" />
+        <param name="p_dep" type="number" />
+      </params>
+      <print-templates>
+        <excel>
+          <template name="72257.xlsx" print-proc="2" print-xlsx="1" title="Отчет по корректировкам в разрезе счетов-фактур" />
+        </excel>
+      </print-templates>
+      <procedure><![CDATA[begin
+    delete vr_number_array;
+  
+  kg_rep_dog.dog_orem(:p_ym,1);  -- заполняем vr_number_array kod_dog с ОРЭМ
+   kg_rep_dog.dog_adjustment(:p_ym,2);  --   оставляем в vr_number_array только договоры с корректировкой 
+ 
+
+  insert into vr_number_array (array_id,val) values ('p_dep',:p_dep);
+  
+   kg_rep_dog.dog_short;
+ 
+sg_rep_dz_kz.corrective_invoice_per_period (:p_ym, :p_ym);
+ 
+
+
+end;]]></procedure>
+      <queries>
+        <query name="72257_data" as="a" />
+        <query name="title_info" as="title">
+          <withparams>
+            <useparam name="p_ym" />
+            <useparam name="p_ym" />
+            <useparam name="p_dep" />
+          </withparams>
+        </query>
+      </queries>
+    </report>
+  </reports>
+  <queries>
+    <query name="72257_data" timestamp="14.08.2024 23:31:23">
+      <select>
+        <column table="c" column="ym" type="number" nvl="0" as="ym" />
+        <call function="mes-name" type="string" as="month" group="max">
+          <call function="mes">
+            <column name="p_ym" table="c" column="ym" />
+          </call>
+        </call>
+        <call function="year" as="year" type="number" group="max">
+          <call function="ym end time">
+            <column name="p_ym" table="c" column="ym" />
+          </call>
+        </call>
+        <column table="c" column="kod_dog" type="number" as="kod_dog" />
+        <column table="c" column="kod_sf" type="number" as="kod_sf" />
+        <column table="d" column="ndog" type="string" group="max" />
+        <column table="d" column="payer_name" type="string" group="max" />
+        <column table="c" column="dat_sf" type="date" group="max" />
+        <column table="c" column="nom_sf" type="string" group="max" />
+        <column table="c" column="nachisl" group="sum" type="number" nvl="0" />
+        <column table="c" column="nal" group="sum" type="number" nvl="0" />
+        <column table="c" column="nachisl_re" group="sum" type="number" nvl="0" />
+        <column table="c" column="nal_re" group="sum" type="number" nvl="0" />
+      </select>
+      <from>
+        <query name="rr_rep_dz_kz" as="c" />
+        <query name="rr_rep_dog" as="d" join="inner">
+          <call function="=">
+            <column table="c" column="kod_dog" />
+            <column table="d" column="kod_dog" />
+          </call>
+        </query>
+      </from>
+      <grouping>
+        <grset as="itog" />
+        <grset order="ym" as="ym">
+          <group>
+            <column table="this" column="ym" type="number" />
+          </group>
+          <grset order="ndog" as="dog">
+            <group>
+              <column table="this" column="kod_dog" type="number" />
+            </group>
+            <grset order="nom_sf" as="sf">
+              <group>
+                <column table="this" column="kod_sf" type="number" />
+              </group>
+            </grset>
+          </grset>
+        </grset>
+      </grouping>
+    </query>
+  </queries>
+</root>
